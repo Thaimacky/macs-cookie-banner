@@ -9,6 +9,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+require_once LSCC_PLUGIN_DIR . 'includes/privacy-check.php';
+
 /**
  * Admin settings controller.
  */
@@ -29,12 +31,32 @@ final class Light_Swiss_Cookie_Consent_Admin {
 	 * @return void
 	 */
 	public static function add_settings_page() {
-		add_options_page(
+		add_menu_page(
 			esc_html__( 'Light Swiss Cookie Consent', 'light-swiss-cookie-consent' ),
 			esc_html__( 'Light Swiss Cookie Consent', 'light-swiss-cookie-consent' ),
 			'manage_options',
 			'light-swiss-cookie-consent',
+			array( __CLASS__, 'render_settings_page' ),
+			'dashicons-shield-alt',
+			81
+		);
+
+		add_submenu_page(
+			'light-swiss-cookie-consent',
+			esc_html__( 'Einstellungen', 'light-swiss-cookie-consent' ),
+			esc_html__( 'Einstellungen', 'light-swiss-cookie-consent' ),
+			'manage_options',
+			'light-swiss-cookie-consent',
 			array( __CLASS__, 'render_settings_page' )
+		);
+
+		add_submenu_page(
+			'light-swiss-cookie-consent',
+			esc_html__( 'Privacy Check', 'light-swiss-cookie-consent' ),
+			esc_html__( 'Privacy Check', 'light-swiss-cookie-consent' ),
+			'manage_options',
+			'light-swiss-cookie-consent-privacy-check',
+			array( 'Light_Swiss_Cookie_Consent_Privacy_Check', 'render_page' )
 		);
 	}
 
@@ -65,7 +87,7 @@ final class Light_Swiss_Cookie_Consent_Admin {
 					'page'    => 'light-swiss-cookie-consent',
 					'updated' => 'true',
 				),
-				admin_url( 'options-general.php' )
+				admin_url( 'admin.php' )
 			)
 		);
 		exit;

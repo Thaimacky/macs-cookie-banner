@@ -109,3 +109,75 @@ msgstr ""
 
 msgid "Einstellungen speichern"
 msgstr ""
+
+msgid "Privacy Check"
+msgstr ""
+
+msgid "Gepruefte Startseite: %s"
+msgstr ""
+
+msgid "Nur diese einzelne URL wird geprueft. Es findet kein Crawl statt."
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Problem"
+msgstr ""
+
+msgid "Empfehlung"
+msgstr ""
+
+msgid "Startseite konnte nicht geprueft werden."
+msgstr ""
+
+msgid "Bitte pruefen Sie die Seite manuell oder starten Sie den Check spaeter erneut."
+msgstr ""
+
+msgid "Startseite lieferte keine pruefbare Ausgabe."
+msgstr ""
+
+msgid "Bitte pruefen Sie die eingebundenen externen Dienste manuell."
+msgstr ""
+
+msgid "Keine der einfachen Privacy-Check-Muster gefunden."
+msgstr ""
+
+msgid "Pruefen Sie externe Dienste trotzdem manuell, besonders eingebettete Medien, Tracking und Fonts."
+msgstr ""
+
+msgid "Externe Google Fonts erkannt."
+msgstr ""
+
+msgid "Fonts lokal hosten oder ohne externe Google-Requests einbinden."
+msgstr ""
+
+msgid "Google Analytics oder Google Tag Manager erkannt."
+msgstr ""
+
+msgid "Nur nach Zustimmung laden und korrekt einer Consent-Kategorie zuordnen."
+msgstr ""
+
+msgid "Facebook-Script oder Meta-Dienst erkannt."
+msgstr ""
+
+msgid "Nur nach Zustimmung laden und Marketing-Scripts bewusst blockieren."
+msgstr ""
+
+msgid "YouTube-Inhalte oder YouTube-Links erkannt."
+msgstr ""
+
+msgid "Externe Medien erst nach Zustimmung laden oder datenschutzfreundliche Einbettung pruefen."
+msgstr ""
+
+msgid "Vimeo-Inhalte oder Vimeo-Links erkannt."
+msgstr ""
+
+msgid "Kritisch"
+msgstr ""
+
+msgid "Wichtig"
+msgstr ""
+
+msgid "Info"
+msgstr ""

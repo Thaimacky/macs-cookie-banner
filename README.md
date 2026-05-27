@@ -48,7 +48,7 @@ Falls ein Skript als Modul geladen werden soll:
 
 ## Admin-Einstellungen
 
-Unter `Einstellungen > Light Swiss Cookie Consent` koennen Texte und Farben gepflegt werden.
+Unter `Light Swiss Cookie Consent > Einstellungen` koennen Texte und Farben gepflegt werden.
 
 Einstellbare Farben:
 
@@ -93,7 +93,7 @@ Wenn `LSCC_DEBUG` auf `true` gesetzt wird, darf das Frontend minimale `console.l
 
 1. Den Ordner `light-swiss-cookie-consent` nach `wp-content/plugins/` kopieren.
 2. Das Plugin in WordPress aktivieren.
-3. Unter `Einstellungen > Light Swiss Cookie Consent` die Darstellung anpassen.
+3. Unter `Light Swiss Cookie Consent > Einstellungen` die Darstellung anpassen.
 
 ## Technische Basis
 

@@ -27,6 +27,11 @@
 - [ ] WPML-String-Registrierung in Testumgebung pruefen.
 - [ ] Polylang-String-Registrierung in Testumgebung pruefen.
 - [ ] Sprachdateien bei Bedarf aus `.po` nach `.mo` kompilieren.
+- [ ] Privacy Check im Admin oeffnen.
+- [ ] Privacy Check mit Google Fonts auf einer Testseite pruefen.
+- [ ] Privacy Check mit YouTube/Vimeo auf einer Testseite pruefen.
+- [ ] Privacy Check mit Google Analytics oder Google Tag Manager auf einer Testseite pruefen.
+- [ ] Privacy Check bestaetigt nur Hinweise und veraendert keine Inhalte.
 
 ## Nicht Teil von 0.1.0
 
