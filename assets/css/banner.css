@@ -188,13 +188,65 @@
 
 .lscc-reopen {
 	position: fixed;
-	right: 16px;
-	bottom: 16px;
 	z-index: 99998;
 	background: var(--lscc-bg);
 	border-color: var(--lscc-border);
 	color: var(--lscc-text);
 	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+}
+
+.lscc-reopen[data-position="bottom-right"] {
+	right: var(--lscc-reopen-ox);
+	bottom: var(--lscc-reopen-oy);
+}
+
+.lscc-reopen[data-position="bottom-left"] {
+	left: var(--lscc-reopen-ox);
+	bottom: var(--lscc-reopen-oy);
+}
+
+.lscc-reopen[data-position="top-right"] {
+	right: var(--lscc-reopen-ox);
+	top: var(--lscc-reopen-oy);
+}
+
+.lscc-reopen[data-position="top-left"] {
+	left: var(--lscc-reopen-ox);
+	top: var(--lscc-reopen-oy);
+}
+
+.lscc-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 99997;
+	background: var(--lscc-overlay-bg);
+	pointer-events: none;
+}
+
+.lscc-overlay[hidden] {
+	display: none !important;
+}
+
+.lscc-overlay--blur {
+	backdrop-filter: blur(var(--lscc-blur));
+	-webkit-backdrop-filter: blur(var(--lscc-blur));
+}
+
+.lscc__legal {
+	grid-column: 1 / -1;
+	margin-top: 12px;
+	font-size: 12px;
+	line-height: 1.4;
+	opacity: 0.75;
+}
+
+.lscc__legal-link {
+	color: var(--lscc-text);
+	text-decoration: underline;
+}
+
+.lscc__legal-link + .lscc__legal-link {
+	margin-left: 14px;
 }
 
 .lscc-settings-button {
@@ -310,8 +362,8 @@
 	}
 
 	.lscc-reopen {
-		right: 10px;
-		bottom: 10px;
+		--lscc-reopen-ox: 10px;
+		--lscc-reopen-oy: 10px;
 		max-width: calc(100vw - 20px);
 	}
 

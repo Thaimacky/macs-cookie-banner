@@ -40,6 +40,42 @@
 - [ ] Google Maps laedt erst nach Zustimmung zu externen Medien.
 - [ ] Consent fuer externe Medien bleibt nach Reload erhalten.
 - [ ] Responsive Verhalten der Service-Komponenten pruefen.
+- [ ] Settings-Modus im Banner zeigt unten nur den Button `Auswahl speichern`.
+- [ ] Keine doppelten `Alle akzeptieren`- oder `Nur notwendige`-Buttons im Settings-Modus.
+- [ ] Privacy Check: Button `Content Scan starten` startet einen lokalen Scan.
+- [ ] Content Scan findet eine YouTube-URL in einem Testbeitrag.
+- [ ] Content Scan zeigt einen funktionierenden Bearbeiten-Link auf den Beitrag.
+- [ ] Content Scan veraendert keine Beitrags-Inhalte und blockiert nichts automatisch.
+- [ ] Content Scan macht keine externen HTTP-Requests (Netzwerk-Monitor leer).
+- [ ] Content Scan beruecksichtigt `post`, `page` und mindestens einen public Custom Post Type.
+- [ ] Content Scan respektiert die Begrenzung auf 200 Inhalte.
+- [ ] Overlay erscheint, wenn `Overlay aktivieren` an ist UND das Banner sichtbar ist.
+- [ ] Overlay verschwindet sofort nach Consent.
+- [ ] Overlay blockiert keine Klicks und keinen Scroll auf der Seite.
+- [ ] `Blur aktivieren` aus: kein `backdrop-filter` aktiv; visueller Vergleich.
+- [ ] `Blur-Stärke` Default 4 fühlt sich auf Mobile flüssig an (keine spürbaren Janks).
+- [ ] Reopen-Button erscheint nach Consent an der gewählten Position (`bottom-right`, `bottom-left`, `top-right`, `top-left`).
+- [ ] `Offset X` / `Offset Y` werden 1:1 als px angewendet.
+- [ ] Auf Mobile (< 420 px) verkleinert sich der Offset automatisch auf 10 px.
+- [ ] Privacy-URL = WordPress-Privacy-Policy, wenn Override leer.
+- [ ] Manueller `Datenschutz-URL`-Override hat Vorrang.
+- [ ] Auto-Erkennung Impressum findet typische Slugs (`impressum`, `datenschutz-und-impressum`, ...) im Admin.
+- [ ] Auto-Erkennung Impressum schreibt das Ergebnis als Transient `lscc_detected_imprint_url`.
+- [ ] Frontend führt keine eigenen Imprint-Lookups aus (Netzwerk- und SQL-Monitor prüfen).
+- [ ] Bei identischer Datenschutz-/Impressum-URL erscheint nur ein Link „Datenschutz & Impressum".
+- [ ] Keine leeren Links, wenn beide URLs fehlen.
+- [ ] Im Settings-Modus sind oben `Alle akzeptieren` und `Nur notwendige` weiterhin sichtbar.
+- [ ] Im Settings-Modus ist der `Einstellungen`-Button oben ausgeblendet.
+- [ ] Lighthouse Performance ohne aktiviertes Plugin vs. mit aktiviertem Plugin: keine signifikante Verschlechterung auf einer leeren WordPress-Seite.
+- [ ] **Fresh-Install-Test (Inkognito-Fenster, neu geöffnet):** Banner erscheint, Reopen-Button ist versteckt.
+- [ ] **Upgrade-Test (Browser hatte v1-Consent aus v0.1.0 – v0.1.4):** Banner erscheint erneut, alter Consent wird durch `LSCC_CONSENT_VERSION = 2` invalidiert.
+- [ ] Nach „Alle akzeptieren": Banner verschwindet, Reopen-Button erscheint, `lscc_consent`-Cookie enthält `version: 2` und ein `expiresAt`.
+- [ ] Ctrl+F5 / Hard-Reload löscht den gespeicherten Consent nicht.
+- [ ] Plugin-Deinstallation löscht den Browser-Storage nicht (Cookie + localStorage bleiben).
+- [ ] Admin-Wert `Consent-Gültigkeit (Tage)` ist clamped auf 1 – 365.
+- [ ] Wenn der Admin die `Consent-Gültigkeit` von 180 auf z. B. 1 reduziert, gelten existierende Consents (älter als 1 Tag) sofort als ungültig und das Banner erscheint erneut.
+- [ ] Reopen-Button ist nicht sichtbar, wenn kein gültiger Consent vorhanden ist (auch nicht bei Browser ohne JS-Init).
+- [ ] Nach Aktivierung der neuen Version sind die Defaults `overlay_enabled`, `blur_enabled`, `show_legal_links` jeweils `true` — auch wenn vorher eine alte Plugin-Version installiert war.
 
 ## Nicht Teil von 0.1.0
 

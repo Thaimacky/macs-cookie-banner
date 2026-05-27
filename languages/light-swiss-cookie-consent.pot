@@ -11,9 +11,6 @@ msgstr ""
 msgid "Cookie-Einstellungen"
 msgstr ""
 
-msgid "Wir verwenden notwendige Cookies, damit diese Website funktioniert. Statistik, Marketing und externe Medien werden erst nach Ihrer Zustimmung geladen."
-msgstr ""
-
 msgid "Alle akzeptieren"
 msgstr ""
 
@@ -29,7 +26,7 @@ msgstr ""
 msgid "Notwendig"
 msgstr ""
 
-msgid "Erforderlich fuer Grundfunktionen der Website."
+msgid "Erforderlich für Grundfunktionen der Website."
 msgstr ""
 
 msgid "Statistik"
@@ -47,7 +44,7 @@ msgstr ""
 msgid "Externe Medien"
 msgstr ""
 
-msgid "Laedt eingebettete Inhalte von externen Plattformen."
+msgid "Lädt eingebettete Inhalte von externen Plattformen."
 msgstr ""
 
 msgid "Light Swiss Cookie Consent"
@@ -56,7 +53,7 @@ msgstr ""
 msgid "Sie haben keine Berechtigung, diese Einstellungen zu speichern."
 msgstr ""
 
-msgid "Ungueltige Sicherheitspruefung."
+msgid "Ungültige Sicherheitsprüfung."
 msgstr ""
 
 msgid "Einstellungen gespeichert."
@@ -95,13 +92,13 @@ msgstr ""
 msgid "Text"
 msgstr ""
 
-msgid "Primaerbutton"
+msgid "Primärbutton"
 msgstr ""
 
-msgid "Primaerbutton Text"
+msgid "Primärbutton Text"
 msgstr ""
 
-msgid "Sekundaerbutton"
+msgid "Sekundärbutton"
 msgstr ""
 
 msgid "Rahmenfarbe"
@@ -113,10 +110,10 @@ msgstr ""
 msgid "Privacy Check"
 msgstr ""
 
-msgid "Gepruefte Startseite: %s"
+msgid "Geprüfte Startseite: %s"
 msgstr ""
 
-msgid "Nur diese einzelne URL wird geprueft. Es findet kein Crawl statt."
+msgid "Nur diese einzelne URL wird geprüft. Es findet kein Crawl statt."
 msgstr ""
 
 msgid "Status"
@@ -128,22 +125,22 @@ msgstr ""
 msgid "Empfehlung"
 msgstr ""
 
-msgid "Startseite konnte nicht geprueft werden."
+msgid "Startseite konnte nicht geprüft werden."
 msgstr ""
 
-msgid "Bitte pruefen Sie die Seite manuell oder starten Sie den Check spaeter erneut."
+msgid "Bitte prüfen Sie die Seite manuell oder starten Sie den Check später erneut."
 msgstr ""
 
-msgid "Startseite lieferte keine pruefbare Ausgabe."
+msgid "Startseite lieferte keine prüfbare Ausgabe."
 msgstr ""
 
-msgid "Bitte pruefen Sie die eingebundenen externen Dienste manuell."
+msgid "Bitte prüfen Sie die eingebundenen externen Dienste manuell."
 msgstr ""
 
 msgid "Keine der einfachen Privacy-Check-Muster gefunden."
 msgstr ""
 
-msgid "Pruefen Sie externe Dienste trotzdem manuell, besonders eingebettete Medien, Tracking und Fonts."
+msgid "Prüfen Sie externe Dienste trotzdem manuell, besonders eingebettete Medien, Tracking und Fonts."
 msgstr ""
 
 msgid "Externe Google Fonts erkannt."
@@ -167,7 +164,7 @@ msgstr ""
 msgid "YouTube-Inhalte oder YouTube-Links erkannt."
 msgstr ""
 
-msgid "Externe Medien erst nach Zustimmung laden oder datenschutzfreundliche Einbettung pruefen."
+msgid "Externe Medien erst nach Zustimmung laden oder datenschutzfreundliche Einbettung prüfen."
 msgstr ""
 
 msgid "Vimeo-Inhalte oder Vimeo-Links erkannt."
@@ -201,4 +198,154 @@ msgid "Diese Google-Maps-Karte wird erst nach Zustimmung zu externen Medien gela
 msgstr ""
 
 msgid "Externe Medien akzeptieren"
+msgstr ""
+
+msgid "Startseiten-Prüfung"
+msgstr ""
+
+msgid "Content Scan"
+msgstr ""
+
+msgid "Lokale Suche in veröffentlichten Beiträgen, Seiten und öffentlichen Custom Post Types (maximal 200 Inhalte pro Scan) nach bekannten externen Diensten. Kein Crawl, keine externen Requests, kein automatischer Scan."
+msgstr ""
+
+msgid "Content Scan starten"
+msgstr ""
+
+msgid "Geprüft: %1$d Inhalte. Treffer: %2$d."
+msgstr ""
+
+msgid "Keine bekannten externen Embeds in den geprüften Inhalten gefunden."
+msgstr ""
+
+msgid "Risiko"
+msgstr ""
+
+msgid "Dienst"
+msgstr ""
+
+msgid "Inhaltstyp"
+msgstr ""
+
+msgid "Titel"
+msgstr ""
+
+msgid "Domain"
+msgstr ""
+
+msgid "Beitrag"
+msgstr ""
+
+msgid "Seite"
+msgstr ""
+
+msgid "YouTube"
+msgstr ""
+
+msgid "Vimeo"
+msgstr ""
+
+msgid "Google Tag Manager"
+msgstr ""
+
+msgid "Google Analytics"
+msgstr ""
+
+msgid "Facebook / Meta"
+msgstr ""
+
+msgid "Normales WordPress-YouTube-Embed gefunden. Für consent-sichere Einbettung [lscc_youtube id=\"VIDEO_ID\"] verwenden."
+msgstr ""
+
+msgid "[lscc_vimeo id=\"VIDEO_ID\"] verwenden."
+msgstr ""
+
+msgid "[lscc_google_map url=\"...\"] verwenden."
+msgstr ""
+
+msgid "Fonts lokal hosten oder im Theme/Builder deaktivieren."
+msgstr ""
+
+msgid "Vor Consent blockieren oder über kontrollierte Script-Kategorie einbinden."
+msgstr ""
+
+msgid "Datenschutz"
+msgstr ""
+
+msgid "Impressum"
+msgstr ""
+
+msgid "Datenschutz & Impressum"
+msgstr ""
+
+msgid "Overlay & Blur"
+msgstr ""
+
+msgid "Overlay aktivieren"
+msgstr ""
+
+msgid "Overlay-Farbe"
+msgstr ""
+
+msgid "Overlay-Deckkraft (0.0 - 1.0)"
+msgstr ""
+
+msgid "Blur aktivieren"
+msgstr ""
+
+msgid "Blur-Stärke (0 - 20 px)"
+msgstr ""
+
+msgid "Floating-Button"
+msgstr ""
+
+msgid "Position"
+msgstr ""
+
+msgid "Unten rechts"
+msgstr ""
+
+msgid "Unten links"
+msgstr ""
+
+msgid "Oben rechts"
+msgstr ""
+
+msgid "Oben links"
+msgstr ""
+
+msgid "Offset X (px)"
+msgstr ""
+
+msgid "Offset Y (px)"
+msgstr ""
+
+msgid "Rechtliche Links"
+msgstr ""
+
+msgid "Rechtliche Links im Banner anzeigen"
+msgstr ""
+
+msgid "Datenschutz-URL (manuell, überschreibt Auto-Erkennung)"
+msgstr ""
+
+msgid "Impressum-URL (manuell, überschreibt Auto-Erkennung)"
+msgstr ""
+
+msgid "Auto-erkannte Impressum-URL"
+msgstr ""
+
+msgid "Nicht gefunden. Manuelles Feld nutzen."
+msgstr ""
+
+msgid "Erkannt über typische Seiten-Slugs und -Titel. Lokale Suche im Admin, keine Frontend-Crawls. Cache: 24 Stunden."
+msgstr ""
+
+msgid "Consent-Speicherung"
+msgstr ""
+
+msgid "Consent-Gültigkeit (Tage)"
+msgstr ""
+
+msgid "Default: 180 Tage. Erlaubt: 1 – 365. Ein kürzerer Wert (z. B. 60) lässt das Banner früher wieder erscheinen. Der Consent wird im Browser des Besuchers gespeichert (localStorage + Cookie); ein Plugin-Update oder eine Plugin-Deinstallation löscht diesen Browser-Speicher nicht automatisch. Bei strukturellen Änderungen wird stattdessen die Konstante LSCC_CONSENT_VERSION erhöht."
 msgstr ""

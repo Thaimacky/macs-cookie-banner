@@ -2,7 +2,7 @@
 
 ## Pflichtlektuere und Vorrangs-Quelle
 
-Vor jeder Analyse, jedem Patch und jeder Architekturaenderung gilt die Datei `CLAUDE_CONTINUITY_MASTER.md` im selben Plugin-Ordner als verpflichtende Lektuere. Sie hat Vorrang bei:
+Vor jeder Analyse, jedem Patch und jeder Architekturaenderung gilt die Datei `MASTER_HANDBUCH.md` im selben Plugin-Ordner als verpflichtende Lektuere. Sie hat Vorrang bei:
 
 - Architekturentscheidungen
 - Scope-Kontrolle

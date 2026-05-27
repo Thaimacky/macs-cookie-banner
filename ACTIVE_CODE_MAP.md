@@ -19,7 +19,8 @@ Diese Karte beschreibt die aktiven Dateien, ihre Zustaendigkeiten und die wichti
 
 **Konstanten:**
 
-- `LSCC_VERSION` (`0.1.0`)
+- `LSCC_VERSION` (ab 0.1.5: `'0.1.5'`) — Plugin-Versionsstring
+- `LSCC_CONSENT_VERSION` (ab 0.1.5: `2`) — Schema-Version des gespeicherten Consents; getrennt von `LSCC_VERSION`, wird nur bei strukturellen Änderungen erhöht und invalidiert dann clientseitige Consents älterer Schema-Versionen
 - `LSCC_PLUGIN_FILE`, `LSCC_PLUGIN_DIR`, `LSCC_PLUGIN_URL`
 - `LSCC_DEBUG` (Default `false`, kann via `wp-config.php` ueberschrieben werden)
 
@@ -30,7 +31,41 @@ Diese Karte beschreibt die aktiven Dateien, ihre Zustaendigkeiten und die wichti
 - `init()` registriert Hooks und laedt Subklassen
 - `load_textdomain()` — Hook `plugins_loaded`
 - `register_wpml_strings()` — Hook `init`, ruft `do_action( 'wpml_register_single_string', ... )` und `pll_register_string()` fuer alle Banner-Texte
-- `get_default_options()` — Defaults fuer Texte und Hex-Farben
+- `get_default_options()` — Defaults fuer Texte und Hex-Farben; der `banner_text`-Default kommt aus `get_neutral_banner_text()`
+- `get_neutral_banner_text()` — liest aktuellen Locale via `determine_locale()` (Fallback `get_locale()`) und delegiert an `resolve_neutral_banner_text_for_locale()`
+- `resolve_neutral_banner_text_for_locale( $locale )` — extrahiert Sprachpräfix und liest passenden Eintrag aus `get_neutral_banner_text_table()`; fällt bei unbekannten Sprachen auf Englisch zurück
+- `extract_language_prefix( $locale )` — robuster Helper, akzeptiert `de_CH`, `de-CH`, `de_DE`, `de_AT`, `en_GB`, `pt_BR` und ähnliche Varianten und liefert den 2- bis 3-Buchstaben-Sprachcode in Kleinbuchstaben
+- `get_neutral_banner_text_table()` — neutrale Default-Banner-Texte je Sprachpräfix (`de`, `en`, `fr`, `it`, `tr`, `hu`); UTF-8 mit echten Umlauten und diakritischen Zeichen
+- `get_bool_option_keys()`, `get_int_option_keys()`, `get_float_option_keys()`, `get_url_option_keys()`, `get_enum_option_keys()` — Schlüssellisten für neue Optionstypen ab v0.1.4 (Overlay/Blur/Position/Legal-Links)
+- `get_css_variables()` — schreibt zusätzlich `--lscc-overlay-bg`, `--lscc-blur`, `--lscc-reopen-ox`, `--lscc-reopen-oy` in den Inline-Style
+- `hex_with_opacity_to_rgba( $hex, $opacity )` — privater Helper für Overlay-Hintergrund (`rgba(...)`)
+- `get_privacy_url( $options )` — manueller Override hat Vorrang, sonst `get_privacy_policy_url()` aus WordPress-Core
+- `get_imprint_url( $options )` — manueller Override hat Vorrang, sonst Transient `lscc_detected_imprint_url`. Frontend liest ausschliesslich den Cache.
+- `refresh_imprint_detection()` — fuehrt die Slug-/Titel-Erkennung aus und speichert das Ergebnis als Transient (TTL `DAY_IN_SECONDS`)
+- `maybe_refresh_imprint_detection()` — Hook auf `admin_init`; loest die Erkennung nur im Admin und nur bei leerem Cache aus
+- `scan_imprint_pages()` — privat, sucht via `get_page_by_path()` und einzelnen `WP_Query`-Lookups; keine externen Requests, keine DOM-Scans
+
+**Neue Optionen ab 0.1.4:**
+
+| Schluessel | Typ | Default | Sanitization |
+|---|---|---|---|
+| `overlay_enabled` | bool | `true` | Checkbox |
+| `overlay_color` | hex | `#000000` | `sanitize_hex_color` |
+| `overlay_opacity` | float | `0.45` | clamp 0.0–1.0 |
+| `blur_enabled` | bool | `true` | Checkbox |
+| `blur_strength` | int | `4` | clamp 0–20 |
+| `reopen_position` | enum | `bottom-right` | `bottom-right` / `bottom-left` / `top-right` / `top-left` |
+| `reopen_offset_x` | int | `24` | clamp 0–200 |
+| `reopen_offset_y` | int | `24` | clamp 0–200 |
+| `show_legal_links` | bool | `true` | Checkbox |
+| `privacy_url_override` | url | `''` | `esc_url_raw` |
+| `imprint_url_override` | url | `''` | `esc_url_raw` |
+
+**Render-Verhalten:**
+
+- Overlay-Element wird nur ausgegeben, wenn `overlay_enabled` true ist. Initial `hidden`. JS toggelt den Zustand parallel zum Banner.
+- Reopen-Button erhält das Attribut `data-position` und positioniert sich rein per CSS-Klassen und CSS-Variablen.
+- Legal-Links erscheinen unten in `.lscc__content` als `.lscc__legal`-Block, nur wenn `show_legal_links` true ist UND mindestens eine der beiden URLs aufgeloest werden konnte.
 - `get_text_option_keys()` / `get_color_option_keys()` — Schluessellisten
 - `sanitize_options()` — zentrale Sanitization mit `sanitize_text_field` und `sanitize_hex_color`
 - `get_options()` — gesetzte Optionen + Defaults
@@ -70,11 +105,29 @@ Diese Karte beschreibt die aktiven Dateien, ihre Zustaendigkeiten und die wichti
 
 **Klasse `Light_Swiss_Cookie_Consent_Privacy_Check`:**
 
-- `render_page()` — Admin-Seite mit Ergebnis-Tabelle, prueft `current_user_can`
+- `render_page()` — Admin-Seite mit zwei Sektionen: `Startseiten-Pruefung` (Tabelle) und `Content Scan` (Button + optionale Ergebnis-Tabelle). Prueft `current_user_can` und (bei POST) den Content-Scan-Nonce.
 - `run_check( $source_url )` — einmaliger `wp_remote_get` auf `home_url('/')` mit Timeout 5 s, max. 500 KB Response, eigener User-Agent
 - `detect_services( $body )` — sucht im Lowercase-HTML nach statischen Mustern
-- `get_checks()` — Mustertabelle (siehe unten)
+- `get_checks()` — Mustertabelle der Startseiten-Pruefung (siehe unten)
 - `get_status_label()` — uebersetzte Status-Labels (`Kritisch`, `Wichtig`, `Info`)
+- `render_content_scan_section( $results )` — rendert Hinweistext, Trigger-Form (`lscc_content_scan` Nonce, `lscc_run_content_scan` Submit) und ggf. die Ergebnis-Tabelle
+- `render_content_scan_results( $results )` — Tabellen-Renderer fuer Treffer (Risiko, Dienst, Inhaltstyp, Titel + Edit-Link, Domain, Empfehlung)
+- `run_content_scan()` — `WP_Query` ueber `post`, `page` und public CPTs, `post_status=publish`, `posts_per_page=200`, sucht in `post_content` per `strpos` nach den definierten Needles. Keine externen Requests.
+- `get_scannable_post_types()` — `post`, `page` plus alle nicht-builtin public Custom Post Types
+- `get_post_type_label( $post_type )` — Mensch-lesbare Bezeichnung (`Beitrag`, `Seite`, sonst `singular_name` des Objekts)
+- `get_content_scan_patterns()` — Liste der Needle-Gruppen pro Dienst inklusive Risiko-Level und Empfehlungstext
+
+**Content-Scan-Dienste:**
+
+| Risiko | Dienst | Needles |
+|---|---|---|
+| Wichtig | YouTube | `youtube-nocookie.com`, `youtube.com`, `youtu.be` |
+| Wichtig | Vimeo | `player.vimeo.com`, `vimeo.com` |
+| Wichtig | Google Maps | `google.com/maps`, `maps.google.` |
+| Kritisch | Google Fonts | `fonts.googleapis.com`, `fonts.gstatic.com` |
+| Kritisch | Google Tag Manager | `googletagmanager.com` |
+| Kritisch | Google Analytics | `google-analytics.com` |
+| Kritisch | Facebook / Meta | `connect.facebook.net`, `facebook.net` |
 
 **Geprueft werden aktuell:**
 

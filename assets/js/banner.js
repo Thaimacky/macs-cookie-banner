@@ -4,7 +4,8 @@
 	var settings = window.lsccSettings || {};
 	var storageKey = settings.storageKey || 'lscc_consent';
 	var cookieName = settings.cookieName || 'lscc_consent';
-	var consentVersion = settings.consentVersion || '1';
+	var consentVersion = settings.consentVersion || 2;
+	var lifetimeDays = (typeof settings.lifetimeDays === 'number' && settings.lifetimeDays > 0) ? settings.lifetimeDays : 180;
 	var debugEnabled = Boolean(settings.debug);
 	var allowedCategories = ['necessary', 'statistics', 'marketing', 'external_media'];
 	var categories = Array.isArray(settings.categories) ? settings.categories.filter(isAllowedCategory) : allowedCategories.slice();
@@ -30,13 +31,36 @@
 	}
 
 	function isValidConsent(consent) {
-		return Boolean(
-			consent &&
-			typeof consent === 'object' &&
-			String(consent.version) === String(consentVersion) &&
-			consent.categories &&
-			typeof consent.categories === 'object'
-		);
+		if (!consent || typeof consent !== 'object') {
+			return false;
+		}
+		if (String(consent.version) !== String(consentVersion)) {
+			return false;
+		}
+		if (!consent.categories || typeof consent.categories !== 'object') {
+			return false;
+		}
+
+		var now = Date.now();
+		var ttlMs = lifetimeDays * 86400000;
+
+		// Explicit expiresAt always wins when present.
+		if (consent.expiresAt) {
+			var exp = Date.parse(consent.expiresAt);
+			if (!isNaN(exp) && exp < now) {
+				return false;
+			}
+		}
+
+		// Admin can shorten the lifetime later; createdAt + lifetimeDays catches that.
+		if (consent.createdAt) {
+			var created = Date.parse(consent.createdAt);
+			if (!isNaN(created) && created + ttlMs < now) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	function parseStoredConsent(value) {
@@ -56,9 +80,12 @@
 	}
 
 	function getDefaultConsent() {
+		var now = new Date();
+		var expires = new Date(now.getTime() + lifetimeDays * 86400000);
 		return {
 			version: consentVersion,
-			createdAt: new Date().toISOString(),
+			createdAt: now.toISOString(),
+			expiresAt: expires.toISOString(),
 			categories: {
 				necessary: true,
 				statistics: false,
@@ -81,6 +108,10 @@
 
 		if (consent.createdAt) {
 			normalized.createdAt = String(consent.createdAt);
+		}
+
+		if (consent.expiresAt) {
+			normalized.expiresAt = String(consent.expiresAt);
 		}
 
 		if (consent.categories && typeof consent.categories === 'object') {
@@ -155,7 +186,7 @@
 	function writeConsent(consent) {
 		var normalized = normalizeConsent(consent);
 		var encoded = encodeURIComponent(JSON.stringify(normalized));
-		var maxAge = 60 * 60 * 24 * 180;
+		var maxAge = lifetimeDays * 86400;
 		var secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
 
 		try {
@@ -386,13 +417,24 @@
 		reopenButton.hidden = visible || !hasStoredConsent();
 		syncSettingsTriggers(visible);
 
+		var overlay = document.querySelector('[data-lscc-overlay]');
+		if (overlay) {
+			overlay.hidden = !visible;
+			overlay.setAttribute('aria-hidden', visible ? 'false' : 'true');
+		}
+
 		if (settingsPanel) {
 			settingsPanel.hidden = !showSettings;
 			settingsPanel.setAttribute('aria-hidden', showSettings ? 'false' : 'true');
 		}
 
 		if (mainActions) {
-			mainActions.hidden = Boolean(showSettings);
+			mainActions.hidden = false;
+		}
+
+		var openSettingsBtn = root.querySelector('[data-lscc-open-settings]');
+		if (openSettingsBtn) {
+			openSettingsBtn.hidden = Boolean(showSettings);
 		}
 
 		if (visible) {
@@ -469,14 +511,6 @@
 
 		root.querySelector('[data-lscc-open-settings]').addEventListener('click', function () {
 			setBannerVisible(root, reopenButton, true, true);
-		});
-
-		root.querySelector('[data-lscc-settings-accept-all]').addEventListener('click', function () {
-			saveAndClose(root, reopenButton, createConsent(true));
-		});
-
-		root.querySelector('[data-lscc-settings-necessary]').addEventListener('click', function () {
-			saveAndClose(root, reopenButton, createConsent(false));
 		});
 
 		root.querySelector('[data-lscc-settings]').addEventListener('submit', function (event) {

@@ -2,7 +2,7 @@
 
 Dieses Dokument haelt zentrale Entscheidungen fest, die die Form des Plugins erklaeren. Jede Entscheidung steht unter dem Vorbehalt, dass sich Anforderungen aendern koennen; eine Aenderung waere aber eine bewusste neue Entscheidung und kein "Bugfix".
 
-**Vorrangs-Quelle:** Bei Konflikten zwischen Entscheidungen in diesem Dokument und der uebergeordneten AI-Handover-Datei `CLAUDE_CONTINUITY_MASTER.md` (im selben Plugin-Ordner) gewinnt die Master-Datei. Sie definiert Projektphilosophie, absolute No-Gos, Scope-Grenzen und Sicherheitsregeln und darf nicht umbenannt, ueberschrieben oder gekuerzt werden. Erweiterungen erfolgen ausschliesslich additiv mit klarer Versionshistorie.
+**Vorrangs-Quelle:** Bei Konflikten zwischen Entscheidungen in diesem Dokument und der uebergeordneten AI-Handover-Datei `MASTER_HANDBUCH.md` (im selben Plugin-Ordner) gewinnt die Master-Datei. Sie definiert Projektphilosophie, absolute No-Gos, Scope-Grenzen und Sicherheitsregeln und darf nicht umbenannt, ueberschrieben oder gekuerzt werden. Erweiterungen erfolgen ausschliesslich additiv mit klarer Versionshistorie.
 
 ## ADR-1: Kein Auto-Scanner
 
@@ -133,3 +133,48 @@ Dieses Dokument haelt zentrale Entscheidungen fest, die die Form des Plugins erk
 - Kein Color-Picker-Asset, keine Library-Abhaengigkeit.
 - WordPress-eigene Sanitization deckt den Wertebereich ab.
 - Bei Bedarf laesst sich spaeter ein optionaler nativer Color-Picker andocken, ohne die bestehende Validation zu ersetzen.
+
+## ADR-11: Neutraler Consent-Ton und Locale-Fallback
+
+**Entscheidung:** Der Default-Banner-Text ist neutral formuliert (kein „Ihre Zustimmung" / „deine Zustimmung") und wird je nach Site-Locale dynamisch aus einer Tabelle aufgelöst. Die Locale-Lookup-Logik nutzt einen 2- bis 3-Buchstaben-Sprachpräfix und akzeptiert Varianten wie `de_CH`, `de-CH`, `de_DE`, `de_AT`, `en_GB`, `pt_BR`.
+
+**Kontext:** Der bisherige deutsche Default war auf Sie formuliert („nach Ihrer Zustimmung geladen") und brach für Du-Sites und englischsprachige Besucher. Zugleich liefern Setups mit WPML, Polylang oder gemischten Locales häufig generische Codes wie `de` oder Varianten wie `de_AT` / `de-CH`, für die kein eigener `.mo`-Match existiert.
+
+**Gründe:**
+
+- Neutraler Wortlaut passt sowohl für Du- als auch Sie-Seiten und muss vom Admin in der Regel nicht angepasst werden.
+- Sprachpräfix-Fallback macht die Logik robust gegen Locale-Varianten; keine eigene `.mo` pro Variante nötig.
+- Englisch als finaler Fallback ist international verständlich.
+- Schweizer Deutsch wird über den Sprachpräfix `de` automatisch mit-bedient; das ß bleibt explizit ausgespart, Umlaute werden voll genutzt.
+
+**Folgen:** Die Default-Texte für die sechs Hauptsprachen liegen direkt als UTF-8-Strings im PHP-Code (`get_neutral_banner_text_table()`). Sie laufen nicht mehr durch `__()` und erscheinen nicht im POT-Template. Admins können den Banner-Text weiterhin über die Einstellungen frei ändern; WPML- und Polylang-Übersetzung des Admin-Wertes bleibt unverändert.
+
+## ADR-12: Konfigurierbares Overlay und rechtliche Link-Erkennung ohne Footer-Scraping
+
+**Entscheidung:** Das Banner kann optional ein Overlay mit Blur anzeigen. Rechtliche Links (Datenschutz, Impressum) werden im Banner angezeigt; ihre URLs werden im Admin per leichtgewichtigem Slug-/Titel-Lookup erkannt und als Transient gecached. Das Frontend führt selbst keine Erkennung und keine DOM-Scans aus, sondern liest ausschliesslich den Cache. Die Position des Widerrufsbuttons ist über vier feste Positionen plus Offsets konfigurierbar.
+
+**Kontext:** Cookie-Banner-Plugins haben oft entweder gar kein Overlay (zu unauffällig) oder ein modales Overlay mit Body-Scroll-Lock (zerstört UX und Core Web Vitals). Ähnlich problematisch ist Auto-Erkennung von rechtlichen Links via Footer-DOM-Crawl im Frontend — das macht jeden Seitenaufruf teurer und kann Themes brechen.
+
+**Gründe:**
+
+- Overlay als `position: fixed` mit `pointer-events: none` blockiert weder Klicks noch Scrolling.
+- Das Overlay-Element wird nur in den DOM geschrieben, wenn der Admin es aktiviert; initial ist es `hidden` (kein `backdrop-filter`-Rendering-Cost wenn ungenutzt).
+- Reopen-Button: Position über vier feste Werte plus CSS-Variablen für Offset — kein JS-Reposition-Loop, keine Layout-Jumps.
+- Legal-Link-Detection nutzt im Admin maximal acht `get_page_by_path()`-Lookups und sechs `WP_Query`-Lookups auf den Post-Title; cacht das Ergebnis im Transient mit `DAY_IN_SECONDS` TTL. Frontend liest nur den Transient.
+- Manueller Override (`privacy_url_override`, `imprint_url_override`) hat Vorrang über die Auto-Erkennung — Editoren behalten die Kontrolle.
+
+**Folgen:** Bei deaktiviertem Overlay fällt im Frontend kein zusätzliches DOM-Element an. Bei aktiviertem Overlay ist die einzige zusätzliche Render-Last das Blur — konservativ voreingestellt auf 4 px. Die Link-Auto-Erkennung hat einen Cold-Start-Cost im Admin (≤ 14 DB-Queries) und ist danach 24 Stunden lang ein einziger Transient-Read pro Seitenaufruf. Bei aktiviertem Persistent-Object-Cache (Redis/Memcached) ist auch dieser Read praktisch kostenlos. Editoren können den Cache jederzeit zurücksetzen, indem sie den manuellen Override entfernen und die Detection neu triggern.
+
+## ADR-13: Separate Consent-Schema-Version (`LSCC_CONSENT_VERSION`)
+
+**Entscheidung:** Die Schema-Version des clientseitig gespeicherten Consents wird in einer eigenen Konstante `LSCC_CONSENT_VERSION` gehalten und ist von der Plugin-Version (`LSCC_VERSION`) entkoppelt. Sie wird nur dann erhöht, wenn die Consent-Struktur sich semantisch ändert (neue Pflichtfelder, geänderte Bedeutung, neue Kategorien, etc.) — nicht bei jedem Patch. Ein Versions-Mismatch invalidiert bestehende Consents im Browser und führt zum erneuten Erscheinen des Banners. Zusätzlich wird die Gültigkeit über ein gespeichertes `expiresAt` und ein adminseitig konfigurierbares `consent_lifetime_days` (1 – 365 Tage, Default 180) zeitlich begrenzt.
+
+**Kontext:** In v0.1.0 – v0.1.4 war `consentVersion` hartkodiert als `'1'` im JS-Localization-Block. Da diese Version mit jedem Plugin-Update unverändert blieb, akzeptierten neuere Plugin-Builds bestehende Browser-Consents älterer Builds weiterhin als gültig. Beim Wechsel auf v0.1.4 mit erweiterten Optionen (Overlay, Blur, Legal-Links) blieb das Banner im Browser des Testers daher unsichtbar — der „alte" v1-Consent galt unverändert. Das Problem wurde auch durch Plugin-Deinstallation und -Neuinstallation nicht behoben, weil der Browser-Storage clientseitig liegt.
+
+**Gründe:**
+
+- Plugin-Version und Consent-Schema-Version sollen unabhängig sein, damit kosmetische Patches keine sinnlosen Re-Consents auslösen und strukturelle Änderungen zuverlässig zu einem Re-Consent führen.
+- `expiresAt` im gespeicherten Consent ist explizit (statt nur Cookie-Max-Age) und überlebt auch eine `localStorage`-Persistenz, in der Cookies bereits abgelaufen wären.
+- Admin-konfigurierbare Lifetime (`consent_lifetime_days`) macht Verkürzungen sofort wirksam — auch retroaktiv für bestehende Consents über den `createdAt + lifetimeDays`-Check.
+
+**Folgen:** Bei jedem strukturellen Schema-Change muss `LSCC_CONSENT_VERSION` manuell hochgezählt werden. Bei v0.1.5 wurde sie von `1` auf `2` erhöht, weil das Schema um `expiresAt` erweitert wurde und alte v1-Consents nicht verlässlich migrierbar sind. Der Reopen-Button erscheint nur dann, wenn `hasStoredConsent()` einen *gültigen* Consent zurückgibt — bei ungültigem oder fehlendem Consent zeigt sich das Banner und der Reopen-Button bleibt versteckt.
