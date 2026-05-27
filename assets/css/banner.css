@@ -1,0 +1,241 @@
+.lscc,
+.lscc-reopen,
+.lscc-settings-button {
+	--lscc-bg: #111827;
+	--lscc-text: #f9fafb;
+	--lscc-primary: #e11d48;
+	--lscc-primary-text: #ffffff;
+	--lscc-secondary: #1f2937;
+	--lscc-border: #374151;
+	box-sizing: border-box;
+	color: var(--lscc-text);
+	font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	letter-spacing: 0;
+}
+
+.lscc *,
+.lscc *::before,
+.lscc *::after,
+.lscc-reopen,
+.lscc-settings-button {
+	box-sizing: border-box;
+}
+
+.lscc[hidden],
+.lscc-reopen[hidden] {
+	display: none !important;
+}
+
+.lscc {
+	position: fixed;
+	right: 16px;
+	bottom: 16px;
+	left: 16px;
+	z-index: 99999;
+	display: flex;
+	justify-content: center;
+	pointer-events: none;
+}
+
+.lscc__panel {
+	width: min(920px, 100%);
+	max-height: calc(100vh - 32px);
+	padding: 22px;
+	overflow-y: auto;
+	background: var(--lscc-bg);
+	border: 1px solid var(--lscc-border);
+	border-radius: 8px;
+	box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+	pointer-events: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+.lscc__content {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 20px;
+	align-items: center;
+}
+
+.lscc__intro {
+	min-width: 0;
+}
+
+.lscc__title {
+	margin: 0 0 8px;
+	color: var(--lscc-text);
+	font-size: 19px;
+	font-weight: 700;
+	line-height: 1.25;
+	letter-spacing: 0;
+}
+
+.lscc__text,
+.lscc__category-text {
+	margin: 0;
+	color: var(--lscc-text);
+	font-size: 14px;
+	line-height: 1.5;
+	letter-spacing: 0;
+	opacity: 0.78;
+}
+
+.lscc__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	justify-content: flex-end;
+}
+
+.lscc__button,
+.lscc-reopen,
+.lscc-settings-button {
+	max-width: 100%;
+	min-height: 42px;
+	padding: 10px 15px;
+	border: 1px solid transparent;
+	border-radius: 6px;
+	cursor: pointer;
+	font: inherit;
+	font-size: 14px;
+	font-weight: 700;
+	line-height: 1.2;
+	text-align: center;
+	text-decoration: none;
+	letter-spacing: 0;
+	overflow-wrap: anywhere;
+	white-space: normal;
+}
+
+.lscc__button:focus-visible,
+.lscc-reopen:focus-visible,
+.lscc-settings-button:focus-visible {
+	outline: 2px solid var(--lscc-primary);
+	outline-offset: 2px;
+}
+
+.lscc__button--primary {
+	background: var(--lscc-primary);
+	color: var(--lscc-primary-text);
+}
+
+.lscc__button--secondary {
+	background: var(--lscc-secondary);
+	border-color: var(--lscc-border);
+	color: var(--lscc-text);
+}
+
+.lscc__button--ghost {
+	background: transparent;
+	border-color: var(--lscc-border);
+	color: var(--lscc-text);
+}
+
+.lscc__settings {
+	grid-column: 1 / -1;
+	margin-top: 4px;
+	padding-top: 18px;
+	border-top: 1px solid var(--lscc-border);
+}
+
+.lscc__categories {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 10px;
+	margin-bottom: 16px;
+}
+
+.lscc__category {
+	display: flex;
+	gap: 14px;
+	align-items: center;
+	justify-content: space-between;
+	min-height: 74px;
+	padding: 14px;
+	background: var(--lscc-secondary);
+	border: 1px solid var(--lscc-border);
+	border-radius: 8px;
+}
+
+.lscc__category-copy {
+	display: block;
+	min-width: 0;
+}
+
+.lscc__category-title {
+	display: block;
+	margin-bottom: 4px;
+	color: var(--lscc-text);
+	font-size: 14px;
+	font-weight: 700;
+	line-height: 1.3;
+	letter-spacing: 0;
+}
+
+.lscc__category input {
+	flex: 0 0 auto;
+	width: 20px;
+	height: 20px;
+	accent-color: var(--lscc-primary);
+}
+
+.lscc__actions--settings {
+	justify-content: flex-start;
+}
+
+.lscc-reopen {
+	position: fixed;
+	right: 16px;
+	bottom: 16px;
+	z-index: 99998;
+	background: var(--lscc-bg);
+	border-color: var(--lscc-border);
+	color: var(--lscc-text);
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+}
+
+.lscc-settings-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--lscc-secondary);
+	border-color: var(--lscc-border);
+	color: var(--lscc-text);
+}
+
+@media (max-width: 760px) {
+	.lscc__content {
+		grid-template-columns: 1fr;
+	}
+
+	.lscc__actions {
+		justify-content: stretch;
+	}
+
+	.lscc__button {
+		width: 100%;
+	}
+
+	.lscc__categories {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 420px) {
+	.lscc {
+		right: 10px;
+		bottom: 10px;
+		left: 10px;
+	}
+
+	.lscc__panel {
+		max-height: calc(100vh - 20px);
+		padding: 16px;
+	}
+
+	.lscc-reopen {
+		right: 10px;
+		bottom: 10px;
+		max-width: calc(100vw - 20px);
+	}
+}

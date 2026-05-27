@@ -1,0 +1,39 @@
+# Release Checklist
+
+## Version 0.1.0
+
+- [ ] Plugin in einer echten WordPress-Testinstallation aktivieren.
+- [ ] PHP-Fehlerlog nach Aktivierung pruefen.
+- [ ] Banner erscheint ohne gespeicherten Consent.
+- [ ] Standardzustand ist nur notwendige Cookies.
+- [ ] `type="text/plain"` mit `data-cookie-category="statistics"` bleibt vor Zustimmung blockiert.
+- [ ] "Alle akzeptieren" aktiviert Statistik, Marketing und externe Medien.
+- [ ] "Nur notwendige" blockiert Statistik, Marketing und externe Medien.
+- [ ] Consent bleibt nach Reload erhalten.
+- [ ] Widerruf ueber `[simple_cookie_settings]` funktioniert ohne Seitenreload.
+- [ ] Fester Widerruf-Button oeffnet Einstellungen erneut.
+- [ ] Buttons sind per Tastatur erreichbar und bedienbar.
+- [ ] Fokuszustand ist sichtbar.
+- [ ] ESC schliesst die Einstellungen nicht automatisch.
+- [ ] Chrome testen.
+- [ ] Firefox testen.
+- [ ] Mobile Safari testen.
+- [ ] Mobile Layout pruefen: keine abgeschnittenen Texte, kein horizontaler Overflow.
+- [ ] HTTPS testen: Consent-Cookie enthaelt `Secure`.
+- [ ] HTTP testen: Consent-Cookie wird ohne `Secure` gesetzt.
+- [ ] Consent-Cookie enthaelt `SameSite=Lax`.
+- [ ] `LSCC_DEBUG` false: keine Console-Ausgaben.
+- [ ] `LSCC_DEBUG` true: minimale Console-Ausgaben sichtbar.
+- [ ] WPML-String-Registrierung in Testumgebung pruefen.
+- [ ] Polylang-String-Registrierung in Testumgebung pruefen.
+- [ ] Sprachdateien bei Bedarf aus `.po` nach `.mo` kompilieren.
+
+## Nicht Teil von 0.1.0
+
+- Auto-Scanner
+- GeoIP
+- Vendor-Listen
+- IAB TCF
+- Google-Cloud-Abhaengigkeiten
+- Statistik-Dashboard
+- Auto-Block-Engine

@@ -1,0 +1,111 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Light Swiss Cookie Consent 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-27 00:00+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: light-swiss-cookie-consent\n"
+
+msgid "Cookie-Einstellungen"
+msgstr ""
+
+msgid "Wir verwenden notwendige Cookies, damit diese Website funktioniert. Statistik, Marketing und externe Medien werden erst nach Ihrer Zustimmung geladen."
+msgstr ""
+
+msgid "Alle akzeptieren"
+msgstr ""
+
+msgid "Nur notwendige"
+msgstr ""
+
+msgid "Einstellungen"
+msgstr ""
+
+msgid "Auswahl speichern"
+msgstr ""
+
+msgid "Notwendig"
+msgstr ""
+
+msgid "Erforderlich fuer Grundfunktionen der Website."
+msgstr ""
+
+msgid "Statistik"
+msgstr ""
+
+msgid "Hilft uns, die Nutzung der Website zu verstehen."
+msgstr ""
+
+msgid "Marketing"
+msgstr ""
+
+msgid "Erlaubt Marketing- und Tracking-Dienste."
+msgstr ""
+
+msgid "Externe Medien"
+msgstr ""
+
+msgid "Laedt eingebettete Inhalte von externen Plattformen."
+msgstr ""
+
+msgid "Light Swiss Cookie Consent"
+msgstr ""
+
+msgid "Sie haben keine Berechtigung, diese Einstellungen zu speichern."
+msgstr ""
+
+msgid "Ungueltige Sicherheitspruefung."
+msgstr ""
+
+msgid "Einstellungen gespeichert."
+msgstr ""
+
+msgid "Texte"
+msgstr ""
+
+msgid "Titel"
+msgstr ""
+
+msgid "Banner-Text"
+msgstr ""
+
+msgid "Button: Alle akzeptieren"
+msgstr ""
+
+msgid "Button: Nur notwendige"
+msgstr ""
+
+msgid "Button: Einstellungen"
+msgstr ""
+
+msgid "Button: Auswahl speichern"
+msgstr ""
+
+msgid "Button: Widerruf"
+msgstr ""
+
+msgid "Farben"
+msgstr ""
+
+msgid "Hintergrund"
+msgstr ""
+
+msgid "Text"
+msgstr ""
+
+msgid "Primaerbutton"
+msgstr ""
+
+msgid "Primaerbutton Text"
+msgstr ""
+
+msgid "Sekundaerbutton"
+msgstr ""
+
+msgid "Rahmenfarbe"
+msgstr ""
+
+msgid "Einstellungen speichern"
+msgstr ""
