@@ -1,5 +1,12 @@
 # DEV LOG
 
+## 0.1.1-test - 2026-05-28
+
+- Testversion 0.1.1 vorbereitet.
+- Plugin-Header `Version` und Konstante `LSCC_VERSION` auf `0.1.1` gesetzt.
+- `CHANGELOG.md` um Eintrag `0.1.1-test` erweitert.
+- Installierbare Test-ZIP `light-swiss-cookie-consent-v0.1.1-test.zip` aus dem aktuellen `main`-Stand neu erzeugt (ohne `.git`, `.vscode`, andere ZIPs, temporaere Dateien).
+
 ## 0.1.0 - 2026-05-28
 
 - Dokumentationsstruktur konsolidiert:

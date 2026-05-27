@@ -3,7 +3,7 @@
  * Plugin Name: Light Swiss Cookie Consent
  * Plugin URI:  https://example.com/light-swiss-cookie-consent
  * Description: Lightweight cookie consent banner with script blocking for WordPress.
- * Version:     0.1.0
+ * Version:     0.1.1
  * Author:      Light Swiss Cookie Consent
  * Text Domain: light-swiss-cookie-consent
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'LSCC_VERSION', '0.1.0' );
+define( 'LSCC_VERSION', '0.1.1' );
 define( 'LSCC_PLUGIN_FILE', __FILE__ );
 define( 'LSCC_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'LSCC_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
