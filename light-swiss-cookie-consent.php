@@ -50,6 +50,9 @@ final class Light_Swiss_Cookie_Consent {
 		add_action( 'wp_footer', array( __CLASS__, 'render_banner' ), 10 );
 		add_shortcode( 'simple_cookie_settings', array( __CLASS__, 'render_settings_shortcode' ) );
 
+		require_once LSCC_PLUGIN_DIR . 'includes/service-components.php';
+		Light_Swiss_Cookie_Consent_Service_Components::init();
+
 		if ( is_admin() ) {
 			require_once LSCC_PLUGIN_DIR . 'includes/admin-page.php';
 			Light_Swiss_Cookie_Consent_Admin::init();

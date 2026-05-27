@@ -67,6 +67,30 @@ Der Shortcode oeffnet die Consent-Einstellungen ohne Seitenreload:
 [simple_cookie_settings]
 ```
 
+## Kontrollierte Service-Komponenten
+
+Externe Medien koennen freiwillig ueber Shortcodes eingebunden werden. Vor der Zustimmung zur Kategorie `external_media` wird nur ein Platzhalter angezeigt.
+
+YouTube:
+
+```text
+[lscc_youtube id="VIDEO_ID"]
+```
+
+Vimeo:
+
+```text
+[lscc_vimeo id="VIDEO_ID"]
+```
+
+Google Maps:
+
+```text
+[lscc_google_map url="https://www.google.com/maps/embed?..."]
+```
+
+Die Komponenten erkennen keine bestehenden iframes automatisch und ersetzen keine Inhalte. Sie laden nur den iframe, der ueber den jeweiligen Shortcode bewusst eingebunden wurde.
+
 ## Consent-Speicherung
 
 Die Auswahl wird in `localStorage` und als Cookie gespeichert.

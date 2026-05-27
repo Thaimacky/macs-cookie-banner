@@ -240,6 +240,101 @@
 		debugLog('LSCC activated scripts', activatedCount);
 	}
 
+	function createMediaIframe(component) {
+		var iframe = document.createElement('iframe');
+		var src = component.getAttribute('data-lscc-src');
+		var title = component.getAttribute('data-lscc-title') || '';
+		var service = component.getAttribute('data-lscc-service') || '';
+
+		if (!src) {
+			return null;
+		}
+
+		iframe.setAttribute('class', 'lscc-media__iframe');
+		iframe.setAttribute('src', src);
+		iframe.setAttribute('title', title);
+		iframe.setAttribute('loading', 'lazy');
+		iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+		iframe.setAttribute('allowfullscreen', '');
+
+		if (service === 'youtube' || service === 'vimeo') {
+			iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+		}
+
+		return iframe;
+	}
+
+	function setMediaComponentLoaded(component, loaded) {
+		var placeholder = component.querySelector('.lscc-media__placeholder');
+		var iframe = component.querySelector('.lscc-media__iframe');
+
+		if (loaded && !iframe) {
+			iframe = createMediaIframe(component);
+
+			if (!iframe) {
+				return;
+			}
+
+			component.appendChild(iframe);
+		}
+
+		if (!loaded && iframe) {
+			iframe.parentNode.removeChild(iframe);
+		}
+
+		if (placeholder) {
+			placeholder.hidden = Boolean(loaded);
+		}
+
+		component.classList.toggle('is-loaded', Boolean(loaded));
+		component.setAttribute('data-lscc-loaded', loaded ? '1' : '0');
+	}
+
+	function syncMediaComponents() {
+		var components = document.querySelectorAll('[data-lscc-media][data-lscc-category="external_media"]');
+		var allowed = consentAllows('external_media');
+		var loadedCount = 0;
+
+		Array.prototype.forEach.call(components, function (component) {
+			setMediaComponentLoaded(component, allowed);
+
+			if (allowed) {
+				loadedCount += 1;
+			}
+		});
+
+		debugLog('LSCC media components synced', loadedCount);
+	}
+
+	function acceptExternalMedia(root, reopenButton) {
+		var consent = getStoredConsent();
+
+		consent.categories.external_media = true;
+		writeConsent(consent);
+		activateBlockedScripts();
+		syncMediaComponents();
+
+		if (root && reopenButton) {
+			setBannerVisible(root, reopenButton, false, false);
+		}
+	}
+
+	function bindMediaComponents(root, reopenButton) {
+		var buttons = document.querySelectorAll('[data-lscc-accept-media]');
+
+		Array.prototype.forEach.call(buttons, function (button) {
+			if (button.getAttribute('data-lscc-media-bound') === '1') {
+				return;
+			}
+
+			button.setAttribute('data-lscc-media-bound', '1');
+			button.addEventListener('click', function (event) {
+				event.preventDefault();
+				acceptExternalMedia(root, reopenButton);
+			});
+		});
+	}
+
 	function createConsent(allowAll) {
 		var consent = getDefaultConsent();
 
@@ -349,6 +444,7 @@
 	function saveAndClose(root, reopenButton, consent) {
 		writeConsent(consent);
 		activateBlockedScripts();
+		syncMediaComponents();
 		setBannerVisible(root, reopenButton, false, false);
 	}
 
@@ -357,7 +453,9 @@
 		var reopenButton = document.querySelector('[data-lscc-reopen]');
 
 		if (!root || !reopenButton) {
+			bindMediaComponents(null, null);
 			activateBlockedScripts();
+			syncMediaComponents();
 			return;
 		}
 
@@ -387,13 +485,16 @@
 		});
 
 		bindSettingsTriggers(root, reopenButton);
+		bindMediaComponents(root, reopenButton);
 
 		if (hasStoredConsent()) {
 			activateBlockedScripts();
+			syncMediaComponents();
 			setBannerVisible(root, reopenButton, false, false);
 			return;
 		}
 
+		syncMediaComponents();
 		setBannerVisible(root, reopenButton, true, false);
 	}
 

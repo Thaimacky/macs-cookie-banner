@@ -181,3 +181,24 @@ msgstr ""
 
 msgid "Info"
 msgstr ""
+
+msgid "YouTube-Video"
+msgstr ""
+
+msgid "Dieses YouTube-Video wird erst nach Zustimmung zu externen Medien geladen."
+msgstr ""
+
+msgid "Vimeo-Video"
+msgstr ""
+
+msgid "Dieses Vimeo-Video wird erst nach Zustimmung zu externen Medien geladen."
+msgstr ""
+
+msgid "Google Maps"
+msgstr ""
+
+msgid "Diese Google-Maps-Karte wird erst nach Zustimmung zu externen Medien geladen."
+msgstr ""
+
+msgid "Externe Medien akzeptieren"
+msgstr ""
