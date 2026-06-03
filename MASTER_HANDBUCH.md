@@ -6,6 +6,7 @@
 - 2026-05-28 — Format-Migration: RTF in echtes UTF-8 Markdown konvertiert. Inhalt unverändert; nur RTF-Steuerzeichen entfernt, Unicode-Umlaute hergestellt, typografische Anführungszeichen normalisiert.
 - 2026-05-28 — Datei umbenannt von `CLAUDE_CONTINUITY_MASTER.md` zu `MASTER_HANDBUCH.md`. Inhalt vollständig erhalten. Referenzen in `PROJECT_BRIEF.md`, `DECISIONS.md` und `DEV_LOG.md` aktualisiert.
 - 2026-06-03 — Additive Erweiterung: verbindliche Regel zum Ablageort von Test-ZIPs ergänzt (Sektion „Release-Artefakte / Ablageort für Test-ZIPs"). Inhalt sonst unverändert.
+- 2026-06-03 — Additive Erweiterung: Sektion „Avada-Massenkompatibilität (Strategie)" ergänzt. Hält das Einsatzziel (≈40 Avada-Sites) und die empfohlene, No-Go-konforme Richtung fest. Reine Strategie-Dokumentation, keine Umsetzung.
 
 ## Zweck dieser Datei
 
@@ -425,3 +426,39 @@ Regeln für den Agent:
 * keine alternativen Orte wählen
 
 Standard-Ziel ist IMMER das Parent-Verzeichnis des Repositories. Liegen dort bereits ältere ZIPs, wird jede neue ZIP ebenfalls dort erstellt. Eine Änderung des Ablageorts ist nur mit ausdrücklicher Anweisung des Auftraggebers zulässig. Bestehende Projektpraxis hat Vorrang vor Annahmen des Agents.
+
+---
+
+# Avada-Massenkompatibilität (Strategie)
+
+Stand 2026-06-03 — dokumentierte Strategie, noch keine Umsetzung.
+
+## Einsatzziel
+
+Das Plugin soll auf ca. **40 bestehenden Avada-Websites** bestehende Cookie-Banner ersetzen. Bestehende Avada-Video-Elemente (YouTube/Vimeo) müssen vor Consent geblockt werden, **ohne** dass hunderte/tausende Seiten manuell geprüft oder umgebaut werden. Shortcode-only reicht für diesen Bestand nicht.
+
+## Empfohlene Richtung
+
+**Render-Layer-Interception als opt-in Avada-Kompatibilitäts-Modul.** Avada (Fusion Builder) speichert Videos als Shortcodes im `post_content` und rendert sie serverseitig zu iframes. WordPress-Filter erlauben das Abfangen **vor** der iframe-Erzeugung:
+
+- `pre_do_shortcode_tag` für `fusion_youtube` / `fusion_vimeo` → statt Avada-iframe das bestehende LSCC-Platzhalter-Markup (Kategorie `external_media`) ausgeben.
+- `embed_oembed_html` für nackte oEmbed-Video-URLs.
+
+Das iframe entsteht erst nach Consent über die **vorhandene** JS-Mechanik. Vorteile: skaliert automatisch über alle Seiten, `post_content` bleibt unangetastet, vollständig reversibel (Modul aus), cachebar.
+
+## No-Go-Konformität
+
+Dieser Ansatz verletzt KEINE der absoluten No-Gos: kein MutationObserver, kein DOM-Hijacking fertiger iframes, kein Frontend-Scanner, kein Crawler, kein automatisches Umschreiben von `<script>`-Tags. Es ist Interception der *eigenen Render-Pipeline*, nicht nachträgliche DOM-Manipulation.
+
+## Ausdrücklich verworfen
+
+**Serverseitige Content-Migration** (`post_content` umschreiben: `fusion_youtube` → `lscc_youtube`) wird NICHT empfohlen: Risiko des Fusion-Builder-Desyncs (Avada hält eigene Builder-Repräsentation/Meta), destruktiv, über 40 Sites schlecht reversibel — widerspricht „keine Inhalte/Themes kaputtmachen".
+
+## Bekannte Abdeckungslücken
+
+Hintergrundvideos (Container/Section), `fusion_code`-Roh-Embeds und handgepastete `<iframe>` werden von der Shortcode-Interception NICHT erfasst. Diese bleiben Restposten und werden über den passiven Privacy-Check nur sichtbar gemacht, nicht automatisch umgebaut.
+
+## Vorbedingungen vor Umsetzung
+
+1. Technischer Spike an einer echten Avada-Seite: exakte Fusion-Shortcode-Tags/Attribute (versionsabhängig!), Hintergrundvideo-Pfad, und Prüfung auf Konflikt mit Avadas eigener Privacy-/Embed-Funktion (es darf nur EINE Consent-Schicht aktiv sein).
+2. Formelle Scope-Freigabe + neue ADR, da dies bewusst über „Shortcode-only" hinausgeht.

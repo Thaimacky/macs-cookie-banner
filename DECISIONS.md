@@ -207,3 +207,20 @@ Dieses Dokument haelt zentrale Entscheidungen fest, die die Form des Plugins erk
 - Eindeutiger, nicht zu interpretierender Zielpfad verhindert Streuung über mehrere Orte.
 
 **Folgen:** Beim ZIP-Build (`git archive ... -o <Parent>\light-swiss-cookie-consent-v<VERSION>-test.zip HEAD`) ist der Zielpfad immer das Parent-Verzeichnis. Eine Änderung des Ablageorts erfordert eine ausdrückliche Anweisung des Auftraggebers. Bestehende Projektpraxis hat Vorrang vor Annahmen des Agents. Verbindliche Referenz: `MASTER_HANDBUCH.md`, Sektion „Release-Artefakte / Ablageort für Test-ZIPs".
+
+## ADR-16: Avada-Massenkompatibilität via Render-Layer-Interception (Richtungsentscheidung, Umsetzung freigabepflichtig)
+
+**Status:** Richtungsentscheidung dokumentiert; Implementierung steht unter ausdrücklichem Freigabevorbehalt (technischer Spike + Scope-Freigabe erforderlich).
+
+**Entscheidung:** Für den geplanten Einsatz auf ≈40 bestehenden Avada-Websites ist der bevorzugte Weg, bestehende Avada-Video-Elemente über **serverseitige Render-Layer-Interception** consent-zu-gaten — als **opt-in Modul** über WordPress-Filter (`pre_do_shortcode_tag` für `fusion_youtube`/`fusion_vimeo`, `embed_oembed_html` für oEmbeds), das statt des Avada-iframes das bestehende LSCC-Platzhalter-Markup (Kategorie `external_media`) ausgibt. **Serverseitige Content-Migration** (`post_content`-Rewrite) wird verworfen.
+
+**Kontext:** Shortcode-only (ADR-2/ADR-6) deckt Neuinhalte ab, aber nicht den Bestand von potenziell tausenden bereits gebauten Avada-Seiten. Eine manuelle Umstellung ist nicht zumutbar. Avada speichert Videos als Fusion-Shortcodes im `post_content` und rendert sie serverseitig — das bietet einen sauberen Interception-Punkt vor der iframe-Erzeugung.
+
+**Gründe:**
+
+- Skaliert automatisch über alle Seiten/Sites ohne manuelles Editieren; `post_content` bleibt unangetastet; vollständig reversibel (Modul deaktivieren).
+- No-Go-konform: kein MutationObserver, kein DOM-Hijacking fertiger iframes, kein Frontend-Scanner, kein Crawler, kein `<script>`-Rewrite. Interception der eigenen Render-Pipeline ≠ DOM-Manipulation.
+- Datenschutz: kein Drittanbieter-Request vor Consent (nur Platzhalter), gleiche Mechanik wie die bestehenden Service-Komponenten.
+- Content-Migration verworfen wegen Fusion-Builder-Desync-Risiko, Destruktivität und schlechter Reversibilität über 40 Sites.
+
+**Folgen / offene Punkte:** Abdeckungslücken (Hintergrundvideos, `fusion_code`-Roh-Embeds, handgepastete iframes) werden nicht automatisch erfasst und nur über den passiven Privacy-Check sichtbar gemacht. Vor Umsetzung: Spike an realer Avada-Seite (exakte, versionsabhängige Shortcode-Atts; Hintergrundvideo-Pfad; Konflikt mit Avadas eigener Privacy-/Embed-Funktion — nur EINE Consent-Schicht). Erst danach formelle Freigabe und Implementierung. Verbindliche Referenz: `MASTER_HANDBUCH.md`, Sektion „Avada-Massenkompatibilität (Strategie)".
