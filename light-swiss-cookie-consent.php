@@ -3,7 +3,7 @@
  * Plugin Name: Light Swiss Cookie Consent
  * Plugin URI:  https://example.com/light-swiss-cookie-consent
  * Description: Lightweight cookie consent banner with script blocking for WordPress.
- * Version:     0.1.8
+ * Version:     0.1.9
  * Author:      Light Swiss Cookie Consent
  * Text Domain: light-swiss-cookie-consent
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'LSCC_VERSION', '0.1.8' );
+define( 'LSCC_VERSION', '0.1.9' );
 
 /**
  * Consent schema version. Bump this whenever the stored consent shape
@@ -63,6 +63,9 @@ final class Light_Swiss_Cookie_Consent {
 
 		require_once LSCC_PLUGIN_DIR . 'includes/service-components.php';
 		Light_Swiss_Cookie_Consent_Service_Components::init();
+
+		require_once LSCC_PLUGIN_DIR . 'includes/avada-compat.php';
+		Light_Swiss_Cookie_Consent_Avada_Compat::init();
 
 		if ( is_admin() ) {
 			require_once LSCC_PLUGIN_DIR . 'includes/admin-page.php';
@@ -115,6 +118,7 @@ final class Light_Swiss_Cookie_Consent {
 			'privacy_url_override'   => '',
 			'imprint_url_override'   => '',
 			'consent_lifetime_days'  => 180,
+			'avada_youtube_block'    => true,
 		);
 	}
 
@@ -233,6 +237,7 @@ final class Light_Swiss_Cookie_Consent {
 			'overlay_enabled',
 			'blur_enabled',
 			'show_legal_links',
+			'avada_youtube_block',
 		);
 	}
 

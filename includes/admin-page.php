@@ -217,6 +217,17 @@ final class Light_Swiss_Cookie_Consent_Admin {
 					</tr>
 				</table>
 
+				<h2><?php echo esc_html__( 'Avada-Kompatibilität', 'light-swiss-cookie-consent' ); ?></h2>
+				<table class="form-table" role="presentation">
+					<?php self::render_checkbox_field( 'avada_youtube_block', esc_html__( 'Avada-YouTube (fusion_youtube) vor Consent blockieren', 'light-swiss-cookie-consent' ), $options['avada_youtube_block'] ); ?>
+					<tr>
+						<th scope="row"></th>
+						<td>
+							<p class="description"><?php echo esc_html__( 'Wenn aktiviert, werden Avada/Fusion-Builder-YouTube-Elemente serverseitig durch einen Platzhalter ersetzt. Das YouTube-Video lädt erst nach Zustimmung zur Kategorie „Externe Medien". Es findet keine Inhaltsänderung statt; bei deaktiviertem Schalter rendert Avada wie gewohnt. Nur YouTube; Vimeo, Maps und Hintergrundvideos sind nicht betroffen.', 'light-swiss-cookie-consent' ); ?></p>
+						</td>
+					</tr>
+				</table>
+
 				<?php submit_button( esc_html__( 'Einstellungen speichern', 'light-swiss-cookie-consent' ) ); ?>
 			</form>
 		</div>

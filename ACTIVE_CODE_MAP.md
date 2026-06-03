@@ -10,6 +10,7 @@ Diese Karte beschreibt die aktiven Dateien, ihre Zustaendigkeiten und die wichti
 | `includes/admin-page.php` | Admin-Menue, Einstellungsseite, Speichern via `admin-post.php` mit Nonce-Pruefung, Render-Helpers fuer Text- und Color-Felder. |
 | `includes/privacy-check.php` | Passive Admin-Seite, die einmal die Startseite via `wp_remote_get` abruft und gegen eine statische Mustertabelle prueft. |
 | `includes/avada-inventory.php` | Passive, rein lesende Admin-Seite „Avada Inventar-Scan" (ab 0.1.8): zählt Video-/Map-/Embed-Typen in lokalen Inhalten zur Abschätzung der automatischen Abdeckung. Keine externen Requests, keine Schreibzugriffe, keine Inhaltsänderung. |
+| `includes/avada-compat.php` | Render-Layer-Interception (ab 0.1.9): fängt Avadas `fusion_youtube` via `pre_do_shortcode_tag` ab und ersetzt es durch das LSCC-Platzhalter-Markup (Kategorie `external_media`). Nur Frontend, opt-in via `avada_youtube_block`. |
 | `includes/service-components.php` | Shortcodes `[lscc_youtube]`, `[lscc_vimeo]`, `[lscc_google_map]` mit Placeholder-Markup. |
 | `assets/js/banner.js` | Frontend-Logik: Consent-Speicherung, Banner-Steuerung, Script-Aktivierung, Media-Sync. |
 | `assets/css/banner.css` | Styles fuer Banner, Reopen-Button, Settings-Button und Media-Komponenten. |
@@ -155,6 +156,16 @@ Der Check fuehrt keinen Crawl durch, prueft nur diese eine URL und veraendert ni
 - `percent( $part, $total )` — gerundete Prozentangabe mit Divide-by-zero-Schutz.
 
 Element-Klassifizierung (überschneidungsfrei) als Entscheidungsbasis; Diagnostik-Rohtreffer separat. Automatisch abfangbar = `fusion_youtube + fusion_vimeo + oEmbed`; bedingt = `fusion_map`; manuell = Background-Video(YT/Vimeo) + `fusion_code`(mit Embed) + rohe Drittanbieter-iframes.
+
+## `includes/avada-compat.php`
+
+**Klasse `Light_Swiss_Cookie_Consent_Avada_Compat`** (ab 0.1.9):
+
+- `init()` — registriert nur im Frontend (`! is_admin()`) und nur bei aktivierter Option `avada_youtube_block` den Filter `pre_do_shortcode_tag` (Prio 10, 4 Argumente).
+- `intercept( $output, $tag, $attr, $m )` — bei `$tag === 'fusion_youtube'`: extrahiert die Video-ID, gibt `Light_Swiss_Cookie_Consent_Service_Components::render_youtube( array( 'id' => $video_id ) )` als Ersatz-Markup zurück (Kurzschluss der Avada-Ausgabe). Bei nicht parsebarer ID oder leerem Markup wird `$output` (false) zurückgegeben → Avada rendert normal weiter.
+- `extract_video_id( $raw )` — akzeptiert rohe IDs und YouTube-URLs (`youtu.be/ID`, `watch?v=ID`, `/embed/ID`, `/v/ID`); liefert `''` bei nicht parsebarem Wert.
+
+Reine Server-Interception: kein DOM-Hijacking, kein MutationObserver, kein Scanner, keine Inhaltsänderung. Das iframe wird erst nach `external_media`-Consent über die bestehende `banner.js`-Mechanik gebaut. Wiederverwendung von `Service_Components::render_youtube()` → identisches Platzhalter-/Consent-Verhalten wie `[lscc_youtube]`. Steuerung über `avada_youtube_block` (bool, Default `true`).
 
 ## `includes/service-components.php`
 

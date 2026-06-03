@@ -8,6 +8,22 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.1.9-test - 2026-06-03
+
+### Added
+
+- **Avada-Kompatibilität: `fusion_youtube` wird vor Consent blockiert.** Neues Modul `includes/avada-compat.php` fängt Avadas `fusion_youtube`-Shortcode serverseitig über den WordPress-Filter `pre_do_shortcode_tag` ab (bevor das iframe erzeugt wird) und gibt stattdessen das bestehende LSCC-Platzhalter-Markup (Kategorie `external_media`) aus. Das YouTube-iframe wird erst nach Zustimmung über die vorhandene `banner.js`-Mechanik gebaut. Bei „Nur notwendige" entsteht kein YouTube-Request und kein YouTube-Cookie.
+- Neue Admin-Option **„Avada-YouTube (fusion_youtube) vor Consent blockieren"** (`avada_youtube_block`, Default `true`) in neuer Sektion „Avada-Kompatibilität".
+- Video-ID-Erkennung aus `id` (rohe ID oder YouTube-URL: `youtu.be/…`, `watch?v=…`, `/embed/…`, `/v/…`).
+
+### Security / Datenschutz
+
+- Render-Layer-Interception, **kein** DOM-Hijacking, **kein** MutationObserver, **kein** Frontend-Scanner, **kein** `<script>`-Rewrite. `post_content` bleibt unverändert (keine Migration). Vollständig reversibel über den Admin-Schalter. Kein neuer Consent-Code; Consent-Flow unverändert. Scope bewusst nur YouTube — Vimeo, Maps, Background-Videos, `fusion_code` und rohe iframes werden nicht behandelt. Greift nur im Frontend (nicht im Admin/Builder-Backend). Bei nicht parsebarer Video-ID rendert Avada unverändert weiter (kein Layout-Bruch).
+
+### Changed
+
+- Plugin-Header und `LSCC_VERSION` auf `0.1.9` gesetzt. `LSCC_CONSENT_VERSION` bleibt `2`.
+
 ## 0.1.8-test - 2026-06-03
 
 ### Added

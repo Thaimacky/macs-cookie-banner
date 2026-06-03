@@ -85,6 +85,21 @@
 - [ ] Reopen-Button ist nicht sichtbar, wenn kein gültiger Consent vorhanden ist (auch nicht bei Browser ohne JS-Init).
 - [ ] Nach Aktivierung der neuen Version sind die Defaults `overlay_enabled`, `blur_enabled`, `show_legal_links` jeweils `true` — auch wenn vorher eine alte Plugin-Version installiert war.
 
+## Avada fusion_youtube Consent-Gating (ab v0.1.9-test)
+
+- [ ] Auf Avada/Daniela-Baumann: nach „Nur notwendige" werden **keine** YouTube-Ressourcen geladen (Netzwerk-Monitor: kein `iframe_api`, kein `www-widgetapi.js`, keine youtube.com-Cookies).
+- [ ] Vor Consent erscheint statt des Avada-iframes der LSCC-Platzhalter mit Hinweistext und Accept-Button.
+- [ ] Kein `<iframe>` von YouTube im DOM vor Consent.
+- [ ] Nach Zustimmung zu „Externe Medien" lädt das YouTube-Video; Reload behält den Consent.
+- [ ] Option „Avada-YouTube … blockieren" aus → Avada rendert wieder sein Original-iframe (reversibel).
+- [ ] Mehrere `fusion_youtube` auf einer Seite werden alle ersetzt.
+- [ ] `fusion_youtube` mit voller URL als `id` (statt reiner ID) wird korrekt erkannt.
+- [ ] Nicht parsebare/leere `id` → Avada rendert unverändert (kein Layout-Bruch, kein Fehler).
+- [ ] Layout wird durch den 16:9-Platzhalter nicht sichtbar zerstört (visuelle Stichprobe Desktop + Mobile).
+- [ ] Builder-Backend (Fusion Builder Bearbeitung) bleibt unverändert; Interception nur im Frontend.
+- [ ] `[lscc_youtube]`-Shortcode-Videos verhalten sich unverändert (gleiche `external_media`-Kategorie).
+- [ ] Kein Konflikt mit Avadas eigener Privacy-/Embed-Funktion (nur EINE Consent-Schicht aktiv).
+
 ## Avada Inventar-Scan (ab v0.1.8-test)
 
 - [ ] Admin-Submenu „Avada Inventar-Scan" erscheint unter „Light Swiss Cookie Consent".

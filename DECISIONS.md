@@ -224,3 +224,17 @@ Dieses Dokument haelt zentrale Entscheidungen fest, die die Form des Plugins erk
 - Content-Migration verworfen wegen Fusion-Builder-Desync-Risiko, Destruktivität und schlechter Reversibilität über 40 Sites.
 
 **Folgen / offene Punkte:** Abdeckungslücken (Hintergrundvideos, `fusion_code`-Roh-Embeds, handgepastete iframes) werden nicht automatisch erfasst und nur über den passiven Privacy-Check sichtbar gemacht. Vor Umsetzung: Spike an realer Avada-Seite (exakte, versionsabhängige Shortcode-Atts; Hintergrundvideo-Pfad; Konflikt mit Avadas eigener Privacy-/Embed-Funktion — nur EINE Consent-Schicht). Erst danach formelle Freigabe und Implementierung. Verbindliche Referenz: `MASTER_HANDBUCH.md`, Sektion „Avada-Massenkompatibilität (Strategie)".
+
+## ADR-17: Avada-`fusion_youtube` Consent-Gating via `pre_do_shortcode_tag` (umgesetzt in v0.1.9)
+
+**Status:** Umgesetzt (v0.1.9). Konkretisiert und aktiviert die in ADR-16 beschlossene Richtung für den ersten Dienst (YouTube). Freigabe durch den Auftraggeber erteilt nach Spike (v0.1.8) und realem Test (Avada/Daniela-Baumann).
+
+**Entscheidung:** Avadas `fusion_youtube`-Shortcode wird im Frontend über den Filter `pre_do_shortcode_tag` abgefangen und durch das bestehende LSCC-Platzhalter-Markup ersetzt. Das gilt **gate über die Kategorie `external_media`** — identisch zu `[lscc_youtube]`/`[lscc_vimeo]` —, damit dieselbe Consent-Schaltfläche alle YouTube-Einbettungen unabhängig von der Herkunft steuert. Das Feature ist **opt-in** über die Admin-Option `avada_youtube_block` (Default `true`) und betrifft **nur YouTube**.
+
+**Kontext:** Test auf einer echten Avada-Seite zeigte: Consent wurde korrekt gespeichert (`external_media`/`marketing` = false), aber Avada-YouTube-Elemente luden trotzdem `iframe_api`, `www-widgetapi.js` und YouTube-Cookies, weil `fusion_youtube` sein iframe ungated rendert. Der Inventar-Scan (v0.1.8) bestätigte 100 % automatische Erkennbarkeit der `fusion_youtube`-Elemente.
+
+**Begründung der Kategorie-Wahl (`external_media` statt `marketing`):** Die bestehenden Video-Komponenten nutzen `external_media`. Würde Avada-YouTube an `marketing` hängen, steuerten herkunftsgleiche Videos je nach Quelle unterschiedliche Schalter — inkonsistent und für Betreiber/Besucher verwirrend. `external_media` hält das Verhalten einheitlich. (Auftraggeber-Entscheid.)
+
+**Begründung des Mechanismus:** `pre_do_shortcode_tag` greift vor der iframe-Erzeugung → kein Drittanbieter-Request vor Consent, kein DOM-Hijacking, kein MutationObserver, kein Scanner, kein `<script>`-Rewrite, keine `post_content`-Migration. Wiederverwendung von `Service_Components::render_youtube()` vermeidet einen zweiten Platzhalter-/Consent-Pfad. Greift nur im Frontend; das Builder-Backend bleibt unberührt. Bei nicht parsebarer Video-ID wird die Original-Avada-Ausgabe durchgelassen (kein Layout-Bruch).
+
+**Folgen / offene Punkte:** Das LSCC-Platzhalter-Layout (16:9) kann von der ursprünglichen Avada-Größe/-Ausrichtung leicht abweichen — visuell unkritisch, real zu prüfen. Vimeo (`fusion_vimeo`), Maps (`fusion_map`, zusätzlich Script-Gating nötig), Background-Videos, `fusion_code` und rohe iframes sind bewusst noch nicht abgedeckt und Kandidaten für Folgeversionen. Ein möglicher Konflikt mit Avadas eigener Privacy-/Embed-Funktion ist beim Einsatz zu prüfen (nur EINE Consent-Schicht aktiv).
