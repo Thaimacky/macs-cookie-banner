@@ -77,6 +77,18 @@
 - [ ] Reopen-Button ist nicht sichtbar, wenn kein gültiger Consent vorhanden ist (auch nicht bei Browser ohne JS-Init).
 - [ ] Nach Aktivierung der neuen Version sind die Defaults `overlay_enabled`, `blur_enabled`, `show_legal_links` jeweils `true` — auch wenn vorher eine alte Plugin-Version installiert war.
 
+## Lokales Thumbnail Vimeo (ab v0.1.7-test)
+
+- [ ] `[lscc_vimeo id="..."]` **ohne** `thumbnail_id` verhält sich exakt wie bisher (einfacher Platzhalter, kein Bild).
+- [ ] `[lscc_vimeo id="..." thumbnail_id="<gültige Bild-ID>"]` zeigt vor Consent das Mediathek-Bild, grossen Play-Button, Hinweistext und „Externe Medien akzeptieren"-Button.
+- [ ] **Netzwerk-Monitor vor Consent:** kein Request an `vimeo.com`, `player.vimeo.com`, `i.vimeocdn.com` oder andere externe Hosts. Thumbnail kommt nur von der eigenen Domain / Uploads.
+- [ ] Klick auf Play-Button **und** Accept-Button lädt je das Vimeo-iframe; Video spielt.
+- [ ] Nach Consent unverändertes iframe-Verhalten; Reload behält den Consent.
+- [ ] `thumbnail_id` ungültig / kein Bild / `0` / leer → stiller Fallback auf den bisherigen Platzhalter.
+- [ ] Bild füllt die 16:9-Fläche (`object-fit: cover`), kein CLS, Play-Button per Tastatur fokussierbar (`:focus-visible`).
+- [ ] Mobile (< 420 px): kein Overflow, Tap-Target ausreichend.
+- [ ] YouTube-Komponente weiterhin unverändert; Google Maps weiterhin ohne `thumbnail_id`.
+
 ## Lokales Thumbnail YouTube (ab v0.1.6-test)
 
 - [ ] `[lscc_youtube id="..."]` **ohne** `thumbnail_id` verhält sich exakt wie bisher (einfacher Platzhalter, kein Bild).

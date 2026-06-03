@@ -8,6 +8,20 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.1.7-test - 2026-06-03
+
+### Added
+
+- Optionales lokales Thumbnail jetzt auch für die Vimeo-Service-Komponente: `[lscc_vimeo id="VIDEO_ID" thumbnail_id="123"]`. Verhalten identisch zu YouTube (v0.1.6) — Mediathek-Bild plus grosser Play-Button vor Consent, iframe erst nach Zustimmung zu `external_media`. Ohne `thumbnail_id` bleibt das Verhalten exakt wie bisher.
+
+### Security / Datenschutz
+
+- Vimeo nutzt denselben Mechanismus wie YouTube: ausschliesslich `thumbnail_id` (numerische Attachment-ID), **keine** Bild-URL, **kein** Auto-Fetch, **keine** Vimeo-API, **keine** externe Bildquelle. Kein zweiter Thumbnail-Mechanismus; `get_local_thumbnail_html()` und die CSS-Klassen `.lscc-media__thumb` / `.lscc-media__play` werden wiederverwendet. JS und Consent-Flow unverändert.
+
+### Changed
+
+- Plugin-Header und `LSCC_VERSION` auf `0.1.7` gesetzt. `LSCC_CONSENT_VERSION` bleibt `2` (kein Consent-Schema-Wechsel).
+
 ## 0.1.6-test - 2026-06-03
 
 ### Added

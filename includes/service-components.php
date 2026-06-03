@@ -94,7 +94,14 @@ final class Light_Swiss_Cookie_Consent_Service_Components {
 	 * @return string
 	 */
 	public static function render_vimeo( $atts ) {
-		$atts     = shortcode_atts( array( 'id' => '' ), $atts, 'lscc_vimeo' );
+		$atts     = shortcode_atts(
+			array(
+				'id'           => '',
+				'thumbnail_id' => '',
+			),
+			$atts,
+			'lscc_vimeo'
+		);
 		$video_id = self::sanitize_media_id( $atts['id'] );
 
 		if ( '' === $video_id ) {
@@ -105,7 +112,8 @@ final class Light_Swiss_Cookie_Consent_Service_Components {
 			'vimeo',
 			'https://player.vimeo.com/video/' . rawurlencode( $video_id ),
 			__( 'Vimeo-Video', 'light-swiss-cookie-consent' ),
-			__( 'Dieses Vimeo-Video wird erst nach Zustimmung zu externen Medien geladen.', 'light-swiss-cookie-consent' )
+			__( 'Dieses Vimeo-Video wird erst nach Zustimmung zu externen Medien geladen.', 'light-swiss-cookie-consent' ),
+			self::get_local_thumbnail_html( $atts['thumbnail_id'] )
 		);
 	}
 

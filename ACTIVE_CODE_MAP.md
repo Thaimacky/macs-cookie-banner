@@ -147,7 +147,7 @@ Der Check fuehrt keinen Crawl durch, prueft nur diese eine URL und veraendert ni
 
 - `init()` — registriert die drei Shortcodes
 - `render_youtube( $atts )` — `youtube-nocookie.com`-Embed; akzeptiert ab 0.1.6 zusätzlich `thumbnail_id` (lokales Mediathek-Bild)
-- `render_vimeo( $atts )` — `player.vimeo.com`-Embed
+- `render_vimeo( $atts )` — `player.vimeo.com`-Embed; akzeptiert ab 0.1.7 zusätzlich `thumbnail_id` (lokales Mediathek-Bild, gleiche Mechanik wie YouTube)
 - `render_google_map( $atts )` — Google-Maps-Embed mit Host-Allowlist
 - `sanitize_media_id()` — beschraenkt IDs auf `[A-Za-z0-9_-]`
 - `sanitize_google_maps_url()` — akzeptiert nur Hosts unter `google.*` oder `maps.google.com` und Pfade mit `/maps`
@@ -191,6 +191,7 @@ Die Admin-Seite `Privacy Check` ruft `Light_Swiss_Cookie_Consent_Privacy_Check::
 - `[lscc_youtube id="VIDEO_ID"]` — youtube-nocookie-Embed.
 - `[lscc_youtube id="VIDEO_ID" thumbnail_id="123"]` — wie oben, zeigt aber vor Consent das lokale Mediathek-Bild mit ID `123` plus Play-Button. Nur numerische Attachment-IDs, keine externen Bildquellen.
 - `[lscc_vimeo id="VIDEO_ID"]` — Vimeo-Player-Embed.
+- `[lscc_vimeo id="VIDEO_ID" thumbnail_id="123"]` — wie oben, zeigt aber vor Consent das lokale Mediathek-Bild mit ID `123` plus Play-Button (ab 0.1.7, gleiche Mechanik wie YouTube). Nur numerische Attachment-IDs, keine externen Bildquellen.
 - `[lscc_google_map url="https://www.google.com/maps/embed?..."]` — Google-Maps-Embed mit Host-Pruefung.
 
 Jede Komponente rendert vor Zustimmung nur einen Platzhalter mit Hinweistext und Akzeptier-Button. Der Klick auf `data-lscc-accept-media` setzt die Kategorie `external_media = true` und laedt die Komponente sofort.
