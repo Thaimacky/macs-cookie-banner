@@ -34,24 +34,99 @@ final class Light_Swiss_Cookie_Consent_Service_Components {
 		$atts     = shortcode_atts(
 			array(
 				'id'           => '',
+				'title'        => '',
 				'thumbnail_id' => '',
 			),
 			$atts,
 			'lscc_youtube'
 		);
-		$video_id = self::sanitize_media_id( $atts['id'] );
+		$video_id = self::extract_youtube_id( $atts['id'] );
 
 		if ( '' === $video_id ) {
 			return '';
 		}
 
+		$title = '' !== trim( (string) $atts['title'] )
+			? sanitize_text_field( $atts['title'] )
+			: __( 'YouTube-Video', 'light-swiss-cookie-consent' );
+
 		return self::render_component(
 			'youtube',
 			'https://www.youtube-nocookie.com/embed/' . rawurlencode( $video_id ),
-			__( 'YouTube-Video', 'light-swiss-cookie-consent' ),
+			$title,
 			__( 'Dieses YouTube-Video wird erst nach Zustimmung zu externen Medien geladen.', 'light-swiss-cookie-consent' ),
-			self::get_local_thumbnail_html( $atts['thumbnail_id'] )
+			self::resolve_youtube_thumbnail_html( $atts['thumbnail_id'], $video_id )
 		);
+	}
+
+	/**
+	 * Extract a YouTube video id from a raw id or a YouTube URL.
+	 *
+	 * Accepts raw ids ("dQw4w9WgXcQ") as well as common URL forms
+	 * (youtu.be/ID, watch?v=ID, /embed/ID, /v/ID). Returns '' when nothing
+	 * usable can be parsed. A bare id is passed through sanitize_media_id() so
+	 * existing [lscc_youtube id="VIDEO_ID"] usages stay byte-compatible.
+	 *
+	 * @param mixed $raw Raw value from the shortcode `id` attribute.
+	 * @return string
+	 */
+	public static function extract_youtube_id( $raw ) {
+		$raw = trim( (string) $raw );
+
+		if ( '' === $raw ) {
+			return '';
+		}
+
+		$looks_like_url = ( false !== strpos( $raw, '://' ) ) || ( false !== stripos( $raw, 'youtu' ) && false !== strpos( $raw, '/' ) );
+
+		if ( $looks_like_url ) {
+			if ( preg_match( '#youtu\.be/([A-Za-z0-9_-]{6,})#i', $raw, $match ) ) {
+				return $match[1];
+			}
+			if ( preg_match( '#[?&]v=([A-Za-z0-9_-]{6,})#i', $raw, $match ) ) {
+				return $match[1];
+			}
+			if ( preg_match( '#/(?:embed|v)/([A-Za-z0-9_-]{6,})#i', $raw, $match ) ) {
+				return $match[1];
+			}
+
+			return '';
+		}
+
+		return self::sanitize_media_id( $raw );
+	}
+
+	/**
+	 * Resolve the thumbnail markup for a YouTube component.
+	 *
+	 * Priority: a local media-library attachment (always privacy-safe) wins.
+	 * Otherwise, only if the admin opted in via `youtube_remote_thumbnails`
+	 * (default off), a remote i.ytimg.com preview image is used. NOTE: the
+	 * remote variant loads an image from Google BEFORE consent — a deliberate
+	 * operator trade-off. No iframe and no youtube.com cookies are involved
+	 * before consent in either case.
+	 *
+	 * @param mixed  $thumbnail_id Raw attachment id from the shortcode.
+	 * @param string $video_id     Sanitized YouTube video id.
+	 * @return string Escaped <img> markup or '' for the plain placeholder.
+	 */
+	private static function resolve_youtube_thumbnail_html( $thumbnail_id, $video_id ) {
+		$local = self::get_local_thumbnail_html( $thumbnail_id );
+
+		if ( '' !== $local ) {
+			return $local;
+		}
+
+		$options = Light_Swiss_Cookie_Consent::get_options();
+
+		if ( ! empty( $options['youtube_remote_thumbnails'] ) && '' !== $video_id ) {
+			return sprintf(
+				'<img class="lscc-media__thumb" src="%s" loading="lazy" alt="" referrerpolicy="no-referrer" />',
+				esc_url( 'https://i.ytimg.com/vi/' . rawurlencode( $video_id ) . '/hqdefault.jpg' )
+			);
+		}
+
+		return '';
 	}
 
 	/**
@@ -197,12 +272,15 @@ final class Light_Swiss_Cookie_Consent_Service_Components {
 		$button_label = __( 'Externe Medien akzeptieren', 'light-swiss-cookie-consent' );
 		$notice_id    = wp_unique_id( 'lscc-media-notice-' );
 		$has_thumb    = '' !== $thumbnail_html;
+		$show_play    = $has_thumb || 'youtube' === $service || 'vimeo' === $service;
 
 		$play_markup = '';
 
-		if ( $has_thumb ) {
+		if ( $show_play ) {
+			// data-lscc-autoplay marks this trigger so banner.js starts the video
+			// right after consent when the visitor used the play button.
 			$play_markup = sprintf(
-				'<button type="button" class="lscc-media__play" data-lscc-accept-media aria-describedby="%1$s" aria-label="%2$s"></button>',
+				'<button type="button" class="lscc-media__play" data-lscc-accept-media data-lscc-autoplay aria-describedby="%1$s" aria-label="%2$s"></button>',
 				esc_attr( $notice_id ),
 				esc_attr( $button_label )
 			);

@@ -8,6 +8,35 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.2.0-test - 2026-06-03
+
+### Added
+
+- **Nativer LSCC-YouTube-Block ausgebaut** als empfohlener Weg für neue Websites: `[lscc_youtube id="VIDEO_ID" title="Optionaler Titel"]`.
+  - `id` akzeptiert jetzt zusätzlich **YouTube-URLs** (`youtube.com/watch?v=…`, `youtu.be/…`, `/embed/…`, `/v/…`) — neuer öffentlicher Helper `Service_Components::extract_youtube_id()`.
+  - Neues optionales Attribut `title` (wird als iframe-/a11y-Titel verwendet).
+  - Play-Button erscheint jetzt **immer** bei YouTube/Vimeo (auch ohne Thumbnail), zusammen mit Hinweistext und „Externe Medien akzeptieren"-Button. Responsive 16:9.
+  - **Autoplay nach Play-Klick:** Wird das Video über den Play-Button freigegeben, startet es nach Zustimmung automatisch (`autoplay=1` für YouTube/Vimeo). Über den reinen Accept-Button: kein Autostart.
+- Neue Admin-Option **„YouTube-Thumbnails vor Consent laden"** (`youtube_remote_thumbnails`, Default **AUS**) in neuer Sektion „Externe Medien".
+  - AUS (Default): lokaler Platzhalter, keine externe Bildanfrage.
+  - AN: YouTube-Vorschaubild von `i.ytimg.com`. Ein per `thumbnail_id` gesetztes lokales Bild hat immer Vorrang.
+
+### Security / Datenschutz
+
+- Vor Consent entsteht **kein** iframe, **kein** `iframe_api`, **kein** `www-widgetapi.js` und **keine** youtube.com-Cookies — unabhängig von der Thumbnail-Option.
+- **Hinweis (ADR-18, schränkt ADR-14 ein):** Bei aktivierter Option „YouTube-Thumbnails vor Consent laden" wird bereits vor Consent ein Bild von `i.ytimg.com` geladen (überträgt die Besucher-IP an Google). Das ist eine bewusste, per Default deaktivierte Opt-in-Abwägung des Betreibers.
+- Kein DOM-Hijacking, kein MutationObserver. Die v0.1.9-Avada-Kompatibilität bleibt unverändert und nutzt denselben (jetzt URL-fähigen) Helper.
+
+### Changed
+
+- `assets/js/banner.js`: `createMediaIframe()` hängt `autoplay=1` an, wenn die Aktivierung über den Play-Button kam; `bindMediaComponents()` markiert die zugehörige Komponente. Keine Änderung am Consent-Schema.
+- `render_component()` zeigt den Play-Button für YouTube/Vimeo immer (vorher nur mit Thumbnail).
+- Plugin-Header und `LSCC_VERSION` auf `0.2.0` gesetzt. `LSCC_CONSENT_VERSION` bleibt `2`.
+
+### Migration
+
+- Bestehende `[lscc_youtube id="VIDEO_ID"]`- und `[lscc_youtube id="VIDEO_ID" thumbnail_id="123"]`-Shortcodes bleiben voll kompatibel (gleiche Attribute, gleiche Kategorie `external_media`); sie erhalten zusätzlich den Play-Button. Keine Inhaltsmigration nötig.
+
 ## 0.1.9-test - 2026-06-03
 
 ### Added

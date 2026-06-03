@@ -61,7 +61,7 @@ final class Light_Swiss_Cookie_Consent_Avada_Compat {
 
 		$atts     = is_array( $attr ) ? $attr : array();
 		$raw_id   = isset( $atts['id'] ) ? $atts['id'] : '';
-		$video_id = self::extract_video_id( $raw_id );
+		$video_id = Light_Swiss_Cookie_Consent_Service_Components::extract_youtube_id( $raw_id );
 
 		// If we cannot safely determine the video id, do not break the page:
 		// let Avada render its original output.
@@ -76,41 +76,5 @@ final class Light_Swiss_Cookie_Consent_Avada_Compat {
 		}
 
 		return $markup;
-	}
-
-	/**
-	 * Extract a YouTube video id from a raw id or a YouTube URL.
-	 *
-	 * Accepts raw ids ("dQw4w9WgXcQ") as well as common URL forms
-	 * (youtu.be/ID, watch?v=ID, /embed/ID, /v/ID). Returns '' when nothing
-	 * usable can be parsed.
-	 *
-	 * @param mixed $raw Raw value from the shortcode `id` attribute.
-	 * @return string
-	 */
-	private static function extract_video_id( $raw ) {
-		$raw = trim( (string) $raw );
-
-		if ( '' === $raw ) {
-			return '';
-		}
-
-		$looks_like_url = ( false !== strpos( $raw, '://' ) ) || ( false !== stripos( $raw, 'youtu' ) && false !== strpos( $raw, '/' ) );
-
-		if ( $looks_like_url ) {
-			if ( preg_match( '#youtu\.be/([A-Za-z0-9_-]{6,})#i', $raw, $match ) ) {
-				return $match[1];
-			}
-			if ( preg_match( '#[?&]v=([A-Za-z0-9_-]{6,})#i', $raw, $match ) ) {
-				return $match[1];
-			}
-			if ( preg_match( '#/(?:embed|v)/([A-Za-z0-9_-]{6,})#i', $raw, $match ) ) {
-				return $match[1];
-			}
-
-			return '';
-		}
-
-		return (string) preg_replace( '/[^A-Za-z0-9_-]/', '', $raw );
 	}
 }

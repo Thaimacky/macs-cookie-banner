@@ -281,6 +281,11 @@
 			return null;
 		}
 
+		// Start playback right after consent when the visitor used the play button.
+		if (component.getAttribute('data-lscc-autoplay-now') === '1' && (service === 'youtube' || service === 'vimeo')) {
+			src += (src.indexOf('?') === -1 ? '?' : '&') + 'autoplay=1';
+		}
+
 		iframe.setAttribute('class', 'lscc-media__iframe');
 		iframe.setAttribute('src', src);
 		iframe.setAttribute('title', title);
@@ -361,6 +366,15 @@
 			button.setAttribute('data-lscc-media-bound', '1');
 			button.addEventListener('click', function (event) {
 				event.preventDefault();
+
+				if (button.hasAttribute('data-lscc-autoplay') && typeof button.closest === 'function') {
+					var playComponent = button.closest('[data-lscc-media]');
+
+					if (playComponent) {
+						playComponent.setAttribute('data-lscc-autoplay-now', '1');
+					}
+				}
+
 				acceptExternalMedia(root, reopenButton);
 			});
 		});

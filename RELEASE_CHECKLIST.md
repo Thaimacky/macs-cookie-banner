@@ -85,6 +85,22 @@
 - [ ] Reopen-Button ist nicht sichtbar, wenn kein gültiger Consent vorhanden ist (auch nicht bei Browser ohne JS-Init).
 - [ ] Nach Aktivierung der neuen Version sind die Defaults `overlay_enabled`, `blur_enabled`, `show_legal_links` jeweils `true` — auch wenn vorher eine alte Plugin-Version installiert war.
 
+## Nativer LSCC-YouTube-Block (ab v0.2.0-test)
+
+- [ ] `[lscc_youtube id="VIDEO_ID"]` zeigt vor Consent Platzhalter + Play-Button + Hinweistext + „Externe Medien akzeptieren"-Button (auch ohne Thumbnail).
+- [ ] `[lscc_youtube id="https://www.youtube.com/watch?v=VIDEO_ID"]` und `id="https://youtu.be/VIDEO_ID"` werden korrekt erkannt.
+- [ ] `title="..."` wird als iframe-/a11y-Titel übernommen.
+- [ ] **Mit „Nur notwendige":** keine Requests an youtube.com / youtube-nocookie.com / `iframe_api` / `www-widgetapi.js`; keine youtube.com-Cookies.
+- [ ] Option „YouTube-Thumbnails vor Consent laden" = AUS (Default): kein `i.ytimg.com`-Request vor Consent (lokaler Platzhalter).
+- [ ] Option = AN: `i.ytimg.com`-Vorschaubild erscheint vor Consent, aber weiterhin **kein** iframe/iframe_api/youtube.com-Cookie. (Hinweis: ytimg-Bild überträgt IP an Google — bewusst.)
+- [ ] `thumbnail_id` (lokal) hat Vorrang vor dem Remote-Thumbnail.
+- [ ] **Mit external_media-Zustimmung:** Video lädt korrekt.
+- [ ] Play-Button → Video startet nach Zustimmung automatisch (`autoplay=1`). Reiner Accept-Button → kein Autostart.
+- [ ] Mehrere Videos auf einer Seite funktionieren unabhängig (eigene Autoplay-Markierung pro Komponente).
+- [ ] Responsive 16:9 auf Desktop und Mobile; kein Overflow.
+- [ ] Bestehende `[lscc_youtube id="..."]` / `[lscc_youtube ... thumbnail_id="..."]` weiterhin kompatibel (erhalten zusätzlich den Play-Button).
+- [ ] v0.1.9-Avada-Kompatibilität unverändert (fusion_youtube weiterhin gegated, nutzt denselben Helper).
+
 ## Avada fusion_youtube Consent-Gating (ab v0.1.9-test)
 
 - [ ] Auf Avada/Daniela-Baumann: nach „Nur notwendige" werden **keine** YouTube-Ressourcen geladen (Netzwerk-Monitor: kein `iframe_api`, kein `www-widgetapi.js`, keine youtube.com-Cookies).

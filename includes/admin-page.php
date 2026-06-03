@@ -217,6 +217,17 @@ final class Light_Swiss_Cookie_Consent_Admin {
 					</tr>
 				</table>
 
+				<h2><?php echo esc_html__( 'Externe Medien', 'light-swiss-cookie-consent' ); ?></h2>
+				<table class="form-table" role="presentation">
+					<?php self::render_checkbox_field( 'youtube_remote_thumbnails', esc_html__( 'YouTube-Thumbnails vor Consent laden', 'light-swiss-cookie-consent' ), $options['youtube_remote_thumbnails'] ); ?>
+					<tr>
+						<th scope="row"></th>
+						<td>
+							<p class="description"><?php echo esc_html__( 'Default: AUS (maximaler Datenschutz). AUS = lokaler Platzhalter ohne externe Bildanfrage. AN = YouTube-Vorschaubild von i.ytimg.com. WICHTIG: Bei AN wird bereits VOR der Zustimmung ein Bild von Google geladen (überträgt die Besucher-IP an Google). Auch bei AN entsteht kein iframe, kein iframe_api und keine youtube.com-Cookies vor Consent. Ein per [lscc_youtube thumbnail_id="..."] gesetztes lokales Bild hat immer Vorrang.', 'light-swiss-cookie-consent' ); ?></p>
+						</td>
+					</tr>
+				</table>
+
 				<h2><?php echo esc_html__( 'Avada-Kompatibilität', 'light-swiss-cookie-consent' ); ?></h2>
 				<table class="form-table" role="presentation">
 					<?php self::render_checkbox_field( 'avada_youtube_block', esc_html__( 'Avada-YouTube (fusion_youtube) vor Consent blockieren', 'light-swiss-cookie-consent' ), $options['avada_youtube_block'] ); ?>

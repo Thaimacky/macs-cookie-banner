@@ -172,7 +172,9 @@ Reine Server-Interception: kein DOM-Hijacking, kein MutationObserver, kein Scann
 **Klasse `Light_Swiss_Cookie_Consent_Service_Components`:**
 
 - `init()` — registriert die drei Shortcodes
-- `render_youtube( $atts )` — `youtube-nocookie.com`-Embed; akzeptiert ab 0.1.6 zusätzlich `thumbnail_id` (lokales Mediathek-Bild)
+- `render_youtube( $atts )` — `youtube-nocookie.com`-Embed; Attribute `id` (ab 0.2.0 auch YouTube-URLs), `title` (ab 0.2.0, a11y-Titel) und `thumbnail_id` (lokales Mediathek-Bild)
+- `extract_youtube_id( $raw )` (public, ab 0.2.0) — Video-ID aus roher ID oder YouTube-URL (`youtu.be/`, `watch?v=`, `/embed/`, `/v/`); rohe ID via `sanitize_media_id`. Wird auch von `avada-compat.php` genutzt.
+- `resolve_youtube_thumbnail_html( $thumbnail_id, $video_id )` (ab 0.2.0) — lokales `thumbnail_id` hat Vorrang; sonst nur bei aktivierter Option `youtube_remote_thumbnails` ein `i.ytimg.com`-Bild; sonst leer (Platzhalter).
 - `render_vimeo( $atts )` — `player.vimeo.com`-Embed; akzeptiert ab 0.1.7 zusätzlich `thumbnail_id` (lokales Mediathek-Bild, gleiche Mechanik wie YouTube)
 - `render_google_map( $atts )` — Google-Maps-Embed mit Host-Allowlist
 - `sanitize_media_id()` — beschraenkt IDs auf `[A-Za-z0-9_-]`
@@ -216,6 +218,7 @@ Die Admin-Seite `Privacy Check` ruft `Light_Swiss_Cookie_Consent_Privacy_Check::
 
 - `[lscc_youtube id="VIDEO_ID"]` — youtube-nocookie-Embed.
 - `[lscc_youtube id="VIDEO_ID" thumbnail_id="123"]` — wie oben, zeigt aber vor Consent das lokale Mediathek-Bild mit ID `123` plus Play-Button. Nur numerische Attachment-IDs, keine externen Bildquellen.
+- `[lscc_youtube id="https://youtu.be/VIDEO_ID" title="..."]` (ab 0.2.0) — `id` akzeptiert auch URLs; `title` optionaler a11y-Titel. Play-Button erscheint immer; Autostart nach Play-Klick. Optionales `i.ytimg.com`-Thumbnail nur bei aktivierter Option `youtube_remote_thumbnails`.
 - `[lscc_vimeo id="VIDEO_ID"]` — Vimeo-Player-Embed.
 - `[lscc_vimeo id="VIDEO_ID" thumbnail_id="123"]` — wie oben, zeigt aber vor Consent das lokale Mediathek-Bild mit ID `123` plus Play-Button (ab 0.1.7, gleiche Mechanik wie YouTube). Nur numerische Attachment-IDs, keine externen Bildquellen.
 - `[lscc_google_map url="https://www.google.com/maps/embed?..."]` — Google-Maps-Embed mit Host-Pruefung.
@@ -231,7 +234,7 @@ Jede Komponente rendert vor Zustimmung nur einen Platzhalter mit Hinweistext und
 - Banner-Steuerung (`setBannerVisible`, `syncSettingsTriggers`, `focusSettings`, `bindSettingsTriggers`)
 - Consent-Aktionen (`createConsent`, `collectConsent`, `updateInputs`, `saveAndClose`)
 - Script-Aktivierung (`activateBlockedScripts`, `shouldCopyScriptAttribute`, `normalizeScriptType`)
-- Media-Komponenten (`createMediaIframe`, `setMediaComponentLoaded`, `syncMediaComponents`, `bindMediaComponents`, `acceptExternalMedia`)
+- Media-Komponenten (`createMediaIframe`, `setMediaComponentLoaded`, `syncMediaComponents`, `bindMediaComponents`, `acceptExternalMedia`). Ab 0.2.0: `bindMediaComponents` markiert die Komponente mit `data-lscc-autoplay-now`, wenn der Play-Button (`data-lscc-autoplay`) geklickt wurde; `createMediaIframe` hängt dann `autoplay=1` an (nur YouTube/Vimeo).
 - Event `lscc:consentChanged`
 - Debug-Logging hinter `LSCC_DEBUG`-Flag
 

@@ -1,5 +1,22 @@
 # DEV LOG
 
+## 0.2.0-test - 2026-06-03
+
+- MINOR-Bump 0.1.9 → 0.2.0 (Feature-Set rund um den nativen LSCC-YouTube-Block). Plugin-Header und `LSCC_VERSION` auf `0.2.0`. `LSCC_CONSENT_VERSION` bleibt `2`.
+- **Feature: nativer LSCC-YouTube-Block** als empfohlener Weg für neue Sites. Umsetzung gemäss neuem ADR-18 (schränkt ADR-14 für ein opt-in Remote-Thumbnail ein).
+- `includes/service-components.php`:
+  - `render_youtube()` akzeptiert `title` und (über neuen public Helper `extract_youtube_id()`) auch YouTube-URLs in `id`.
+  - Neuer privater Helper `resolve_youtube_thumbnail_html()`: lokales `thumbnail_id` hat Vorrang; sonst nur bei aktivierter Option `youtube_remote_thumbnails` ein `i.ytimg.com`-Bild; sonst Platzhalter.
+  - `render_component()` zeigt den Play-Button jetzt immer für YouTube/Vimeo (vorher nur mit Thumbnail) und markiert ihn mit `data-lscc-autoplay`.
+- `assets/js/banner.js` (minimal, gekapselt): `bindMediaComponents()` setzt `data-lscc-autoplay-now` auf der Komponente, wenn der Play-Button geklickt wurde; `createMediaIframe()` hängt dann `autoplay=1` an (nur YouTube/Vimeo). `node --check` grün. Consent-Schema unverändert.
+- `light-swiss-cookie-consent.php`: neue Bool-Option `youtube_remote_thumbnails` (Default `false`) in `get_default_options()` + `get_bool_option_keys()`.
+- `includes/admin-page.php`: neue Sektion „Externe Medien" mit Checkbox + deutlicher Datenschutz-Beschreibung (i.ytimg.com lädt vor Consent → IP an Google).
+- `includes/avada-compat.php`: nutzt jetzt den zentralen `Service_Components::extract_youtube_id()` statt eigener Kopie (DRY); v0.1.9-Verhalten unverändert.
+- **Datenschutz:** Default-Verhalten bleibt ADR-14-konform (kein externes Bild). Remote-Thumbnail ist opt-in/Default-AUS; auch dann kein iframe/iframe_api/www-widgetapi/youtube.com-Cookie vor Consent.
+- **Bewusst NICHT:** Vimeo-Remote-Thumbnail (bräuchte Vimeo-API), kein DOM-Hijacking/Observer, keine Consent-Schema-Änderung, kein Content-Rewrite.
+- Dokumentation: `CHANGELOG.md` (0.2.0-test), `ACTIVE_CODE_MAP.md`, `DECISIONS.md` (ADR-18), `RELEASE_CHECKLIST.md`.
+- Validierung: `node --check banner.js` OK; PHP-Lint lokal nicht ausführbar (kein PHP CLI), manuelle Prüfung + Brace/Paren-Balance grün. Funktionaler Test (siehe RELEASE_CHECKLIST) ausstehend: „Nur notwendige" → keine youtube/ytimg/iframe_api-Requests (bei Thumbnail AUS auch kein ytimg).
+
 ## 0.1.9-test - 2026-06-03
 
 - Patch-Bump 0.1.8 → 0.1.9. Plugin-Header und `LSCC_VERSION` auf `0.1.9`. `LSCC_CONSENT_VERSION` bleibt `2`.

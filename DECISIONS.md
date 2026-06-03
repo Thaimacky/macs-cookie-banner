@@ -238,3 +238,20 @@ Dieses Dokument haelt zentrale Entscheidungen fest, die die Form des Plugins erk
 **Begründung des Mechanismus:** `pre_do_shortcode_tag` greift vor der iframe-Erzeugung → kein Drittanbieter-Request vor Consent, kein DOM-Hijacking, kein MutationObserver, kein Scanner, kein `<script>`-Rewrite, keine `post_content`-Migration. Wiederverwendung von `Service_Components::render_youtube()` vermeidet einen zweiten Platzhalter-/Consent-Pfad. Greift nur im Frontend; das Builder-Backend bleibt unberührt. Bei nicht parsebarer Video-ID wird die Original-Avada-Ausgabe durchgelassen (kein Layout-Bruch).
 
 **Folgen / offene Punkte:** Das LSCC-Platzhalter-Layout (16:9) kann von der ursprünglichen Avada-Größe/-Ausrichtung leicht abweichen — visuell unkritisch, real zu prüfen. Vimeo (`fusion_vimeo`), Maps (`fusion_map`, zusätzlich Script-Gating nötig), Background-Videos, `fusion_code` und rohe iframes sind bewusst noch nicht abgedeckt und Kandidaten für Folgeversionen. Ein möglicher Konflikt mit Avadas eigener Privacy-/Embed-Funktion ist beim Einsatz zu prüfen (nur EINE Consent-Schicht aktiv).
+
+## ADR-18: Nativer LSCC-YouTube-Block für neue Websites; optionales Remote-Thumbnail (schränkt ADR-14 ein)
+
+**Status:** Umgesetzt (v0.2.0).
+
+**Entscheidung:** `[lscc_youtube]` ist der empfohlene native Weg für neue Websites (statt Avada `fusion_youtube`). Erweiterungen in v0.2.0: `id` akzeptiert auch YouTube-URLs, neues `title`-Attribut, Play-Button immer sichtbar (auch ohne Thumbnail), Autostart nach Play-Klick. Zusätzlich gibt es eine **opt-in Admin-Option `youtube_remote_thumbnails` (Default AUS)**, die — und nur dann — ein Vorschaubild von `i.ytimg.com` aus der Video-ID vor Consent lädt.
+
+**Kontext / Verhältnis zu ADR-14:** ADR-14 verbot externe Bildquellen und das Ableiten eines Thumbnails aus der Video-ID ausdrücklich („Datenschutz vor Komfort"). Der Auftraggeber verlangt für v0.2.0 explizit ein optionales YouTube-Vorschaubild und akzeptiert die Abwägung. ADR-14 gilt weiterhin als **Default** (lokales `thumbnail_id` bzw. reiner Platzhalter); ADR-18 fügt lediglich einen **bewusst aktivierbaren** Override hinzu.
+
+**Begründung:**
+
+- Default bleibt maximal datenschutzfreundlich (Option AUS → keine externe Bildanfrage). Lokales `thumbnail_id` hat immer Vorrang.
+- Auch bei aktiviertem Remote-Thumbnail entsteht **vor Consent** kein iframe, kein `iframe_api`, kein `www-widgetapi.js` und keine youtube.com-Cookies. Es wird ausschliesslich ein statisches Bild von `i.ytimg.com` geladen.
+- URL-Akzeptanz und `title` senken die Einstiegshürde für Redakteure; der zentrale Helper `extract_youtube_id()` wird auch von der Avada-Interception (ADR-17) genutzt (keine Code-Dublette).
+- Autostart nach Play-Klick ist eine erwartbare UX und nutzt eine minimale, gekapselte `banner.js`-Ergänzung (`autoplay=1` nur für YouTube/Vimeo, nur wenn der Play-Button die Aktivierung auslöste).
+
+**Folgen:** Betreiber, die `youtube_remote_thumbnails` aktivieren, müssen wissen, dass `i.ytimg.com` vor Consent die Besucher-IP an Google überträgt — je nach Rechtsraum (CH/EU/DE) ggf. selbst zustimmungspflichtig. Die Option ist daher bewusst per Default deaktiviert und im Admin klar beschriftet. Bestehende `[lscc_youtube]`-Nutzungen bleiben kompatibel.
