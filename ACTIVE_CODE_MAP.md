@@ -9,6 +9,7 @@ Diese Karte beschreibt die aktiven Dateien, ihre Zustaendigkeiten und die wichti
 | `light-swiss-cookie-consent.php` | Plugin-Bootstrap, Konstanten, Hauptklasse, Banner-Markup, Asset-Enqueue, WPML/Polylang-Registrierung, Shortcode `[simple_cookie_settings]`. |
 | `includes/admin-page.php` | Admin-Menue, Einstellungsseite, Speichern via `admin-post.php` mit Nonce-Pruefung, Render-Helpers fuer Text- und Color-Felder. |
 | `includes/privacy-check.php` | Passive Admin-Seite, die einmal die Startseite via `wp_remote_get` abruft und gegen eine statische Mustertabelle prueft. |
+| `includes/avada-inventory.php` | Passive, rein lesende Admin-Seite „Avada Inventar-Scan" (ab 0.1.8): zählt Video-/Map-/Embed-Typen in lokalen Inhalten zur Abschätzung der automatischen Abdeckung. Keine externen Requests, keine Schreibzugriffe, keine Inhaltsänderung. |
 | `includes/service-components.php` | Shortcodes `[lscc_youtube]`, `[lscc_vimeo]`, `[lscc_google_map]` mit Placeholder-Markup. |
 | `assets/js/banner.js` | Frontend-Logik: Consent-Speicherung, Banner-Steuerung, Script-Aktivierung, Media-Sync. |
 | `assets/css/banner.css` | Styles fuer Banner, Reopen-Button, Settings-Button und Media-Komponenten. |
@@ -88,7 +89,7 @@ Diese Karte beschreibt die aktiven Dateien, ihre Zustaendigkeiten und die wichti
 **Klasse `Light_Swiss_Cookie_Consent_Admin`:**
 
 - `init()` — registriert `admin_menu` und `admin_post_lscc_save_settings`
-- `add_settings_page()` — Top-Level-Menue `light-swiss-cookie-consent` plus Submenues `Einstellungen` und `Privacy Check`
+- `add_settings_page()` — Top-Level-Menue `light-swiss-cookie-consent` plus Submenues `Einstellungen`, `Privacy Check` und (ab 0.1.8) `Avada Inventar-Scan`. `admin-page.php` lädt `privacy-check.php` und `avada-inventory.php` via `require_once`.
 - `save_settings()` — prueft `current_user_can( 'manage_options' )` und `wp_verify_nonce( ..., 'lscc_save_settings' )`, sanitisiert und speichert, dann `wp_safe_redirect`
 - `render_settings_page()` — rendert Formular mit Text- und Color-Feldern
 - `render_text_field()`, `render_color_field()` — Tabellenzeilen-Renderer
@@ -140,6 +141,20 @@ Diese Karte beschreibt die aktiven Dateien, ihre Zustaendigkeiten und die wichti
 | Wichtig | `vimeo.com` | Vimeo-Inhalte |
 
 Der Check fuehrt keinen Crawl durch, prueft nur diese eine URL und veraendert nichts.
+
+## `includes/avada-inventory.php`
+
+**Klasse `Light_Swiss_Cookie_Consent_Avada_Inventory`** (ab 0.1.8):
+
+- Konstante `SCAN_LIMIT = 500` — max. geprüfte Inhalte pro Lauf.
+- `render_page()` — Admin-Seite; prüft `current_user_can( 'manage_options' )`, Button-getriggert über `lscc_run_avada_inventory` POST mit Nonce `lscc_avada_inventory`. Rein lesend.
+- `run_inventory_scan()` — `WP_Query` über die Inventar-Post-Typen, `post_status=publish`, `posts_per_page=SCAN_LIMIT`, akkumuliert Zählungen; meldet `scanned`, `total`, `truncated`. Keine externen Requests.
+- `analyze_content( $content, &$counts, $home_host )` — zählt pro Inhalt: `[fusion_youtube`, `[fusion_vimeo`, `[fusion_map` (abzüglich `[fusion_map_marker`), Background-Videos via `video_url="..."` (YouTube/Vimeo vs. self-hosted `video_mp4/webm/ogv`), rohe `<iframe src=...>` (Same-Origin-Klassifizierung gegen `home_url`-Host), `[fusion_code]…[/fusion_code]` inkl. base64-Tiefpass auf Drittanbieter-Embed, oEmbed (nackte YouTube/Vimeo-URL als eigene Zeile) sowie Diagnostik-Rohtreffer.
+- `get_inventory_post_types()` — `post`, `page`, public CPTs plus vorhandene Avada-CPTs (`fusion_tb_section`, `fusion_tb_layout`, `fusion_template`, `slide`, `fusion_element`).
+- `render_results()` — rendert Verteilungstabelle, Abfangbarkeits-Matrix, KPIs `Abdeckung_min`/`Abdeckung_max`, Top-Sonderfälle und Diagnostik.
+- `percent( $part, $total )` — gerundete Prozentangabe mit Divide-by-zero-Schutz.
+
+Element-Klassifizierung (überschneidungsfrei) als Entscheidungsbasis; Diagnostik-Rohtreffer separat. Automatisch abfangbar = `fusion_youtube + fusion_vimeo + oEmbed`; bedingt = `fusion_map`; manuell = Background-Video(YT/Vimeo) + `fusion_code`(mit Embed) + rohe Drittanbieter-iframes.
 
 ## `includes/service-components.php`
 

@@ -85,6 +85,23 @@
 - [ ] Reopen-Button ist nicht sichtbar, wenn kein gültiger Consent vorhanden ist (auch nicht bei Browser ohne JS-Init).
 - [ ] Nach Aktivierung der neuen Version sind die Defaults `overlay_enabled`, `blur_enabled`, `show_legal_links` jeweils `true` — auch wenn vorher eine alte Plugin-Version installiert war.
 
+## Avada Inventar-Scan (ab v0.1.8-test)
+
+- [ ] Admin-Submenu „Avada Inventar-Scan" erscheint unter „Light Swiss Cookie Consent".
+- [ ] Seite ist nur mit `manage_options` erreichbar; Scan startet nur per Button (Nonce-geschützt).
+- [ ] **Netzwerk-Monitor während des Scans leer:** keine externen HTTP-Requests.
+- [ ] **SQL/Content unverändert:** keine Schreibzugriffe, keine Beitrags-/Seitenänderung, keine Migration (vorher/nachher vergleichen).
+- [ ] Verteilungstabelle zeigt Anzahl + Prozent je Typ; Summenzeile = 100 %.
+- [ ] Abfangbarkeits-Matrix korrekt (YouTube/Vimeo/oEmbed = automatisch; Maps/Background/fusion_code/iframe = manuell).
+- [ ] KPIs `Abdeckung_min` und `Abdeckung_max` werden berechnet (kein Division-by-zero bei 0 Embeds).
+- [ ] Auf einer echten Avada-Seite werden `[fusion_youtube]` / `[fusion_vimeo]` korrekt gezählt.
+- [ ] `fusion_code` mit eingebettetem YouTube/iframe wird via base64-Tiefpass als „mit Embed" erkannt.
+- [ ] Background-Video (`video_url` mit YouTube/Vimeo) wird als Drittanbieter, `video_mp4/webm` als self-hosted gezählt.
+- [ ] Rohe Drittanbieter-iframes werden gegen Same-Origin korrekt klassifiziert.
+- [ ] Bei > 500 Inhalten erscheint der Truncation-Hinweis („Rest NICHT gemessen").
+- [ ] Avada-CPTs (`fusion_tb_section` etc.) werden einbezogen, falls vorhanden; fehlende werden übersprungen.
+- [ ] Bestehende Funktionen unverändert: Consent-Banner, Service-Komponenten, Privacy Check.
+
 ## Lokales Thumbnail Vimeo (ab v0.1.7-test)
 
 - [ ] `[lscc_vimeo id="..."]` **ohne** `thumbnail_id` verhält sich exakt wie bisher (einfacher Platzhalter, kein Bild).

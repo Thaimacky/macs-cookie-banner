@@ -8,6 +8,21 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.1.8-test - 2026-06-03
+
+### Added
+
+- Neue Admin-Seite **„Avada Inventar-Scan"** (Submenu unter Light Swiss Cookie Consent). Rein lesende, lokale Messung der Verteilung von Video-/Map-/Embed-Typen über `post`, `page`, öffentliche CPTs und vorhandene Avada-CPTs (`fusion_tb_section`, `fusion_tb_layout`, `fusion_template`, `slide`, `fusion_element`). Zählt `fusion_youtube`, `fusion_vimeo`, `fusion_map`, `fusion_code` (inkl. base64-Tiefpass), Background-Videos (`video_url`), rohe iframes (mit Same-Origin-Klassifizierung), oEmbed-Fälle (nackte URL) und Diagnostik-Rohtreffer. Ausgabe: Verteilungstabelle, Abfangbarkeits-Matrix, KPIs `Abdeckung_min`/`Abdeckung_max`, Top-Sonderfälle.
+- Zweck: Abschätzung der realistisch automatisch abdeckbaren Quote (Ziel 80–95 %) vor dem Bau eines Avada-Kompatibilitätsmoduls.
+
+### Security / Datenschutz
+
+- Der Scan ist strikt passiv: nur `WP_Query`-Lesezugriffe und String-/Regex-Auswertung, **keine** externen Requests, **keine** Schreibzugriffe, **keine** Inhaltsänderung, **keine** Migration, **kein** Blocking/Consent. `manage_options` + Nonce. Begrenzung auf 500 Inhalte pro Lauf mit transparentem Truncation-Hinweis. Keine Änderung an bestehenden Funktionen (Consent, Service-Komponenten, Privacy Check unberührt).
+
+### Changed
+
+- Plugin-Header und `LSCC_VERSION` auf `0.1.8` gesetzt. `LSCC_CONSENT_VERSION` bleibt `2`.
+
 ## 0.1.7-test - 2026-06-03
 
 ### Added

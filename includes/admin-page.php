@@ -10,6 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once LSCC_PLUGIN_DIR . 'includes/privacy-check.php';
+require_once LSCC_PLUGIN_DIR . 'includes/avada-inventory.php';
 
 /**
  * Admin settings controller.
@@ -57,6 +58,15 @@ final class Light_Swiss_Cookie_Consent_Admin {
 			'manage_options',
 			'light-swiss-cookie-consent-privacy-check',
 			array( 'Light_Swiss_Cookie_Consent_Privacy_Check', 'render_page' )
+		);
+
+		add_submenu_page(
+			'light-swiss-cookie-consent',
+			esc_html__( 'Avada Inventar-Scan', 'light-swiss-cookie-consent' ),
+			esc_html__( 'Avada Inventar-Scan', 'light-swiss-cookie-consent' ),
+			'manage_options',
+			'light-swiss-cookie-consent-avada-inventory',
+			array( 'Light_Swiss_Cookie_Consent_Avada_Inventory', 'render_page' )
 		);
 	}
 
