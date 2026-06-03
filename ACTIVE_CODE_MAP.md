@@ -146,12 +146,13 @@ Der Check fuehrt keinen Crawl durch, prueft nur diese eine URL und veraendert ni
 **Klasse `Light_Swiss_Cookie_Consent_Service_Components`:**
 
 - `init()` — registriert die drei Shortcodes
-- `render_youtube( $atts )` — `youtube-nocookie.com`-Embed
+- `render_youtube( $atts )` — `youtube-nocookie.com`-Embed; akzeptiert ab 0.1.6 zusätzlich `thumbnail_id` (lokales Mediathek-Bild)
 - `render_vimeo( $atts )` — `player.vimeo.com`-Embed
 - `render_google_map( $atts )` — Google-Maps-Embed mit Host-Allowlist
 - `sanitize_media_id()` — beschraenkt IDs auf `[A-Za-z0-9_-]`
 - `sanitize_google_maps_url()` — akzeptiert nur Hosts unter `google.*` oder `maps.google.com` und Pfade mit `/maps`
-- `render_component()` — baut das Placeholder-Markup mit `data-lscc-media`, `data-lscc-category="external_media"`, `data-lscc-src`, `data-lscc-title`, `data-lscc-service` und einem Accept-Button
+- `get_local_thumbnail_html( $thumbnail_id )` (ab 0.1.6) — validiert `thumbnail_id` via `absint()`, prüft `get_post_type() === 'attachment'` und `wp_attachment_is_image()`, und gibt das `<img class="lscc-media__thumb" loading="lazy">`-Markup von `wp_get_attachment_image( $id, 'large' )` zurück. Liefert `''` bei ungültiger/nicht-Bild-ID → stiller Fallback auf den bisherigen Platzhalter. **Keine** externen Bildquellen, **kein** Auto-Fetch aus der Video-ID.
+- `render_component()` — baut das Placeholder-Markup mit `data-lscc-media`, `data-lscc-category="external_media"`, `data-lscc-src`, `data-lscc-title`, `data-lscc-service` und einem Accept-Button. Optionaler 5. Parameter `$thumbnail_html`: ist er nicht leer, erhält der Container zusätzlich die Klasse `lscc-media--has-thumb`, das `<img>` wird als Hintergrundebene gerendert und ein zentrierter `.lscc-media__play`-Button (ebenfalls `data-lscc-accept-media`) ergänzt. Hinweistext und Accept-Button bleiben sichtbar.
 
 Komponenten zeigen vor Zustimmung nur den Platzhalter und werden vom JS erst nach Zustimmung zur Kategorie `external_media` zum iframe aufgebaut.
 
@@ -188,6 +189,7 @@ Die Admin-Seite `Privacy Check` ruft `Light_Swiss_Cookie_Consent_Privacy_Check::
 ## Service-Komponenten
 
 - `[lscc_youtube id="VIDEO_ID"]` — youtube-nocookie-Embed.
+- `[lscc_youtube id="VIDEO_ID" thumbnail_id="123"]` — wie oben, zeigt aber vor Consent das lokale Mediathek-Bild mit ID `123` plus Play-Button. Nur numerische Attachment-IDs, keine externen Bildquellen.
 - `[lscc_vimeo id="VIDEO_ID"]` — Vimeo-Player-Embed.
 - `[lscc_google_map url="https://www.google.com/maps/embed?..."]` — Google-Maps-Embed mit Host-Pruefung.
 
@@ -217,6 +219,7 @@ Kein externer Code, keine Libraries, kein jQuery.
 - Buttons (`.lscc__button`, `.lscc__button--primary/--secondary/--ghost`, `.lscc-reopen`, `.lscc-settings-button`) inkl. `:focus-visible`-Outline
 - Settings-Block (`.lscc__settings`, `.lscc__categories`, `.lscc__category`)
 - Media-Komponenten (`.lscc-media`, `.lscc-media__placeholder`, `.lscc-media__notice`, `.lscc-media__button`, `.lscc-media__iframe`) mit `aspect-ratio: 16 / 9`
+- Thumbnail-Ebene ab 0.1.6: `.lscc-media__thumb` (absolut, `object-fit: cover`), `.lscc-media--has-thumb .lscc-media__placeholder` (halbtransparenter Scrim für Lesbarkeit) und `.lscc-media__play` (grosser runder Play-Button mit CSS-Dreieck, `:focus-visible`, keine Animationen)
 - Responsive Breakpoints bei `760px` und `420px`
 
 Es gibt keine Animationen oder Effekt-Spielereien. Farben werden ausschliesslich ueber die CSS-Variablen gesteuert, deren Werte aus den Admin-Optionen via Inline-Style gesetzt werden.

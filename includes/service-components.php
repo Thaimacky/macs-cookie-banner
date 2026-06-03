@@ -31,7 +31,14 @@ final class Light_Swiss_Cookie_Consent_Service_Components {
 	 * @return string
 	 */
 	public static function render_youtube( $atts ) {
-		$atts     = shortcode_atts( array( 'id' => '' ), $atts, 'lscc_youtube' );
+		$atts     = shortcode_atts(
+			array(
+				'id'           => '',
+				'thumbnail_id' => '',
+			),
+			$atts,
+			'lscc_youtube'
+		);
 		$video_id = self::sanitize_media_id( $atts['id'] );
 
 		if ( '' === $video_id ) {
@@ -42,7 +49,41 @@ final class Light_Swiss_Cookie_Consent_Service_Components {
 			'youtube',
 			'https://www.youtube-nocookie.com/embed/' . rawurlencode( $video_id ),
 			__( 'YouTube-Video', 'light-swiss-cookie-consent' ),
-			__( 'Dieses YouTube-Video wird erst nach Zustimmung zu externen Medien geladen.', 'light-swiss-cookie-consent' )
+			__( 'Dieses YouTube-Video wird erst nach Zustimmung zu externen Medien geladen.', 'light-swiss-cookie-consent' ),
+			self::get_local_thumbnail_html( $atts['thumbnail_id'] )
+		);
+	}
+
+	/**
+	 * Resolve a local media-library attachment to safe <img> markup.
+	 *
+	 * Only a numeric WordPress attachment ID is accepted. There is no external
+	 * image source, no auto-fetch from the video ID and no request to YouTube
+	 * or Google. When no valid local image exists, an empty string is returned
+	 * and the component silently falls back to the plain placeholder.
+	 *
+	 * @param mixed $thumbnail_id Raw attachment ID from the shortcode.
+	 * @return string Escaped <img> markup, or '' when no valid local image exists.
+	 */
+	private static function get_local_thumbnail_html( $thumbnail_id ) {
+		$attachment_id = absint( $thumbnail_id );
+
+		if ( $attachment_id < 1 ) {
+			return '';
+		}
+
+		if ( 'attachment' !== get_post_type( $attachment_id ) || ! wp_attachment_is_image( $attachment_id ) ) {
+			return '';
+		}
+
+		return wp_get_attachment_image(
+			$attachment_id,
+			'large',
+			false,
+			array(
+				'class'   => 'lscc-media__thumb',
+				'loading' => 'lazy',
+			)
 		);
 	}
 
@@ -134,24 +175,40 @@ final class Light_Swiss_Cookie_Consent_Service_Components {
 	/**
 	 * Render a passive placeholder component.
 	 *
-	 * @param string $service Service key.
-	 * @param string $src     Iframe source.
-	 * @param string $title   Iframe title.
-	 * @param string $notice  Placeholder notice.
+	 * @param string $service        Service key.
+	 * @param string $src            Iframe source.
+	 * @param string $title          Iframe title.
+	 * @param string $notice         Placeholder notice.
+	 * @param string $thumbnail_html Optional pre-escaped local <img> markup. When non-empty,
+	 *                               a thumbnail layer and a centered play button are rendered.
 	 * @return string
 	 */
-	private static function render_component( $service, $src, $title, $notice ) {
+	private static function render_component( $service, $src, $title, $notice, $thumbnail_html = '' ) {
 		$options      = Light_Swiss_Cookie_Consent::get_options();
 		$style        = Light_Swiss_Cookie_Consent::get_css_variables( $options );
 		$button_label = __( 'Externe Medien akzeptieren', 'light-swiss-cookie-consent' );
 		$notice_id    = wp_unique_id( 'lscc-media-notice-' );
+		$has_thumb    = '' !== $thumbnail_html;
+
+		$play_markup = '';
+
+		if ( $has_thumb ) {
+			$play_markup = sprintf(
+				'<button type="button" class="lscc-media__play" data-lscc-accept-media aria-describedby="%1$s" aria-label="%2$s"></button>',
+				esc_attr( $notice_id ),
+				esc_attr( $button_label )
+			);
+		}
 
 		return sprintf(
-			'<div class="lscc-media lscc-media--%1$s" style="%2$s" data-lscc-media data-lscc-category="external_media" data-lscc-src="%3$s" data-lscc-title="%4$s" data-lscc-service="%1$s"><div class="lscc-media__placeholder"><p id="%5$s" class="lscc-media__notice">%6$s</p><button type="button" class="lscc-media__button" data-lscc-accept-media aria-describedby="%5$s" aria-label="%7$s">%8$s</button></div></div>',
+			'<div class="lscc-media lscc-media--%1$s%2$s" style="%3$s" data-lscc-media data-lscc-category="external_media" data-lscc-src="%4$s" data-lscc-title="%5$s" data-lscc-service="%1$s">%6$s<div class="lscc-media__placeholder">%7$s<p id="%8$s" class="lscc-media__notice">%9$s</p><button type="button" class="lscc-media__button" data-lscc-accept-media aria-describedby="%8$s" aria-label="%10$s">%11$s</button></div></div>',
 			esc_attr( $service ),
+			$has_thumb ? ' lscc-media--has-thumb' : '',
 			esc_attr( $style ),
 			esc_url( $src ),
 			esc_attr( $title ),
+			$has_thumb ? $thumbnail_html : '',
+			$play_markup,
 			esc_attr( $notice_id ),
 			esc_html( $notice ),
 			esc_attr( $button_label ),

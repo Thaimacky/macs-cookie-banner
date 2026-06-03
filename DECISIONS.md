@@ -178,3 +178,18 @@ Dieses Dokument haelt zentrale Entscheidungen fest, die die Form des Plugins erk
 - Admin-konfigurierbare Lifetime (`consent_lifetime_days`) macht Verkürzungen sofort wirksam — auch retroaktiv für bestehende Consents über den `createdAt + lifetimeDays`-Check.
 
 **Folgen:** Bei jedem strukturellen Schema-Change muss `LSCC_CONSENT_VERSION` manuell hochgezählt werden. Bei v0.1.5 wurde sie von `1` auf `2` erhöht, weil das Schema um `expiresAt` erweitert wurde und alte v1-Consents nicht verlässlich migrierbar sind. Der Reopen-Button erscheint nur dann, wenn `hasStoredConsent()` einen *gültigen* Consent zurückgibt — bei ungültigem oder fehlendem Consent zeigt sich das Banner und der Reopen-Button bleibt versteckt.
+
+## ADR-14: Lokale Thumbnails für Service-Komponenten
+
+**Entscheidung:** Die Service-Komponenten können vor Consent optional ein Vorschaubild zeigen. Als Bildquelle wird **ausschliesslich** eine numerische WordPress-Mediathek-ID über das Shortcode-Attribut `thumbnail_id` akzeptiert (zuerst umgesetzt für `[lscc_youtube]`). Das Bild wird serverseitig über `wp_get_attachment_image()` gerendert. Es gibt **keine** freie Bild-URL (`thumbnail="..."`), **keine** automatische URL-Erkennung, **keine** Ermittlung des Thumbnails aus der Video-ID und **keinen** Zugriff auf `img.youtube.com`, `ytimg.com`, Google oder andere externe Bildquellen.
+
+**Kontext:** Der bisherige Platzhalter ist technisch korrekt, aber visuell schlicht. Ein Vorschaubild plus Play-Button hebt die wahrgenommene Qualität deutlich, besonders mobil. Die offensichtliche „Bequemlichkeitslösung" wäre, das offizielle YouTube-Thumbnail automatisch aus der Video-ID zu laden (`https://img.youtube.com/vi/ID/...`). Genau das ist aber ein Request an Google **vor** jeder Zustimmung und widerspricht der Kernphilosophie (`MASTER_HANDBUCH.md`: keine externen Requests, kein Consent-Bypass, kein Auto-Fetch).
+
+**Gründe:**
+
+- **Datenschutz vor Komfort.** Nur eine lokale Attachment-ID kann garantieren, dass vor Consent kein Drittanbieter-Request entsteht. Eine freie URL könnte (versehentlich) auf einen externen Host zeigen und die Garantie per Konstruktion brechen; sie wird daher bewusst nicht unterstützt.
+- `wp_get_attachment_image()` liefert Dimensionen, `srcset` und alt-Text aus dem WordPress-Kern — responsive, barrierearm, CLS-sicher (Platz ist über `aspect-ratio: 16/9` ohnehin reserviert) und ohne externe Library.
+- Das Feature ist rein serverseitig. Der Consent-Flow und das Frontend-JS (`createMediaIframe`, `syncMediaComponents`, `acceptExternalMedia`) bleiben unverändert; der Play-Button trägt lediglich dasselbe `data-lscc-accept-media`-Attribut wie der bestehende Accept-Button und wird vom vorhandenen `bindMediaComponents()` automatisch gebunden.
+- Robuster Fallback: ungültige IDs oder Nicht-Bild-Attachments fallen still auf den bisherigen Platzhalter zurück — kein Fehler, keine kaputte Darstellung.
+
+**Folgen:** Editoren müssen das Vorschaubild bewusst in die Mediathek laden und die ID setzen (kein Copy-Paste einer fremden URL). Das ist der akzeptierte Trade-off für die Datenschutz-Garantie. WPML-/Polylang-Media-Übersetzung greift über die Attachment-ID. Eine spätere Ausweitung auf Vimeo/Maps wäre dieselbe Mechanik (gleicher Helper, gleiches Attribut) — derzeit aber bewusst nur YouTube.
