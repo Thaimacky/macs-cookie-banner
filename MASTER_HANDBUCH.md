@@ -5,6 +5,7 @@
 - 2026-05-28 — Datei erstellt (initial in WordPad, gespeichert als RTF mit `.md`-Endung).
 - 2026-05-28 — Format-Migration: RTF in echtes UTF-8 Markdown konvertiert. Inhalt unverändert; nur RTF-Steuerzeichen entfernt, Unicode-Umlaute hergestellt, typografische Anführungszeichen normalisiert.
 - 2026-05-28 — Datei umbenannt von `CLAUDE_CONTINUITY_MASTER.md` zu `MASTER_HANDBUCH.md`. Inhalt vollständig erhalten. Referenzen in `PROJECT_BRIEF.md`, `DECISIONS.md` und `DEV_LOG.md` aktualisiert.
+- 2026-06-03 — Additive Erweiterung: verbindliche Regel zum Ablageort von Test-ZIPs ergänzt (Sektion „Release-Artefakte / Ablageort für Test-ZIPs"). Inhalt sonst unverändert.
 
 ## Zweck dieser Datei
 
@@ -384,3 +385,43 @@ als:
 
 * „100% automatisch“
 * aber kaputt/unwartbar/langsam.
+
+---
+
+# Release-Artefakte / Ablageort für Test-ZIPs
+
+VERBINDLICH (ab 2026-06-03):
+
+Alle Test-ZIPs werden im **ÜBERORDNER (Parent-Verzeichnis) des Git-Repositories** abgelegt — NIEMALS im Repository selbst.
+
+Repository:
+`G:\Cookie Banner Plugin\light-swiss-cookie-consent\`
+
+ZIP-Ziel (fest):
+`G:\Cookie Banner Plugin\`
+
+Korrekt:
+
+```
+G:\Cookie Banner Plugin
+├─ light-swiss-cookie-consent\          (Repository)
+├─ light-swiss-cookie-consent-v0.1.6-test.zip
+├─ light-swiss-cookie-consent-v0.1.7-test.zip
+└─ light-swiss-cookie-consent-v0.1.8-test.zip
+```
+
+Nicht zulässig:
+
+```
+G:\Cookie Banner Plugin\light-swiss-cookie-consent\
+└─ light-swiss-cookie-consent-v0.1.8-test.zip   ← FALSCH
+```
+
+Regeln für den Agent:
+
+* nicht suchen
+* nicht raten
+* nicht interpretieren
+* keine alternativen Orte wählen
+
+Standard-Ziel ist IMMER das Parent-Verzeichnis des Repositories. Liegen dort bereits ältere ZIPs, wird jede neue ZIP ebenfalls dort erstellt. Eine Änderung des Ablageorts ist nur mit ausdrücklicher Anweisung des Auftraggebers zulässig. Bestehende Projektpraxis hat Vorrang vor Annahmen des Agents.

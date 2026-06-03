@@ -1,5 +1,13 @@
 # Release Checklist
 
+## Release-Artefakte / Ablageort für Test-ZIPs (verbindlich)
+
+- [ ] Test-ZIP wird im **Überordner des Repositories** abgelegt: `G:\Cookie Banner Plugin\` — **nicht** im Repo-Ordner `light-swiss-cookie-consent\`.
+- [ ] Liegen ältere ZIPs bereits im Parent-Ordner, wird die neue ZIP **im selben Ordner** erstellt.
+- [ ] Dateiname-Schema: `light-swiss-cookie-consent-v<VERSION>-test.zip`.
+- [ ] Top-Level-Ordner im ZIP: `light-swiss-cookie-consent/` (WordPress-installierbar).
+- [ ] Kein automatisches Ausweichen auf andere Orte; Ablageort nur per ausdrücklicher Auftraggeber-Anweisung änderbar. Details siehe `MASTER_HANDBUCH.md`, Sektion „Release-Artefakte / Ablageort für Test-ZIPs".
+
 ## Version 0.1.0
 
 - [ ] Plugin in einer echten WordPress-Testinstallation aktivieren.

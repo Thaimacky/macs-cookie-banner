@@ -193,3 +193,17 @@ Dieses Dokument haelt zentrale Entscheidungen fest, die die Form des Plugins erk
 - Robuster Fallback: ungültige IDs oder Nicht-Bild-Attachments fallen still auf den bisherigen Platzhalter zurück — kein Fehler, keine kaputte Darstellung.
 
 **Folgen:** Editoren müssen das Vorschaubild bewusst in die Mediathek laden und die ID setzen (kein Copy-Paste einer fremden URL). Das ist der akzeptierte Trade-off für die Datenschutz-Garantie. WPML-/Polylang-Media-Übersetzung greift über die Attachment-ID. Die Mechanik (gleicher Helper `get_local_thumbnail_html()`, gleiches Attribut, gleiche CSS-Klassen) wurde in v0.1.7 auf Vimeo ausgeweitet; Google Maps bleibt vorerst bewusst ausgenommen.
+
+## ADR-15: Test-ZIPs liegen im Überordner des Repositories
+
+**Entscheidung:** Installierbare Test-ZIPs werden ausschliesslich im **Parent-Verzeichnis des Git-Repositories** abgelegt (`G:\Cookie Banner Plugin\`), nicht im Repository-Ordner selbst (`...\light-swiss-cookie-consent\`). Der Ablageort ist fest definiert und wird vom Agent nicht gesucht, geraten oder interpretiert.
+
+**Kontext:** Das Repository enthält ausschliesslich den installierbaren Plugin-Quellstand. ZIP-Build-Artefakte sind keine Repo-Inhalte (per `.gitignore` `*.zip` ohnehin nicht versioniert). Die etablierte Projektpraxis legt alle bisherigen Builds (`v0.1.0` … `v0.1.7-test`) bereits im Überordner ab. Ein versehentliches Ablegen im Repo-Ordner durch den Agent würde von dieser Praxis abweichen.
+
+**Gründe:**
+
+- Saubere Trennung zwischen Repository (Quellcode) und Build-Artefakten (ZIPs).
+- Die ZIPs liegen gesammelt und versioniert nebeneinander im Parent — leicht auffindbar und vergleichbar.
+- Eindeutiger, nicht zu interpretierender Zielpfad verhindert Streuung über mehrere Orte.
+
+**Folgen:** Beim ZIP-Build (`git archive ... -o <Parent>\light-swiss-cookie-consent-v<VERSION>-test.zip HEAD`) ist der Zielpfad immer das Parent-Verzeichnis. Eine Änderung des Ablageorts erfordert eine ausdrückliche Anweisung des Auftraggebers. Bestehende Projektpraxis hat Vorrang vor Annahmen des Agents. Verbindliche Referenz: `MASTER_HANDBUCH.md`, Sektion „Release-Artefakte / Ablageort für Test-ZIPs".
