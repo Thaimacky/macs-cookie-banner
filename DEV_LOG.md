@@ -1,5 +1,18 @@
 # DEV LOG
 
+## 0.2.3-test - 2026-06-11
+
+- Patch-Bump 0.2.2 → 0.2.3. Plugin-Header und `LSCC_VERSION` auf `0.2.3`. `LSCC_CONSENT_VERSION` bleibt `2` (kein Consent-Schema-Wechsel, reiner UI-Fix).
+- **Bugfix (Befund Bug 1): Consent-UI lief auseinander.** Reproduktion: „Alle akzeptieren" → Einstellungen öffnen → „Nur notwendige" → Speichern → Reload → Videos korrekt blockiert und Consent gespeichert, aber die Cookie-Einstellungen zeigten weiterhin den falschen Häkchen-Zustand. **Root Cause:** Die Checkboxen wurden nur beim *Öffnen* des Banners aus dem gespeicherten Consent synchronisiert (`updateInputs` in `setBannerVisible(..., visible=true)`); beim Laden mit vorhandenem Consent ist das Banner versteckt → keine Sync. Ohne `autocomplete="off"` stellt der Browser (v. a. Firefox) den Checkbox-Zustand von vor dem Reload wieder her → Anzeige inkonsistent zum gespeicherten Consent. Zusätzlich aktualisierten die Top-Buttons den Consent ohne die sichtbaren Checkboxen.
+- `assets/js/banner.js` (nur Consent-UI):
+  - `initBanner()` ruft jetzt **beim Laden** `updateInputs(root, getStoredConsent())` auf (vor der `hasStoredConsent()`-Verzweigung) → gespeicherter Consent ist die alleinige Quelle der Wahrheit, unabhängig von Browser-Formular-Wiederherstellung.
+  - `saveAndClose()` ruft nach `writeConsent()` zusätzlich `updateInputs(root, consent)` → „Alle akzeptieren" / „Nur notwendige" / „Auswahl speichern" halten die Checkboxen sofort synchron.
+  - `node --check` grün. Keine Änderung am Consent-Schema, an `activateBlockedScripts`, YOTU, Vimeo, Maps oder am Scanner.
+- `light-swiss-cookie-consent.php`: `autocomplete="off"` an allen vier Consent-Checkboxen (`necessary`/`statistics`/`marketing`/`external_media`) in `render_banner()` → verhindert die Browser-Formular-Wiederherstellung.
+- **Scope-Disziplin:** keine Änderungen an YOTU/Vimeo/Maps/Scanner, keine i18n-/Sprachänderung, kein neues Modul.
+- Dokumentation: `ACTIVE_CODE_MAP.md`, `DECISIONS.md` (ADR-21), `RELEASE_CHECKLIST.md`, `CHANGELOG.md`, `MASTER_HANDBUCH.md` (Versionshistorie/Regel-Check).
+- Validierung: `node --check banner.js` OK; PHP-Struktur (Braces/Parens) balanciert; `autocomplete="off"` 4×. Funktionaler Re-Test (Firefox + Chrome): nach Reload + Öffnen müssen die Häkchen exakt dem gespeicherten Consent entsprechen (siehe RELEASE_CHECKLIST).
+
 ## 0.2.2-test - 2026-06-11
 
 - Patch-Bump 0.2.1 → 0.2.2. Plugin-Header und `LSCC_VERSION` auf `0.2.2`. `LSCC_CONSENT_VERSION` bleibt `2`.

@@ -8,6 +8,22 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.2.3-test - 2026-06-11
+
+### Fixed
+
+- **Consent-UI lief auseinander (Bug 1).** Nach „Alle akzeptieren" → „Nur notwendige" → Speichern → Reload zeigten die Cookie-Einstellungen den falschen Häkchen-Zustand, obwohl der Consent korrekt gespeichert war. Ursache: Die Checkboxen wurden nur beim Öffnen des Banners synchronisiert; ohne `autocomplete="off"` stellte der Browser den alten Zustand nach dem Reload wieder her.
+  - `banner.js`: `updateInputs(getStoredConsent())` läuft jetzt **beim Laden** und zusätzlich nach **jedem** Speichern (`saveAndClose`) → gespeicherter Consent ist die alleinige Quelle der Wahrheit; Top-Buttons und Checkboxen bleiben synchron.
+  - `light-swiss-cookie-consent.php`: `autocomplete="off"` an allen vier Consent-Checkboxen.
+
+### Changed
+
+- Plugin-Header und `LSCC_VERSION` auf `0.2.3`. `LSCC_CONSENT_VERSION` bleibt `2`.
+
+### Bewusst nicht enthalten
+
+- Keine Änderungen an YOTU, Vimeo, Maps, Scanner oder i18n.
+
 ## 0.2.2-test - 2026-06-11
 
 ### Added

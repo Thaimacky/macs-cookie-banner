@@ -209,10 +209,11 @@ Der Consent-Flow ist clientseitig und versioniert:
 3. `banner.js` startet bei `DOMContentLoaded`:
    - liest `localStorage` und Cookie via `getStoredConsent`,
    - prueft Version und Struktur via `parseStoredConsent` / `isValidConsent`,
+   - synchronisiert die Settings-Checkboxen aus dem gespeicherten Consent via `updateInputs( getStoredConsent() )` (ab 0.2.3 **beim Laden**, unabhaengig von der Banner-Sichtbarkeit → gespeicherter Consent = alleinige Quelle der Wahrheit, robust gegen Browser-Formular-Wiederherstellung),
    - aktiviert blockierte Skripte (`activateBlockedScripts`),
    - synchronisiert Medienkomponenten (`syncMediaComponents`),
    - zeigt das Banner nur, wenn kein gueltiger Consent existiert.
-4. Bei Auswahl ruft das Banner `saveAndClose` → `writeConsent` (schreibt `localStorage` + Cookie mit `Max-Age=180 Tage`, `SameSite=Lax`, `Secure` bei HTTPS) und `activateBlockedScripts` + `syncMediaComponents`.
+4. Bei Auswahl ruft das Banner `saveAndClose` → `writeConsent` (schreibt `localStorage` + Cookie mit `Max-Age=180 Tage`, `SameSite=Lax`, `Secure` bei HTTPS), danach `updateInputs( consent )` (ab 0.2.3, haelt die Checkboxen nach „Alle akzeptieren" / „Nur notwendige" / „Auswahl speichern" synchron), dann `activateBlockedScripts` + `syncMediaComponents`. Die vier Checkboxen tragen `autocomplete="off"` (ab 0.2.3).
 5. `writeConsent` feuert ein `lscc:consentChanged`-CustomEvent auf `window`.
 
 Kategorien (fix): `necessary`, `statistics`, `marketing`, `external_media`. `necessary` ist immer `true`.

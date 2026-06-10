@@ -298,3 +298,19 @@ Die bestehende **WPML-/Polylang-String-Translation-Registrierung bleibt als Over
 - **Datenschutz:** Vor Consent kein youtube.com / youtube-nocookie.com / `iframe_api` / `www-widgetapi` / `i.ytimg.com`. Nach Consent funktioniert Yotu normal.
 
 **Folgen / offene Punkte:** Die Thumbnail-Neutralisierung greift bei **per Shortcode** gerenderten Galerien (`do_shortcode_tag`); reine **Block-/Widget**-Einbindungen sind eine bekannte Coverage-Grenze und separat zu prüfen. Das Inline-Script-Gating benötigt **WordPress ≥ 5.7** (`wp_inline_script_attributes`); auf älteren Cores bleibt das Haupt-Script trotzdem geblockt (kein Drittanbieter-Request), nur die harmlosen Inline-Teile liefen. Vollständig reversibel (Option AUS → alle Filter entfallen). Re-Test auf `plugins.svogellisi.ch` ausstehend (siehe RELEASE_CHECKLIST). Verbindliche Referenz: `MASTER_HANDBUCH.md`.
+
+## ADR-21: Gespeicherter Consent ist die alleinige Quelle der Wahrheit für die Checkbox-Anzeige (umgesetzt in v0.2.3)
+
+**Status:** Umgesetzt (v0.2.3). Behebt Bug 1 (Consent-UI lief auseinander).
+
+**Entscheidung:** Die Anzeige der Consent-Checkboxen wird **ausschliesslich** aus dem gespeicherten Consent abgeleitet und an drei Punkten synchronisiert: (1) beim Laden in `initBanner()` via `updateInputs(getStoredConsent())`, (2) bei jedem Öffnen des Banners (`setBannerVisible(..., visible=true)`, bestehend), (3) nach jedem Speichern in `saveAndClose()`. Zusätzlich tragen die Checkboxen `autocomplete="off"`.
+
+**Kontext / Root Cause:** Bislang lief `updateInputs` nur beim Öffnen des Banners. Bei vorhandenem Consent ist das Banner beim Laden versteckt → keine Sync. Ohne `autocomplete="off"` stellt der Browser (v. a. Firefox) den Checkbox-Zustand von vor dem Reload wieder her. Folge: korrekt gespeicherter Consent (Videos blockiert), aber falsch angezeigte Häkchen. Die Top-Buttons („Alle akzeptieren" / „Nur notwendige") schrieben den Consent zudem ohne Sync der sichtbaren Inputs.
+
+**Begründung:**
+
+- **Single Source of Truth:** Der persistierte Consent (`localStorage`/Cookie) ist die Wahrheit; das DOM-Formular ist nur eine Ansicht davon. Sync beim Laden + nach jedem Write schliesst jede Drift.
+- **`autocomplete="off"`** verhindert die Browser-Formular-Wiederherstellung, die sonst die programmatische Sync überschreiben könnte.
+- Minimal-invasiv: keine Schema-Änderung (`LSCC_CONSENT_VERSION` bleibt `2`), keine Änderung an der Persistenz, an `activateBlockedScripts` oder an den Service-/YOTU-Modulen.
+
+**Folgen:** UI und gespeicherter Consent können nicht mehr auseinanderlaufen — weder über Reloads (Browser-Restore) noch innerhalb einer Sitzung (Top-Buttons). Re-Test in Firefox UND Chrome empfohlen (siehe RELEASE_CHECKLIST).

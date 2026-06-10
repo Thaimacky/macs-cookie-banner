@@ -85,6 +85,17 @@
 - [ ] Reopen-Button ist nicht sichtbar, wenn kein gültiger Consent vorhanden ist (auch nicht bei Browser ohne JS-Init).
 - [ ] Nach Aktivierung der neuen Version sind die Defaults `overlay_enabled`, `blur_enabled`, `show_legal_links` jeweils `true` — auch wenn vorher eine alte Plugin-Version installiert war.
 
+## Consent-UI Synchronisation (ab v0.2.3-test)
+
+Reproduktion des behobenen Bugs — in **Firefox UND Chrome** prüfen:
+
+- [ ] „Alle akzeptieren" → „Cookie-Einstellungen" öffnen → „Nur notwendige" → speichern → **Reload** → Einstellungen erneut öffnen: alle optionalen Häkchen sind **leer** (Statistik/Marketing/Externe Medien), passend zum gespeicherten Consent.
+- [ ] Umgekehrt: „Nur notwendige" → „Alle akzeptieren" → Reload → Einstellungen zeigen alle optionalen Häkchen **gesetzt**.
+- [ ] Direkt nach „Alle akzeptieren" bzw. „Nur notwendige" (ohne Reload) entsprechen die Checkboxen beim nächsten Öffnen exakt der getroffenen Wahl.
+- [ ] Häkchen-Zustand und tatsächliches Verhalten (Videos blockiert/frei, Scripts aktiv/inaktiv) stimmen immer überein.
+- [ ] Checkboxen tragen `autocomplete="off"` (Browser stellt nach Reload keinen alten Zustand wieder her).
+- [ ] „Notwendig" bleibt immer gesetzt und deaktiviert.
+
 ## YOTU Consent Gating (ab v0.2.2-test)
 
 Test auf einer Seite mit dem Plugin „Yotuwp – Easy YouTube Embed" (Live-Referenz: `plugins.svogellisi.ch/de/`, „Podcast"-Galerie). Option „YOTU-YouTube-Galerie … blockieren" muss EIN sein.

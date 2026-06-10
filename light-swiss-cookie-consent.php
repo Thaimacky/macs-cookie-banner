@@ -3,7 +3,7 @@
  * Plugin Name: Light Swiss Cookie Consent
  * Plugin URI:  https://example.com/light-swiss-cookie-consent
  * Description: Lightweight cookie consent banner with script blocking for WordPress.
- * Version:     0.2.2
+ * Version:     0.2.3
  * Author:      Light Swiss Cookie Consent
  * Text Domain: light-swiss-cookie-consent
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'LSCC_VERSION', '0.2.2' );
+define( 'LSCC_VERSION', '0.2.3' );
 
 /**
  * Consent schema version. Bump this whenever the stored consent shape
@@ -799,7 +799,7 @@ final class Light_Swiss_Cookie_Consent {
 									<span class="lscc__category-title"><?php echo esc_html__( 'Notwendig', 'light-swiss-cookie-consent' ); ?></span>
 									<span class="lscc__category-text"><?php echo esc_html__( 'Erforderlich für Grundfunktionen der Website.', 'light-swiss-cookie-consent' ); ?></span>
 								</span>
-								<input type="checkbox" data-lscc-category="necessary" checked disabled>
+								<input type="checkbox" data-lscc-category="necessary" autocomplete="off" checked disabled>
 							</label>
 
 							<label class="lscc__category">
@@ -807,7 +807,7 @@ final class Light_Swiss_Cookie_Consent {
 									<span class="lscc__category-title"><?php echo esc_html__( 'Statistik', 'light-swiss-cookie-consent' ); ?></span>
 									<span class="lscc__category-text"><?php echo esc_html__( 'Hilft uns, die Nutzung der Website zu verstehen.', 'light-swiss-cookie-consent' ); ?></span>
 								</span>
-								<input type="checkbox" data-lscc-category="statistics">
+								<input type="checkbox" data-lscc-category="statistics" autocomplete="off">
 							</label>
 
 							<label class="lscc__category">
@@ -815,7 +815,7 @@ final class Light_Swiss_Cookie_Consent {
 									<span class="lscc__category-title"><?php echo esc_html__( 'Marketing', 'light-swiss-cookie-consent' ); ?></span>
 									<span class="lscc__category-text"><?php echo esc_html__( 'Erlaubt Marketing- und Tracking-Dienste.', 'light-swiss-cookie-consent' ); ?></span>
 								</span>
-								<input type="checkbox" data-lscc-category="marketing">
+								<input type="checkbox" data-lscc-category="marketing" autocomplete="off">
 							</label>
 
 							<label class="lscc__category">
@@ -823,7 +823,7 @@ final class Light_Swiss_Cookie_Consent {
 									<span class="lscc__category-title"><?php echo esc_html__( 'Externe Medien', 'light-swiss-cookie-consent' ); ?></span>
 									<span class="lscc__category-text"><?php echo esc_html__( 'Lädt eingebettete Inhalte von externen Plattformen.', 'light-swiss-cookie-consent' ); ?></span>
 								</span>
-								<input type="checkbox" data-lscc-category="external_media">
+								<input type="checkbox" data-lscc-category="external_media" autocomplete="off">
 							</label>
 						</div>
 

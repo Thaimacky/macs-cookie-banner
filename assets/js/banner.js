@@ -565,6 +565,10 @@
 
 	function saveAndClose(root, reopenButton, consent) {
 		writeConsent(consent);
+		// Keep the visible checkboxes in lockstep with the saved consent, so the
+		// quick actions ("Alle akzeptieren" / "Nur notwendige") and the settings
+		// panel never drift apart.
+		updateInputs(root, consent);
 		activateBlockedScripts();
 		syncMediaComponents();
 		setBannerVisible(root, reopenButton, false, false);
@@ -600,6 +604,10 @@
 
 		bindSettingsTriggers(root, reopenButton);
 		bindMediaComponents(root, reopenButton);
+
+		// Stored consent is the single source of truth for the checkboxes on every
+		// load — independent of any browser form-state restoration after a reload.
+		updateInputs(root, getStoredConsent());
 
 		if (hasStoredConsent()) {
 			activateBlockedScripts();
