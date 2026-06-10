@@ -1,5 +1,21 @@
 # DEV LOG
 
+## 0.2.1-test - 2026-06-10
+
+- Patch-Bump 0.2.0 → 0.2.1. Plugin-Header und `LSCC_VERSION` auf `0.2.1`. `LSCC_CONSENT_VERSION` bleibt `2` (kein Consent-Schema-Wechsel).
+- **Bugfix WPML / Sprach-Mix (Live-Test-Befund 1 + 2).** Auf der EN-Seite erschienen Banner-Labels deutsch, während der Einleitungstext englisch war. **Root Cause bestätigt:** zwei auseinanderlaufende Übersetzungs-Mechanismen — die Locale-Tabelle bediente nur `banner_text` (folgte der Sprache), alle übrigen Strings und die Defaults der editierbaren Strings liefen über `__()`/`esc_html__()` und gaben mangels kompilierter `.mo` immer den deutschen Quelltext zurück. `.po` lagen nur als leere Skelette vor, `.mo` fehlten ganz. Umsetzung gemäss neuem ADR-19.
+- `light-swiss-cookie-consent.php`:
+  - **Alle sieben Text-Defaults** in `get_default_options()` kommen jetzt aus der Locale-Tabelle (vorher nur `banner_text`): `banner_title`, `banner_text`, `accept_all_text`, `necessary_only_text`, `settings_text`, `save_settings_text`, `reopen_text`.
+  - Neuer Helper `get_neutral_text( $key, $locale = null )` (key-basiert, Fallback Englisch → leerer String). Neue Tabelle `get_default_text_table()` (pro Sprache `de/en/fr/it/tr/hu` eine Map aller sieben Keys). Ersetzt `resolve_neutral_banner_text_for_locale()` und `get_neutral_banner_text_table()`; `get_neutral_banner_text()` bleibt als dünner Backwards-Compat-Wrapper. `extract_language_prefix()` unverändert.
+  - WPML-/Polylang-String-Translation-Registrierung (`register_wpml_strings`) und `get_translated_option()` **unverändert** — bleiben als Override vorrangig.
+- `languages/`:
+  - Alle sechs `.po` befüllt und sechs `.mo` **kompiliert** (vorher nur leere Skelette, keine `.mo`). Frontend-/besucherseitige Strings (Kategorie-Labels/-Beschreibungen, Rechtslinks `Datenschutz`/`Impressum`/`Datenschutz & Impressum`, Service-Komponenten-Texte inkl. „Externe Medien akzeptieren") in allen sechs Sprachen übersetzt; Admin-only-Strings bleiben deutsche Quelle (Operator-Sprache, bewusster Scope-Entscheid — siehe ADR-19).
+  - `.pot` neu aus den realen Quelltext-Callsites auditiert (158 msgids). Vier editierbare Strings ohne verbleibenden `__()`-Callsite entfielen korrekt (`Cookie-Einstellungen`, `Alle akzeptieren`, `Nur notwendige`, `Auswahl speichern`); v0.1.9/v0.2.0-Admin-Strings (Avada-/Externe-Medien-Sektion, Inventar-Scan) ergänzt.
+  - `.mo`-Erzeugung über ein einmaliges Python-Generator-Skript **ausserhalb** des Repos (kein Build-System im Repo; `.po` bleiben die lesbare Quelle). Standard-GNU-`.mo`-Format, nach msgid sortiert; nur Einträge mit echter Übersetzung, fehlende fallen auf die deutsche Quelle zurück.
+- **Bewusst NICHT angefasst:** Befund 3 (YouTube-Konsistenz), Befund 4 (Modal-Design), banner.js, CSS, Consent-Schema, Avada-Interception.
+- Dokumentation aktualisiert: `MASTER_HANDBUCH.md` (Versionshistorie + neue Sektion „Dokumentationspflicht (Definition of Done)"), `ACTIVE_CODE_MAP.md` (neue Helfer/Tabelle, Languages-Dateien), `DECISIONS.md` (ADR-19), `RELEASE_CHECKLIST.md` (WPML/i18n-Testpunkte), `CHANGELOG.md` (0.2.1-test).
+- Validierung: PHP-Lint lokal nicht ausführbar (kein PHP CLI); manuelle Syntax-/Brace-Prüfung der geänderten Methoden. Alle sechs `.mo` mit Pythons `gettext.GNUTranslations` gegengeparst — Übersetzungen lösen korrekt auf (de_CH identisch, en/fr/it/tr/hu Frontend übersetzt, Admin-Fallback liefert deutsche Quelle). Funktionaler Re-Test auf `plugins.svogellisi.ch/de|en` steht aus (siehe RELEASE_CHECKLIST): kein Sprach-Mix mehr, „Cookie-Einstellungen"-Button unten rechts in der aktiven Sprache.
+
 ## 0.2.0-test - 2026-06-03
 
 - MINOR-Bump 0.1.9 → 0.2.0 (Feature-Set rund um den nativen LSCC-YouTube-Block). Plugin-Header und `LSCC_VERSION` auf `0.2.0`. `LSCC_CONSENT_VERSION` bleibt `2`.

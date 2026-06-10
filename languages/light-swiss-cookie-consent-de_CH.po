@@ -1,8 +1,482 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Light Swiss Cookie Consent 0.1.0\n"
+"Project-Id-Version: Light Swiss Cookie Consent 0.2.1\n"
 "Language: de_CH\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Domain: light-swiss-cookie-consent\n"
+
+msgid "Notwendig"
+msgstr "Notwendig"
+
+msgid "Erforderlich für Grundfunktionen der Website."
+msgstr "Erforderlich für Grundfunktionen der Website."
+
+msgid "Statistik"
+msgstr "Statistik"
+
+msgid "Hilft uns, die Nutzung der Website zu verstehen."
+msgstr "Hilft uns, die Nutzung der Website zu verstehen."
+
+msgid "Marketing"
+msgstr "Marketing"
+
+msgid "Erlaubt Marketing- und Tracking-Dienste."
+msgstr "Erlaubt Marketing- und Tracking-Dienste."
+
+msgid "Externe Medien"
+msgstr "Externe Medien"
+
+msgid "Lädt eingebettete Inhalte von externen Plattformen."
+msgstr "Lädt eingebettete Inhalte von externen Plattformen."
+
+msgid "Datenschutz & Impressum"
+msgstr "Datenschutz & Impressum"
+
+msgid "Datenschutz"
+msgstr "Datenschutz"
+
+msgid "Impressum"
+msgstr "Impressum"
+
+msgid "Light Swiss Cookie Consent"
+msgstr "Light Swiss Cookie Consent"
+
+msgid "Einstellungen"
+msgstr "Einstellungen"
+
+msgid "Privacy Check"
+msgstr "Privacy Check"
+
+msgid "Avada Inventar-Scan"
+msgstr "Avada Inventar-Scan"
+
+msgid "Sie haben keine Berechtigung, diese Einstellungen zu speichern."
+msgstr "Sie haben keine Berechtigung, diese Einstellungen zu speichern."
+
+msgid "Ungültige Sicherheitsprüfung."
+msgstr "Ungültige Sicherheitsprüfung."
+
+msgid "Einstellungen gespeichert."
+msgstr "Einstellungen gespeichert."
+
+msgid "Texte"
+msgstr "Texte"
+
+msgid "Titel"
+msgstr "Titel"
+
+msgid "Banner-Text"
+msgstr "Banner-Text"
+
+msgid "Button: Alle akzeptieren"
+msgstr "Button: Alle akzeptieren"
+
+msgid "Button: Nur notwendige"
+msgstr "Button: Nur notwendige"
+
+msgid "Button: Einstellungen"
+msgstr "Button: Einstellungen"
+
+msgid "Button: Auswahl speichern"
+msgstr "Button: Auswahl speichern"
+
+msgid "Button: Widerruf"
+msgstr "Button: Widerruf"
+
+msgid "Farben"
+msgstr "Farben"
+
+msgid "Hintergrund"
+msgstr "Hintergrund"
+
+msgid "Text"
+msgstr "Text"
+
+msgid "Primärbutton"
+msgstr "Primärbutton"
+
+msgid "Primärbutton Text"
+msgstr "Primärbutton Text"
+
+msgid "Sekundärbutton"
+msgstr "Sekundärbutton"
+
+msgid "Rahmenfarbe"
+msgstr "Rahmenfarbe"
+
+msgid "Overlay & Blur"
+msgstr "Overlay & Blur"
+
+msgid "Overlay aktivieren"
+msgstr "Overlay aktivieren"
+
+msgid "Overlay-Farbe"
+msgstr "Overlay-Farbe"
+
+msgid "Overlay-Deckkraft (0.0 - 1.0)"
+msgstr "Overlay-Deckkraft (0.0 - 1.0)"
+
+msgid "Blur aktivieren"
+msgstr "Blur aktivieren"
+
+msgid "Blur-Stärke (0 - 20 px)"
+msgstr "Blur-Stärke (0 - 20 px)"
+
+msgid "Floating-Button"
+msgstr "Floating-Button"
+
+msgid "Position"
+msgstr "Position"
+
+msgid "Unten rechts"
+msgstr "Unten rechts"
+
+msgid "Unten links"
+msgstr "Unten links"
+
+msgid "Oben rechts"
+msgstr "Oben rechts"
+
+msgid "Oben links"
+msgstr "Oben links"
+
+msgid "Offset X (px)"
+msgstr "Offset X (px)"
+
+msgid "Offset Y (px)"
+msgstr "Offset Y (px)"
+
+msgid "Rechtliche Links"
+msgstr "Rechtliche Links"
+
+msgid "Rechtliche Links im Banner anzeigen"
+msgstr "Rechtliche Links im Banner anzeigen"
+
+msgid "Datenschutz-URL (manuell, überschreibt Auto-Erkennung)"
+msgstr "Datenschutz-URL (manuell, überschreibt Auto-Erkennung)"
+
+msgid "Impressum-URL (manuell, überschreibt Auto-Erkennung)"
+msgstr "Impressum-URL (manuell, überschreibt Auto-Erkennung)"
+
+msgid "Auto-erkannte Impressum-URL"
+msgstr "Auto-erkannte Impressum-URL"
+
+msgid "Nicht gefunden. Manuelles Feld nutzen."
+msgstr "Nicht gefunden. Manuelles Feld nutzen."
+
+msgid "Erkannt über typische Seiten-Slugs und -Titel. Lokale Suche im Admin, keine Frontend-Crawls. Cache: 24 Stunden."
+msgstr "Erkannt über typische Seiten-Slugs und -Titel. Lokale Suche im Admin, keine Frontend-Crawls. Cache: 24 Stunden."
+
+msgid "Consent-Speicherung"
+msgstr "Consent-Speicherung"
+
+msgid "Consent-Gültigkeit (Tage)"
+msgstr "Consent-Gültigkeit (Tage)"
+
+msgid "Default: 180 Tage. Erlaubt: 1 – 365. Ein kürzerer Wert (z. B. 60) lässt das Banner früher wieder erscheinen. Der Consent wird im Browser des Besuchers gespeichert (localStorage + Cookie); ein Plugin-Update oder eine Plugin-Deinstallation löscht diesen Browser-Speicher nicht automatisch. Bei strukturellen Änderungen wird stattdessen die Konstante LSCC_CONSENT_VERSION erhöht."
+msgstr "Default: 180 Tage. Erlaubt: 1 – 365. Ein kürzerer Wert (z. B. 60) lässt das Banner früher wieder erscheinen. Der Consent wird im Browser des Besuchers gespeichert (localStorage + Cookie); ein Plugin-Update oder eine Plugin-Deinstallation löscht diesen Browser-Speicher nicht automatisch. Bei strukturellen Änderungen wird stattdessen die Konstante LSCC_CONSENT_VERSION erhöht."
+
+msgid "YouTube-Thumbnails vor Consent laden"
+msgstr "YouTube-Thumbnails vor Consent laden"
+
+msgid "Default: AUS (maximaler Datenschutz). AUS = lokaler Platzhalter ohne externe Bildanfrage. AN = YouTube-Vorschaubild von i.ytimg.com. WICHTIG: Bei AN wird bereits VOR der Zustimmung ein Bild von Google geladen (überträgt die Besucher-IP an Google). Auch bei AN entsteht kein iframe, kein iframe_api und keine youtube.com-Cookies vor Consent. Ein per [lscc_youtube thumbnail_id=\"...\"] gesetztes lokales Bild hat immer Vorrang."
+msgstr "Default: AUS (maximaler Datenschutz). AUS = lokaler Platzhalter ohne externe Bildanfrage. AN = YouTube-Vorschaubild von i.ytimg.com. WICHTIG: Bei AN wird bereits VOR der Zustimmung ein Bild von Google geladen (überträgt die Besucher-IP an Google). Auch bei AN entsteht kein iframe, kein iframe_api und keine youtube.com-Cookies vor Consent. Ein per [lscc_youtube thumbnail_id=\"...\"] gesetztes lokales Bild hat immer Vorrang."
+
+msgid "Avada-Kompatibilität"
+msgstr "Avada-Kompatibilität"
+
+msgid "Avada-YouTube (fusion_youtube) vor Consent blockieren"
+msgstr "Avada-YouTube (fusion_youtube) vor Consent blockieren"
+
+msgid "Wenn aktiviert, werden Avada/Fusion-Builder-YouTube-Elemente serverseitig durch einen Platzhalter ersetzt. Das YouTube-Video lädt erst nach Zustimmung zur Kategorie „Externe Medien\". Es findet keine Inhaltsänderung statt; bei deaktiviertem Schalter rendert Avada wie gewohnt. Nur YouTube; Vimeo, Maps und Hintergrundvideos sind nicht betroffen."
+msgstr "Wenn aktiviert, werden Avada/Fusion-Builder-YouTube-Elemente serverseitig durch einen Platzhalter ersetzt. Das YouTube-Video lädt erst nach Zustimmung zur Kategorie „Externe Medien\". Es findet keine Inhaltsänderung statt; bei deaktiviertem Schalter rendert Avada wie gewohnt. Nur YouTube; Vimeo, Maps und Hintergrundvideos sind nicht betroffen."
+
+msgid "Einstellungen speichern"
+msgstr "Einstellungen speichern"
+
+msgid "Geprüfte Startseite: %s"
+msgstr "Geprüfte Startseite: %s"
+
+msgid "Nur diese einzelne URL wird geprüft. Es findet kein Crawl statt."
+msgstr "Nur diese einzelne URL wird geprüft. Es findet kein Crawl statt."
+
+msgid "Startseiten-Prüfung"
+msgstr "Startseiten-Prüfung"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Problem"
+msgstr "Problem"
+
+msgid "Empfehlung"
+msgstr "Empfehlung"
+
+msgid "Startseite konnte nicht geprüft werden."
+msgstr "Startseite konnte nicht geprüft werden."
+
+msgid "Bitte prüfen Sie die Seite manuell oder starten Sie den Check später erneut."
+msgstr "Bitte prüfen Sie die Seite manuell oder starten Sie den Check später erneut."
+
+msgid "Startseite lieferte keine prüfbare Ausgabe."
+msgstr "Startseite lieferte keine prüfbare Ausgabe."
+
+msgid "Bitte prüfen Sie die eingebundenen externen Dienste manuell."
+msgstr "Bitte prüfen Sie die eingebundenen externen Dienste manuell."
+
+msgid "Keine der einfachen Privacy-Check-Muster gefunden."
+msgstr "Keine der einfachen Privacy-Check-Muster gefunden."
+
+msgid "Prüfen Sie externe Dienste trotzdem manuell, besonders eingebettete Medien, Tracking und Fonts."
+msgstr "Prüfen Sie externe Dienste trotzdem manuell, besonders eingebettete Medien, Tracking und Fonts."
+
+msgid "Externe Google Fonts erkannt."
+msgstr "Externe Google Fonts erkannt."
+
+msgid "Fonts lokal hosten oder ohne externe Google-Requests einbinden."
+msgstr "Fonts lokal hosten oder ohne externe Google-Requests einbinden."
+
+msgid "Google Analytics oder Google Tag Manager erkannt."
+msgstr "Google Analytics oder Google Tag Manager erkannt."
+
+msgid "Nur nach Zustimmung laden und korrekt einer Consent-Kategorie zuordnen."
+msgstr "Nur nach Zustimmung laden und korrekt einer Consent-Kategorie zuordnen."
+
+msgid "Facebook-Script oder Meta-Dienst erkannt."
+msgstr "Facebook-Script oder Meta-Dienst erkannt."
+
+msgid "Nur nach Zustimmung laden und Marketing-Scripts bewusst blockieren."
+msgstr "Nur nach Zustimmung laden und Marketing-Scripts bewusst blockieren."
+
+msgid "YouTube-Inhalte oder YouTube-Links erkannt."
+msgstr "YouTube-Inhalte oder YouTube-Links erkannt."
+
+msgid "Externe Medien erst nach Zustimmung laden oder datenschutzfreundliche Einbettung prüfen."
+msgstr "Externe Medien erst nach Zustimmung laden oder datenschutzfreundliche Einbettung prüfen."
+
+msgid "Vimeo-Inhalte oder Vimeo-Links erkannt."
+msgstr "Vimeo-Inhalte oder Vimeo-Links erkannt."
+
+msgid "Kritisch"
+msgstr "Kritisch"
+
+msgid "Wichtig"
+msgstr "Wichtig"
+
+msgid "Info"
+msgstr "Info"
+
+msgid "Content Scan"
+msgstr "Content Scan"
+
+msgid "Lokale Suche in veröffentlichten Beiträgen, Seiten und öffentlichen Custom Post Types (maximal 200 Inhalte pro Scan) nach bekannten externen Diensten. Kein Crawl, keine externen Requests, kein automatischer Scan."
+msgstr "Lokale Suche in veröffentlichten Beiträgen, Seiten und öffentlichen Custom Post Types (maximal 200 Inhalte pro Scan) nach bekannten externen Diensten. Kein Crawl, keine externen Requests, kein automatischer Scan."
+
+msgid "Content Scan starten"
+msgstr "Content Scan starten"
+
+msgid "Geprüft: %1$d Inhalte. Treffer: %2$d."
+msgstr "Geprüft: %1$d Inhalte. Treffer: %2$d."
+
+msgid "Keine bekannten externen Embeds in den geprüften Inhalten gefunden."
+msgstr "Keine bekannten externen Embeds in den geprüften Inhalten gefunden."
+
+msgid "Risiko"
+msgstr "Risiko"
+
+msgid "Dienst"
+msgstr "Dienst"
+
+msgid "Inhaltstyp"
+msgstr "Inhaltstyp"
+
+msgid "Domain"
+msgstr "Domain"
+
+msgid "Beitrag"
+msgstr "Beitrag"
+
+msgid "Seite"
+msgstr "Seite"
+
+msgid "YouTube"
+msgstr "YouTube"
+
+msgid "Normales WordPress-YouTube-Embed gefunden. Für consent-sichere Einbettung [lscc_youtube id=\"VIDEO_ID\"] verwenden."
+msgstr "Normales WordPress-YouTube-Embed gefunden. Für consent-sichere Einbettung [lscc_youtube id=\"VIDEO_ID\"] verwenden."
+
+msgid "Vimeo"
+msgstr "Vimeo"
+
+msgid "[lscc_vimeo id=\"VIDEO_ID\"] verwenden."
+msgstr "[lscc_vimeo id=\"VIDEO_ID\"] verwenden."
+
+msgid "Google Maps"
+msgstr "Google Maps"
+
+msgid "[lscc_google_map url=\"...\"] verwenden."
+msgstr "[lscc_google_map url=\"...\"] verwenden."
+
+msgid "Google Fonts"
+msgstr "Google Fonts"
+
+msgid "Fonts lokal hosten oder im Theme/Builder deaktivieren."
+msgstr "Fonts lokal hosten oder im Theme/Builder deaktivieren."
+
+msgid "Google Tag Manager"
+msgstr "Google Tag Manager"
+
+msgid "Vor Consent blockieren oder über kontrollierte Script-Kategorie einbinden."
+msgstr "Vor Consent blockieren oder über kontrollierte Script-Kategorie einbinden."
+
+msgid "Google Analytics"
+msgstr "Google Analytics"
+
+msgid "Facebook / Meta"
+msgstr "Facebook / Meta"
+
+msgid "Passive, rein lesende Messung der eingebundenen Video-, Map- und Embed-Typen in lokalen Inhalten. Es werden keine Inhalte geändert, keine Migration durchgeführt und keine externen Requests gesendet. Der Scan dient ausschliesslich der Abschätzung, wie viele Einbindungen ein künftiges Avada-Kompatibilitätsmodul automatisch abdecken könnte."
+msgstr "Passive, rein lesende Messung der eingebundenen Video-, Map- und Embed-Typen in lokalen Inhalten. Es werden keine Inhalte geändert, keine Migration durchgeführt und keine externen Requests gesendet. Der Scan dient ausschliesslich der Abschätzung, wie viele Einbindungen ein künftiges Avada-Kompatibilitätsmodul automatisch abdecken könnte."
+
+msgid "Inventar-Scan starten"
+msgstr "Inventar-Scan starten"
+
+msgid "fusion_youtube"
+msgstr "fusion_youtube"
+
+msgid "fusion_vimeo"
+msgstr "fusion_vimeo"
+
+msgid "oEmbed (YouTube/Vimeo, nackte URL)"
+msgstr "oEmbed (YouTube/Vimeo, nackte URL)"
+
+msgid "fusion_map (Google Maps)"
+msgstr "fusion_map (Google Maps)"
+
+msgid "Background-Video (YouTube/Vimeo)"
+msgstr "Background-Video (YouTube/Vimeo)"
+
+msgid "fusion_code (mit Drittanbieter-Embed)"
+msgstr "fusion_code (mit Drittanbieter-Embed)"
+
+msgid "Rohe iframes (Drittanbieter)"
+msgstr "Rohe iframes (Drittanbieter)"
+
+msgid "Geprüft: %1$d von %2$d Inhalten."
+msgstr "Geprüft: %1$d von %2$d Inhalten."
+
+msgid "Hinweis: Begrenzung auf %d Inhalte erreicht. Die restlichen Inhalte wurden NICHT gemessen."
+msgstr "Hinweis: Begrenzung auf %d Inhalte erreicht. Die restlichen Inhalte wurden NICHT gemessen."
+
+msgid "1. Verteilung (Drittanbieter-Embeds)"
+msgstr "1. Verteilung (Drittanbieter-Embeds)"
+
+msgid "Typ"
+msgstr "Typ"
+
+msgid "Anzahl"
+msgstr "Anzahl"
+
+msgid "Prozent"
+msgstr "Prozent"
+
+msgid "Summe Drittanbieter-Embeds"
+msgstr "Summe Drittanbieter-Embeds"
+
+msgid "Background-Video (self-hosted, kein Drittanbieter)"
+msgstr "Background-Video (self-hosted, kein Drittanbieter)"
+
+msgid "2. Automatisch abfangbar"
+msgstr "2. Automatisch abfangbar"
+
+msgid "Kategorie"
+msgstr "Kategorie"
+
+msgid "Automatisch"
+msgstr "Automatisch"
+
+msgid "Manuell"
+msgstr "Manuell"
+
+msgid "oEmbed (YouTube/Vimeo)"
+msgstr "oEmbed (YouTube/Vimeo)"
+
+msgid "fusion_code (mit Embed)"
+msgstr "fusion_code (mit Embed)"
+
+msgid "Rohe iframes"
+msgstr "Rohe iframes"
+
+msgid "Ja"
+msgstr "Ja"
+
+msgid "3. KPI: Automatische Abdeckung"
+msgstr "3. KPI: Automatische Abdeckung"
+
+msgid "Abdeckung_min"
+msgstr "Abdeckung_min"
+
+msgid "(fusion_youtube + fusion_vimeo + oEmbed)"
+msgstr "(fusion_youtube + fusion_vimeo + oEmbed)"
+
+msgid "Abdeckung_max"
+msgstr "Abdeckung_max"
+
+msgid "(zusätzlich fusion_map, sofern Google-Maps-Script-Gating ergänzt wird)"
+msgstr "(zusätzlich fusion_map, sofern Google-Maps-Script-Gating ergänzt wird)"
+
+msgid "4. Top-Sonderfälle (manuelle Prüfung nötig)"
+msgstr "4. Top-Sonderfälle (manuelle Prüfung nötig)"
+
+msgid "Sonderfall"
+msgstr "Sonderfall"
+
+msgid "Bemerkung"
+msgstr "Bemerkung"
+
+msgid "Code-Blöcke mit Drittanbieter-Embed / Code-Blöcke gesamt. Inhalt ist base64-kodiert; nicht automatisch gatebar."
+msgstr "Code-Blöcke mit Drittanbieter-Embed / Code-Blöcke gesamt. Inhalt ist base64-kodiert; nicht automatisch gatebar."
+
+msgid "Background-Video"
+msgstr "Background-Video"
+
+msgid "YouTube/Vimeo als Container-/Spalten-Hintergrund. Attribut am Container, nicht sauber einzeln gatebar."
+msgstr "YouTube/Vimeo als Container-/Spalten-Hintergrund. Attribut am Container, nicht sauber einzeln gatebar."
+
+msgid "Drittanbieter-iframes / iframes gesamt. Handgepastete iframes werden vom Render-Filter nicht erfasst."
+msgstr "Drittanbieter-iframes / iframes gesamt. Handgepastete iframes werden vom Render-Filter nicht erfasst."
+
+msgid "Avada Maps nutzt meist die Google-Maps-JS-API; benötigt zusätzliches Script-Gating."
+msgstr "Avada Maps nutzt meist die Google-Maps-JS-API; benötigt zusätzliches Script-Gating."
+
+msgid "Diagnostik (Rohtreffer, mögliche Überschneidungen)"
+msgstr "Diagnostik (Rohtreffer, mögliche Überschneidungen)"
+
+msgid "Muster"
+msgstr "Muster"
+
+msgid "Vorkommen"
+msgstr "Vorkommen"
+
+msgid "Hinweis: Slider (Fusion/Revolution/LayerSlider) und externe Speicher ausserhalb des post_content werden nicht gemessen. Mehrsprachige Duplikate (WPML/Polylang) können Mehrfachzählungen erzeugen."
+msgstr "Hinweis: Slider (Fusion/Revolution/LayerSlider) und externe Speicher ausserhalb des post_content werden nicht gemessen. Mehrsprachige Duplikate (WPML/Polylang) können Mehrfachzählungen erzeugen."
+
+msgid "YouTube-Video"
+msgstr "YouTube-Video"
+
+msgid "Dieses YouTube-Video wird erst nach Zustimmung zu externen Medien geladen."
+msgstr "Dieses YouTube-Video wird erst nach Zustimmung zu externen Medien geladen."
+
+msgid "Vimeo-Video"
+msgstr "Vimeo-Video"
+
+msgid "Dieses Vimeo-Video wird erst nach Zustimmung zu externen Medien geladen."
+msgstr "Dieses Vimeo-Video wird erst nach Zustimmung zu externen Medien geladen."
+
+msgid "Diese Google-Maps-Karte wird erst nach Zustimmung zu externen Medien geladen."
+msgstr "Diese Google-Maps-Karte wird erst nach Zustimmung zu externen Medien geladen."
+
+msgid "Externe Medien akzeptieren"
+msgstr "Externe Medien akzeptieren"

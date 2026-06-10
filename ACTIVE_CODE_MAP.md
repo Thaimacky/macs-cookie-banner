@@ -14,8 +14,9 @@ Diese Karte beschreibt die aktiven Dateien, ihre Zustaendigkeiten und die wichti
 | `includes/service-components.php` | Shortcodes `[lscc_youtube]`, `[lscc_vimeo]`, `[lscc_google_map]` mit Placeholder-Markup. |
 | `assets/js/banner.js` | Frontend-Logik: Consent-Speicherung, Banner-Steuerung, Script-Aktivierung, Media-Sync. |
 | `assets/css/banner.css` | Styles fuer Banner, Reopen-Button, Settings-Button und Media-Komponenten. |
-| `languages/light-swiss-cookie-consent.pot` | i18n-Template. |
-| `languages/light-swiss-cookie-consent-*.po` | Locale-Skelette fuer `de_CH`, `en_US`, `fr_FR`, `it_IT`, `tr_TR`, `hu_HU`. |
+| `languages/light-swiss-cookie-consent.pot` | i18n-Template. Ab v0.2.1 vollständig aus den realen Quelltext-Callsites generiert (158 msgids; Audit). |
+| `languages/light-swiss-cookie-consent-*.po` | Vollständiger Katalog für `de_CH`, `en_US`, `fr_FR`, `it_IT`, `tr_TR`, `hu_HU`. Ab v0.2.1 befüllt: **frontend-/besucherseitige** Strings (Kategorie-Labels/-Beschreibungen, Rechtslinks, Service-Komponenten-Texte) in allen sechs Sprachen; Admin-only-Strings bleiben deutsche Quelle (Operator-Sprache). |
+| `languages/light-swiss-cookie-consent-*.mo` | Ab v0.2.1 kompiliert (sechs Locales). Nur Einträge mit echter Übersetzung; fehlende fallen auf die deutsche Quelle zurück. Notwendig, damit `__()`/`esc_html__()` der aktiven WPML-Sprache folgen. |
 
 ## `light-swiss-cookie-consent.php`
 
@@ -33,11 +34,11 @@ Diese Karte beschreibt die aktiven Dateien, ihre Zustaendigkeiten und die wichti
 - `init()` registriert Hooks und laedt Subklassen
 - `load_textdomain()` — Hook `plugins_loaded`
 - `register_wpml_strings()` — Hook `init`, ruft `do_action( 'wpml_register_single_string', ... )` und `pll_register_string()` fuer alle Banner-Texte
-- `get_default_options()` — Defaults fuer Texte und Hex-Farben; der `banner_text`-Default kommt aus `get_neutral_banner_text()`
-- `get_neutral_banner_text()` — liest aktuellen Locale via `determine_locale()` (Fallback `get_locale()`) und delegiert an `resolve_neutral_banner_text_for_locale()`
-- `resolve_neutral_banner_text_for_locale( $locale )` — extrahiert Sprachpräfix und liest passenden Eintrag aus `get_neutral_banner_text_table()`; fällt bei unbekannten Sprachen auf Englisch zurück
-- `extract_language_prefix( $locale )` — robuster Helper, akzeptiert `de_CH`, `de-CH`, `de_DE`, `de_AT`, `en_GB`, `pt_BR` und ähnliche Varianten und liefert den 2- bis 3-Buchstaben-Sprachcode in Kleinbuchstaben
-- `get_neutral_banner_text_table()` — neutrale Default-Banner-Texte je Sprachpräfix (`de`, `en`, `fr`, `it`, `tr`, `hu`); UTF-8 mit echten Umlauten und diakritischen Zeichen
+- `get_default_options()` — Defaults fuer Texte und Hex-Farben; **alle sieben Text-Defaults** (`banner_title`, `banner_text`, `accept_all_text`, `necessary_only_text`, `settings_text`, `save_settings_text`, `reopen_text`) kommen ab v0.2.1 aus `get_neutral_text()` (vorher nur `banner_text`). Damit folgen die Defaults automatisch der aktiven WPML-/Polylang-Sprache, ohne `__()`-/`.mo`-Lookup und ohne deutschen Hardcode-Default.
+- `get_neutral_text( $key, $locale = null )` (ab v0.2.1) — liest die aktive Locale via `determine_locale()` (Fallback `get_locale()`), extrahiert den Sprachpräfix und liefert den passenden Default-Text aus `get_default_text_table()`; Fallback auf Englisch, dann leerer String. Ersetzt `resolve_neutral_banner_text_for_locale()`.
+- `get_neutral_banner_text()` — bleibt als dünner Backwards-Compat-Wrapper erhalten und delegiert an `get_neutral_text( 'banner_text' )`.
+- `extract_language_prefix( $locale )` — robuster Helper, akzeptiert `de_CH`, `de-CH`, `de_DE`, `de_AT`, `en_GB`, `pt_BR` und ähnliche Varianten und liefert den 2- bis 3-Buchstaben-Sprachcode in Kleinbuchstaben (unverändert)
+- `get_default_text_table()` (ab v0.2.1, ersetzt `get_neutral_banner_text_table()`) — neutrale Default-UI-Texte je Sprachpräfix (`de`, `en`, `fr`, `it`, `tr`, `hu`); pro Sprache eine Map aller sieben Text-Keys. UTF-8 mit echten Umlauten/diakritischen Zeichen, Schweizer Schreibweise (kein ß). WPML-/Polylang-String-Translation bleibt als Override vorrangig.
 - `get_bool_option_keys()`, `get_int_option_keys()`, `get_float_option_keys()`, `get_url_option_keys()`, `get_enum_option_keys()` — Schlüssellisten für neue Optionstypen ab v0.1.4 (Overlay/Blur/Position/Legal-Links)
 - `get_css_variables()` — schreibt zusätzlich `--lscc-overlay-bg`, `--lscc-blur`, `--lscc-reopen-ox`, `--lscc-reopen-oy` in den Inline-Style
 - `hex_with_opacity_to_rgba( $hex, $opacity )` — privater Helper für Overlay-Hintergrund (`rgba(...)`)

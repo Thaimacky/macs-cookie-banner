@@ -85,6 +85,23 @@
 - [ ] Reopen-Button ist nicht sichtbar, wenn kein gültiger Consent vorhanden ist (auch nicht bei Browser ohne JS-Init).
 - [ ] Nach Aktivierung der neuen Version sind die Defaults `overlay_enabled`, `blur_enabled`, `show_legal_links` jeweils `true` — auch wenn vorher eine alte Plugin-Version installiert war.
 
+## WPML / Mehrsprachigkeit (ab v0.2.1-test)
+
+Test auf einer echten WPML-Seite mit mindestens DE + EN (ideal zusätzlich FR/IT/TR/HU). Live-Referenz: `plugins.svogellisi.ch/de/` und `/en/`.
+
+- [ ] **Kein Sprach-Mix mehr:** Auf der EN-Seite sind Einleitungstext UND alle Labels englisch; auf der DE-Seite alles deutsch.
+- [ ] Banner-Labels folgen der aktiven Sprache: `Notwendig/Statistik/Marketing/Externe Medien` + die vier Beschreibungen.
+- [ ] Die sieben editierbaren Strings folgen der aktiven Sprache (Titel, Einleitungstext, „Alle akzeptieren", „Nur notwendige", „Einstellungen", „Auswahl speichern").
+- [ ] **„Cookie-Einstellungen"-Button unten rechts** (Reopen) erscheint in der aktiven Sprache (EN: „Cookie settings", FR: „Paramètres des cookies", …).
+- [ ] Rechtslinks im Banner (`Datenschutz`, `Impressum`, `Datenschutz & Impressum`) sind übersetzt.
+- [ ] Service-Komponenten-Platzhalter (YouTube/Vimeo/Maps Hinweistext, „Externe Medien akzeptieren") sind in der aktiven Sprache.
+- [ ] **Frischer Install ohne gespeicherte Optionen:** Defaults erscheinen automatisch in der aktiven Sprache (keine deutschen Hardcodes auf EN/FR/IT/TR/HU).
+- [ ] **Admin-Override greift:** Ein im Admin geänderter Text bzw. eine WPML-String-Translation-Übersetzung hat Vorrang vor dem Locale-Default.
+- [ ] WPML-Sprachwechsel lädt das passende `.mo` (kategoriale Labels wechseln tatsächlich mit der Sprache — `switch_to_locale()`-Verhalten prüfen).
+- [ ] Eine Sprache jenseits der sechs Bundle-Sprachen fällt sauber auf Englisch zurück (kein deutscher Resttext, kein Fatal).
+- [ ] `.mo`-Dateien sind im ZIP/Install vorhanden (`languages/light-swiss-cookie-consent-<locale>.mo`).
+- [ ] Admin-Seiten (Einstellungen, Privacy Check, Avada-Inventar) erscheinen in der Operator-Sprache (deutsche Quelle) — bewusster Scope (ADR-19), kein Bug.
+
 ## Nativer LSCC-YouTube-Block (ab v0.2.0-test)
 
 - [ ] `[lscc_youtube id="VIDEO_ID"]` zeigt vor Consent Platzhalter + Play-Button + Hinweistext + „Externe Medien akzeptieren"-Button (auch ohne Thumbnail).

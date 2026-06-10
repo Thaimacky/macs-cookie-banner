@@ -8,6 +8,27 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.2.1-test - 2026-06-10
+
+### Fixed
+
+- **WPML / Sprach-Mix behoben (Live-Test-Befund 1 + 2).** Auf anderssprachigen Seiten erschienen Banner-Labels deutsch, während der Einleitungstext der aktiven Sprache folgte. Ursache: nur `banner_text` nutzte die Locale-Tabelle; alle übrigen Strings liefen über `__()`/`esc_html__()` und gaben mangels kompilierter `.mo` immer den deutschen Quelltext zurück. Jetzt folgen **alle** Banner-Texte der aktiven WPML-/Polylang-Sprache.
+
+### Changed
+
+- Die Defaults **aller sieben** editierbaren Texte (`banner_title`, `banner_text`, `accept_all_text`, `necessary_only_text`, `settings_text`, `save_settings_text`, `reopen_text`) kommen jetzt aus der Locale-Tabelle `get_default_text_table()` (Helper `get_neutral_text()`), aufgelöst über `determine_locale()`. Vorher nur `banner_text`.
+- WPML-/Polylang-String-Translation bleibt unverändert als **Override** vorrangig.
+- Plugin-Header und `LSCC_VERSION` auf `0.2.1`. `LSCC_CONSENT_VERSION` bleibt `2`.
+
+### i18n
+
+- Alle sechs `.po` befüllt und sechs `.mo` **kompiliert** (vorher leere Skelette, keine `.mo`). Frontend-/besucherseitige Strings in `de_CH`, `en_US`, `fr_FR`, `it_IT`, `tr_TR`, `hu_HU` übersetzt; Admin-only-Strings bleiben deutsche Quelle (Operator-Sprache).
+- `.pot` aus den realen Quelltext-Callsites neu auditiert (158 msgids); obsolete editierbare Strings entfernt, fehlende Admin-Strings (v0.1.9/v0.2.0) ergänzt.
+
+### Bewusst nicht enthalten
+
+- Befund 3 (YouTube-Konsistenz) und Befund 4 (Modal-Design) — separat. Keine Änderung an `banner.js`, CSS, Consent-Schema oder Avada-Interception.
+
 ## 0.2.0-test - 2026-06-03
 
 ### Added

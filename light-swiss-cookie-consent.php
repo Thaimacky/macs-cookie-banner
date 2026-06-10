@@ -3,7 +3,7 @@
  * Plugin Name: Light Swiss Cookie Consent
  * Plugin URI:  https://example.com/light-swiss-cookie-consent
  * Description: Lightweight cookie consent banner with script blocking for WordPress.
- * Version:     0.2.0
+ * Version:     0.2.1
  * Author:      Light Swiss Cookie Consent
  * Text Domain: light-swiss-cookie-consent
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'LSCC_VERSION', '0.2.0' );
+define( 'LSCC_VERSION', '0.2.1' );
 
 /**
  * Consent schema version. Bump this whenever the stored consent shape
@@ -93,13 +93,13 @@ final class Light_Swiss_Cookie_Consent {
 	 */
 	public static function get_default_options() {
 		return array(
-			'banner_title'           => __( 'Cookie-Einstellungen', 'light-swiss-cookie-consent' ),
-			'banner_text'            => self::get_neutral_banner_text(),
-			'accept_all_text'        => __( 'Alle akzeptieren', 'light-swiss-cookie-consent' ),
-			'necessary_only_text'    => __( 'Nur notwendige', 'light-swiss-cookie-consent' ),
-			'settings_text'          => __( 'Einstellungen', 'light-swiss-cookie-consent' ),
-			'save_settings_text'     => __( 'Auswahl speichern', 'light-swiss-cookie-consent' ),
-			'reopen_text'            => __( 'Cookie-Einstellungen', 'light-swiss-cookie-consent' ),
+			'banner_title'           => self::get_neutral_text( 'banner_title' ),
+			'banner_text'            => self::get_neutral_text( 'banner_text' ),
+			'accept_all_text'        => self::get_neutral_text( 'accept_all_text' ),
+			'necessary_only_text'    => self::get_neutral_text( 'necessary_only_text' ),
+			'settings_text'          => self::get_neutral_text( 'settings_text' ),
+			'save_settings_text'     => self::get_neutral_text( 'save_settings_text' ),
+			'reopen_text'            => self::get_neutral_text( 'reopen_text' ),
 			'background_color'       => '#111827',
 			'text_color'             => '#f9fafb',
 			'primary_button_color'   => '#e11d48',
@@ -124,34 +124,44 @@ final class Light_Swiss_Cookie_Consent {
 	}
 
 	/**
-	 * Resolve the locale-aware neutral default banner text.
+	 * Resolve a locale-aware neutral default text for a single UI string.
 	 *
-	 * Picks a language-neutral default consent text matching the current site
-	 * locale. Falls back to language-prefix matching (e.g. `de_AT` -> `de`) and
-	 * finally to English when no specific language entry exists.
+	 * Picks the default that matches the currently active locale. Under WPML or
+	 * Polylang the active locale follows the current front-end language, so the
+	 * banner defaults automatically follow the visitor's language without any
+	 * `.mo` lookup. Falls back to language-prefix matching (e.g. `de_AT` -> `de`)
+	 * and finally to English when no specific language entry exists.
+	 *
+	 * @param string      $key    Text key (see get_default_text_table()).
+	 * @param string|null $locale Optional explicit locale; defaults to the active one.
+	 * @return string
+	 */
+	public static function get_neutral_text( $key, $locale = null ) {
+		if ( null === $locale ) {
+			$locale = function_exists( 'determine_locale' ) ? determine_locale() : get_locale();
+		}
+
+		$table = self::get_default_text_table();
+		$lang  = self::extract_language_prefix( (string) $locale );
+
+		if ( '' !== $lang && isset( $table[ $lang ][ $key ] ) ) {
+			return $table[ $lang ][ $key ];
+		}
+
+		if ( isset( $table['en'][ $key ] ) ) {
+			return $table['en'][ $key ];
+		}
+
+		return '';
+	}
+
+	/**
+	 * Backwards-compatible wrapper resolving the neutral banner intro text.
 	 *
 	 * @return string
 	 */
 	public static function get_neutral_banner_text() {
-		$locale = function_exists( 'determine_locale' ) ? determine_locale() : get_locale();
-		return self::resolve_neutral_banner_text_for_locale( (string) $locale );
-	}
-
-	/**
-	 * Resolve a neutral banner text for a specific locale string.
-	 *
-	 * @param string $locale Locale code (e.g. `de_CH`, `en_US`, `pt_BR`).
-	 * @return string
-	 */
-	public static function resolve_neutral_banner_text_for_locale( $locale ) {
-		$table = self::get_neutral_banner_text_table();
-		$lang  = self::extract_language_prefix( $locale );
-
-		if ( '' !== $lang && isset( $table[ $lang ] ) ) {
-			return $table[ $lang ];
-		}
-
-		return $table['en'];
+		return self::get_neutral_text( 'banner_text' );
 	}
 
 	/**
@@ -176,21 +186,75 @@ final class Light_Swiss_Cookie_Consent {
 	}
 
 	/**
-	 * Neutral default banner texts per language prefix.
+	 * Neutral default UI texts per language prefix.
+	 *
+	 * Holds the defaults for every editable banner string so that an unsaved
+	 * install automatically renders in the active language (any current or
+	 * future WPML/Polylang language that maps to one of these prefixes). Unknown
+	 * languages fall back to English. Admin overrides and WPML/Polylang String
+	 * Translation still take precedence over these defaults at render time.
 	 *
 	 * The texts are deliberately phrased without `du`/`Sie` so that they fit
-	 * Swiss, German and international audiences alike.
+	 * Swiss, German and international audiences alike. Swiss spelling: no `ß`.
 	 *
-	 * @return array
+	 * @return array Map of language prefix => map of text key => string.
 	 */
-	public static function get_neutral_banner_text_table() {
+	public static function get_default_text_table() {
 		return array(
-			'de' => 'Wir verwenden notwendige Cookies für den Betrieb dieser Website. Statistik, Marketing und externe Medien werden erst nach Zustimmung geladen.',
-			'en' => 'We use necessary cookies to operate this website. Statistics, marketing and external media are loaded only after consent.',
-			'fr' => 'Nous utilisons des cookies nécessaires au fonctionnement de ce site. Les statistiques, le marketing et les médias externes sont chargés uniquement après consentement.',
-			'it' => 'Utilizziamo cookie necessari per il funzionamento di questo sito. Statistiche, marketing e contenuti esterni vengono caricati solo dopo il consenso.',
-			'tr' => 'Bu web sitesinin çalışması için gerekli çerezleri kullanıyoruz. İstatistik, pazarlama ve harici medya yalnızca onaydan sonra yüklenir.',
-			'hu' => 'A weboldal működéséhez szükséges sütiket használunk. A statisztika, marketing és külső média csak hozzájárulás után töltődik be.',
+			'de' => array(
+				'banner_title'        => 'Cookie-Einstellungen',
+				'banner_text'         => 'Wir verwenden notwendige Cookies für den Betrieb dieser Website. Statistik, Marketing und externe Medien werden erst nach Zustimmung geladen.',
+				'accept_all_text'     => 'Alle akzeptieren',
+				'necessary_only_text' => 'Nur notwendige',
+				'settings_text'       => 'Einstellungen',
+				'save_settings_text'  => 'Auswahl speichern',
+				'reopen_text'         => 'Cookie-Einstellungen',
+			),
+			'en' => array(
+				'banner_title'        => 'Cookie settings',
+				'banner_text'         => 'We use necessary cookies to operate this website. Statistics, marketing and external media are loaded only after consent.',
+				'accept_all_text'     => 'Accept all',
+				'necessary_only_text' => 'Necessary only',
+				'settings_text'       => 'Settings',
+				'save_settings_text'  => 'Save selection',
+				'reopen_text'         => 'Cookie settings',
+			),
+			'fr' => array(
+				'banner_title'        => 'Paramètres des cookies',
+				'banner_text'         => 'Nous utilisons des cookies nécessaires au fonctionnement de ce site. Les statistiques, le marketing et les médias externes sont chargés uniquement après consentement.',
+				'accept_all_text'     => 'Tout accepter',
+				'necessary_only_text' => 'Nécessaires uniquement',
+				'settings_text'       => 'Paramètres',
+				'save_settings_text'  => 'Enregistrer la sélection',
+				'reopen_text'         => 'Paramètres des cookies',
+			),
+			'it' => array(
+				'banner_title'        => 'Impostazioni dei cookie',
+				'banner_text'         => 'Utilizziamo cookie necessari per il funzionamento di questo sito. Statistiche, marketing e contenuti esterni vengono caricati solo dopo il consenso.',
+				'accept_all_text'     => 'Accetta tutto',
+				'necessary_only_text' => 'Solo necessari',
+				'settings_text'       => 'Impostazioni',
+				'save_settings_text'  => 'Salva selezione',
+				'reopen_text'         => 'Impostazioni dei cookie',
+			),
+			'tr' => array(
+				'banner_title'        => 'Çerez ayarları',
+				'banner_text'         => 'Bu web sitesinin çalışması için gerekli çerezleri kullanıyoruz. İstatistik, pazarlama ve harici medya yalnızca onaydan sonra yüklenir.',
+				'accept_all_text'     => 'Tümünü kabul et',
+				'necessary_only_text' => 'Yalnızca gerekli',
+				'settings_text'       => 'Ayarlar',
+				'save_settings_text'  => 'Seçimi kaydet',
+				'reopen_text'         => 'Çerez ayarları',
+			),
+			'hu' => array(
+				'banner_title'        => 'Süti beállítások',
+				'banner_text'         => 'A weboldal működéséhez szükséges sütiket használunk. A statisztika, marketing és külső média csak hozzájárulás után töltődik be.',
+				'accept_all_text'     => 'Összes elfogadása',
+				'necessary_only_text' => 'Csak a szükségesek',
+				'settings_text'       => 'Beállítások',
+				'save_settings_text'  => 'Kiválasztás mentése',
+				'reopen_text'         => 'Süti beállítások',
+			),
 		);
 	}
 

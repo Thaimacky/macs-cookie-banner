@@ -7,6 +7,7 @@
 - 2026-05-28 — Datei umbenannt von `CLAUDE_CONTINUITY_MASTER.md` zu `MASTER_HANDBUCH.md`. Inhalt vollständig erhalten. Referenzen in `PROJECT_BRIEF.md`, `DECISIONS.md` und `DEV_LOG.md` aktualisiert.
 - 2026-06-03 — Additive Erweiterung: verbindliche Regel zum Ablageort von Test-ZIPs ergänzt (Sektion „Release-Artefakte / Ablageort für Test-ZIPs"). Inhalt sonst unverändert.
 - 2026-06-03 — Additive Erweiterung: Sektion „Avada-Massenkompatibilität (Strategie)" ergänzt. Hält das Einsatzziel (≈40 Avada-Sites) und die empfohlene, No-Go-konforme Richtung fest. Reine Strategie-Dokumentation, keine Umsetzung.
+- 2026-06-10 — Additive Erweiterung: Sektion „Dokumentationspflicht (Definition of Done)" ergänzt — Doku-Dateien müssen nach jeder Plugin-Änderung sofort aktualisiert werden. Inhalt sonst unverändert.
 
 ## Zweck dieser Datei
 
@@ -291,6 +292,16 @@ Vor Änderungen IMMER:
 4. DEV_LOG.md lesen
 
 Danach erst implementieren.
+
+---
+
+# Dokumentationspflicht (Definition of Done)
+
+VERBINDLICH (ab 2026-06-10):
+
+Nach jeder Änderung am Plugin müssen MASTER_HANDBUCH.md, ACTIVE_CODE_MAP.md, DECISIONS.md, DEV_LOG.md und RELEASE_CHECKLIST.md sofort auf den aktuellen Stand gebracht werden. Dokumentation ist Teil der Definition von fertig.
+
+Eine Änderung gilt erst dann als abgeschlossen, wenn der zugehörige Code UND die betroffene Dokumentation konsistent sind. Reine Code-Änderungen ohne synchrone Doku-Aktualisierung sind nicht zulässig.
 
 ---
 

@@ -255,3 +255,25 @@ Dieses Dokument haelt zentrale Entscheidungen fest, die die Form des Plugins erk
 - Autostart nach Play-Klick ist eine erwartbare UX und nutzt eine minimale, gekapselte `banner.js`-Ergänzung (`autoplay=1` nur für YouTube/Vimeo, nur wenn der Play-Button die Aktivierung auslöste).
 
 **Folgen:** Betreiber, die `youtube_remote_thumbnails` aktivieren, müssen wissen, dass `i.ytimg.com` vor Consent die Besucher-IP an Google überträgt — je nach Rechtsraum (CH/EU/DE) ggf. selbst zustimmungspflichtig. Die Option ist daher bewusst per Default deaktiviert und im Admin klar beschriftet. Bestehende `[lscc_youtube]`-Nutzungen bleiben kompatibel.
+
+## ADR-19: Zwei-Schichten-Mehrsprachigkeit — Locale-Default-Tabelle + kompilierte `.mo` (umgesetzt in v0.2.1)
+
+**Status:** Umgesetzt (v0.2.1). Behebt den im Live-Test (v0.2.0) gefundenen Sprach-Mix (Befund 1 + 2).
+
+**Entscheidung:** Die Banner-Mehrsprachigkeit wird über **zwei klar getrennte Schichten** gelöst, die beide der aktiven WPML-/Polylang-Sprache folgen:
+
+1. **Editierbare Strings** (die sieben Admin-pflegbaren Texte: `banner_title`, `banner_text`, `accept_all_text`, `necessary_only_text`, `settings_text`, `save_settings_text`, `reopen_text`) erhalten ihre **Defaults aus einer Locale-Tabelle** `get_default_text_table()`, aufgelöst zur Render-Zeit über `determine_locale()` (Helper `get_neutral_text()`). Erweitert das bereits für `banner_text` etablierte Muster (ADR-11) auf alle sieben Strings.
+2. **Fixe Textdomain-Strings** (Kategorie-Labels/-Beschreibungen, Rechtslinks, Service-Komponenten-Texte) werden über **kompilierte `.mo`-Dateien** übersetzt — die zuvor fehlten.
+
+Die bestehende **WPML-/Polylang-String-Translation-Registrierung bleibt als Override** erhalten und hat Vorrang, sobald ein Admin einen Text anpasst oder eine Sprache jenseits der sechs Bundle-Sprachen pflegt.
+
+**Kontext / Root Cause:** Im Plugin existierten zwei Übersetzungs-Mechanismen, die auseinanderliefen. Mechanismus B (Locale-Tabelle) bediente nur `banner_text` → folgte der Sprache und zeigte z. B. auf EN englisch. Mechanismus A (`__()`/`esc_html__()`) bediente alle übrigen Strings **und die Defaults der editierbaren Strings**, lieferte aber mangels kompilierter `.mo` immer den **deutschen Quelltext**. Ergebnis: englischer Einleitungstext neben deutschen Labels (Sprach-Mix). Die `.po` lagen nur als leere Skelette vor, `.mo` fehlten ganz.
+
+**Begründung:**
+
+- **Defaults via Locale-Tabelle** statt `__()` entkoppelt die editierbaren Strings von der `.mo`-Pflege und macht sie ab Werk (unsaved install) sprachrichtig — robust gegen beliebige WPML-Sprachen, die auf einen der Präfixe (`de`/`en`/`fr`/`it`/`tr`/`hu`) mappen; Fallback Englisch.
+- **`.mo` für fixe Strings** ist der WordPress-Standardweg; WPML schaltet die Locale pro Frontend-Sprache und WordPress lädt das passende `.mo`. Damit folgen Kategorie-Labels etc. automatisch der Besuchersprache.
+- **Scope-Entscheid Frontend vs. Admin:** Übersetzt werden in allen sechs Sprachen die **frontend-/besucherseitigen** Strings (das Banner, das der Besucher in seiner WPML-Sprache sieht — Gegenstand von Befund 1+2). **Admin-only-Strings** (Einstellungsseiten, Privacy Check, Avada-Inventar) bleiben deutsche Quelle: wp-admin rendert in der **Operator-Sprache**, nicht in der Besucher-WPML-Sprache. Das hält die Übersetzungsqualität dort hoch, wo sie sichtbar ist, und vermeidet riskante Teilübersetzungen langer technischer Admin-Texte.
+- **POT-Audit:** Das `.pot` wird aus den realen Quelltext-Callsites generiert (158 msgids). Die vier editierbaren Strings ohne verbleibenden `__()`-Callsite (`Cookie-Einstellungen`, `Alle akzeptieren`, `Nur notwendige`, `Auswahl speichern`) entfallen dadurch korrekt aus dem Template.
+
+**Folgen / offene Punkte:** Die `.mo`-Dateien sind kompilierte Artefakte im Repo (kein Build-System; erzeugt über ein einmaliges Generator-Skript ausserhalb des Repos, `.po` bleiben die lesbare Quelle). Eine **siebte** WPML-Sprache jenseits der sechs Bundle-Sprachen wird für die editierbaren Strings über WPML String Translation bedient (Override-Pfad) und für die fixen Strings über eine ergänzte `.po`/`.mo`. Das tatsächliche WPML-`switch_to_locale()`-Verhalten (lädt WP das `.mo` pro Frontend-Sprache nach) ist auf der Live-Seite gegenzuprüfen. Verbindliche Referenz: `MASTER_HANDBUCH.md`, Sektion „Sprachstrategie".
