@@ -85,6 +85,17 @@
 - [ ] Reopen-Button ist nicht sichtbar, wenn kein gültiger Consent vorhanden ist (auch nicht bei Browser ohne JS-Init).
 - [ ] Nach Aktivierung der neuen Version sind die Defaults `overlay_enabled`, `blur_enabled`, `show_legal_links` jeweils `true` — auch wenn vorher eine alte Plugin-Version installiert war.
 
+## Aktiver Consent an den Schnellbuttons (ab v0.2.4-test)
+
+- [ ] **Erster Besuch (kein Consent):** „Alle akzeptieren" und „Nur notwendige" sind beide neutral/gleichwertig (kein Button hervorgehoben, kein „✓").
+- [ ] Nach „Nur notwendige" → Dialog erneut öffnen: „Nur notwendige" ist **aktiv** (Ring + „✓"), „Alle akzeptieren" ist **inaktiv** (abgeschwächt).
+- [ ] Nach „Alle akzeptieren" → erneut öffnen: „Alle akzeptieren" aktiv, „Nur notwendige" inaktiv.
+- [ ] Nach individueller Auswahl (gemischt, via Checkboxen + Speichern) → beide Schnellbuttons inaktiv; Checkboxen zeigen die genaue Auswahl.
+- [ ] Zustand ist **sofort beim Öffnen** sichtbar (nicht erst nach Interaktion).
+- [ ] Nach Reload bleibt der aktive Zustand korrekt (aus gespeichertem Consent rekonstruiert).
+- [ ] Screenreader: aktiver Button meldet `aria-pressed="true"`, inaktiver `="false"`.
+- [ ] Keine Änderung an gespeichertem Consent/Verhalten durch die Anzeige (Videos/Scripts unverändert gegated).
+
 ## Consent-UI Synchronisation (ab v0.2.3-test)
 
 Reproduktion des behobenen Bugs — in **Firefox UND Chrome** prüfen:

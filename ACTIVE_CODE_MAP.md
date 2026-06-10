@@ -209,11 +209,13 @@ Der Consent-Flow ist clientseitig und versioniert:
 3. `banner.js` startet bei `DOMContentLoaded`:
    - liest `localStorage` und Cookie via `getStoredConsent`,
    - prueft Version und Struktur via `parseStoredConsent` / `isValidConsent`,
-   - synchronisiert die Settings-Checkboxen aus dem gespeicherten Consent via `updateInputs( getStoredConsent() )` (ab 0.2.3 **beim Laden**, unabhaengig von der Banner-Sichtbarkeit → gespeicherter Consent = alleinige Quelle der Wahrheit, robust gegen Browser-Formular-Wiederherstellung),
+   - synchronisiert die Settings-Checkboxen aus dem gespeicherten Consent via `updateInputs( getStoredConsent() )` (ab 0.2.3 **beim Laden**, unabhaengig von der Banner-Sichtbarkeit → gespeicherter Consent = alleinige Quelle der Wahrheit, robust gegen Browser-Formular-Wiederherstellung) und spiegelt den aktiven Zustand auf die Schnellbuttons via `updateQuickButtons()` (ab 0.2.4),
    - aktiviert blockierte Skripte (`activateBlockedScripts`),
    - synchronisiert Medienkomponenten (`syncMediaComponents`),
    - zeigt das Banner nur, wenn kein gueltiger Consent existiert.
-4. Bei Auswahl ruft das Banner `saveAndClose` → `writeConsent` (schreibt `localStorage` + Cookie mit `Max-Age=180 Tage`, `SameSite=Lax`, `Secure` bei HTTPS), danach `updateInputs( consent )` (ab 0.2.3, haelt die Checkboxen nach „Alle akzeptieren" / „Nur notwendige" / „Auswahl speichern" synchron), dann `activateBlockedScripts` + `syncMediaComponents`. Die vier Checkboxen tragen `autocomplete="off"` (ab 0.2.3).
+4. Bei Auswahl ruft das Banner `saveAndClose` → `writeConsent` (schreibt `localStorage` + Cookie mit `Max-Age=180 Tage`, `SameSite=Lax`, `Secure` bei HTTPS), danach `updateInputs( consent )` + `updateQuickButtons()` (ab 0.2.3/0.2.4, halten Checkboxen und Schnellbuttons nach „Alle akzeptieren" / „Nur notwendige" / „Auswahl speichern" synchron), dann `activateBlockedScripts` + `syncMediaComponents`. Die vier Checkboxen tragen `autocomplete="off"` (ab 0.2.3).
+
+`updateQuickButtons()` (ab 0.2.4, reine Darstellung): liest `getStoredConsent()` und setzt an `[data-lscc-accept-all]` / `[data-lscc-necessary]` die Klassen `is-active`/`is-inactive` + `aria-pressed`. Zustände: kein gespeicherter Consent → beide **neutral** (gleichwertige Prominenz); alle optionalen Kategorien `true` → „Alle akzeptieren" aktiv; alle `false` → „Nur notwendige" aktiv; gemischt → beide inaktiv. Helfer `setQuickButtonState()`. CSS: `.lscc__button.is-active` (Ring + „✓"), `.lscc__button.is-inactive` (`opacity:0.6`). **Kein** Schreibzugriff auf Consent/Storage.
 5. `writeConsent` feuert ein `lscc:consentChanged`-CustomEvent auf `window`.
 
 Kategorien (fix): `necessary`, `statistics`, `marketing`, `external_media`. `necessary` ist immer `true`.

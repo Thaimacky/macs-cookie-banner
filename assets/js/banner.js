@@ -488,6 +488,48 @@
 		});
 	}
 
+	function setQuickButtonState(button, state) {
+		// state: 'active' | 'inactive' | 'neutral'. Display only.
+		if (!button) {
+			return;
+		}
+
+		button.classList.toggle('is-active', state === 'active');
+		button.classList.toggle('is-inactive', state === 'inactive');
+		button.setAttribute('aria-pressed', state === 'active' ? 'true' : 'false');
+	}
+
+	function updateQuickButtons(root) {
+		// Reflect the stored consent on the quick-choice buttons so the active
+		// preset is visible on open. Pure presentation: reads getStoredConsent(),
+		// never writes. Before any choice (no stored consent) both stay neutral so
+		// "Accept all" and "Necessary only" remain equally prominent.
+		var acceptAll = root.querySelector('[data-lscc-accept-all]');
+		var necessary = root.querySelector('[data-lscc-necessary]');
+
+		if (!hasStoredConsent()) {
+			setQuickButtonState(acceptAll, 'neutral');
+			setQuickButtonState(necessary, 'neutral');
+			return;
+		}
+
+		var consent = getStoredConsent();
+		var optional = categories.filter(function (category) {
+			return category !== 'necessary';
+		});
+		var allOn = optional.length > 0 && optional.every(function (category) {
+			return Boolean(consent.categories[category]);
+		});
+		var allOff = optional.every(function (category) {
+			return !consent.categories[category];
+		});
+
+		// allOn -> Accept all active; allOff -> Necessary only active; mixed
+		// (custom) -> neither active, both de-emphasised.
+		setQuickButtonState(acceptAll, allOn ? 'active' : 'inactive');
+		setQuickButtonState(necessary, allOff ? 'active' : 'inactive');
+	}
+
 	function setBannerVisible(root, reopenButton, visible, showSettings) {
 		var settingsPanel = root.querySelector('[data-lscc-settings]');
 		var mainActions = root.querySelector('[data-lscc-main-actions]');
@@ -519,6 +561,7 @@
 
 		if (visible) {
 			updateInputs(root, getStoredConsent());
+			updateQuickButtons(root);
 		}
 
 		if (visible && showSettings) {
@@ -569,6 +612,7 @@
 		// quick actions ("Alle akzeptieren" / "Nur notwendige") and the settings
 		// panel never drift apart.
 		updateInputs(root, consent);
+		updateQuickButtons(root);
 		activateBlockedScripts();
 		syncMediaComponents();
 		setBannerVisible(root, reopenButton, false, false);
@@ -608,6 +652,7 @@
 		// Stored consent is the single source of truth for the checkboxes on every
 		// load — independent of any browser form-state restoration after a reload.
 		updateInputs(root, getStoredConsent());
+		updateQuickButtons(root);
 
 		if (hasStoredConsent()) {
 			activateBlockedScripts();

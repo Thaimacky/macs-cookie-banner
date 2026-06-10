@@ -1,5 +1,20 @@
 # DEV LOG
 
+## 0.2.4-test - 2026-06-11
+
+- Patch-Bump 0.2.3 → 0.2.4. Plugin-Header und `LSCC_VERSION` auf `0.2.4`. `LSCC_CONSENT_VERSION` bleibt `2` (reiner Darstellungs-Fix).
+- **UX-Fix: aktiver Consent an den Schnellbuttons sichtbar.** Root Cause war bewiesen: Speicher/Sync/Checkboxen korrekt, aber die Schnellbuttons „Alle akzeptieren" / „Nur notwendige" hatten eine **statische** Optik (`--primary` rot / `--secondary` grau) und ihr Aktiv-Zustand wurde **nie** aus dem gespeicherten Consent abgeleitet → der rote „Alle akzeptieren"-Button wurde als aktiver Zustand fehlgedeutet. (Setzt das zuvor zurückgestellte UX-Thema um.)
+- `assets/js/banner.js` (nur Darstellung, kein Consent-Modell-Eingriff):
+  - Neue Anzeige-Funktion `updateQuickButtons(root)`: liest `getStoredConsent()` und setzt den Zustand der beiden Schnellbuttons. Logik: kein gespeicherter Consent → beide **neutral** (gleichwertige Prominenz vor der ersten Wahl); alle optionalen `true` → „Alle akzeptieren" **aktiv**, „Nur notwendige" inaktiv; alle optionalen `false` → „Nur notwendige" **aktiv**, „Alle akzeptieren" inaktiv; gemischt → beide inaktiv (individuelle Auswahl).
+  - Helfer `setQuickButtonState(button, state)` setzt `is-active`/`is-inactive`-Klasse + `aria-pressed`.
+  - Aufruf an denselben drei Stellen wie `updateInputs`: beim Laden (`initBanner`), beim Öffnen (`setBannerVisible`, `visible=true`) und nach jedem Speichern (`saveAndClose`). **Kein** Schreibzugriff auf localStorage/Cookie/`writeConsent`.
+  - `node --check` grün.
+- `light-swiss-cookie-consent.php`: `aria-pressed="false"` als Baseline an den zwei Schnellbuttons in `render_banner()`.
+- `assets/css/banner.css`: `.lscc__button.is-active` (Ring via `box-shadow` + „✓"-Präfix) und `.lscc__button.is-inactive` (`opacity: 0.6`). Neutralzustand = keine Klasse → unveränderte, gleichwertige Optik beider Buttons vor der ersten Wahl (keine Dark-Pattern-Verschiebung).
+- **Bewusst NICHT:** keine neuen Features, kein Scanner, kein Maps/Vimeo, keine Änderung an Consent-Schema/Speicherung/`writeConsent`/Checkbox-Sync.
+- Dokumentation: `ACTIVE_CODE_MAP.md`, `DECISIONS.md` (ADR-22), `CHANGELOG.md`, `MASTER_HANDBUCH.md` (Versionshistorie), `RELEASE_CHECKLIST.md`.
+- Validierung: `node --check banner.js` OK; PHP-Struktur balanciert; `aria-pressed` 2×. Funktionaler Re-Test (siehe RELEASE_CHECKLIST): nach „Nur notwendige" ist „Nur notwendige" optisch aktiv und „Alle akzeptieren" inaktiv — beim Öffnen sofort sichtbar.
+
 ## 0.2.3-test - 2026-06-11
 
 - Patch-Bump 0.2.2 → 0.2.3. Plugin-Header und `LSCC_VERSION` auf `0.2.3`. `LSCC_CONSENT_VERSION` bleibt `2` (kein Consent-Schema-Wechsel, reiner UI-Fix).

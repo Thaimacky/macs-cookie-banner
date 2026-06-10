@@ -8,6 +8,23 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.2.4-test - 2026-06-11
+
+### Added / UX
+
+- **Aktiver Consent an den Schnellbuttons sichtbar.** Beim Öffnen des Dialogs zeigen „Alle akzeptieren" / „Nur notwendige" jetzt den aktuell gespeicherten Zustand: aktiver Button hervorgehoben (Ring + „✓"), inaktiver abgeschwächt. Vor der ersten Wahl bleiben beide neutral/gleichwertig.
+  - `banner.js`: neue Anzeige-Funktion `updateQuickButtons()` (liest `getStoredConsent()`, rein darstellend; kein Schreibzugriff). Aufruf beim Laden, Öffnen und nach jedem Speichern.
+  - `light-swiss-cookie-consent.php`: `aria-pressed` an den zwei Schnellbuttons.
+  - `banner.css`: `.is-active` / `.is-inactive`.
+
+### Changed
+
+- Plugin-Header und `LSCC_VERSION` auf `0.2.4`. `LSCC_CONSENT_VERSION` bleibt `2`.
+
+### Bewusst nicht enthalten
+
+- Keine Änderung am Consent-Modell, an localStorage/Cookies, an `writeConsent()` oder an der Checkbox-Synchronisation. Kein Scanner, kein Maps/Vimeo.
+
 ## 0.2.3-test - 2026-06-11
 
 ### Fixed

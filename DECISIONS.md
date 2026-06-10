@@ -314,3 +314,20 @@ Die bestehende **WPML-/Polylang-String-Translation-Registrierung bleibt als Over
 - Minimal-invasiv: keine Schema-Änderung (`LSCC_CONSENT_VERSION` bleibt `2`), keine Änderung an der Persistenz, an `activateBlockedScripts` oder an den Service-/YOTU-Modulen.
 
 **Folgen:** UI und gespeicherter Consent können nicht mehr auseinanderlaufen — weder über Reloads (Browser-Restore) noch innerhalb einer Sitzung (Top-Buttons). Re-Test in Firefox UND Chrome empfohlen (siehe RELEASE_CHECKLIST).
+
+## ADR-22: Aktiver Consent-Zustand an den Schnellbuttons (umgesetzt in v0.2.4)
+
+**Status:** Umgesetzt (v0.2.4). Schliesst den als UX-Thema dokumentierten Punkt ab; reine Darstellung.
+
+**Kontext / Root Cause (bewiesen):** Speicher-, Sync- und Checkbox-Ebene sind korrekt (ADR-21). Die Schnellbuttons „Alle akzeptieren" / „Nur notwendige" trugen jedoch **statische** Präsentationsklassen (`--primary` rot / `--secondary` grau) aus dem Server-Markup; ihr Aktiv-Zustand wurde **nie** aus dem gespeicherten Consent abgeleitet (kein Codepfad in `banner.js` berührte die Button-Optik consent-abhängig). Die permanente rote Prominenz von „Alle akzeptieren" wurde als aktiver Zustand fehlinterpretiert.
+
+**Entscheidung:** Eine neue, **rein darstellende** Funktion `updateQuickButtons()` leitet den aktiven Zustand der beiden Schnellbuttons aus `getStoredConsent()` ab und setzt `is-active`/`is-inactive` + `aria-pressed`. Drei Zustände: **neutral** (kein gespeicherter Consent → gleichwertige Prominenz vor der ersten Wahl), **aktiv** (Preset entspricht exakt allOn bzw. allOff), **inaktiv** (anderer/gemischter Zustand). Aufruf parallel zu `updateInputs()` beim Laden, Öffnen und nach jedem Speichern.
+
+**Begründung:**
+
+- **Single Source of Truth:** Auch die Button-Anzeige wird aus dem gespeicherten Consent rekonstruiert — konsistent mit ADR-21. Kein Schreibzugriff auf Consent/Storage/`writeConsent`.
+- **Kein Dark Pattern:** Vor der ersten Wahl bleiben beide Buttons neutral und gleichwertig prominent (DE/EU/CH-konform); die Hervorhebung erscheint erst **nach** einer Entscheidung als Status.
+- **Barrierearm:** `aria-pressed` kommuniziert den Zustand an Screenreader; `is-active` (Ring + „✓") und `is-inactive` (`opacity`) liefern die visuelle Unterscheidung.
+- **Minimal-invasiv:** keine Schema-/Persistenz-Änderung (`LSCC_CONSENT_VERSION` bleibt `2`), keine neuen Features, kein Eingriff in Service-/YOTU-/Script-Mechanik.
+
+**Folgen:** Der aktuelle Consent ist beim Öffnen sofort an den Schnellbuttons erkennbar. Gemischte (individuelle) Auswahl zeigt beide Buttons inaktiv; die genaue Auswahl bleibt über die Checkboxen sichtbar.

@@ -134,6 +134,23 @@
 	color: var(--lscc-text);
 }
 
+/* Active/inactive state of the quick-choice buttons reflects the stored consent.
+   Set by banner.js updateQuickButtons() from getStoredConsent(); presentation only.
+   Before any choice both buttons stay neutral (no class) for equal prominence. */
+.lscc__button.is-active {
+	box-shadow: 0 0 0 2px var(--lscc-bg), 0 0 0 4px var(--lscc-text);
+}
+
+.lscc__button.is-active::before {
+	content: "\2713";
+	margin-right: 6px;
+	font-weight: 700;
+}
+
+.lscc__button.is-inactive {
+	opacity: 0.6;
+}
+
 .lscc__settings {
 	grid-column: 1 / -1;
 	margin-top: 4px;

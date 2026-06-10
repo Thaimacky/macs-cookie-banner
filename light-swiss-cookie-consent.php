@@ -3,7 +3,7 @@
  * Plugin Name: Light Swiss Cookie Consent
  * Plugin URI:  https://example.com/light-swiss-cookie-consent
  * Description: Lightweight cookie consent banner with script blocking for WordPress.
- * Version:     0.2.3
+ * Version:     0.2.4
  * Author:      Light Swiss Cookie Consent
  * Text Domain: light-swiss-cookie-consent
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'LSCC_VERSION', '0.2.3' );
+define( 'LSCC_VERSION', '0.2.4' );
 
 /**
  * Consent schema version. Bump this whenever the stored consent shape
@@ -781,10 +781,10 @@ final class Light_Swiss_Cookie_Consent {
 					</div>
 
 					<div class="lscc__actions" data-lscc-main-actions>
-						<button type="button" class="lscc__button lscc__button--primary" data-lscc-accept-all>
+						<button type="button" class="lscc__button lscc__button--primary" data-lscc-accept-all aria-pressed="false">
 							<?php echo esc_html( $accept_all_text ); ?>
 						</button>
-						<button type="button" class="lscc__button lscc__button--secondary" data-lscc-necessary>
+						<button type="button" class="lscc__button lscc__button--secondary" data-lscc-necessary aria-pressed="false">
 							<?php echo esc_html( $necessary_only_text ); ?>
 						</button>
 						<button type="button" class="lscc__button lscc__button--ghost" data-lscc-open-settings>
