@@ -8,6 +8,30 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.2.2-test - 2026-06-11
+
+### Added
+
+- **YOTU Consent Gating** (opt-in, Default AUS) — neues Modul `includes/yotu-compat.php` für das Plugin „Yotuwp – Easy YouTube Embed". Behebt Befund 3 (oben klickbares YouTube trotz „Nur notwendige").
+  - **Phase 1:** Das Yotu-Frontend-Script (`yotu-script` + Inline `-extra`/`-after`) wird über `script_loader_tag` / `wp_inline_script_attributes` an die bestehende LSCC-Script-Blockade (`external_media`) gekoppelt.
+  - **Phase 2:** Die Galerie-Thumbnails werden im Shortcode-Output neutralisiert (`data-orig-src` → `data-lscc-orig-src`), ein Consent-Hinweis wird über der Galerie angezeigt; `banner.js` stellt beides nach Consent wieder her.
+- Neue Admin-Option **„YOTU-YouTube-Galerie (Yotuwp) vor Consent blockieren"** (`yotu_consent_gating`, Default **AUS**) in neuer Sektion „YOTU-Kompatibilität".
+- Neuer Frontend-i18n-String „Diese YouTube-Galerie wird erst nach Zustimmung zu externen Medien geladen." in allen sechs Sprachen.
+
+### Changed
+
+- `assets/js/banner.js`: `activateBlockedScripts()` aktiviert gegatete Scripts jetzt **sequenziell** (externe Scripts `async=false`, nächster Knoten erst nach `load`) → korrekte Ausführungsreihenfolge bei Abhängigkeiten. Neue Funktion `restoreExternalMediaThumbnails()` (Thumbnail-Wiederherstellung + Hinweis ausblenden). Kein Consent-Schema-Wechsel.
+- Plugin-Header und `LSCC_VERSION` auf `0.2.2`. `LSCC_CONSENT_VERSION` bleibt `2`.
+
+### Security / Datenschutz
+
+- Vor `external_media`-Consent entsteht bei aktiviertem Modul **kein** Request an youtube.com, youtube-nocookie.com, `iframe_api`, `www-widgetapi` oder `i.ytimg.com`. Nach Consent funktioniert YOTU normal.
+- Kein DOM-Hijacking, kein MutationObserver, kein Scanner, keine `post_content`-Migration. Vollständig reversibel.
+
+### Bekannte Grenzen
+
+- Die Thumbnail-Neutralisierung greift bei per Shortcode gerenderten Galerien; reine Block-/Widget-Einbindungen sind separat zu prüfen. Inline-Script-Gating benötigt WordPress 5.7+.
+
 ## 0.2.1-test - 2026-06-10
 
 ### Fixed

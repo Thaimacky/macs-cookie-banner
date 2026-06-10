@@ -277,3 +277,24 @@ Die bestehende **WPML-/Polylang-String-Translation-Registrierung bleibt als Over
 - **POT-Audit:** Das `.pot` wird aus den realen Quelltext-Callsites generiert (158 msgids). Die vier editierbaren Strings ohne verbleibenden `__()`-Callsite (`Cookie-Einstellungen`, `Alle akzeptieren`, `Nur notwendige`, `Auswahl speichern`) entfallen dadurch korrekt aus dem Template.
 
 **Folgen / offene Punkte:** Die `.mo`-Dateien sind kompilierte Artefakte im Repo (kein Build-System; erzeugt über ein einmaliges Generator-Skript ausserhalb des Repos, `.po` bleiben die lesbare Quelle). Eine **siebte** WPML-Sprache jenseits der sechs Bundle-Sprachen wird für die editierbaren Strings über WPML String Translation bedient (Override-Pfad) und für die fixen Strings über eine ergänzte `.po`/`.mo`. Das tatsächliche WPML-`switch_to_locale()`-Verhalten (lädt WP das `.mo` pro Frontend-Sprache nach) ist auf der Live-Seite gegenzuprüfen. Verbindliche Referenz: `MASTER_HANDBUCH.md`, Sektion „Sprachstrategie".
+
+## ADR-20: YOTU (Yotuwp) YouTube-Galerie Consent-Gating via Script-Blockade + Thumbnail-Neutralisierung (umgesetzt in v0.2.2)
+
+**Status:** Umgesetzt (v0.2.2). Behebt den im Live-Test gefundenen Befund 3 (oben klickbares YouTube trotz „Nur notwendige"). Freigabe nach Spike erteilt.
+
+**Kontext / Root Cause:** Die „Podcast"-Galerie auf `plugins.svogellisi.ch` stammt vom Fremd-Plugin **Yotuwp – Easy YouTube Embed**, nicht von Avada. Spike-Evidenz (Roh-HTML + `frontend.min.js`): das Plugin-Script (`yotu-script` + Inline `-extra`/`-after`) injiziert beim Klick `https://www.youtube.com/iframe_api` und baut `YT.Player` — ausserhalb der LSCC-Consent-Schicht. Zusätzlich werden die Galerie-Thumbnails per `data-orig-src` von `i.ytimg.com` geladen; den Swap macht **Avadas Lazy-Load**, nicht Yotu. Die übrigen Videos sind `[lscc_youtube]` und korrekt gegated → der Mischzustand erzeugte die Inkonsistenz.
+
+**Entscheidung:** Ein **opt-in Modul „YOTU Consent Gating"** (`includes/yotu-compat.php`, Option `yotu_consent_gating`, Default **AUS**) gated die Galerie über die **bestehenden** LSCC-Mechanismen — kein DOM-Hijacking, kein MutationObserver, kein Scanner:
+
+- **Phase 1 (Scripts):** `yotu-script` und seine Inline-Teile `-extra`/`-after` werden über die offiziellen Filter `script_loader_tag` und `wp_inline_script_attributes` als `type="text/plain"` + `data-cookie-category="external_media"` markiert. Die vorhandene `banner.js::activateBlockedScripts()` reaktiviert sie erst nach Consent.
+- **Phase 2 (Thumbnails + Hinweis):** Im Yotu-Shortcode-Output (`do_shortcode_tag`, nur wenn `yotu-video-thumb` enthalten) wird `data-orig-src` → `data-lscc-orig-src` umbenannt (Avada-Lazy-Load findet nichts zu laden) und ein Consent-Hinweis (`data-lscc-gated-notice`, `data-lscc-accept-media`) über der Galerie vorangestellt. `banner.js::restoreExternalMediaThumbnails()` stellt nach Consent `src`/`data-orig-src` wieder her und versteckt den Hinweis.
+
+**Begründung:**
+
+- **Wiederverwendung statt Sonderweg:** Phase 1 nutzt die dokumentierte `type="text/plain"`-Script-Blockade (ADR-6); Phase 2 nutzt das Consent-Event/`acceptExternalMedia` und denselben `data-lscc-accept-media`-Hook wie die Service-Komponenten. Reines serverseitiges Tag-/Output-Filtern über offizielle WP-Hooks — gleiche Familie wie Avada (ADR-17), No-Go-konform.
+- **Abgrenzung zu ADR-17 (Avada):** Avada rendert ein iframe **serverseitig** → `pre_do_shortcode_tag`-Ersatz. Yotu lädt **clientseitig** per JS → Script-Gating ist der richtige Hebel. Daher ein eigenes Modul statt Erweiterung von avada-compat.
+- **Default AUS** (anders als Avada AN): Yotu läuft nicht auf allen Sites; das Modul wird nur dort aktiviert, wo Yotu im Einsatz ist.
+- **Reihenfolge-Korrektheit:** `-after` (`yotuwp.data.videos[...]`) hängt von `frontend.min.js` ab. Deshalb wurde `activateBlockedScripts()` auf **sequenzielle** Aktivierung umgestellt (externe Scripts `async=false`, nächster Knoten erst nach `load`) — eine generische, für alle gegateten Abhängigkeiten korrekte Verbesserung.
+- **Datenschutz:** Vor Consent kein youtube.com / youtube-nocookie.com / `iframe_api` / `www-widgetapi` / `i.ytimg.com`. Nach Consent funktioniert Yotu normal.
+
+**Folgen / offene Punkte:** Die Thumbnail-Neutralisierung greift bei **per Shortcode** gerenderten Galerien (`do_shortcode_tag`); reine **Block-/Widget**-Einbindungen sind eine bekannte Coverage-Grenze und separat zu prüfen. Das Inline-Script-Gating benötigt **WordPress ≥ 5.7** (`wp_inline_script_attributes`); auf älteren Cores bleibt das Haupt-Script trotzdem geblockt (kein Drittanbieter-Request), nur die harmlosen Inline-Teile liefen. Vollständig reversibel (Option AUS → alle Filter entfallen). Re-Test auf `plugins.svogellisi.ch` ausstehend (siehe RELEASE_CHECKLIST). Verbindliche Referenz: `MASTER_HANDBUCH.md`.

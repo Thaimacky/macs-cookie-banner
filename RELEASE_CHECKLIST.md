@@ -85,6 +85,23 @@
 - [ ] Reopen-Button ist nicht sichtbar, wenn kein gültiger Consent vorhanden ist (auch nicht bei Browser ohne JS-Init).
 - [ ] Nach Aktivierung der neuen Version sind die Defaults `overlay_enabled`, `blur_enabled`, `show_legal_links` jeweils `true` — auch wenn vorher eine alte Plugin-Version installiert war.
 
+## YOTU Consent Gating (ab v0.2.2-test)
+
+Test auf einer Seite mit dem Plugin „Yotuwp – Easy YouTube Embed" (Live-Referenz: `plugins.svogellisi.ch/de/`, „Podcast"-Galerie). Option „YOTU-YouTube-Galerie … blockieren" muss EIN sein.
+
+- [ ] **Vor Consent (Netzwerk-Monitor, Hard-Reload):** kein Request an `youtube.com`, `youtube-nocookie.com`, `iframe_api`, `www-widgetapi.js` UND **kein** `i.ytimg.com`-Thumbnail.
+- [ ] Über der YOTU-Galerie erscheint der Consent-Hinweis mit „Externe Medien akzeptieren"-Button.
+- [ ] Die Yotu-`<script>`-Tags (`yotu-script-js`, `-extra`, `-after`) tragen `type="text/plain"` + `data-cookie-category="external_media"`.
+- [ ] **Nach „Externe Medien akzeptieren" (Hinweis-Button ODER Banner):** Galerie-Thumbnails laden (jetzt von `i.ytimg.com`), Galerie wird interaktiv, Video startet beim Klick.
+- [ ] Reihenfolge korrekt: keine `yotuwp is not defined`-Konsolenfehler nach Consent; Galerie vollständig funktionsfähig (Titel/Beschreibungen vorhanden).
+- [ ] Reload nach Consent: Galerie funktioniert sofort, kein erneuter Hinweis.
+- [ ] Mehrere Galerien auf einer Seite: jede erhält einen Hinweis und wird nach Consent aktiv.
+- [ ] **Option AUS:** YOTU rendert wieder original (Thumbnails + Klick-Player ohne LSCC-Eingriff) — reversibel.
+- [ ] Bestehende `[lscc_youtube]`/Avada-Gating-Videos unverändert (gleiche `external_media`-Kategorie).
+- [ ] Andere gegatete Scripts (statistics/marketing `type="text/plain"`) aktivieren nach Consent weiterhin korrekt (sequenzielle Aktivierung ohne Regression).
+- [ ] Coverage-Grenze prüfen: ist die Galerie per Shortcode eingebunden? (Block-/Widget-Einbindung wird von der Thumbnail-Neutralisierung nicht erfasst.)
+- [ ] WordPress-Version ≥ 5.7 (Inline-Script-Gating); sonst Haupt-Script trotzdem geblockt, Inline-Teile laufen (kein Leak, evtl. Konsolen-Hinweis).
+
 ## WPML / Mehrsprachigkeit (ab v0.2.1-test)
 
 Test auf einer echten WPML-Seite mit mindestens DE + EN (ideal zusätzlich FR/IT/TR/HU). Live-Referenz: `plugins.svogellisi.ch/de/` und `/en/`.

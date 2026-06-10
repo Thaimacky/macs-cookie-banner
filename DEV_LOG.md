@@ -1,5 +1,25 @@
 # DEV LOG
 
+## 0.2.2-test - 2026-06-11
+
+- Patch-Bump 0.2.1 → 0.2.2. Plugin-Header und `LSCC_VERSION` auf `0.2.2`. `LSCC_CONSENT_VERSION` bleibt `2`.
+- **Feature: YOTU Consent Gating (Befund 3, Phase 1 + 2).** Behebt das im Live-Test gefundene „oben klickbare YouTube trotz Nur notwendige". Root Cause per Spike bestätigt: die „Podcast"-Galerie stammt vom Fremd-Plugin **Yotuwp – Easy YouTube Embed** (nicht Avada); dessen `frontend.min.js` injiziert `youtube.com/iframe_api` beim Klick, die Thumbnails lädt Avadas Lazy-Load von `i.ytimg.com`. Umsetzung gemäss neuem ADR-20.
+- Neue Datei `includes/yotu-compat.php`, Klasse `Light_Swiss_Cookie_Consent_Yotu_Compat`:
+  - `init()` registriert nur im Frontend + bei aktivierter Option die Filter `script_loader_tag`, `wp_inline_script_attributes`, `do_shortcode_tag`.
+  - **Phase 1:** `block_script_tag()` (Handle `yotu-script`) + `block_inline_attributes()` (Inline `-extra`/`-after`) markieren die drei Script-Teile als `type="text/plain" data-cookie-category="external_media"` → werden von der bestehenden `activateBlockedScripts()` erst nach Consent reaktiviert.
+  - **Phase 2:** `gate_shortcode_output()` benennt im Yotu-Output `data-orig-src` → `data-lscc-orig-src` (stoppt den `i.ytimg.com`-Vorab-Abruf) und stellt `render_consent_notice()` über die Galerie.
+- `light-swiss-cookie-consent.php`: neue Bool-Option `yotu_consent_gating` (Default `false`) in `get_default_options()` + `get_bool_option_keys()`; Modul-Laden in `init()`.
+- `includes/admin-page.php`: neue Sektion „YOTU-Kompatibilität" mit Checkbox + ausführlicher Datenschutz-Beschreibung (inkl. Shortcode-Coverage-Grenze und WP-5.7+-Hinweis).
+- `assets/js/banner.js` (deliberater, generischer Eingriff):
+  - `activateBlockedScripts()` auf **sequenzielle** Aktivierung umgestellt (`activateNext`, externe Scripts `async=false`, nächster Knoten erst nach `load`/`error`) → garantiert die Reihenfolge `-extra` → `frontend.min.js` → `-after`. Element-Aufbau in neuen Helfer `buildActiveScript()` ausgelagert.
+  - neue Funktion `restoreExternalMediaThumbnails()`: stellt bei `external_media`-Consent `img[data-lscc-orig-src]` wieder her und versteckt `[data-lscc-gated-notice]`. Wird zu Beginn von `activateBlockedScripts()` aufgerufen → Thumbnails sind vor der Yotu-Aktivierung wieder da. `node --check` grün.
+- `assets/css/banner.css`: Styles `.lscc-yotu-consent` / `__text` / `__button` (nutzt die bestehenden `--lscc-*`-Variablen, `:focus-visible`).
+- `languages/`: neuer Frontend-String „Diese YouTube-Galerie wird erst nach Zustimmung zu externen Medien geladen." in allen sechs Sprachen ergänzt; `.po`/`.mo`/`.pot` neu generiert (Generator scannt jetzt auch `yotu-compat.php`). Admin-Strings der neuen Sektion bleiben deutsche Quelle (Operator-Sprache, ADR-19).
+- **Datenschutz-Ziel erfüllt (statisch):** vor Consent kein youtube.com / youtube-nocookie.com / `iframe_api` / `www-widgetapi` / `i.ytimg.com`. Nach Consent: Yotu/Galerie/Videos normal.
+- **Bewusst NICHT:** keine `post_content`-Migration, kein DOM-Hijacking/Observer/Scanner, keine Avada-Lazy-Load-Deaktivierung (würde alle Bilder treffen), kein Block-/Widget-Pfad (dokumentierte Coverage-Grenze).
+- Dokumentation: `ACTIVE_CODE_MAP.md` (Datei/Klasse + JS-Abschnitt), `DECISIONS.md` (ADR-20), `MASTER_HANDBUCH.md`, `RELEASE_CHECKLIST.md`, `CHANGELOG.md`. (Zudem in v0.2.1/diesem Schritt: MASTER_HANDBUCH-Regel „PFLICHT: AKTION USER / PROMPT-BLÖCKE" ergänzt.)
+- Validierung: `node --check banner.js` OK; PHP-Lint lokal nicht ausführbar (kein PHP CLI) → manuelle Brace-/Paren-Prüfung; `.mo` mit Pythons `gettext` gegengeparst. Funktionaler Re-Test auf `plugins.svogellisi.ch` ausstehend (siehe RELEASE_CHECKLIST).
+
 ## 0.2.1-test - 2026-06-10
 
 - Patch-Bump 0.2.0 → 0.2.1. Plugin-Header und `LSCC_VERSION` auf `0.2.1`. `LSCC_CONSENT_VERSION` bleibt `2` (kein Consent-Schema-Wechsel).

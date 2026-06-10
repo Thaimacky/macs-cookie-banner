@@ -11,6 +11,7 @@ Diese Karte beschreibt die aktiven Dateien, ihre Zustaendigkeiten und die wichti
 | `includes/privacy-check.php` | Passive Admin-Seite, die einmal die Startseite via `wp_remote_get` abruft und gegen eine statische Mustertabelle prueft. |
 | `includes/avada-inventory.php` | Passive, rein lesende Admin-Seite „Avada Inventar-Scan" (ab 0.1.8): zählt Video-/Map-/Embed-Typen in lokalen Inhalten zur Abschätzung der automatischen Abdeckung. Keine externen Requests, keine Schreibzugriffe, keine Inhaltsänderung. |
 | `includes/avada-compat.php` | Render-Layer-Interception (ab 0.1.9): fängt Avadas `fusion_youtube` via `pre_do_shortcode_tag` ab und ersetzt es durch das LSCC-Platzhalter-Markup (Kategorie `external_media`). Nur Frontend, opt-in via `avada_youtube_block`. |
+| `includes/yotu-compat.php` | YOTU-Consent-Gating (ab 0.2.2): koppelt das Frontend-Script des Plugins „Yotuwp – Easy YouTube Embed" (`yotu-script` + Inline `-extra`/`-after`) via `script_loader_tag`/`wp_inline_script_attributes` an die LSCC-Script-Blockade (`external_media`) und neutralisiert die `i.ytimg.com`-Thumbnails im Shortcode-Output (`do_shortcode_tag`) durch Umbenennen von `data-orig-src` → `data-lscc-orig-src`, plus Consent-Hinweis über der Galerie. Nur Frontend, opt-in via `yotu_consent_gating` (Default AUS). |
 | `includes/service-components.php` | Shortcodes `[lscc_youtube]`, `[lscc_vimeo]`, `[lscc_google_map]` mit Placeholder-Markup. |
 | `assets/js/banner.js` | Frontend-Logik: Consent-Speicherung, Banner-Steuerung, Script-Aktivierung, Media-Sync. |
 | `assets/css/banner.css` | Styles fuer Banner, Reopen-Button, Settings-Button und Media-Komponenten. |
@@ -168,6 +169,20 @@ Element-Klassifizierung (überschneidungsfrei) als Entscheidungsbasis; Diagnosti
 
 Reine Server-Interception: kein DOM-Hijacking, kein MutationObserver, kein Scanner, keine Inhaltsänderung. Das iframe wird erst nach `external_media`-Consent über die bestehende `banner.js`-Mechanik gebaut. Wiederverwendung von `Service_Components::render_youtube()` → identisches Platzhalter-/Consent-Verhalten wie `[lscc_youtube]`. Steuerung über `avada_youtube_block` (bool, Default `true`).
 
+## `includes/yotu-compat.php`
+
+**Klasse `Light_Swiss_Cookie_Consent_Yotu_Compat`** (ab 0.2.2):
+
+- Konstante `SCRIPT_HANDLE = 'yotu-script'` — Frontend-Script-Handle des Plugins „Yotuwp – Easy YouTube Embed".
+- `init()` — registriert nur im Frontend (`! is_admin()`) und nur bei aktivierter Option `yotu_consent_gating` die Filter `script_loader_tag` (Prio 10/3), `wp_inline_script_attributes` (10/1) und `do_shortcode_tag` (10/4).
+- `block_script_tag( $tag, $handle, $src )` — bei `$handle === 'yotu-script'`: setzt das `<script src>`-Tag auf `type="text/plain"` + `data-cookie-category="external_media"` + `data-cookie-type="text/javascript"` (Phase 1).
+- `block_inline_attributes( $attributes )` — bei Inline-IDs, die mit `yotu-script-js` beginnen (`-extra` Localize, `-after` Init): gleiche Blocking-Attribute. WP ≥ 5.7. (Phase 1, Inline-Teile.)
+- `convert_tag_to_blocked( $tag )` — privater Helfer, entfernt ein bestehendes `type`-Attribut und injiziert die LSCC-Blocking-Attribute in das `<script`-Opening-Tag.
+- `gate_shortcode_output( $output, $tag, $attr, $m )` — nur wenn `$output` `yotu-video-thumb` enthält: benennt `data-orig-src` → `data-lscc-orig-src` (verhindert den `i.ytimg.com`-Lazy-Load-Abruf des Themes vor Consent) und stellt `render_consent_notice()` voran (Phase 2).
+- `render_consent_notice()` — privat; baut den `lscc-yotu-consent`-Hinweis (`data-lscc-gated-notice`) mit `data-lscc-accept-media`-Button. Wird von `banner.js::bindMediaComponents()` gebunden; nach Consent von `restoreExternalMediaThumbnails()` versteckt.
+
+Vor `external_media`-Consent: kein youtube.com, kein youtube-nocookie.com, kein `iframe_api`, kein `www-widgetapi`, kein `i.ytimg.com`. Nach Consent baut `banner.js` die Thumbnails wieder auf und aktiviert die Yotu-Scripts in korrekter Reihenfolge → Galerie funktioniert normal. Kein DOM-Hijacking/Observer/Scanner, keine `post_content`-Änderung, vollständig reversibel (`yotu_consent_gating` = bool, Default `false`). Coverage-Grenze: greift bei per Shortcode gerenderten Galerien; reine Block-/Widget-Einbindungen sind separat zu prüfen.
+
 ## `includes/service-components.php`
 
 **Klasse `Light_Swiss_Cookie_Consent_Service_Components`:**
@@ -208,6 +223,8 @@ Kategorien (fix): `necessary`, `statistics`, `marketing`, `external_media`. `nec
 
 - `data-cookie-type` wird in `type` umgewandelt (`text/javascript`, `application/javascript`, `module`, sonst `text/javascript`).
 - Es werden nur sichere Attribute kopiert. `on*`-Handler, `type`, `data-cookie-category` und `data-cookie-type` werden ausgelassen (`shouldCopyScriptAttribute`).
+- Ab 0.2.2 erfolgt die Aktivierung **sequenziell** (`activateNext`): externe Scripts werden mit `async=false` eingefügt und das nächste (ggf. inline) Script erst nach deren `load`/`error` aktiviert. Das garantiert die Ausführungsreihenfolge bei Abhängigkeiten (z. B. Yotu: `-extra` → `frontend.min.js` → `-after`). Der Element-Aufbau steckt im Helfer `buildActiveScript()`.
+- Ab 0.2.2 ruft `activateBlockedScripts()` zuerst `restoreExternalMediaThumbnails()` auf: bei vorliegendem `external_media`-Consent werden `img[data-lscc-orig-src]` wiederhergestellt (`src` + `data-orig-src` gesetzt, `data-lscc-orig-src` entfernt, `lazyload`-Klasse entfernt) und `[data-lscc-gated-notice]`-Hinweise versteckt. Damit lädt das ytimg-Thumbnail erst nach Consent, vor der Yotu-Script-Aktivierung.
 
 Normale `<script>`-Tags ohne diese Markierung bleiben unangetastet.
 

@@ -8,6 +8,7 @@
 - 2026-06-03 — Additive Erweiterung: verbindliche Regel zum Ablageort von Test-ZIPs ergänzt (Sektion „Release-Artefakte / Ablageort für Test-ZIPs"). Inhalt sonst unverändert.
 - 2026-06-03 — Additive Erweiterung: Sektion „Avada-Massenkompatibilität (Strategie)" ergänzt. Hält das Einsatzziel (≈40 Avada-Sites) und die empfohlene, No-Go-konforme Richtung fest. Reine Strategie-Dokumentation, keine Umsetzung.
 - 2026-06-10 — Additive Erweiterung: Sektion „Dokumentationspflicht (Definition of Done)" ergänzt — Doku-Dateien müssen nach jeder Plugin-Änderung sofort aktualisiert werden. Inhalt sonst unverändert.
+- 2026-06-11 — Additive Erweiterung: Sektion „PFLICHT: AKTION USER / PROMPT-BLÖCKE" ergänzt (jeder handlungsrelevante Bericht endet mit einem klar gekennzeichneten Block). Zusätzlich Sektion „Fremd-Plugin-Kompatibilität (YOTU, ab v0.2.2)" ergänzt. Inhalt sonst unverändert.
 
 ## Zweck dieser Datei
 
@@ -305,6 +306,56 @@ Eine Änderung gilt erst dann als abgeschlossen, wenn der zugehörige Code UND d
 
 ---
 
+# PFLICHT: AKTION USER / PROMPT-BLÖCKE
+
+VERBINDLICH (ab 2026-06-11):
+
+Wenn ein Bericht eine Aktion des Users erfordert, muss am Ende des Berichts immer ein klar gekennzeichneter Block stehen.
+
+Verpflichtende Form:
+
+```
+==================================================
+AKTION USER
+===========
+```
+
+oder
+
+```
+==================================================
+PROMPT FÜR CHATGPT
+==================
+```
+
+oder
+
+```
+==================================================
+PROMPT FÜR CLAUDE CODE
+======================
+```
+
+Danach folgt ausschliesslich der relevante kopierbare Inhalt.
+
+Der User darf niemals suchen müssen, wo der relevante Teil beginnt.
+
+Analysen, Root Cause, Risiken, Validierung und Kommentare dürfen niemals mit dem kopierbaren Teil vermischt werden.
+
+Diese Regel gilt für:
+
+* Analysen
+* Abschlussberichte
+* Testberichte
+* Freigaben
+* Umsetzungspläne
+* Release-Berichte
+
+Definition of Done:
+Ein Bericht ist erst fertig, wenn der User sofort erkennt, was er kopieren oder ausführen muss.
+
+---
+
 # Commit-Philosophie
 
 Keine riesigen Misch-Commits.
@@ -473,3 +524,22 @@ Hintergrundvideos (Container/Section), `fusion_code`-Roh-Embeds und handgepastet
 
 1. Technischer Spike an einer echten Avada-Seite: exakte Fusion-Shortcode-Tags/Attribute (versionsabhängig!), Hintergrundvideo-Pfad, und Prüfung auf Konflikt mit Avadas eigener Privacy-/Embed-Funktion (es darf nur EINE Consent-Schicht aktiv sein).
 2. Formelle Scope-Freigabe + neue ADR, da dies bewusst über „Shortcode-only" hinausgeht.
+
+---
+
+# Fremd-Plugin-Kompatibilität (YOTU, ab v0.2.2)
+
+Stand 2026-06-11 — umgesetzt (ADR-20).
+
+## Einsatzziel
+
+Fremde YouTube-Plugins, die ihre Player **clientseitig per JS** laden (statt serverseitig ein iframe zu rendern), entziehen sich der Avada-Render-Interception (ADR-17). Beispiel: **Yotuwp – Easy YouTube Embed** lädt `youtube.com/iframe_api` per `frontend.min.js`; die Thumbnails kommen per Lazy-Load von `i.ytimg.com`.
+
+## Richtung (No-Go-konform)
+
+Für solche Plugins ist der korrekte Hebel das **Script-Gating über die bestehende `type="text/plain"`-Script-Blockade** (ADR-6), nicht eine Shortcode-Ersetzung: der registrierte Script-Handle wird via `script_loader_tag`/`wp_inline_script_attributes` an `external_media` gekoppelt; lazy-geladene Drittanbieter-Thumbnails werden im Shortcode-Output neutralisiert (`data-orig-src` → `data-lscc-orig-src`, Restore nach Consent durch `banner.js`). Kein DOM-Hijacking, kein MutationObserver, kein Scanner, keine `post_content`-Migration.
+
+## Vorbedingungen vor Umsetzung (pro Plugin)
+
+1. Spike: exakter Script-Handle, Inline-Abhängigkeiten (Localize/`after`), wer den Thumbnail-Abruf auslöst (Plugin-JS vs. Theme-Lazy-Load), Block-/Widget- vs. Shortcode-Rendering.
+2. Opt-in (Default AUS), reversibel, eigene ADR. Nur EINE Consent-Schicht aktiv (Plugin-eigene Consent-Funktion prüfen).

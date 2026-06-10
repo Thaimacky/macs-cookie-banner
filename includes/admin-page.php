@@ -239,6 +239,17 @@ final class Light_Swiss_Cookie_Consent_Admin {
 					</tr>
 				</table>
 
+				<h2><?php echo esc_html__( 'YOTU-Kompatibilität', 'light-swiss-cookie-consent' ); ?></h2>
+				<table class="form-table" role="presentation">
+					<?php self::render_checkbox_field( 'yotu_consent_gating', esc_html__( 'YOTU-YouTube-Galerie (Yotuwp) vor Consent blockieren', 'light-swiss-cookie-consent' ), $options['yotu_consent_gating'] ); ?>
+					<tr>
+						<th scope="row"></th>
+						<td>
+							<p class="description"><?php echo esc_html__( 'Default: AUS. Wenn aktiviert, wird das Frontend-Script des Plugins „Yotuwp – Easy YouTube Embed" über die LSCC-Script-Blockade an die Kategorie „Externe Medien" gekoppelt und die Galerie-Vorschaubilder werden neutralisiert. Vor Zustimmung entsteht dann KEIN Request an youtube.com, youtube-nocookie.com, das iframe_api/www-widgetapi und KEIN Vorschaubild von i.ytimg.com (keine IP-Übertragung an Google). Über der Galerie erscheint ein Zustimmungs-Hinweis. Nach Zustimmung funktioniert YOTU normal. Reversibel: bei deaktiviertem Schalter rendert YOTU wie gewohnt. Hinweis: greift bei per Shortcode eingebundenen Galerien; reine Block-/Widget-Einbindungen sind separat zu prüfen. Inline-Script-Gating benötigt WordPress 5.7+.', 'light-swiss-cookie-consent' ); ?></p>
+						</td>
+					</tr>
+				</table>
+
 				<?php submit_button( esc_html__( 'Einstellungen speichern', 'light-swiss-cookie-consent' ) ); ?>
 			</form>
 		</div>

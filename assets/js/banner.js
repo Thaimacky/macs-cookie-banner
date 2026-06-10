@@ -232,43 +232,109 @@
 		return name !== 'type' && name !== 'data-cookie-category' && name !== 'data-cookie-type' && name.indexOf('on') !== 0;
 	}
 
-	function activateBlockedScripts() {
-		var blockedScripts = document.querySelectorAll('script[type="text/plain"][data-cookie-category]');
-		var activatedCount = 0;
+	function buildActiveScript(script) {
+		var activeScript = document.createElement('script');
 
-		Array.prototype.forEach.call(blockedScripts, function (script) {
-			var category = script.getAttribute('data-cookie-category');
-			var activeScript = null;
-
-			if (!category || !consentAllows(category)) {
+		Array.prototype.forEach.call(script.attributes, function (attribute) {
+			if (attribute.name === 'data-cookie-type') {
+				activeScript.setAttribute('type', normalizeScriptType(attribute.value));
 				return;
 			}
 
-			activeScript = document.createElement('script');
-
-			Array.prototype.forEach.call(script.attributes, function (attribute) {
-				if (attribute.name === 'data-cookie-type') {
-					activeScript.setAttribute('type', normalizeScriptType(attribute.value));
-					return;
-				}
-
-				if (!shouldCopyScriptAttribute(attribute.name)) {
-					return;
-				}
-
-				activeScript.setAttribute(attribute.name, attribute.value);
-			});
-
-			if (!activeScript.getAttribute('type')) {
-				activeScript.setAttribute('type', normalizeScriptType(''));
+			if (!shouldCopyScriptAttribute(attribute.name)) {
+				return;
 			}
 
-			activeScript.text = script.text || script.textContent || '';
-			script.parentNode.replaceChild(activeScript, script);
-			activatedCount += 1;
+			activeScript.setAttribute(attribute.name, attribute.value);
 		});
 
-		debugLog('LSCC activated scripts', activatedCount);
+		if (!activeScript.getAttribute('type')) {
+			activeScript.setAttribute('type', normalizeScriptType(''));
+		}
+
+		return activeScript;
+	}
+
+	function activateBlockedScripts() {
+		// Some gated integrations (e.g. an external library plus an inline init
+		// that depends on it) require execution order. Activate sequentially and
+		// wait for each external script to load before running the next node, so
+		// a following inline script never runs before its dependency is ready.
+		restoreExternalMediaThumbnails();
+
+		var blockedScripts = Array.prototype.slice.call(
+			document.querySelectorAll('script[type="text/plain"][data-cookie-category]')
+		);
+		var activatedCount = 0;
+
+		function activateNext(index) {
+			if (index >= blockedScripts.length) {
+				debugLog('LSCC activated scripts', activatedCount);
+				return;
+			}
+
+			var script = blockedScripts[index];
+			var category = script.getAttribute('data-cookie-category');
+
+			if (!category || !consentAllows(category)) {
+				activateNext(index + 1);
+				return;
+			}
+
+			var activeScript = buildActiveScript(script);
+			var hasSrc = Boolean(activeScript.src || activeScript.getAttribute('src'));
+			activatedCount += 1;
+
+			if (hasSrc) {
+				// async=false keeps external scripts in insertion order; the
+				// load/error callback gates the next (possibly inline) script.
+				activeScript.async = false;
+				activeScript.onload = activeScript.onerror = function () {
+					activateNext(index + 1);
+				};
+				script.parentNode.replaceChild(activeScript, script);
+			} else {
+				activeScript.text = script.text || script.textContent || '';
+				script.parentNode.replaceChild(activeScript, script);
+				activateNext(index + 1);
+			}
+		}
+
+		activateNext(0);
+	}
+
+	function restoreExternalMediaThumbnails() {
+		// Server-side gating (e.g. the Yotu module) parks lazy thumbnail URLs in
+		// data-lscc-orig-src so the theme lazy-load cannot fetch them before
+		// consent. Restore them once external media is allowed and hide any
+		// gated-gallery consent notice.
+		if (!consentAllows('external_media')) {
+			return;
+		}
+
+		var images = document.querySelectorAll('img[data-lscc-orig-src]');
+
+		Array.prototype.forEach.call(images, function (img) {
+			var url = img.getAttribute('data-lscc-orig-src');
+
+			if (url) {
+				img.setAttribute('src', url);
+				img.setAttribute('data-orig-src', url);
+			}
+
+			img.removeAttribute('data-lscc-orig-src');
+
+			if (img.classList) {
+				img.classList.remove('lazyload');
+				img.classList.remove('lscc-gated-thumb');
+			}
+		});
+
+		var notices = document.querySelectorAll('[data-lscc-gated-notice]');
+
+		Array.prototype.forEach.call(notices, function (notice) {
+			notice.hidden = true;
+		});
 	}
 
 	function createMediaIframe(component) {

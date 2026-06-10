@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Light Swiss Cookie Consent 0.2.1\n"
+"Project-Id-Version: Light Swiss Cookie Consent 0.2.2\n"
 "Language: it_IT\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -191,6 +191,15 @@ msgid "Avada-YouTube (fusion_youtube) vor Consent blockieren"
 msgstr ""
 
 msgid "Wenn aktiviert, werden Avada/Fusion-Builder-YouTube-Elemente serverseitig durch einen Platzhalter ersetzt. Das YouTube-Video lädt erst nach Zustimmung zur Kategorie „Externe Medien\". Es findet keine Inhaltsänderung statt; bei deaktiviertem Schalter rendert Avada wie gewohnt. Nur YouTube; Vimeo, Maps und Hintergrundvideos sind nicht betroffen."
+msgstr ""
+
+msgid "YOTU-Kompatibilität"
+msgstr ""
+
+msgid "YOTU-YouTube-Galerie (Yotuwp) vor Consent blockieren"
+msgstr ""
+
+msgid "Default: AUS. Wenn aktiviert, wird das Frontend-Script des Plugins „Yotuwp – Easy YouTube Embed\" über die LSCC-Script-Blockade an die Kategorie „Externe Medien\" gekoppelt und die Galerie-Vorschaubilder werden neutralisiert. Vor Zustimmung entsteht dann KEIN Request an youtube.com, youtube-nocookie.com, das iframe_api/www-widgetapi und KEIN Vorschaubild von i.ytimg.com (keine IP-Übertragung an Google). Über der Galerie erscheint ein Zustimmungs-Hinweis. Nach Zustimmung funktioniert YOTU normal. Reversibel: bei deaktiviertem Schalter rendert YOTU wie gewohnt. Hinweis: greift bei per Shortcode eingebundenen Galerien; reine Block-/Widget-Einbindungen sind separat zu prüfen. Inline-Script-Gating benötigt WordPress 5.7+."
 msgstr ""
 
 msgid "Einstellungen speichern"
@@ -480,3 +489,6 @@ msgstr "Questa mappa di Google Maps viene caricata solo dopo il consenso ai cont
 
 msgid "Externe Medien akzeptieren"
 msgstr "Accetta i contenuti esterni"
+
+msgid "Diese YouTube-Galerie wird erst nach Zustimmung zu externen Medien geladen."
+msgstr "Questa galleria YouTube viene caricata solo dopo il consenso ai contenuti esterni."
