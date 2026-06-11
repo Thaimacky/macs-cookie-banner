@@ -1,5 +1,20 @@
 # DEV LOG
 
+## 0.3.2-test - 2026-06-12
+
+- Patch-Bump 0.3.1 → 0.3.2. Plugin-Header und `LSCC_VERSION` auf `0.3.2`. `LSCC_CONSENT_VERSION` bleibt `2`.
+- **Feature: Avada-Google-Maps Consent-Gating (Phase 3A, Variante 3A-i, ADR-25).** `fusion_map` → LSCC-Platzhalter → Google-Maps-**Embed** → Laden erst nach `external_media`-Consent. Kein Avada-Reinit, keine JS-Lifecycle-Lösung, kein Observer, kein DOM-Hijack.
+- Neue Datei `includes/avada-maps-compat.php`, Klasse `Light_Swiss_Cookie_Consent_Avada_Maps_Compat` (opt-in, Default AUS, reversibel):
+  - `pre_do_shortcode_tag` für `fusion_map`: erste Adresse aus `address`-Att bzw. erstem `[fusion_map_marker]` (`$m[5]`) → Embed-URL → `Service_Components::render_google_map( ['url'=>…] )` (Reuse der Platzhalter-/Consent-Mechanik). Fallback bei nicht parsebarer Adresse: Avada rendert normal.
+  - `block_maps_api()` via `script_loader_tag` **SRC-basiert** (handle-agnostisch): jedes `maps.googleapis.com/maps/api/js`-Script wird `type="text/plain" data-cookie-category="external_media"` → vor Consent kein Google-Maps-JS.
+- `includes/service-components.php`: `render_google_map()` akzeptiert zusätzlich `address`; neuer **public** Helper `build_maps_embed_url()` (keyless `maps.google.com/maps?q=…&output=embed`, durch bestehende Host-/Pfad-Allowlist). Beispiel: `[lscc_google_map address="Bahnhofstrasse 1, Zürich"]`. Reuse durch das Avada-Modul.
+- `light-swiss-cookie-consent.php`: Bool-Option `avada_maps_block` (Default `false`) in `get_default_options()` + `get_bool_option_keys()`; Modul-Laden in `init()`.
+- `includes/admin-page.php`: Sektion „Avada-Google-Maps" mit Checkbox + Beschreibung inkl. **fetter Avada-Privacy-Warnung** („Nur eine Consent-Schicht verwenden. Avada Privacy Maps und LSCC Maps nicht parallel aktivieren.").
+- `languages/`: neue Admin-Strings (deutsch/Quelle, ADR-19); `.pot`/`.po`/`.mo` neu generiert (222 msgids).
+- **Bewusster Trade-off:** nach Consent Google-Embed-Karte (Ortspin), nicht Avadas voll gestylte JS-Karte; Multi-Marker → nur primäre Adresse. Dokumentiert.
+- **Bewusst NICHT:** kein Avada-Reinit, kein JS-Lifecycle, kein Observer, kein Frontend-Code, keine Maps-JS-API-Reaktivierung nötig (Platzhalter trägt keine `.fusion-google-map`-Klasse → Avada-Init no-op).
+- Validierung: PHP-Struktur per Zustandsautomat balanciert (`avada-maps-compat.php` 45/45 Parens, 15/15 Braces; übrige geänderte Dateien balanciert). Kein PHP-CLI lokal. Funktionaler Test an echter Avada-Karte ausstehend (siehe RELEASE_CHECKLIST).
+
 ## 0.3.1-test - 2026-06-12
 
 - Patch-Bump 0.3.0 → 0.3.1. Plugin-Header und `LSCC_VERSION` auf `0.3.1`. `LSCC_CONSENT_VERSION` bleibt `2`.

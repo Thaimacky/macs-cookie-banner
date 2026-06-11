@@ -11,6 +11,7 @@ Diese Karte beschreibt die aktiven Dateien, ihre Zustaendigkeiten und die wichti
 | `includes/privacy-check.php` | Passive Admin-Seite, die einmal die Startseite via `wp_remote_get` abruft und gegen eine statische Mustertabelle prueft. |
 | `includes/avada-inventory.php` | Passive, rein lesende Admin-Seite „Avada Inventar-Scan" (ab 0.1.8): zählt Video-/Map-/Embed-Typen in lokalen Inhalten zur Abschätzung der automatischen Abdeckung. Keine externen Requests, keine Schreibzugriffe, keine Inhaltsänderung. |
 | `includes/avada-compat.php` | Render-Layer-Interception (ab 0.1.9): fängt Avadas `fusion_youtube` via `pre_do_shortcode_tag` ab und ersetzt es durch das LSCC-Platzhalter-Markup (Kategorie `external_media`). Nur Frontend, opt-in via `avada_youtube_block`. |
+| `includes/avada-maps-compat.php` | Avada-Google-Maps-Gating (ab 0.3.2): fängt `fusion_map` via `pre_do_shortcode_tag` ab und ersetzt es durch das LSCC-Platzhalter-Markup mit Google-Maps-**Embed**-URL (Adresse → `output=embed`); blockiert die Maps-JS-API (`maps.googleapis.com/maps/api/js`) SRC-basiert via `script_loader_tag`. Nur Frontend, opt-in via `avada_maps_block` (Default AUS). |
 | `includes/yotu-compat.php` | YOTU-Consent-Gating (ab 0.2.2): koppelt das Frontend-Script des Plugins „Yotuwp – Easy YouTube Embed" (`yotu-script` + Inline `-extra`/`-after`) via `script_loader_tag`/`wp_inline_script_attributes` an die LSCC-Script-Blockade (`external_media`) und neutralisiert die `i.ytimg.com`-Thumbnails im Shortcode-Output (`do_shortcode_tag`) durch Umbenennen von `data-orig-src` → `data-lscc-orig-src`, plus Consent-Hinweis über der Galerie. Nur Frontend, opt-in via `yotu_consent_gating` (Default AUS). |
 | `includes/consent-codes.php` | Consent-Code-Manager (ab 0.3.0): zentrale Verwaltung von Tracking-/Marketing-Snippets (GA4/GTM/Meta Pixel/Hotjar/…). Option `lscc_consent_codes`; gibt Snippets in Head/Body-Anfang/Footer als LSCC-geblockte Scripts aus (Script-Tag-Transform + `<noscript>`-Strip), Aktivierung über bestehende `banner.js`-Mechanik. Scannerfähiges Datenmodell, Vendor-Detektion, versioniertes Export/Import-Envelope. |
 | `includes/service-components.php` | Shortcodes `[lscc_youtube]`, `[lscc_vimeo]`, `[lscc_google_map]` mit Placeholder-Markup. |
@@ -185,6 +186,18 @@ Reine Server-Interception: kein DOM-Hijacking, kein MutationObserver, kein Scann
 - `render_consent_notice()` — privat; baut den `lscc-yotu-consent`-Hinweis (`data-lscc-gated-notice`) mit `data-lscc-accept-media`-Button. Wird von `banner.js::bindMediaComponents()` gebunden; nach Consent von `restoreExternalMediaThumbnails()` versteckt.
 
 Vor `external_media`-Consent: kein youtube.com, kein youtube-nocookie.com, kein `iframe_api`, kein `www-widgetapi`, kein `i.ytimg.com`. Nach Consent baut `banner.js` die Thumbnails wieder auf und aktiviert die Yotu-Scripts in korrekter Reihenfolge → Galerie funktioniert normal. Kein DOM-Hijacking/Observer/Scanner, keine `post_content`-Änderung, vollständig reversibel (`yotu_consent_gating` = bool, Default `false`). Coverage-Grenze: greift bei per Shortcode gerenderten Galerien; reine Block-/Widget-Einbindungen sind separat zu prüfen.
+
+## `includes/avada-maps-compat.php`
+
+**Klasse `Light_Swiss_Cookie_Consent_Avada_Maps_Compat`** (ab 0.3.2, Variante 3A-i):
+
+- Konstante `MAPS_API_NEEDLE = 'maps.googleapis.com/maps/api/js'`.
+- `init()` — nur Frontend + nur bei `avada_maps_block`: Filter `pre_do_shortcode_tag` (10/4) und `script_loader_tag` (10/3).
+- `intercept( $output, $tag, $attr, $m )` — bei `fusion_map`: erste Adresse via `extract_address()` (aus `address`-Att bzw. erstem `[fusion_map_marker]` in `$m[5]`) → `Service_Components::build_maps_embed_url()` → `Service_Components::render_google_map( ['url'=>…] )` als Ersatz. Fallback: nicht parsebare Adresse → `$output` (Avada rendert).
+- `extract_address( $atts, $content )` — primäre Adresse (mehrzeilig/Pipe → erste).
+- `block_maps_api( $tag, $handle, $src )` — SRC-basiert (handle-agnostisch): enthält `$src` die Maps-API → Tag auf `type="text/plain" data-cookie-category="external_media" data-cookie-type="text/javascript"` umschreiben.
+
+Reine Server-Interception + Script-Gating; **kein** Avada-Reinit, kein DOM-Hijack, kein Observer, kein Frontend-Code. Nach Consent baut `createMediaIframe` das Embed-iframe. Trade-off: Embed-Karte statt Avada-JS-Karte; Multi-Marker → primäre Adresse. Avada-Privacy-Maps darf **nicht** parallel aktiv sein (eine Consent-Schicht).
 
 ## `includes/consent-codes.php`
 

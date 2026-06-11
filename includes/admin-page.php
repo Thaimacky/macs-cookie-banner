@@ -259,6 +259,18 @@ final class Light_Swiss_Cookie_Consent_Admin {
 					</tr>
 				</table>
 
+				<h2><?php echo esc_html__( 'Avada-Google-Maps', 'light-swiss-cookie-consent' ); ?></h2>
+				<table class="form-table" role="presentation">
+					<?php self::render_checkbox_field( 'avada_maps_block', esc_html__( 'Avada-Karten (fusion_map) vor Consent blockieren', 'light-swiss-cookie-consent' ), $options['avada_maps_block'] ); ?>
+					<tr>
+						<th scope="row"></th>
+						<td>
+							<p class="description"><?php echo esc_html__( 'Wenn aktiviert, werden Avada/Fusion-Builder-Karten (fusion_map) serverseitig durch einen LSCC-Platzhalter ersetzt und die Google-Maps-JS-API (maps.googleapis.com/maps/api/js) wird vor Consent blockiert. Vor Zustimmung zur Kategorie „Externe Medien" entsteht KEIN Google-Kontakt. Nach Zustimmung wird die Karte als Google-Maps-Embed (Standort) geladen — nicht als Avadas voll gestylte JS-Karte (bewusster Trade-off). Bei nicht erkennbarer Adresse rendert Avada wie gewohnt; reversibel (Schalter aus).', 'light-swiss-cookie-consent' ); ?></p>
+							<p class="description"><strong><?php echo esc_html__( 'Wichtig: Nur eine Consent-Schicht verwenden. Avada Privacy Maps und LSCC Maps nicht parallel aktivieren.', 'light-swiss-cookie-consent' ); ?></strong></p>
+						</td>
+					</tr>
+				</table>
+
 				<?php submit_button( esc_html__( 'Einstellungen speichern', 'light-swiss-cookie-consent' ) ); ?>
 			</form>
 		</div>

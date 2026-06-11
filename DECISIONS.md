@@ -364,3 +364,18 @@ Die bestehende **WPML-/Polylang-String-Translation-Registrierung bleibt als Over
 - **Google Fonts** sind nicht consent-gate-bar → eigener Status + klare Empfehlung „lokal hosten; Consent ersetzt kein Local Hosting".
 
 **Folgen / offene Punkte:** Server-Sicht ohne JS → von GTM gefeuerte Tags, klick-/JS-geladene Widgets und Unterseiten werden nicht erfasst (ADR-4-Linie). Cache-/Minify-Plugins können Script-Tags verändern → Heuristik, bewusst konservativ. „Verwaltet" = auf der Seite gegated, nicht „korrekt kategorisiert" (bleibt Betreiber-Verantwortung). Maps/Vimeo-Gating sind Folgephasen.
+
+## ADR-25: Avada-Google-Maps Consent-Gating via Embed-Umlenkung (umgesetzt in v0.3.2)
+
+**Status:** Umgesetzt (v0.3.2). Phase 3A, Variante **3A-i**. Freigabe erteilt (kein weiterer Spike verlangt).
+
+**Entscheidung:** Avadas `fusion_map` (JS-API-basiert) wird auf die **bestehende** LSCC-Architektur umgelenkt: `pre_do_shortcode_tag` ersetzt `fusion_map` durch den vorhandenen LSCC-Platzhalter, dessen `data-lscc-src` eine **keyless Google-Maps-Embed-URL** (`maps.google.com/maps?q=<adresse>&output=embed`) ist; das iframe wird von `banner.js::createMediaIframe()` erst nach `external_media`-Consent gebaut. Zusätzlich wird die **Google-Maps-JS-API** `maps.googleapis.com/maps/api/js` über `script_loader_tag` **SRC-basiert** (handle-agnostisch) als `type="text/plain"` blockiert. Opt-in Modul `avada_maps_block`, Default **AUS**, reversibel. `[lscc_google_map]` erhält ein `address`-Attribut (gleiche Embed-Mechanik).
+
+**Begründung:**
+
+- **Reine Wiederverwendung:** Render-Interception (ADR-17-Muster) + Script-Gating (ADR-20-Muster) + bestehender Platzhalter/`createMediaIframe`/Script-Blockade. **Keine** neue Consent-Logik, **kein** DOM-Hijack, **kein** MutationObserver, **kein** Avada-Reinit, **kein** JS-Lifecycle-Management.
+- **Handle-agnostisches SRC-Gating** ist robust über Avada-Versionen/Drittplugins und macht den Spike-Punkt „exakter Script-Handle" überflüssig.
+- **Kein Reinit nötig:** Der LSCC-Platzhalter trägt **keine** `.fusion-google-map`-Klasse → Avadas Karten-Init findet keine Container und no-op't; die gegatete JS-API lädt vor Consent nicht.
+- **Nur eine Consent-Schicht:** Avada besitzt ein eigenes Privacy-Feature für Embeds. Das Modul ist Default AUS und im Admin mit fetter Warnung versehen, Avada-Privacy-Maps und LSCC-Maps **nicht** parallel zu aktivieren.
+
+**Folgen / offene Punkte:** Nach Consent erscheint die Google-**Embed**-Karte (Standort-Pin), **nicht** Avadas voll gestylte JS-API-Karte (eigene Marker/Styles/Zoom-Config gehen verloren) — bewusster Trade-off. Multi-Marker → nur die **primäre** Adresse. Adress-Extraktion ist versionsabhängig → robuster Fallback (kein Ersatz, Avada rendert normal; API bleibt via SRC-Gating geblockt; Restposten via Scanner sichtbar, Empfehlung `[lscc_google_map]`). Keyless `output=embed` ist inoffiziell — beobachten. Cache-/Optimierungs-Plugins können das SRC-Gating stören → auf realem Stack testen. Verbindliche Referenz: `MASTER_HANDBUCH.md`.

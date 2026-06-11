@@ -85,6 +85,21 @@
 - [ ] Reopen-Button ist nicht sichtbar, wenn kein gültiger Consent vorhanden ist (auch nicht bei Browser ohne JS-Init).
 - [ ] Nach Aktivierung der neuen Version sind die Defaults `overlay_enabled`, `blur_enabled`, `show_legal_links` jeweils `true` — auch wenn vorher eine alte Plugin-Version installiert war.
 
+## Avada-Google-Maps Gating (ab v0.3.2-test)
+
+Voraussetzung: Avada-Seite mit `fusion_map`; Option „Avada-Karten … blockieren" EIN; **Avada-Privacy-Maps AUS** (nur eine Schicht).
+
+- [ ] **Vor Consent (Netzwerk-Monitor, Hard-Reload):** kein Request an `maps.googleapis.com`. Statt der Avada-Karte erscheint der LSCC-Platzhalter mit Hinweis + „Externe Medien akzeptieren".
+- [ ] Die Maps-JS-API-`<script>`-Tags tragen `type="text/plain" data-cookie-category="external_media"`.
+- [ ] **Nach Zustimmung:** das Google-Maps-Embed lädt und zeigt den Standort; Reload behält den Consent.
+- [ ] `fusion_map` mit `address` wird korrekt erkannt; mit `[fusion_map_marker address="…"]` wird die primäre Adresse genutzt.
+- [ ] Nicht parsebare Adresse → Avada rendert die Karte normal (kein Layout-Bruch); API bleibt trotzdem via SRC-Gating geblockt (kein Pre-Consent-Google).
+- [ ] `[lscc_google_map address="Bahnhofstrasse 1, Zürich"]` zeigt vor Consent Platzhalter, nach Consent die Embed-Karte.
+- [ ] `[lscc_google_map url="…/maps/embed?…"]` weiterhin unverändert funktionsfähig.
+- [ ] Option AUS → Avada rendert die Original-JS-Karte (reversibel).
+- [ ] **Nur eine Consent-Schicht:** kein Doppel-Platzhalter mit Avada-Privacy (Avada-Privacy-Maps muss aus sein).
+- [ ] Optimierungs-Plugin-Test (Delay/Combine JS) → `type="text/plain"`-Maps-API nicht umgeschrieben.
+
 ## Scanner: Drittanbieter-Oberfläche (ab v0.3.1-test)
 
 - [ ] Privacy-Check-Seite zeigt die neue Sektion „Drittanbieter-Oberfläche" mit Tabelle (Dienst / Status / Gegated / Ungegatet / Im Consent-Code-Manager / Empfehlung).

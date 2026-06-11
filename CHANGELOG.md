@@ -8,6 +8,23 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.3.2-test - 2026-06-12
+
+### Added
+
+- **Avada-Google-Maps Consent-Gating** (opt-in, Default AUS) — neues Modul `includes/avada-maps-compat.php`. `fusion_map` wird serverseitig durch einen LSCC-Platzhalter ersetzt; nach „Externe Medien"-Consent lädt die Karte als Google-Maps-Embed. Die Google-Maps-JS-API (`maps.googleapis.com/maps/api/js`) wird SRC-basiert (handle-agnostisch) vor Consent blockiert. Kein Avada-Reinit, kein Observer, kein DOM-Hijack.
+- **`[lscc_google_map address="…"]`** — Adress-Eingabe; intern keyless Embed (`maps.google.com/maps?q=…&output=embed`). `url=` bleibt unverändert nutzbar.
+- Admin-Sektion „Avada-Google-Maps" inkl. deutlicher Warnung: nur eine Consent-Schicht (Avada Privacy Maps und LSCC Maps nicht parallel).
+
+### Changed
+
+- `service-components.php`: neuer public Helper `build_maps_embed_url()` (auch vom Avada-Modul genutzt).
+- Plugin-Header und `LSCC_VERSION` auf `0.3.2`. `LSCC_CONSENT_VERSION` bleibt `2`.
+
+### Bekannte Trade-offs
+
+- Nach Consent erscheint die Google-Embed-Karte (Standort), nicht Avadas voll gestylte JS-Karte; Multi-Marker → nur primäre Adresse. Bei nicht parsebarer Adresse rendert Avada normal (API bleibt via SRC-Gating geblockt).
+
 ## 0.3.1-test - 2026-06-12
 
 ### Added

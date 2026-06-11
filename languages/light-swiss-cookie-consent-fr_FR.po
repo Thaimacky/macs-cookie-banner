@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Light Swiss Cookie Consent 0.3.1\n"
+"Project-Id-Version: Light Swiss Cookie Consent 0.3.2\n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -203,6 +203,18 @@ msgid "YOTU-YouTube-Galerie (Yotuwp) vor Consent blockieren"
 msgstr ""
 
 msgid "Default: AUS. Wenn aktiviert, wird das Frontend-Script des Plugins „Yotuwp – Easy YouTube Embed\" über die LSCC-Script-Blockade an die Kategorie „Externe Medien\" gekoppelt und die Galerie-Vorschaubilder werden neutralisiert. Vor Zustimmung entsteht dann KEIN Request an youtube.com, youtube-nocookie.com, das iframe_api/www-widgetapi und KEIN Vorschaubild von i.ytimg.com (keine IP-Übertragung an Google). Über der Galerie erscheint ein Zustimmungs-Hinweis. Nach Zustimmung funktioniert YOTU normal. Reversibel: bei deaktiviertem Schalter rendert YOTU wie gewohnt. Hinweis: greift bei per Shortcode eingebundenen Galerien; reine Block-/Widget-Einbindungen sind separat zu prüfen. Inline-Script-Gating benötigt WordPress 5.7+."
+msgstr ""
+
+msgid "Avada-Google-Maps"
+msgstr ""
+
+msgid "Avada-Karten (fusion_map) vor Consent blockieren"
+msgstr ""
+
+msgid "Wenn aktiviert, werden Avada/Fusion-Builder-Karten (fusion_map) serverseitig durch einen LSCC-Platzhalter ersetzt und die Google-Maps-JS-API (maps.googleapis.com/maps/api/js) wird vor Consent blockiert. Vor Zustimmung zur Kategorie „Externe Medien\" entsteht KEIN Google-Kontakt. Nach Zustimmung wird die Karte als Google-Maps-Embed (Standort) geladen — nicht als Avadas voll gestylte JS-Karte (bewusster Trade-off). Bei nicht erkennbarer Adresse rendert Avada wie gewohnt; reversibel (Schalter aus)."
+msgstr ""
+
+msgid "Wichtig: Nur eine Consent-Schicht verwenden. Avada Privacy Maps und LSCC Maps nicht parallel aktivieren."
 msgstr ""
 
 msgid "Einstellungen speichern"

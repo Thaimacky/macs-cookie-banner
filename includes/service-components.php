@@ -199,8 +199,21 @@ final class Light_Swiss_Cookie_Consent_Service_Components {
 	 * @return string
 	 */
 	public static function render_google_map( $atts ) {
-		$atts = shortcode_atts( array( 'url' => '' ), $atts, 'lscc_google_map' );
-		$url  = self::sanitize_google_maps_url( $atts['url'] );
+		$atts = shortcode_atts(
+			array(
+				'url'     => '',
+				'address' => '',
+			),
+			$atts,
+			'lscc_google_map'
+		);
+
+		$url = self::sanitize_google_maps_url( $atts['url'] );
+
+		// When no explicit embed URL is given, build one from a plain address.
+		if ( '' === $url && '' !== trim( (string) $atts['address'] ) ) {
+			$url = self::build_maps_embed_url( $atts['address'] );
+		}
 
 		if ( '' === $url ) {
 			return '';
@@ -212,6 +225,28 @@ final class Light_Swiss_Cookie_Consent_Service_Components {
 			__( 'Google Maps', 'light-swiss-cookie-consent' ),
 			__( 'Diese Google-Maps-Karte wird erst nach Zustimmung zu externen Medien geladen.', 'light-swiss-cookie-consent' )
 		);
+	}
+
+	/**
+	 * Build a consent-safe Google Maps embed URL from a plain address.
+	 *
+	 * Uses the keyless `output=embed` form, which contacts Google only when the
+	 * iframe is created (i.e. after consent). Runs through the existing host/path
+	 * allowlist. Reused by the Avada Maps compatibility module.
+	 *
+	 * @param string $address Plain address or place name.
+	 * @return string Sanitized embed URL or '' when unusable.
+	 */
+	public static function build_maps_embed_url( $address ) {
+		$address = trim( sanitize_text_field( (string) $address ) );
+
+		if ( '' === $address ) {
+			return '';
+		}
+
+		$url = 'https://maps.google.com/maps?q=' . rawurlencode( $address ) . '&output=embed';
+
+		return self::sanitize_google_maps_url( $url );
 	}
 
 	/**
