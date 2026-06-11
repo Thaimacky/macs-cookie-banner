@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Light Swiss Cookie Consent 0.3.0\n"
+"Project-Id-Version: Light Swiss Cookie Consent 0.3.1\n"
 "Language: de_CH\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -208,14 +208,26 @@ msgstr "Default: AUS. Wenn aktiviert, wird das Frontend-Script des Plugins „Yo
 msgid "Einstellungen speichern"
 msgstr "Einstellungen speichern"
 
-msgid "Geprüfte Startseite: %s"
-msgstr "Geprüfte Startseite: %s"
+msgid "Geprüfte URL: %s"
+msgstr "Geprüfte URL: %s"
 
-msgid "Nur diese einzelne URL wird geprüft. Es findet kein Crawl statt."
-msgstr "Nur diese einzelne URL wird geprüft. Es findet kein Crawl statt."
+msgid "Nur diese eine URL wird geprüft (Server-Sicht, kein JavaScript). Es findet kein Crawl statt."
+msgstr "Nur diese eine URL wird geprüft (Server-Sicht, kein JavaScript). Es findet kein Crawl statt."
 
-msgid "Startseiten-Prüfung"
-msgstr "Startseiten-Prüfung"
+msgid "Nur URLs dieser Website sind erlaubt. Es wurde die Startseite geprüft."
+msgstr "Nur URLs dieser Website sind erlaubt. Es wurde die Startseite geprüft."
+
+msgid "Drittanbieter-Oberfläche"
+msgstr "Drittanbieter-Oberfläche"
+
+msgid "URL prüfen"
+msgstr "URL prüfen"
+
+msgid "Nur URLs dieser Website. Server-Sicht ohne JavaScript — von GTM geladene Tags, klick-/JS-geladene Widgets und Unterseiten werden nicht erfasst."
+msgstr "Nur URLs dieser Website. Server-Sicht ohne JavaScript — von GTM geladene Tags, klick-/JS-geladene Widgets und Unterseiten werden nicht erfasst."
+
+msgid "Muster-Schnellprüfung"
+msgstr "Muster-Schnellprüfung"
 
 msgid "Status"
 msgstr "Status"
@@ -226,14 +238,14 @@ msgstr "Problem"
 msgid "Empfehlung"
 msgstr "Empfehlung"
 
-msgid "Startseite konnte nicht geprüft werden."
-msgstr "Startseite konnte nicht geprüft werden."
+msgid "Die URL konnte nicht geprüft werden."
+msgstr "Die URL konnte nicht geprüft werden."
 
-msgid "Bitte prüfen Sie die Seite manuell oder starten Sie den Check später erneut."
-msgstr "Bitte prüfen Sie die Seite manuell oder starten Sie den Check später erneut."
+msgid "Bitte prüfen Sie die URL oder starten Sie den Check später erneut."
+msgstr "Bitte prüfen Sie die URL oder starten Sie den Check später erneut."
 
-msgid "Startseite lieferte keine prüfbare Ausgabe."
-msgstr "Startseite lieferte keine prüfbare Ausgabe."
+msgid "Die URL lieferte keine prüfbare Ausgabe."
+msgstr "Die URL lieferte keine prüfbare Ausgabe."
 
 msgid "Bitte prüfen Sie die eingebundenen externen Dienste manuell."
 msgstr "Bitte prüfen Sie die eingebundenen externen Dienste manuell."
@@ -280,6 +292,90 @@ msgstr "Wichtig"
 msgid "Info"
 msgstr "Info"
 
+msgid "Empfehlung: lokal hosten. Consent ersetzt kein Local Hosting."
+msgstr "Empfehlung: lokal hosten. Consent ersetzt kein Local Hosting."
+
+msgid "Keine externen Google Fonts auf dieser URL gefunden."
+msgstr "Keine externen Google Fonts auf dieser URL gefunden."
+
+msgid "Über den Consent-Code-Manager (Kategorie Statistik) laden."
+msgstr "Über den Consent-Code-Manager (Kategorie Statistik) laden."
+
+msgid "Container erkannt; die von GTM gefeuerten Tags sind serverseitig nicht prüfbar."
+msgstr "Container erkannt; die von GTM gefeuerten Tags sind serverseitig nicht prüfbar."
+
+msgid "Über den Consent-Code-Manager laden und in GTM gefeuerte Tags separat prüfen."
+msgstr "Über den Consent-Code-Manager laden und in GTM gefeuerte Tags separat prüfen."
+
+msgid "Über den Consent-Code-Manager (Kategorie Marketing) laden."
+msgstr "Über den Consent-Code-Manager (Kategorie Marketing) laden."
+
+msgid "Rechtliche Einordnung im Einzelfall prüfen."
+msgstr "Rechtliche Einordnung im Einzelfall prüfen."
+
+msgid "Vor Consent blockieren bzw. v2-on-submit prüfen."
+msgstr "Vor Consent blockieren bzw. v2-on-submit prüfen."
+
+msgid "Wird teils erst nach Interaktion geladen."
+msgstr "Wird teils erst nach Interaktion geladen."
+
+msgid "Über den Consent-Code-Manager (Kategorie Externe Medien) bzw. als gegatetes Embed lösen."
+msgstr "Über den Consent-Code-Manager (Kategorie Externe Medien) bzw. als gegatetes Embed lösen."
+
+msgid "[lscc_youtube] verwenden oder Avada-/YOTU-Gating aktivieren."
+msgstr "[lscc_youtube] verwenden oder Avada-/YOTU-Gating aktivieren."
+
+msgid "[lscc_vimeo] verwenden."
+msgstr "[lscc_vimeo] verwenden."
+
+msgid "Maps-JS-API lädt teils clientseitig."
+msgstr "Maps-JS-API lädt teils clientseitig."
+
+msgid "[lscc_google_map] verwenden; Maps-JS separat prüfen."
+msgstr "[lscc_google_map] verwenden; Maps-JS separat prüfen."
+
+msgid "Externe Google Fonts"
+msgstr "Externe Google Fonts"
+
+msgid "Nicht gefunden"
+msgstr "Nicht gefunden"
+
+msgid "Verwaltet"
+msgstr "Verwaltet"
+
+msgid "Teilweise verwaltet"
+msgstr "Teilweise verwaltet"
+
+msgid "Ungegatet"
+msgstr "Ungegatet"
+
+msgid "Nicht prüfbar"
+msgstr "Nicht prüfbar"
+
+msgid "Externe Google Fonts erkannt"
+msgstr "Externe Google Fonts erkannt"
+
+msgid "Ja"
+msgstr "Ja"
+
+msgid "Nein"
+msgstr "Nein"
+
+msgid "Dienst"
+msgstr "Dienst"
+
+msgid "Gegated"
+msgstr "Gegated"
+
+msgid "Im Consent-Code-Manager"
+msgstr "Im Consent-Code-Manager"
+
+msgid "Empfehlung / Hinweis"
+msgstr "Empfehlung / Hinweis"
+
+msgid "Hinweis: Server-Sicht ohne JavaScript. „Verwaltet\" = auf dieser URL als LSCC-geblocktes Script/Platzhalter erkannt. „Nicht prüfbar\" = serverseitig nicht sicher bestimmbar (z. B. GTM-gefeuerte Tags, klick-/JS-geladene Widgets). Externe Google Fonts lassen sich nicht per Consent lösen — lokal hosten."
+msgstr "Hinweis: Server-Sicht ohne JavaScript. „Verwaltet\" = auf dieser URL als LSCC-geblocktes Script/Platzhalter erkannt. „Nicht prüfbar\" = serverseitig nicht sicher bestimmbar (z. B. GTM-gefeuerte Tags, klick-/JS-geladene Widgets). Externe Google Fonts lassen sich nicht per Consent lösen — lokal hosten."
+
 msgid "Content Scan"
 msgstr "Content Scan"
 
@@ -297,9 +393,6 @@ msgstr "Keine bekannten externen Embeds in den geprüften Inhalten gefunden."
 
 msgid "Risiko"
 msgstr "Risiko"
-
-msgid "Dienst"
-msgstr "Dienst"
 
 msgid "Inhaltstyp"
 msgstr "Inhaltstyp"
@@ -420,9 +513,6 @@ msgstr "fusion_code (mit Embed)"
 
 msgid "Rohe iframes"
 msgstr "Rohe iframes"
-
-msgid "Ja"
-msgstr "Ja"
 
 msgid "3. KPI: Automatische Abdeckung"
 msgstr "3. KPI: Automatische Abdeckung"

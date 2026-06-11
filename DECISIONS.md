@@ -347,3 +347,20 @@ Die bestehende **WPML-/Polylang-String-Translation-Registrierung bleibt als Over
 - **Sicherheit:** Roh-`code` nur mit `unfiltered_html` (sonst verworfen + Notice), `manage_options` + Nonce, Enum-validierte Attribute. Entspricht dem WP-Muster für „Additional CSS"/Custom-HTML; Multisite: nur Super-Admins.
 
 **Folgen / offene Punkte:** `<noscript>`-Strip bedeutet, dass No-JS-Besucher kein GTM-noscript erhalten (bewusst). Bei der Migration muss der Snippet aus dem alten Ort (z. B. Avada Global Options) **entfernt** werden (sonst Doppel-Laden). **Cache-/Optimierungs-Plugins** (Delay/Combine/Minify JS) können `type="text/plain"`-Inline-Scripts umschreiben/zusammenführen → vor dem 40-Site-Rollout auf dem realen Stack testen und LSCC-gegatete Scripts von der Optimierung ausschliessen. Kein Consent-Nachweis-Log (ADR-3). Drittland-Transfer nach Consent ist über Banner-Text/Datenschutzerklärung abzudecken. Google Consent Mode v2 bewusst nicht umgesetzt.
+
+## ADR-24: Scanner-Ausbau „Drittanbieter-Oberfläche" mit Gating-Status (umgesetzt in v0.3.1)
+
+**Status:** Umgesetzt (v0.3.1). Phase 2 der Produktiv-Roadmap. Freigabe erteilt.
+
+**Entscheidung:** Die Startseiten-Prüfung (`privacy-check.php`) wird um eine Sektion „Drittanbieter-Oberfläche" erweitert, die pro Dienst nicht nur **ob** gefunden, sondern den **Gating-Status auf der gerenderten Seite** ausweist. Erfasst: GA4, GTM, Meta Pixel, Hotjar, reCAPTCHA, Calendly, YouTube, Vimeo, Google Maps, externe Google Fonts. **5-Status-Modell:** Nicht gefunden / Verwaltet / Teilweise verwaltet / Ungegatet / Nicht prüfbar. Zusätzlich eine Cross-Reference-Spalte „Im Consent-Code-Manager registriert" und eine **eigene Test-URL** (gleicher Host). Reine Lese-/Hinweisfunktion — keine Gating-Umsetzung für Maps/Vimeo.
+
+**Begründung:**
+
+- **Richtiger Aussichtspunkt:** Der bestehende `wp_remote_get` auf eine Seite sieht das gerenderte `<head>` → Scripts/Embeds/Fonts sind sichtbar. Ein Fetch, beide Sektionen.
+- **Gating-Klassifizierung On-Page:** `<script>` mit `type="text/plain"`+`data-cookie-category` = verwaltet; rohes `<script>`/`<iframe>` = ungegatet; `data-lscc-service`-Platzhalter = verwaltetes Embed. „Verwaltet/ungegatet" ist damit am Live-Zustand belegt, nicht nur an der Konfiguration.
+- **„Nicht prüfbar"** macht die Server-Sicht-Grenze ehrlich sichtbar (GTM-gefeuerte Tags, klick-/JS-geladene Widgets wie Calendly) statt falsche Entwarnung zu geben.
+- **DRY:** Vendor-Muster zentral in `Light_Swiss_Cookie_Consent_Codes::match_vendor()` — eine Quelle für Manager-Badge und Scanner.
+- **SSRF-Schutz:** eigene Test-URL nur für den **eigenen Host** (Fremd-Hosts → Fallback Startseite + Notice).
+- **Google Fonts** sind nicht consent-gate-bar → eigener Status + klare Empfehlung „lokal hosten; Consent ersetzt kein Local Hosting".
+
+**Folgen / offene Punkte:** Server-Sicht ohne JS → von GTM gefeuerte Tags, klick-/JS-geladene Widgets und Unterseiten werden nicht erfasst (ADR-4-Linie). Cache-/Minify-Plugins können Script-Tags verändern → Heuristik, bewusst konservativ. „Verwaltet" = auf der Seite gegated, nicht „korrekt kategorisiert" (bleibt Betreiber-Verantwortung). Maps/Vimeo-Gating sind Folgephasen.

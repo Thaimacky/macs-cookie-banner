@@ -8,6 +8,26 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.3.1-test - 2026-06-12
+
+### Added
+
+- **Scanner-Ausbau „Drittanbieter-Oberfläche"** (Phase 2) in der Privacy-Check-Seite: zeigt pro Dienst den **Gating-Status** auf der gerenderten Seite.
+  - Dienste: GA4, GTM, Meta Pixel, Hotjar, reCAPTCHA, Calendly, YouTube, Vimeo, Google Maps, externe Google Fonts.
+  - **5-Status-Modell:** Nicht gefunden / Verwaltet / Teilweise verwaltet / Ungegatet / **Nicht prüfbar** (GTM-Tags, klick-/JS-geladene Widgets).
+  - **Cross-Reference-Spalte „Im Consent-Code-Manager"** zusätzlich zum On-Page-Status.
+  - **Eigene Test-URL** (gleicher Host; SSRF-Schutz) statt nur Startseite.
+  - **Google Fonts** separat: „Externe Google Fonts erkannt – Empfehlung: lokal hosten – Consent ersetzt kein Local Hosting."
+
+### Changed
+
+- `consent-codes.php`: Vendor-Erkennung als geteiltes `match_vendor()` (Manager-Badge + Scanner), Calendly ergänzt.
+- Plugin-Header und `LSCC_VERSION` auf `0.3.1`. `LSCC_CONSENT_VERSION` bleibt `2`.
+
+### Bewusst nicht enthalten
+
+- Keine Maps/Vimeo-Umsetzung (nur Erkennung), kein Crawl, keine JS-Ausführung, kein Frontend-Code.
+
 ## 0.3.0-test - 2026-06-11
 
 ### Added

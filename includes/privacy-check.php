@@ -23,32 +23,60 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 			return;
 		}
 
-		$source_url       = home_url( '/' );
-		$headline_results = array_merge(
-			array(
-				array(
-					'status'         => 'info',
-					'problem'        => sprintf(
-						/* translators: %s: Checked homepage URL. */
-						__( 'Geprüfte Startseite: %s', 'light-swiss-cookie-consent' ),
-						$source_url
-					),
-					'recommendation' => __( 'Nur diese einzelne URL wird geprüft. Es findet kein Crawl statt.', 'light-swiss-cookie-consent' ),
-				),
-			),
-			self::run_check( $source_url )
-		);
+		$scan     = self::resolve_scan_url();
+		$scan_url = $scan['url'];
+		$fetch    = self::fetch_html( $scan_url );
 
 		$content_scan_results = null;
 		if ( isset( $_POST['lscc_run_content_scan'] ) ) {
 			check_admin_referer( 'lscc_content_scan', 'lscc_content_scan_nonce' );
 			$content_scan_results = self::run_content_scan();
 		}
+
+		$headline_results = array(
+			array(
+				'status'         => 'info',
+				'problem'        => sprintf(
+					/* translators: %s: Checked URL. */
+					__( 'Geprüfte URL: %s', 'light-swiss-cookie-consent' ),
+					$scan_url
+				),
+				'recommendation' => __( 'Nur diese eine URL wird geprüft (Server-Sicht, kein JavaScript). Es findet kein Crawl statt.', 'light-swiss-cookie-consent' ),
+			),
+		);
+
+		$surface = null;
+		if ( ! $fetch['ok'] ) {
+			$headline_results[] = array(
+				'status'         => 'info',
+				'problem'        => $fetch['error_problem'],
+				'recommendation' => $fetch['error_reco'],
+			);
+		} else {
+			$headline_results = array_merge( $headline_results, self::detect_services( $fetch['body'] ) );
+			$surface          = self::detect_surface( $fetch['body'] );
+		}
 		?>
 		<div class="wrap">
 			<h1><?php echo esc_html__( 'Privacy Check', 'light-swiss-cookie-consent' ); ?></h1>
 
-			<h2><?php echo esc_html__( 'Startseiten-Prüfung', 'light-swiss-cookie-consent' ); ?></h2>
+			<?php if ( 'host_mismatch' === $scan['notice'] ) : ?>
+				<div class="notice notice-warning"><p><?php echo esc_html__( 'Nur URLs dieser Website sind erlaubt. Es wurde die Startseite geprüft.', 'light-swiss-cookie-consent' ); ?></p></div>
+			<?php endif; ?>
+
+			<h2><?php echo esc_html__( 'Drittanbieter-Oberfläche', 'light-swiss-cookie-consent' ); ?></h2>
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin.php?page=light-swiss-cookie-consent-privacy-check' ) ); ?>">
+				<?php wp_nonce_field( 'lscc_surface_scan', 'lscc_surface_nonce' ); ?>
+				<input type="url" name="lscc_scan_url" class="regular-text" value="<?php echo esc_attr( $scan_url ); ?>" />
+				<?php submit_button( esc_html__( 'URL prüfen', 'light-swiss-cookie-consent' ), 'secondary', 'lscc_check_url', false ); ?>
+				<p class="description"><?php echo esc_html__( 'Nur URLs dieser Website. Server-Sicht ohne JavaScript — von GTM geladene Tags, klick-/JS-geladene Widgets und Unterseiten werden nicht erfasst.', 'light-swiss-cookie-consent' ); ?></p>
+			</form>
+
+			<?php if ( null !== $surface ) : ?>
+				<?php self::render_surface_section( $surface ); ?>
+			<?php endif; ?>
+
+			<h2><?php echo esc_html__( 'Muster-Schnellprüfung', 'light-swiss-cookie-consent' ); ?></h2>
 			<table class="widefat striped">
 				<thead>
 					<tr>
@@ -74,14 +102,57 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 	}
 
 	/**
-	 * Run a single passive check against the homepage output.
+	 * Resolve the URL to scan: a custom same-host URL (POST) or the homepage.
 	 *
-	 * @param string $source_url URL to check.
-	 * @return array
+	 * @return array { url: string, notice: string }
 	 */
-	private static function run_check( $source_url ) {
+	private static function resolve_scan_url() {
+		$default = home_url( '/' );
+
+		if ( ! isset( $_POST['lscc_scan_url'] ) ) {
+			return array(
+				'url'    => $default,
+				'notice' => '',
+			);
+		}
+
+		check_admin_referer( 'lscc_surface_scan', 'lscc_surface_nonce' );
+
+		$candidate = esc_url_raw( trim( (string) wp_unslash( $_POST['lscc_scan_url'] ) ) );
+
+		if ( '' === $candidate ) {
+			return array(
+				'url'    => $default,
+				'notice' => '',
+			);
+		}
+
+		$home_host = strtolower( (string) wp_parse_url( $default, PHP_URL_HOST ) );
+		$cand_host = strtolower( (string) wp_parse_url( $candidate, PHP_URL_HOST ) );
+
+		if ( '' === $cand_host || $cand_host !== $home_host ) {
+			// Never let the admin page act as an SSRF proxy for foreign hosts.
+			return array(
+				'url'    => $default,
+				'notice' => 'host_mismatch',
+			);
+		}
+
+		return array(
+			'url'    => $candidate,
+			'notice' => '',
+		);
+	}
+
+	/**
+	 * Fetch a URL of this site once (server-side, no JS execution).
+	 *
+	 * @param string $url URL to fetch.
+	 * @return array { ok: bool, body: string, error_problem: string, error_reco: string }
+	 */
+	private static function fetch_html( $url ) {
 		$response = wp_remote_get(
-			$source_url,
+			$url,
 			array(
 				'timeout'             => 5,
 				'redirection'         => 2,
@@ -92,28 +163,31 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 
 		if ( is_wp_error( $response ) ) {
 			return array(
-				array(
-					'status'         => 'info',
-					'problem'        => __( 'Startseite konnte nicht geprüft werden.', 'light-swiss-cookie-consent' ),
-					'recommendation' => __( 'Bitte prüfen Sie die Seite manuell oder starten Sie den Check später erneut.', 'light-swiss-cookie-consent' ),
-				),
+				'ok'            => false,
+				'body'          => '',
+				'error_problem' => __( 'Die URL konnte nicht geprüft werden.', 'light-swiss-cookie-consent' ),
+				'error_reco'    => __( 'Bitte prüfen Sie die URL oder starten Sie den Check später erneut.', 'light-swiss-cookie-consent' ),
 			);
 		}
 
 		$status_code = (int) wp_remote_retrieve_response_code( $response );
-		$body        = wp_remote_retrieve_body( $response );
+		$body        = (string) wp_remote_retrieve_body( $response );
 
 		if ( 400 <= $status_code || '' === $body ) {
 			return array(
-				array(
-					'status'         => 'info',
-					'problem'        => __( 'Startseite lieferte keine prüfbare Ausgabe.', 'light-swiss-cookie-consent' ),
-					'recommendation' => __( 'Bitte prüfen Sie die eingebundenen externen Dienste manuell.', 'light-swiss-cookie-consent' ),
-				),
+				'ok'            => false,
+				'body'          => '',
+				'error_problem' => __( 'Die URL lieferte keine prüfbare Ausgabe.', 'light-swiss-cookie-consent' ),
+				'error_reco'    => __( 'Bitte prüfen Sie die eingebundenen externen Dienste manuell.', 'light-swiss-cookie-consent' ),
 			);
 		}
 
-		return self::detect_services( $body );
+		return array(
+			'ok'            => true,
+			'body'          => $body,
+			'error_problem' => '',
+			'error_reco'    => '',
+		);
 	}
 
 	/**
@@ -221,6 +295,284 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 		);
 
 		return isset( $labels[ $status ] ) ? $labels[ $status ] : $labels['info'];
+	}
+
+	/* --------------------------------------------------------------------- */
+	/* Third-party surface scan (ab v0.3.1)                                    */
+	/* --------------------------------------------------------------------- */
+
+	/**
+	 * Build the third-party surface report from fetched HTML.
+	 *
+	 * @param string $body Fetched HTML.
+	 * @return array List of per-service rows.
+	 */
+	private static function detect_surface( $body ) {
+		$scripts = self::classify_scripts( $body );
+		$embeds  = self::classify_embeds( $body );
+		$fonts   = self::detect_fonts( $body );
+		$managed = self::registered_vendors();
+		$rows    = array();
+
+		foreach ( self::get_surface_services() as $svc ) {
+			$key = $svc['key'];
+
+			if ( 'font' === $svc['kind'] ) {
+				$rows[] = array(
+					'label'              => $svc['label'],
+					'status'             => $fonts ? 'fonts_found' : 'nicht_gefunden',
+					'gated'              => 0,
+					'ungated'            => 0,
+					'managed'            => false,
+					'managed_applicable' => false,
+					'recommendation'     => $fonts
+						? __( 'Empfehlung: lokal hosten. Consent ersetzt kein Local Hosting.', 'light-swiss-cookie-consent' )
+						: __( 'Keine externen Google Fonts auf dieser URL gefunden.', 'light-swiss-cookie-consent' ),
+					'note'               => '',
+				);
+				continue;
+			}
+
+			$counts = ( 'embed' === $svc['kind'] )
+				? ( isset( $embeds[ $key ] ) ? $embeds[ $key ] : array( 'gated' => 0, 'ungated' => 0 ) )
+				: ( isset( $scripts[ $key ] ) ? $scripts[ $key ] : array( 'gated' => 0, 'ungated' => 0 ) );
+
+			$found = ( $counts['gated'] + $counts['ungated'] ) > 0;
+
+			$rows[] = array(
+				'label'              => $svc['label'],
+				'status'             => self::surface_status( $svc, $found, $counts ),
+				'gated'              => (int) $counts['gated'],
+				'ungated'            => (int) $counts['ungated'],
+				'managed'            => in_array( $key, $managed, true ),
+				'managed_applicable' => ( 'script' === $svc['kind'] ),
+				'recommendation'     => $svc['recommend'],
+				'note'               => $svc['note'],
+			);
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * Determine the surface status for a service.
+	 *
+	 * @param array $svc    Service definition.
+	 * @param bool  $found  Whether any instance was found.
+	 * @param array $counts gated/ungated counts.
+	 * @return string
+	 */
+	private static function surface_status( $svc, $found, $counts ) {
+		if ( $found && ! empty( $svc['opaque'] ) ) {
+			return 'nicht_pruefbar';
+		}
+		if ( $found ) {
+			if ( 0 === (int) $counts['ungated'] ) {
+				return 'verwaltet';
+			}
+			if ( 0 === (int) $counts['gated'] ) {
+				return 'ungegatet';
+			}
+			return 'teilweise';
+		}
+
+		return empty( $svc['server_visible'] ) ? 'nicht_pruefbar' : 'nicht_gefunden';
+	}
+
+	/**
+	 * Classify every <script> by vendor and gated/ungated state.
+	 *
+	 * @param string $body HTML.
+	 * @return array vendor => { gated:int, ungated:int }
+	 */
+	private static function classify_scripts( $body ) {
+		$counts = array();
+
+		if ( preg_match_all( '#<script\b([^>]*)>(.*?)</script>#is', $body, $matches, PREG_SET_ORDER ) ) {
+			foreach ( $matches as $block ) {
+				$vendor = Light_Swiss_Cookie_Consent_Codes::match_vendor( $block[1] . ' ' . $block[2] );
+
+				if ( '' === $vendor || 'custom' === $vendor ) {
+					continue;
+				}
+
+				$gated = self::tag_is_gated( $block[1] );
+
+				if ( ! isset( $counts[ $vendor ] ) ) {
+					$counts[ $vendor ] = array(
+						'gated'   => 0,
+						'ungated' => 0,
+					);
+				}
+
+				$counts[ $vendor ][ $gated ? 'gated' : 'ungated' ]++;
+			}
+		}
+
+		return $counts;
+	}
+
+	/**
+	 * Is a <script> opening tag gated by the LSCC script blockade?
+	 *
+	 * @param string $attrs Tag attributes.
+	 * @return bool
+	 */
+	private static function tag_is_gated( $attrs ) {
+		return ( false !== stripos( $attrs, 'text/plain' ) ) && ( false !== stripos( $attrs, 'data-cookie-category' ) );
+	}
+
+	/**
+	 * Classify YouTube/Vimeo/Maps embeds: raw iframe = ungated, LSCC placeholder = gated.
+	 *
+	 * @param string $body HTML.
+	 * @return array
+	 */
+	private static function classify_embeds( $body ) {
+		$counts = array(
+			'youtube' => array( 'gated' => 0, 'ungated' => 0 ),
+			'vimeo'   => array( 'gated' => 0, 'ungated' => 0 ),
+			'maps'    => array( 'gated' => 0, 'ungated' => 0 ),
+		);
+
+		if ( preg_match_all( '#<iframe\b[^>]*\bsrc=("|\')([^"\']*)\1#i', $body, $iframes, PREG_SET_ORDER ) ) {
+			foreach ( $iframes as $iframe ) {
+				$src = strtolower( $iframe[2] );
+
+				if ( false !== strpos( $src, 'youtube' ) || false !== strpos( $src, 'youtu.be' ) ) {
+					$counts['youtube']['ungated']++;
+				} elseif ( false !== strpos( $src, 'vimeo' ) ) {
+					$counts['vimeo']['ungated']++;
+				} elseif ( false !== strpos( $src, 'google.com/maps' ) || false !== strpos( $src, 'maps.google' ) ) {
+					$counts['maps']['ungated']++;
+				}
+			}
+		}
+
+		if ( preg_match_all( '#data-lscc-service=("|\')([^"\']*)\1#i', $body, $placeholders, PREG_SET_ORDER ) ) {
+			foreach ( $placeholders as $placeholder ) {
+				$service = strtolower( $placeholder[2] );
+
+				if ( 'youtube' === $service ) {
+					$counts['youtube']['gated']++;
+				} elseif ( 'vimeo' === $service ) {
+					$counts['vimeo']['gated']++;
+				} elseif ( 'google-map' === $service ) {
+					$counts['maps']['gated']++;
+				}
+			}
+		}
+
+		return $counts;
+	}
+
+	/**
+	 * Detect external Google Fonts.
+	 *
+	 * @param string $body HTML.
+	 * @return bool
+	 */
+	private static function detect_fonts( $body ) {
+		$lc = strtolower( $body );
+
+		return ( false !== strpos( $lc, 'fonts.googleapis.com' ) || false !== strpos( $lc, 'fonts.gstatic.com' ) );
+	}
+
+	/**
+	 * Distinct vendor keys currently registered in the Consent-Code-Manager.
+	 *
+	 * @return array
+	 */
+	private static function registered_vendors() {
+		if ( ! class_exists( 'Light_Swiss_Cookie_Consent_Codes' ) ) {
+			return array();
+		}
+
+		$vendors = array();
+		foreach ( Light_Swiss_Cookie_Consent_Codes::get_codes() as $entry ) {
+			if ( ! empty( $entry['vendor'] ) && 'custom' !== $entry['vendor'] ) {
+				$vendors[] = $entry['vendor'];
+			}
+		}
+
+		return array_values( array_unique( $vendors ) );
+	}
+
+	/**
+	 * Service catalogue for the surface scan.
+	 *
+	 * @return array
+	 */
+	private static function get_surface_services() {
+		return array(
+			array( 'key' => 'ga4', 'label' => 'Google Analytics 4', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Statistik) laden.', 'light-swiss-cookie-consent' ) ),
+			array( 'key' => 'gtm', 'label' => 'Google Tag Manager', 'kind' => 'script', 'server_visible' => true, 'opaque' => true, 'note' => __( 'Container erkannt; die von GTM gefeuerten Tags sind serverseitig nicht prüfbar.', 'light-swiss-cookie-consent' ), 'recommend' => __( 'Über den Consent-Code-Manager laden und in GTM gefeuerte Tags separat prüfen.', 'light-swiss-cookie-consent' ) ),
+			array( 'key' => 'meta_pixel', 'label' => 'Meta / Facebook Pixel', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Marketing) laden.', 'light-swiss-cookie-consent' ) ),
+			array( 'key' => 'hotjar', 'label' => 'Hotjar', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Statistik) laden.', 'light-swiss-cookie-consent' ) ),
+			array( 'key' => 'recaptcha', 'label' => 'Google reCAPTCHA', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => __( 'Rechtliche Einordnung im Einzelfall prüfen.', 'light-swiss-cookie-consent' ), 'recommend' => __( 'Vor Consent blockieren bzw. v2-on-submit prüfen.', 'light-swiss-cookie-consent' ) ),
+			array( 'key' => 'calendly', 'label' => 'Calendly', 'kind' => 'script', 'server_visible' => false, 'opaque' => false, 'note' => __( 'Wird teils erst nach Interaktion geladen.', 'light-swiss-cookie-consent' ), 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Externe Medien) bzw. als gegatetes Embed lösen.', 'light-swiss-cookie-consent' ) ),
+			array( 'key' => 'youtube', 'label' => 'YouTube', 'kind' => 'embed', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( '[lscc_youtube] verwenden oder Avada-/YOTU-Gating aktivieren.', 'light-swiss-cookie-consent' ) ),
+			array( 'key' => 'vimeo', 'label' => 'Vimeo', 'kind' => 'embed', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( '[lscc_vimeo] verwenden.', 'light-swiss-cookie-consent' ) ),
+			array( 'key' => 'maps', 'label' => 'Google Maps', 'kind' => 'embed', 'server_visible' => true, 'opaque' => false, 'note' => __( 'Maps-JS-API lädt teils clientseitig.', 'light-swiss-cookie-consent' ), 'recommend' => __( '[lscc_google_map] verwenden; Maps-JS separat prüfen.', 'light-swiss-cookie-consent' ) ),
+			array( 'key' => 'google_fonts', 'label' => __( 'Externe Google Fonts', 'light-swiss-cookie-consent' ), 'kind' => 'font', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => '' ),
+		);
+	}
+
+	/**
+	 * Translated surface status label.
+	 *
+	 * @param string $status Status key.
+	 * @return string
+	 */
+	private static function get_surface_status_label( $status ) {
+		$labels = array(
+			'nicht_gefunden' => __( 'Nicht gefunden', 'light-swiss-cookie-consent' ),
+			'verwaltet'      => __( 'Verwaltet', 'light-swiss-cookie-consent' ),
+			'teilweise'      => __( 'Teilweise verwaltet', 'light-swiss-cookie-consent' ),
+			'ungegatet'      => __( 'Ungegatet', 'light-swiss-cookie-consent' ),
+			'nicht_pruefbar' => __( 'Nicht prüfbar', 'light-swiss-cookie-consent' ),
+			'fonts_found'    => __( 'Externe Google Fonts erkannt', 'light-swiss-cookie-consent' ),
+		);
+
+		return isset( $labels[ $status ] ) ? $labels[ $status ] : $status;
+	}
+
+	/**
+	 * Render the third-party surface table.
+	 *
+	 * @param array $surface Surface rows.
+	 * @return void
+	 */
+	private static function render_surface_section( $surface ) {
+		$yes = __( 'Ja', 'light-swiss-cookie-consent' );
+		$no  = __( 'Nein', 'light-swiss-cookie-consent' );
+		?>
+		<table class="widefat striped">
+			<thead>
+				<tr>
+					<th scope="col"><?php echo esc_html__( 'Dienst', 'light-swiss-cookie-consent' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Status', 'light-swiss-cookie-consent' ); ?></th>
+					<th scope="col" style="text-align:right;"><?php echo esc_html__( 'Gegated', 'light-swiss-cookie-consent' ); ?></th>
+					<th scope="col" style="text-align:right;"><?php echo esc_html__( 'Ungegatet', 'light-swiss-cookie-consent' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Im Consent-Code-Manager', 'light-swiss-cookie-consent' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Empfehlung / Hinweis', 'light-swiss-cookie-consent' ); ?></th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php foreach ( $surface as $row ) : ?>
+					<tr>
+						<td><?php echo esc_html( $row['label'] ); ?></td>
+						<td><strong><?php echo esc_html( self::get_surface_status_label( $row['status'] ) ); ?></strong></td>
+						<td style="text-align:right;"><?php echo esc_html( (string) (int) $row['gated'] ); ?></td>
+						<td style="text-align:right;"><?php echo esc_html( (string) (int) $row['ungated'] ); ?></td>
+						<td><?php echo $row['managed_applicable'] ? esc_html( $row['managed'] ? $yes : $no ) : '&mdash;'; ?></td>
+						<td><?php echo esc_html( trim( $row['recommendation'] . ( '' !== $row['note'] ? ' ' . $row['note'] : '' ) ) ); ?></td>
+					</tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
+		<p class="description"><?php echo esc_html__( 'Hinweis: Server-Sicht ohne JavaScript. „Verwaltet" = auf dieser URL als LSCC-geblocktes Script/Platzhalter erkannt. „Nicht prüfbar" = serverseitig nicht sicher bestimmbar (z. B. GTM-gefeuerte Tags, klick-/JS-geladene Widgets). Externe Google Fonts lassen sich nicht per Consent lösen — lokal hosten.', 'light-swiss-cookie-consent' ); ?></p>
+		<?php
 	}
 
 	/**

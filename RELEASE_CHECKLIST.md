@@ -85,6 +85,21 @@
 - [ ] Reopen-Button ist nicht sichtbar, wenn kein gültiger Consent vorhanden ist (auch nicht bei Browser ohne JS-Init).
 - [ ] Nach Aktivierung der neuen Version sind die Defaults `overlay_enabled`, `blur_enabled`, `show_legal_links` jeweils `true` — auch wenn vorher eine alte Plugin-Version installiert war.
 
+## Scanner: Drittanbieter-Oberfläche (ab v0.3.1-test)
+
+- [ ] Privacy-Check-Seite zeigt die neue Sektion „Drittanbieter-Oberfläche" mit Tabelle (Dienst / Status / Gegated / Ungegatet / Im Consent-Code-Manager / Empfehlung).
+- [ ] Ungegatetes GA-Snippet auf der Seite → Status **Ungegatet**.
+- [ ] Dasselbe GA über Consent-Code-Manager gegated → Status **Verwaltet**; Cross-Ref „Im Consent-Code-Manager" = Ja.
+- [ ] Gemischt (1× gegated + 1× ungegatet) → **Teilweise verwaltet**.
+- [ ] GTM vorhanden → Status **Nicht prüfbar** mit Hinweis „gefeuerte Tags nicht prüfbar".
+- [ ] Calendly nicht im statischen HTML → **Nicht prüfbar** (nicht fälschlich „Nicht gefunden").
+- [ ] `[lscc_youtube]`-Platzhalter → YouTube **Verwaltet**; rohes YouTube-`<iframe>` → **Ungegatet**.
+- [ ] Externe Google Fonts → Sonderzeile „Externe Google Fonts erkannt" + „Empfehlung: lokal hosten. Consent ersetzt kein Local Hosting."
+- [ ] **Eigene Test-URL** (gleicher Host) wird geprüft; Fremd-Host wird abgelehnt (Warn-Notice, Startseite stattdessen).
+- [ ] Nur ein `wp_remote_get` pro Seitenaufruf (Netzwerk/Server prüfen); kein Crawl.
+- [ ] Hinweistext zur Server-Sicht-Grenze (kein JS, GTM-Tags/Unterseiten nicht erfasst) ist sichtbar.
+- [ ] Muster-Schnellprüfung und Content Scan unverändert funktionsfähig.
+
 ## Consent-Code-Manager (ab v0.3.0-test)
 
 - [ ] Admin-Submenu „Consent-Code-Manager" erscheint unter „Light Swiss Cookie Consent"; nur mit `manage_options` erreichbar.

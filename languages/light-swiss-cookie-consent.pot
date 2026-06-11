@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Light Swiss Cookie Consent 0.3.0\n"
+"Project-Id-Version: Light Swiss Cookie Consent 0.3.1\n"
 "Report-Msgid-Bugs-To: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -208,13 +208,25 @@ msgstr ""
 msgid "Einstellungen speichern"
 msgstr ""
 
-msgid "Geprüfte Startseite: %s"
+msgid "Geprüfte URL: %s"
 msgstr ""
 
-msgid "Nur diese einzelne URL wird geprüft. Es findet kein Crawl statt."
+msgid "Nur diese eine URL wird geprüft (Server-Sicht, kein JavaScript). Es findet kein Crawl statt."
 msgstr ""
 
-msgid "Startseiten-Prüfung"
+msgid "Nur URLs dieser Website sind erlaubt. Es wurde die Startseite geprüft."
+msgstr ""
+
+msgid "Drittanbieter-Oberfläche"
+msgstr ""
+
+msgid "URL prüfen"
+msgstr ""
+
+msgid "Nur URLs dieser Website. Server-Sicht ohne JavaScript — von GTM geladene Tags, klick-/JS-geladene Widgets und Unterseiten werden nicht erfasst."
+msgstr ""
+
+msgid "Muster-Schnellprüfung"
 msgstr ""
 
 msgid "Status"
@@ -226,13 +238,13 @@ msgstr ""
 msgid "Empfehlung"
 msgstr ""
 
-msgid "Startseite konnte nicht geprüft werden."
+msgid "Die URL konnte nicht geprüft werden."
 msgstr ""
 
-msgid "Bitte prüfen Sie die Seite manuell oder starten Sie den Check später erneut."
+msgid "Bitte prüfen Sie die URL oder starten Sie den Check später erneut."
 msgstr ""
 
-msgid "Startseite lieferte keine prüfbare Ausgabe."
+msgid "Die URL lieferte keine prüfbare Ausgabe."
 msgstr ""
 
 msgid "Bitte prüfen Sie die eingebundenen externen Dienste manuell."
@@ -280,6 +292,90 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
+msgid "Empfehlung: lokal hosten. Consent ersetzt kein Local Hosting."
+msgstr ""
+
+msgid "Keine externen Google Fonts auf dieser URL gefunden."
+msgstr ""
+
+msgid "Über den Consent-Code-Manager (Kategorie Statistik) laden."
+msgstr ""
+
+msgid "Container erkannt; die von GTM gefeuerten Tags sind serverseitig nicht prüfbar."
+msgstr ""
+
+msgid "Über den Consent-Code-Manager laden und in GTM gefeuerte Tags separat prüfen."
+msgstr ""
+
+msgid "Über den Consent-Code-Manager (Kategorie Marketing) laden."
+msgstr ""
+
+msgid "Rechtliche Einordnung im Einzelfall prüfen."
+msgstr ""
+
+msgid "Vor Consent blockieren bzw. v2-on-submit prüfen."
+msgstr ""
+
+msgid "Wird teils erst nach Interaktion geladen."
+msgstr ""
+
+msgid "Über den Consent-Code-Manager (Kategorie Externe Medien) bzw. als gegatetes Embed lösen."
+msgstr ""
+
+msgid "[lscc_youtube] verwenden oder Avada-/YOTU-Gating aktivieren."
+msgstr ""
+
+msgid "[lscc_vimeo] verwenden."
+msgstr ""
+
+msgid "Maps-JS-API lädt teils clientseitig."
+msgstr ""
+
+msgid "[lscc_google_map] verwenden; Maps-JS separat prüfen."
+msgstr ""
+
+msgid "Externe Google Fonts"
+msgstr ""
+
+msgid "Nicht gefunden"
+msgstr ""
+
+msgid "Verwaltet"
+msgstr ""
+
+msgid "Teilweise verwaltet"
+msgstr ""
+
+msgid "Ungegatet"
+msgstr ""
+
+msgid "Nicht prüfbar"
+msgstr ""
+
+msgid "Externe Google Fonts erkannt"
+msgstr ""
+
+msgid "Ja"
+msgstr ""
+
+msgid "Nein"
+msgstr ""
+
+msgid "Dienst"
+msgstr ""
+
+msgid "Gegated"
+msgstr ""
+
+msgid "Im Consent-Code-Manager"
+msgstr ""
+
+msgid "Empfehlung / Hinweis"
+msgstr ""
+
+msgid "Hinweis: Server-Sicht ohne JavaScript. „Verwaltet\" = auf dieser URL als LSCC-geblocktes Script/Platzhalter erkannt. „Nicht prüfbar\" = serverseitig nicht sicher bestimmbar (z. B. GTM-gefeuerte Tags, klick-/JS-geladene Widgets). Externe Google Fonts lassen sich nicht per Consent lösen — lokal hosten."
+msgstr ""
+
 msgid "Content Scan"
 msgstr ""
 
@@ -296,9 +392,6 @@ msgid "Keine bekannten externen Embeds in den geprüften Inhalten gefunden."
 msgstr ""
 
 msgid "Risiko"
-msgstr ""
-
-msgid "Dienst"
 msgstr ""
 
 msgid "Inhaltstyp"
@@ -419,9 +512,6 @@ msgid "fusion_code (mit Embed)"
 msgstr ""
 
 msgid "Rohe iframes"
-msgstr ""
-
-msgid "Ja"
 msgstr ""
 
 msgid "3. KPI: Automatische Abdeckung"

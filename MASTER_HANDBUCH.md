@@ -12,6 +12,7 @@
 - 2026-06-11 — Regel-Check (v0.2.3, Consent-UI-Bugfix): Sektionen „PFLICHT: AKTION USER / PROMPT-BLÖCKE" und „Dokumentationspflicht (Definition of Done)" sind vorhanden und unverändert gültig; keine inhaltliche Handbuch-Änderung für diesen Bugfix nötig.
 - 2026-06-11 — Regel-Check (v0.2.4, UX-Fix Schnellbuttons): aktiver Consent-Zustand an den Schnellbuttons (ADR-22), reine Darstellung; keine inhaltliche Handbuch-Änderung nötig. Versionshistorie hier ergänzt (Definition of Done).
 - 2026-06-11 — v0.3.0: Consent-Code-Manager (Phase 1 der Produktiv-Roadmap, ADR-23) — zentrale, consent-gegatete Verwaltung von Tracking-Snippets (GA4/GTM/Pixel/Hotjar). Nutzt die bestehende Script-Blockade (kein neues Frontend-JS). Versioniertes Export/Import-Envelope, scannerfähiges Datenmodell. Versionshistorie ergänzt; keine Änderung an Philosophie/No-Gos.
+- 2026-06-12 — v0.3.1: Scanner-Ausbau „Drittanbieter-Oberfläche" (Phase 2, ADR-24) — Gating-Status pro Dienst (5-Status-Modell inkl. „Nicht prüfbar"), Cross-Reference zum Consent-Code-Manager, eigene gleicher-Host-Test-URL, Google-Fonts-Sonderhinweis. Reine Lese-/Hinweisfunktion, ADR-4-konform; keine Maps/Vimeo-Umsetzung. Versionshistorie ergänzt; keine Änderung an Philosophie/No-Gos.
 
 ## Zweck dieser Datei
 
@@ -356,6 +357,30 @@ Diese Regel gilt für:
 
 Definition of Done:
 Ein Bericht ist erst fertig, wenn der User sofort erkennt, was er kopieren oder ausführen muss.
+
+---
+
+# PFLICHT: KOPIERMARKIERUNG FÜR BERICHTE
+
+VERBINDLICH (ab 2026-06-12):
+
+Jeder Analyse- und Abschlussbericht muss mit einer gut sichtbaren Kopiermarkierung **beginnen** und mit der Endmarkierung **abschliessen**:
+
+```
+============================
+AB HIER AN CHATGPT KOPIEREN
+============================
+
+... Berichtsinhalt ...
+
+============================
+ENDE KOPIERBEREICH
+============================
+```
+
+Zweck: Der User leitet Berichte an ChatGPT weiter und muss sofort erkennen, welcher Bereich kopierbar ist. Alles zwischen den Markierungen ist der vollständige, in sich verständliche Bericht (inkl. eines etwaigen `AKTION USER`-Blocks). Prozess-/Meta-Hinweise dürfen ausserhalb des Kopierbereichs stehen.
+
+Diese Regel gilt zusätzlich zur Regel „PFLICHT: AKTION USER / PROMPT-BLÖCKE".
 
 ---
 

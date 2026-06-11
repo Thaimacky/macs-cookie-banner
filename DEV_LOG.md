@@ -1,5 +1,21 @@
 # DEV LOG
 
+## 0.3.1-test - 2026-06-12
+
+- Patch-Bump 0.3.0 → 0.3.1. Plugin-Header und `LSCC_VERSION` auf `0.3.1`. `LSCC_CONSENT_VERSION` bleibt `2`.
+- **Feature: Scanner-Ausbau „Drittanbieter-Oberfläche"** (Phase 2, ADR-24). Erweitert die Startseiten-Prüfung in `includes/privacy-check.php`: pro Dienst wird der **Gating-Status** auf der gerenderten Seite bestimmt (statt nur „gefunden").
+  - Erfasst: GA4, GTM, Meta Pixel, Hotjar, reCAPTCHA, Calendly, YouTube, Vimeo, Google Maps, externe Google Fonts.
+  - **5-Status-Modell:** Nicht gefunden / Verwaltet / Teilweise verwaltet / Ungegatet / **Nicht prüfbar** (für GTM-gefeuerte Tags, klick-/JS-geladene Widgets wie Calendly, serverseitig nicht sichtbar).
+  - **Cross-Reference-Spalte „Im Consent-Code-Manager"** (ja/nein) zusätzlich zum On-Page-Status (aus `lscc_consent_codes`-Vendors).
+  - **Google Fonts separat:** „Externe Google Fonts erkannt" + „Empfehlung: lokal hosten. Consent ersetzt kein Local Hosting."
+  - **Eigene Test-URL:** Formular zum Prüfen einer beliebigen **gleicher-Host**-URL (SSRF-Schutz: Fremd-Hosts werden abgelehnt, Fallback Startseite + Notice); ein Fetch, kein Crawl.
+- `includes/privacy-check.php`: neue Methoden `resolve_scan_url()`, `fetch_html()`, `detect_surface()`, `classify_scripts()`, `tag_is_gated()`, `classify_embeds()`, `detect_fonts()`, `registered_vendors()`, `get_surface_services()`, `surface_status()`, `get_surface_status_label()`, `render_surface_section()`. `run_check()` durch `fetch_html()` ersetzt (ein Fetch für beide Sektionen). Klassifizierung: `<script>` → Vendor + gegated (`type="text/plain"`+`data-cookie-category`); `<iframe>` = ungegatet, `data-lscc-service` = gegated.
+- `includes/consent-codes.php`: Vendor-Erkennung zu öffentlichem `match_vendor()` refaktoriert (eine Musterquelle für Manager-Badge **und** Scanner), Calendly ergänzt (`vendor_labels` + Muster). `detect_vendor()` delegiert.
+- `languages/`: neue **Admin/Scanner-Strings** (deutsch/Quelle, ADR-19); `.pot`/`.po`/`.mo` neu generiert (219 msgids).
+- **Bewusst NICHT:** keine Maps/Vimeo-**Umsetzung** (nur Erkennung), kein Crawl/Mehrseiten, keine JS-Ausführung, kein Frontend-Code.
+- **Grenzen (dokumentiert):** Server-Sicht ohne JS → GTM-gefeuerte Tags, klick-/JS-geladene Widgets und Unterseiten werden nicht erfasst; Cache-/Minify-Plugins können Script-Tags verändern (Heuristik).
+- Validierung: PHP-Struktur per Zeichen-Zustandsautomat balanciert (`privacy-check.php` 375/375 Parens, 67/67 Braces; `consent-codes.php` 300/300, 60/60). Kein PHP-CLI lokal. Funktionaler Test (siehe RELEASE_CHECKLIST) ausstehend.
+
 ## 0.3.0-test - 2026-06-11
 
 - MINOR-Bump 0.2.4 → 0.3.0 (neues Feature). Plugin-Header und `LSCC_VERSION` auf `0.3.0`. `LSCC_CONSENT_VERSION` bleibt `2`.

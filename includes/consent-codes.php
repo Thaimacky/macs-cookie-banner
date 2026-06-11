@@ -76,6 +76,7 @@ final class Light_Swiss_Cookie_Consent_Codes {
 			'meta_pixel'  => 'Meta / Facebook Pixel',
 			'hotjar'      => 'Hotjar',
 			'recaptcha'   => 'Google reCAPTCHA',
+			'calendly'    => 'Calendly',
 			'custom'      => __( 'Eigenes Snippet', 'light-swiss-cookie-consent' ),
 		);
 	}
@@ -167,23 +168,34 @@ final class Light_Swiss_Cookie_Consent_Codes {
 	}
 
 	/**
-	 * Detect the third-party vendor from a snippet (for the scanner/badge).
+	 * Detect the third-party vendor from a snippet (for the badge / data model).
 	 *
 	 * @param string $code Raw snippet.
 	 * @return string Vendor key or '' when empty.
 	 */
 	public static function detect_vendor( $code ) {
-		$code = (string) $code;
-		$lc   = strtolower( $code );
+		return self::match_vendor( (string) $code );
+	}
+
+	/**
+	 * Match a text against the known vendor patterns. Single source of truth used
+	 * by the Consent-Code-Manager (badge) and the Privacy-Check scanner.
+	 *
+	 * @param string $text Haystack (snippet code or a <script> tag + content).
+	 * @return string Vendor key, 'custom' for unmatched non-empty text, '' for empty.
+	 */
+	public static function match_vendor( $text ) {
+		$text = (string) $text;
+		$lc   = strtolower( $text );
 
 		if ( '' === trim( $lc ) ) {
 			return '';
 		}
 
-		if ( false !== strpos( $lc, 'googletagmanager.com/gtm.js' ) || false !== strpos( $lc, "'gtm.start'" ) || preg_match( '/\bgtm-[a-z0-9]+\b/i', $code ) ) {
+		if ( false !== strpos( $lc, 'googletagmanager.com/gtm.js' ) || false !== strpos( $lc, "'gtm.start'" ) || preg_match( '/\bgtm-[a-z0-9]+\b/i', $text ) ) {
 			return 'gtm';
 		}
-		if ( false !== strpos( $lc, 'googletagmanager.com/gtag/js' ) || false !== strpos( $lc, 'gtag(' ) || preg_match( '/\bg-[a-z0-9]{6,}\b/i', $code ) ) {
+		if ( false !== strpos( $lc, 'googletagmanager.com/gtag/js' ) || false !== strpos( $lc, 'gtag(' ) || preg_match( '/\bg-[a-z0-9]{6,}\b/i', $text ) ) {
 			return 'ga4';
 		}
 		if ( false !== strpos( $lc, 'connect.facebook.net' ) || false !== strpos( $lc, 'fbq(' ) ) {
@@ -194,6 +206,9 @@ final class Light_Swiss_Cookie_Consent_Codes {
 		}
 		if ( false !== strpos( $lc, 'google.com/recaptcha' ) || false !== strpos( $lc, 'grecaptcha' ) ) {
 			return 'recaptcha';
+		}
+		if ( false !== strpos( $lc, 'assets.calendly.com' ) || false !== strpos( $lc, 'calendly.com' ) ) {
+			return 'calendly';
 		}
 
 		return 'custom';

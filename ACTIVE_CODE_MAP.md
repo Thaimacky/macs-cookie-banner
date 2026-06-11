@@ -110,10 +110,12 @@ Diese Karte beschreibt die aktiven Dateien, ihre Zustaendigkeiten und die wichti
 
 **Klasse `Light_Swiss_Cookie_Consent_Privacy_Check`:**
 
-- `render_page()` — Admin-Seite mit zwei Sektionen: `Startseiten-Pruefung` (Tabelle) und `Content Scan` (Button + optionale Ergebnis-Tabelle). Prueft `current_user_can` und (bei POST) den Content-Scan-Nonce.
-- `run_check( $source_url )` — einmaliger `wp_remote_get` auf `home_url('/')` mit Timeout 5 s, max. 500 KB Response, eigener User-Agent
-- `detect_services( $body )` — sucht im Lowercase-HTML nach statischen Mustern
-- `get_checks()` — Mustertabelle der Startseiten-Pruefung (siehe unten)
+- `render_page()` — Admin-Seite mit drei Sektionen (ab 0.3.1): `Drittanbieter-Oberfläche` (URL-Formular + Status-Tabelle), `Muster-Schnellprüfung` (alte Mustertabelle) und `Content Scan`. Prueft `current_user_can` und Nonces (`lscc_surface_scan`, `lscc_content_scan`). Holt die zu prüfende URL **einmal** und speist beide Sektionen.
+- `resolve_scan_url()` (ab 0.3.1) — liefert die zu prüfende URL: eigene **gleicher-Host**-URL (POST + Nonce) oder Startseite. SSRF-Schutz: Fremd-Hosts → Fallback Startseite + `host_mismatch`-Notice.
+- `fetch_html( $url )` (ab 0.3.1) — ein `wp_remote_get` (Timeout 5 s, max. 500 KB, eigener UA); liefert `{ ok, body, error_problem, error_reco }`. Ersetzt das frühere `run_check()`.
+- `detect_services( $body )` — sucht im Lowercase-HTML nach statischen Mustern (Muster-Schnellprüfung)
+- **Surface-Scan (ab 0.3.1):** `detect_surface( $body )` baut pro Dienst eine Zeile; `classify_scripts()` (Vendor via `Consent_Codes::match_vendor()`, gegated via `tag_is_gated()` = `type="text/plain"`+`data-cookie-category`), `classify_embeds()` (rohes `<iframe>`=ungegatet, `data-lscc-service`-Platzhalter=gegated), `detect_fonts()`, `registered_vendors()` (Cross-Ref aus `lscc_consent_codes`), `get_surface_services()` (Dienst-Katalog), `surface_status()` (5-Status-Modell: nicht_gefunden/verwaltet/teilweise/ungegatet/nicht_pruefbar), `get_surface_status_label()`, `render_surface_section()`. Google Fonts als Sonderzeile („lokal hosten; Consent ersetzt kein Local Hosting").
+- `get_checks()` — Mustertabelle der Muster-Schnellprüfung (siehe unten)
 - `get_status_label()` — uebersetzte Status-Labels (`Kritisch`, `Wichtig`, `Info`)
 - `render_content_scan_section( $results )` — rendert Hinweistext, Trigger-Form (`lscc_content_scan` Nonce, `lscc_run_content_scan` Submit) und ggf. die Ergebnis-Tabelle
 - `render_content_scan_results( $results )` — Tabellen-Renderer fuer Treffer (Risiko, Dienst, Inhaltstyp, Titel + Edit-Link, Domain, Empfehlung)
