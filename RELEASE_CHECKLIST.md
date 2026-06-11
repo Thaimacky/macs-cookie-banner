@@ -85,6 +85,23 @@
 - [ ] Reopen-Button ist nicht sichtbar, wenn kein gültiger Consent vorhanden ist (auch nicht bei Browser ohne JS-Init).
 - [ ] Nach Aktivierung der neuen Version sind die Defaults `overlay_enabled`, `blur_enabled`, `show_legal_links` jeweils `true` — auch wenn vorher eine alte Plugin-Version installiert war.
 
+## Consent-Code-Manager (ab v0.3.0-test)
+
+- [ ] Admin-Submenu „Consent-Code-Manager" erscheint unter „Light Swiss Cookie Consent"; nur mit `manage_options` erreichbar.
+- [ ] „+ Snippet hinzufügen" fügt per Admin-JS eine Zeile hinzu; ↑/↓/Löschen funktionieren; Speichern persistiert.
+- [ ] GA4-Snippet (mit `<script>`) in Position „Head", Kategorie „Statistik" → im gerenderten `<head>` steht `<script type="text/plain" data-cookie-category="statistics" data-cookie-type="text/javascript">`.
+- [ ] **Vor Statistik-Consent (Netzwerk-Monitor):** kein Request an `googletagmanager.com`/`google-analytics.com`; **nach** Zustimmung lädt gtag (externer `src` vor Inline-Config — Reihenfolge korrekt).
+- [ ] GTM-Snippet: `<noscript>`-Teil ist im Output **entfernt**.
+- [ ] Vendor-Badge zeigt korrekt „Erkannt: Google Analytics 4 / Google Tag Manager / Meta Pixel / Hotjar".
+- [ ] Meta Pixel (Kategorie Marketing) lädt erst nach Marketing-Consent; Hotjar (Statistik) erst nach Statistik-Consent.
+- [ ] Position „Body-Anfang" wird über `wp_body_open` ausgegeben; „Footer" über `wp_footer`.
+- [ ] **Capability-Gate:** Nutzer ohne `unfiltered_html` (z. B. Nicht-Super-Admin im Multisite) kann keinen Roh-Code speichern → Feld verworfen + Warn-Notice.
+- [ ] **Export** lädt ein JSON-Envelope (`lscc_export_version`, `data.consent_codes`); **Import** desselben Envelopes stellt die Snippets wieder her (Roundtrip).
+- [ ] **Cache-Safety:** HTML mit/ohne Consent identisch (Full-Page-Cache stört nicht).
+- [ ] **Optimierungs-Plugin-Test:** mit dem realen Stack (WP Rocket/Autoptimize/LiteSpeed „Delay/Combine JS") prüfen, dass `type="text/plain"`-Snippets nicht umgeschrieben/zusammengeführt werden; ggf. LSCC-Scripts ausschliessen.
+- [ ] Migration: Snippet aus altem Ort (Avada Global Options) entfernt → kein Doppel-Laden (1× gegated + 1× ungegated).
+- [ ] Bestehende Funktionen unverändert (Banner, Service-Komponenten, YOTU, Schnellbutton-State).
+
 ## Aktiver Consent an den Schnellbuttons (ab v0.2.4-test)
 
 - [ ] **Erster Besuch (kein Consent):** „Alle akzeptieren" und „Nur notwendige" sind beide neutral/gleichwertig (kein Button hervorgehoben, kein „✓").

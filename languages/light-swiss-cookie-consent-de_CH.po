@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Light Swiss Cookie Consent 0.2.2\n"
+"Project-Id-Version: Light Swiss Cookie Consent 0.3.0\n"
 "Language: de_CH\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -51,6 +51,9 @@ msgstr "Privacy Check"
 
 msgid "Avada Inventar-Scan"
 msgstr "Avada Inventar-Scan"
+
+msgid "Consent-Code-Manager"
+msgstr "Consent-Code-Manager"
 
 msgid "Sie haben keine Berechtigung, diese Einstellungen zu speichern."
 msgstr "Sie haben keine Berechtigung, diese Einstellungen zu speichern."
@@ -492,3 +495,78 @@ msgstr "Externe Medien akzeptieren"
 
 msgid "Diese YouTube-Galerie wird erst nach Zustimmung zu externen Medien geladen."
 msgstr "Diese YouTube-Galerie wird erst nach Zustimmung zu externen Medien geladen."
+
+msgid "Eigenes Snippet"
+msgstr "Eigenes Snippet"
+
+msgid "Sie haben keine Berechtigung, diese Seite zu öffnen."
+msgstr "Sie haben keine Berechtigung, diese Seite zu öffnen."
+
+msgid "Snippets gespeichert."
+msgstr "Snippets gespeichert."
+
+msgid "Konfiguration importiert."
+msgstr "Konfiguration importiert."
+
+msgid "Import fehlgeschlagen: ungültiges JSON-Format."
+msgstr "Import fehlgeschlagen: ungültiges JSON-Format."
+
+msgid "%d Snippet(s) ohne Code gespeichert: Zum Speichern von rohem Code wird die Berechtigung „unfiltered_html\" benötigt."
+msgstr "%d Snippet(s) ohne Code gespeichert: Zum Speichern von rohem Code wird die Berechtigung „unfiltered_html\" benötigt."
+
+msgid "Hinweis: Ihr Benutzerkonto besitzt nicht die Berechtigung „unfiltered_html\". Code-Felder werden beim Speichern verworfen. (Bei Multisite nur Super-Admins.)"
+msgstr "Hinweis: Ihr Benutzerkonto besitzt nicht die Berechtigung „unfiltered_html\". Code-Felder werden beim Speichern verworfen. (Bei Multisite nur Super-Admins.)"
+
+msgid "Hier eingefügte Tracking-/Marketing-Snippets laden erst nach Zustimmung zur gewählten Kategorie. Vollständigen Vendor-Code einfügen (mit <script>-Tags); <noscript>-Teile werden entfernt."
+msgstr "Hier eingefügte Tracking-/Marketing-Snippets laden erst nach Zustimmung zur gewählten Kategorie. Vollständigen Vendor-Code einfügen (mit <script>-Tags); <noscript>-Teile werden entfernt."
+
+msgid "+ Snippet hinzufügen"
+msgstr "+ Snippet hinzufügen"
+
+msgid "Snippets speichern"
+msgstr "Snippets speichern"
+
+msgid "Import / Export (für Rollout über mehrere Websites)"
+msgstr "Import / Export (für Rollout über mehrere Websites)"
+
+msgid "Export liefert ein versioniertes JSON-Envelope (aktuell die Consent-Codes; später erweiterbar auf die gesamte LSCC-Konfiguration). Beim Import ersetzt das Envelope die aktuellen Snippets."
+msgstr "Export liefert ein versioniertes JSON-Envelope (aktuell die Consent-Codes; später erweiterbar auf die gesamte LSCC-Konfiguration). Beim Import ersetzt das Envelope die aktuellen Snippets."
+
+msgid "JSON-Envelope hier einfügen, um zu importieren …"
+msgstr "JSON-Envelope hier einfügen, um zu importieren …"
+
+msgid "Export herunterladen (JSON)"
+msgstr "Export herunterladen (JSON)"
+
+msgid "Name"
+msgstr "Name"
+
+msgid "Erkannt: %s"
+msgstr "Erkannt: %s"
+
+msgid "Aktiv"
+msgstr "Aktiv"
+
+msgid "Code"
+msgstr "Code"
+
+msgid "↑"
+msgstr "↑"
+
+msgid "↓"
+msgstr "↓"
+
+msgid "Löschen"
+msgstr "Löschen"
+
+msgid "Head"
+msgstr "Head"
+
+msgid "Body-Anfang"
+msgstr "Body-Anfang"
+
+msgid "Footer"
+msgstr "Footer"
+
+msgid "Sie haben keine Berechtigung, diese Aktion auszuführen."
+msgstr "Sie haben keine Berechtigung, diese Aktion auszuführen."

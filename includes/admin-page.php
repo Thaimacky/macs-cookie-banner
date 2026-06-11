@@ -68,6 +68,15 @@ final class Light_Swiss_Cookie_Consent_Admin {
 			'light-swiss-cookie-consent-avada-inventory',
 			array( 'Light_Swiss_Cookie_Consent_Avada_Inventory', 'render_page' )
 		);
+
+		add_submenu_page(
+			'light-swiss-cookie-consent',
+			esc_html__( 'Consent-Code-Manager', 'light-swiss-cookie-consent' ),
+			esc_html__( 'Consent-Code-Manager', 'light-swiss-cookie-consent' ),
+			'manage_options',
+			Light_Swiss_Cookie_Consent_Codes::PAGE_SLUG,
+			array( 'Light_Swiss_Cookie_Consent_Codes', 'render_page' )
+		);
 	}
 
 	/**

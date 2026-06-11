@@ -12,6 +12,7 @@ Diese Karte beschreibt die aktiven Dateien, ihre Zustaendigkeiten und die wichti
 | `includes/avada-inventory.php` | Passive, rein lesende Admin-Seite „Avada Inventar-Scan" (ab 0.1.8): zählt Video-/Map-/Embed-Typen in lokalen Inhalten zur Abschätzung der automatischen Abdeckung. Keine externen Requests, keine Schreibzugriffe, keine Inhaltsänderung. |
 | `includes/avada-compat.php` | Render-Layer-Interception (ab 0.1.9): fängt Avadas `fusion_youtube` via `pre_do_shortcode_tag` ab und ersetzt es durch das LSCC-Platzhalter-Markup (Kategorie `external_media`). Nur Frontend, opt-in via `avada_youtube_block`. |
 | `includes/yotu-compat.php` | YOTU-Consent-Gating (ab 0.2.2): koppelt das Frontend-Script des Plugins „Yotuwp – Easy YouTube Embed" (`yotu-script` + Inline `-extra`/`-after`) via `script_loader_tag`/`wp_inline_script_attributes` an die LSCC-Script-Blockade (`external_media`) und neutralisiert die `i.ytimg.com`-Thumbnails im Shortcode-Output (`do_shortcode_tag`) durch Umbenennen von `data-orig-src` → `data-lscc-orig-src`, plus Consent-Hinweis über der Galerie. Nur Frontend, opt-in via `yotu_consent_gating` (Default AUS). |
+| `includes/consent-codes.php` | Consent-Code-Manager (ab 0.3.0): zentrale Verwaltung von Tracking-/Marketing-Snippets (GA4/GTM/Meta Pixel/Hotjar/…). Option `lscc_consent_codes`; gibt Snippets in Head/Body-Anfang/Footer als LSCC-geblockte Scripts aus (Script-Tag-Transform + `<noscript>`-Strip), Aktivierung über bestehende `banner.js`-Mechanik. Scannerfähiges Datenmodell, Vendor-Detektion, versioniertes Export/Import-Envelope. |
 | `includes/service-components.php` | Shortcodes `[lscc_youtube]`, `[lscc_vimeo]`, `[lscc_google_map]` mit Placeholder-Markup. |
 | `assets/js/banner.js` | Frontend-Logik: Consent-Speicherung, Banner-Steuerung, Script-Aktivierung, Media-Sync. |
 | `assets/css/banner.css` | Styles fuer Banner, Reopen-Button, Settings-Button und Media-Komponenten. |
@@ -182,6 +183,23 @@ Reine Server-Interception: kein DOM-Hijacking, kein MutationObserver, kein Scann
 - `render_consent_notice()` — privat; baut den `lscc-yotu-consent`-Hinweis (`data-lscc-gated-notice`) mit `data-lscc-accept-media`-Button. Wird von `banner.js::bindMediaComponents()` gebunden; nach Consent von `restoreExternalMediaThumbnails()` versteckt.
 
 Vor `external_media`-Consent: kein youtube.com, kein youtube-nocookie.com, kein `iframe_api`, kein `www-widgetapi`, kein `i.ytimg.com`. Nach Consent baut `banner.js` die Thumbnails wieder auf und aktiviert die Yotu-Scripts in korrekter Reihenfolge → Galerie funktioniert normal. Kein DOM-Hijacking/Observer/Scanner, keine `post_content`-Änderung, vollständig reversibel (`yotu_consent_gating` = bool, Default `false`). Coverage-Grenze: greift bei per Shortcode gerenderten Galerien; reine Block-/Widget-Einbindungen sind separat zu prüfen.
+
+## `includes/consent-codes.php`
+
+**Klasse `Light_Swiss_Cookie_Consent_Codes`** (ab 0.3.0):
+
+- Konstanten: `OPTION_NAME = 'lscc_consent_codes'`, `NONCE_ACTION = 'lscc_save_consent_codes'`, `PAGE_SLUG`, `EXPORT_VERSION = 1`.
+- `init()` — im Admin: `admin_post_lscc_save_consent_codes` → `save()`, `admin_post_lscc_export_consent_codes` → `export()`, `admin_enqueue_scripts` → `enqueue_admin()` (lädt `assets/js/admin-consent-codes.js` nur auf der Manager-Seite). Im Frontend: `wp_head` (99), `wp_body_open`, `wp_footer` (5) → `render_location()`.
+- **Datenmodell (scannerfähig):** Option = Array von Einträgen `{ id, label, vendor, source, category, location, enabled, order, code }`. `category` ∈ {necessary, statistics, marketing, external_media}; `location` ∈ {head, body_open, footer}; `vendor` wird beim Speichern via `detect_vendor()` automatisch gesetzt (ga4/gtm/meta_pixel/hotjar/recaptcha/custom); `source` = Provenienz (manual/import).
+- `get_codes()` / `normalize_entry()` / `sanitize_enum()` — gelesene, validierte Einträge.
+- `detect_vendor( $code )` — Mustererkennung des Drittanbieters (für Scanner/Badge).
+- `render_location( $loc )` — gibt aktive Snippets der Position in `order`-Reihenfolge aus (roh = bereits geblockt).
+- `transform_snippet( $code, $category )` — entfernt `<noscript>…</noscript>` und schreibt jeden `<script …>` auf `type="text/plain" data-cookie-category=<cat> data-cookie-type=<orig>` um (verallgemeinert `yotu-compat::convert_tag_to_blocked`).
+- `render_page()` / `render_row()` / `render_template_row()` — Admin-Repeater-UI; `category_labels()`/`location_labels()`.
+- `save()` — `manage_options` + Nonce; Roh-`code` nur mit `unfiltered_html` (sonst verworfen + Notice, Zähler `rejected`); `build_entries()` baut/validiert; `update_option`; `redirect()`.
+- `export()` — versioniertes JSON-Envelope `{ lscc_export_version, plugin_version, type:'lscc-config', data:{ consent_codes:[…] } }` als Download (erweiterbar auf weitere Konfig-Teile). `parse_import()` akzeptiert Envelope oder nackte Liste.
+
+**Frontend-JS unverändert:** Reuse der sequenziellen `activateBlockedScripts()` (v0.2.2) — kein neuer Frontend-Code. Admin-Repeater-JS (`assets/js/admin-consent-codes.js`) ist admin-only, dependency-frei (add/remove/↑/↓), mit No-JS-Fallback (bestehende Zeilen bleiben editierbar/speicherbar).
 
 ## `includes/service-components.php`
 

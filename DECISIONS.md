@@ -331,3 +331,19 @@ Die bestehende **WPML-/Polylang-String-Translation-Registrierung bleibt als Over
 - **Minimal-invasiv:** keine Schema-/Persistenz-Änderung (`LSCC_CONSENT_VERSION` bleibt `2`), keine neuen Features, kein Eingriff in Service-/YOTU-/Script-Mechanik.
 
 **Folgen:** Der aktuelle Consent ist beim Öffnen sofort an den Schnellbuttons erkennbar. Gemischte (individuelle) Auswahl zeigt beide Buttons inaktiv; die genaue Auswahl bleibt über die Checkboxen sichtbar.
+
+## ADR-23: Consent-Code-Manager — zentrale, gegatete Verwaltung von Tracking-Snippets (umgesetzt in v0.3.0)
+
+**Status:** Umgesetzt (v0.3.0). Phase 1 der Produktiv-Roadmap (≈40 Avada-Sites). Freigabe erteilt.
+
+**Entscheidung:** Tracking-/Marketing-Snippets (GA4, GTM, Meta Pixel, Hotjar, weitere) werden zentral in LSCC verwaltet (`includes/consent-codes.php`, Option `lscc_consent_codes`). Der Betreiber fügt komplette Vendor-Snippets ein („paste-as-is"), wählt **Kategorie** und **Position** (Head/Body-Anfang/Footer). Beim Rendern werden alle `<script>`-Tags in die bestehende LSCC-Script-Blockade umgeschrieben (`type="text/plain"` + `data-cookie-category`) und `<noscript>`-Teile **entfernt**. Aktivierung erst nach Consent über die vorhandene `activateBlockedScripts()`-Mechanik — **keine** neue Frontend-Logik. Konservativ blockend (kein Google Consent Mode v2).
+
+**Begründung:**
+
+- **Skalierung über 40 Sites:** Statt Snippets in Theme-/Avada-Dateien zu pflegen, eine zentrale, exportierbare Konfiguration. **Versioniertes Export/Import-Envelope** (`type:'lscc-config'`, `data.consent_codes`), bewusst erweiterbar auf die **gesamte** LSCC-Konfiguration (nicht nur Codes) für späteren Rollout.
+- **Wiederverwendung statt Sonderweg:** Reuse der dokumentierten Script-Blockade (ADR-6) und der sequenziellen Aktivierung (v0.2.2); kein neues Frontend-JS. Tag-Transform verallgemeinert `yotu-compat::convert_tag_to_blocked`.
+- **Cache-sicher:** serverseitig immer als `text/plain` ausgegeben, Consent clientseitig → identisches HTML mit/ohne Consent (Full-Page-Cache unkritisch).
+- **Scannerfähiges Datenmodell** (`vendor/source/category/location`): `detect_vendor()` setzt den Vendor automatisch; der Phase-2-Scanner kann ungegatete Snippets erkennen und „→ in den Consent-Code-Manager verschieben" empfehlen.
+- **Sicherheit:** Roh-`code` nur mit `unfiltered_html` (sonst verworfen + Notice), `manage_options` + Nonce, Enum-validierte Attribute. Entspricht dem WP-Muster für „Additional CSS"/Custom-HTML; Multisite: nur Super-Admins.
+
+**Folgen / offene Punkte:** `<noscript>`-Strip bedeutet, dass No-JS-Besucher kein GTM-noscript erhalten (bewusst). Bei der Migration muss der Snippet aus dem alten Ort (z. B. Avada Global Options) **entfernt** werden (sonst Doppel-Laden). **Cache-/Optimierungs-Plugins** (Delay/Combine/Minify JS) können `type="text/plain"`-Inline-Scripts umschreiben/zusammenführen → vor dem 40-Site-Rollout auf dem realen Stack testen und LSCC-gegatete Scripts von der Optimierung ausschliessen. Kein Consent-Nachweis-Log (ADR-3). Drittland-Transfer nach Consent ist über Banner-Text/Datenschutzerklärung abzudecken. Google Consent Mode v2 bewusst nicht umgesetzt.

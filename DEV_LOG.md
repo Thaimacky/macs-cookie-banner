@@ -1,5 +1,19 @@
 # DEV LOG
 
+## 0.3.0-test - 2026-06-11
+
+- MINOR-Bump 0.2.4 → 0.3.0 (neues Feature). Plugin-Header und `LSCC_VERSION` auf `0.3.0`. `LSCC_CONSENT_VERSION` bleibt `2`.
+- **Feature: Consent-Code-Manager** (Phase 1 der Produktiv-Roadmap, ADR-23). Zentrale, consent-gegatete Verwaltung von Tracking-/Marketing-Snippets (GA4, GTM, Meta Pixel, Hotjar, weitere) für ≈40 Avada-Sites.
+- Neue Datei `includes/consent-codes.php`, Klasse `Light_Swiss_Cookie_Consent_Codes`:
+  - Eigene Option `lscc_consent_codes` (getrennt von `lscc_options`, da `code` nicht durch `sanitize_text_field` darf). **Scannerfähiges Datenmodell**: `{ id, label, vendor, source, category, location, enabled, order, code }`.
+  - Frontend: `wp_head`(99)/`wp_body_open`/`wp_footer`(5) → `render_location()`; `transform_snippet()` entfernt `<noscript>` und schreibt jeden `<script>` auf `type="text/plain" data-cookie-category=… data-cookie-type=…` um. **Reuse** der sequenziellen `activateBlockedScripts()` (v0.2.2) — **kein** neuer Frontend-Code.
+  - Admin: Repeater-UI (`render_page`/`render_row`/Template), Speichern (`save()` mit `manage_options`+Nonce, Roh-`code` nur mit `unfiltered_html`, sonst verworfen + Notice), Vendor-Detektion (`detect_vendor()` → Badge), Export/Import als versioniertes Envelope (`export()`/`parse_import()`, erweiterbar auf gesamte LSCC-Konfiguration).
+- Neue Datei `assets/js/admin-consent-codes.js` (admin-only, dependency-frei): Repeater add/remove/↑/↓; No-JS-Fallback (bestehende Zeilen bleiben editierbar).
+- `light-swiss-cookie-consent.php`: Modul-Laden in `init()`. `includes/admin-page.php`: `add_submenu_page` „Consent-Code-Manager".
+- `languages/`: neue **Admin**-Strings (deutsche Quelle, Operator-Sprache gem. ADR-19); `.pot`/`.po`/`.mo` neu generiert (188 msgids; Generator scannt jetzt auch `consent-codes.php`).
+- **Bewusst NICHT:** kein Google Consent Mode v2, kein Scanner-Ausbau (Phase 2), kein Maps/Vimeo, keine neue Frontend-Logik, keine Änderung an Consent-Schema/`banner.js`.
+- Validierung: `node --check admin-consent-codes.js` OK; PHP-Struktur balanciert (nach String-/Kommentar-Strip 278/278 Parens, 58/58 Braces, 76/76 Brackets in `consent-codes.php`); Verdrahtung geprüft. Funktionaler Test (siehe RELEASE_CHECKLIST) ausstehend, inkl. Verhalten mit Cache-/Optimierungs-Stack.
+
 ## 0.2.4-test - 2026-06-11
 
 - Patch-Bump 0.2.3 → 0.2.4. Plugin-Header und `LSCC_VERSION` auf `0.2.4`. `LSCC_CONSENT_VERSION` bleibt `2` (reiner Darstellungs-Fix).

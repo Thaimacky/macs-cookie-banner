@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Light Swiss Cookie Consent 0.2.2\n"
+"Project-Id-Version: Light Swiss Cookie Consent 0.3.0\n"
 "Language: it_IT\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -50,6 +50,9 @@ msgid "Privacy Check"
 msgstr ""
 
 msgid "Avada Inventar-Scan"
+msgstr ""
+
+msgid "Consent-Code-Manager"
 msgstr ""
 
 msgid "Sie haben keine Berechtigung, diese Einstellungen zu speichern."
@@ -492,3 +495,78 @@ msgstr "Accetta i contenuti esterni"
 
 msgid "Diese YouTube-Galerie wird erst nach Zustimmung zu externen Medien geladen."
 msgstr "Questa galleria YouTube viene caricata solo dopo il consenso ai contenuti esterni."
+
+msgid "Eigenes Snippet"
+msgstr ""
+
+msgid "Sie haben keine Berechtigung, diese Seite zu öffnen."
+msgstr ""
+
+msgid "Snippets gespeichert."
+msgstr ""
+
+msgid "Konfiguration importiert."
+msgstr ""
+
+msgid "Import fehlgeschlagen: ungültiges JSON-Format."
+msgstr ""
+
+msgid "%d Snippet(s) ohne Code gespeichert: Zum Speichern von rohem Code wird die Berechtigung „unfiltered_html\" benötigt."
+msgstr ""
+
+msgid "Hinweis: Ihr Benutzerkonto besitzt nicht die Berechtigung „unfiltered_html\". Code-Felder werden beim Speichern verworfen. (Bei Multisite nur Super-Admins.)"
+msgstr ""
+
+msgid "Hier eingefügte Tracking-/Marketing-Snippets laden erst nach Zustimmung zur gewählten Kategorie. Vollständigen Vendor-Code einfügen (mit <script>-Tags); <noscript>-Teile werden entfernt."
+msgstr ""
+
+msgid "+ Snippet hinzufügen"
+msgstr ""
+
+msgid "Snippets speichern"
+msgstr ""
+
+msgid "Import / Export (für Rollout über mehrere Websites)"
+msgstr ""
+
+msgid "Export liefert ein versioniertes JSON-Envelope (aktuell die Consent-Codes; später erweiterbar auf die gesamte LSCC-Konfiguration). Beim Import ersetzt das Envelope die aktuellen Snippets."
+msgstr ""
+
+msgid "JSON-Envelope hier einfügen, um zu importieren …"
+msgstr ""
+
+msgid "Export herunterladen (JSON)"
+msgstr ""
+
+msgid "Name"
+msgstr ""
+
+msgid "Erkannt: %s"
+msgstr ""
+
+msgid "Aktiv"
+msgstr ""
+
+msgid "Code"
+msgstr ""
+
+msgid "↑"
+msgstr ""
+
+msgid "↓"
+msgstr ""
+
+msgid "Löschen"
+msgstr ""
+
+msgid "Head"
+msgstr ""
+
+msgid "Body-Anfang"
+msgstr ""
+
+msgid "Footer"
+msgstr ""
+
+msgid "Sie haben keine Berechtigung, diese Aktion auszuführen."
+msgstr ""

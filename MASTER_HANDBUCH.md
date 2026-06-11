@@ -11,6 +11,7 @@
 - 2026-06-11 — Additive Erweiterung: Sektion „PFLICHT: AKTION USER / PROMPT-BLÖCKE" ergänzt (jeder handlungsrelevante Bericht endet mit einem klar gekennzeichneten Block). Zusätzlich Sektion „Fremd-Plugin-Kompatibilität (YOTU, ab v0.2.2)" ergänzt. Inhalt sonst unverändert.
 - 2026-06-11 — Regel-Check (v0.2.3, Consent-UI-Bugfix): Sektionen „PFLICHT: AKTION USER / PROMPT-BLÖCKE" und „Dokumentationspflicht (Definition of Done)" sind vorhanden und unverändert gültig; keine inhaltliche Handbuch-Änderung für diesen Bugfix nötig.
 - 2026-06-11 — Regel-Check (v0.2.4, UX-Fix Schnellbuttons): aktiver Consent-Zustand an den Schnellbuttons (ADR-22), reine Darstellung; keine inhaltliche Handbuch-Änderung nötig. Versionshistorie hier ergänzt (Definition of Done).
+- 2026-06-11 — v0.3.0: Consent-Code-Manager (Phase 1 der Produktiv-Roadmap, ADR-23) — zentrale, consent-gegatete Verwaltung von Tracking-Snippets (GA4/GTM/Pixel/Hotjar). Nutzt die bestehende Script-Blockade (kein neues Frontend-JS). Versioniertes Export/Import-Envelope, scannerfähiges Datenmodell. Versionshistorie ergänzt; keine Änderung an Philosophie/No-Gos.
 
 ## Zweck dieser Datei
 

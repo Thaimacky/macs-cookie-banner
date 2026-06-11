@@ -3,7 +3,7 @@
  * Plugin Name: Light Swiss Cookie Consent
  * Plugin URI:  https://example.com/light-swiss-cookie-consent
  * Description: Lightweight cookie consent banner with script blocking for WordPress.
- * Version:     0.2.4
+ * Version:     0.3.0
  * Author:      Light Swiss Cookie Consent
  * Text Domain: light-swiss-cookie-consent
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'LSCC_VERSION', '0.2.4' );
+define( 'LSCC_VERSION', '0.3.0' );
 
 /**
  * Consent schema version. Bump this whenever the stored consent shape
@@ -69,6 +69,9 @@ final class Light_Swiss_Cookie_Consent {
 
 		require_once LSCC_PLUGIN_DIR . 'includes/yotu-compat.php';
 		Light_Swiss_Cookie_Consent_Yotu_Compat::init();
+
+		require_once LSCC_PLUGIN_DIR . 'includes/consent-codes.php';
+		Light_Swiss_Cookie_Consent_Codes::init();
 
 		if ( is_admin() ) {
 			require_once LSCC_PLUGIN_DIR . 'includes/admin-page.php';

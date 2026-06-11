@@ -8,6 +8,29 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.3.0-test - 2026-06-11
+
+### Added
+
+- **Consent-Code-Manager** (`includes/consent-codes.php`) — zentrale, consent-gegatete Verwaltung von Tracking-/Marketing-Snippets (GA4, GTM, Meta Pixel, Hotjar, weitere). Phase 1 der Produktiv-Roadmap.
+  - „Paste-as-is": kompletter Vendor-Snippet einfügen, **Kategorie** + **Position** (Head/Body-Anfang/Footer) wählen. Beim Rendern werden `<script>`-Tags geblockt (`type="text/plain"` + `data-cookie-category`), `<noscript>` entfernt; Aktivierung nach Consent über die bestehende `banner.js`-Mechanik (kein neues Frontend-JS).
+  - **Scannerfähiges Datenmodell** (`vendor/source/category/location`) mit automatischer Vendor-Erkennung + Badge.
+  - **Repeater-Admin-UI** (minimales, dependency-freies Admin-JS) mit add/remove/↑/↓.
+  - **Export/Import** als versioniertes JSON-Envelope (erweiterbar auf die gesamte LSCC-Konfiguration) für den Rollout über mehrere Websites.
+- Neue Admin-Option-Quelle `lscc_consent_codes` (getrennt von `lscc_options`).
+
+### Security / Datenschutz
+
+- Roh-Code nur mit `unfiltered_html` speicherbar (sonst verworfen + Hinweis), `manage_options` + Nonce, Enum-validierte Attribute. Cache-sicher (serverseitig immer `text/plain`, Consent clientseitig). Konservativ blockend, **kein** Google Consent Mode v2.
+
+### Changed
+
+- Plugin-Header und `LSCC_VERSION` auf `0.3.0`. `LSCC_CONSENT_VERSION` bleibt `2`.
+
+### Bewusst nicht enthalten
+
+- Kein Scanner-Ausbau (Phase 2), kein Maps/Vimeo, keine neue Frontend-Logik, keine Änderung am Consent-Schema oder an `banner.js`.
+
 ## 0.2.4-test - 2026-06-11
 
 ### Added / UX
