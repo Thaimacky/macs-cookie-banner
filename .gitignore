@@ -1,8 +1,10 @@
 .DS_Store
 Thumbs.db
 
-node_modules/
-vendor/
+# Root-level dev dependencies only — bundled libraries (e.g. the
+# plugin-update-checker) ship their own vendor/ that must stay tracked.
+/node_modules/
+/vendor/
 
 .idea/
 .vscode/

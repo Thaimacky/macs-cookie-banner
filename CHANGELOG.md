@@ -8,6 +8,21 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.3.3-test - 2026-06-16
+
+### Added
+
+- **GitHub-basierte Auto-Updates** — neues Modul `includes/updater.php`. Bindet die mitgelieferte Plugin-Update-Checker-Library (PUC v5.6, `includes/plugin-update-checker/`) an das GitHub-Repo `Thaimacky/light-swiss-cookie-consent`. Updates werden aus dem **ZIP-Asset** des jeweiligen GitHub-Releases gezogen (`enableReleaseAssets()`), damit das installierte Paket frei von Build-/Dev-Cruft bleibt. Das Plugin meldet neue Versionen kuenftig direkt im WordPress-Update-Screen.
+
+### Changed
+
+- Plugin-Header und `LSCC_VERSION` auf `0.3.3`. `LSCC_CONSENT_VERSION` bleibt `2`.
+- `.gitignore`: Dev-Ignores `vendor/`/`node_modules/` auf Repo-Root verankert (`/vendor/`, `/node_modules/`), damit das gebuendelte `plugin-update-checker/vendor/` (u.a. `PucReadmeParser.php`, zur Laufzeit benoetigt) tracked bleibt.
+
+### Hinweis zum Release-Workflow
+
+- Damit Auto-Updates greifen, muss pro Version ein **GitHub-Release mit angehaengtem Plugin-ZIP-Asset** veroeffentlicht werden (Tag = Versionsnummer). Ohne Release-Asset zeigt PUC kein Update an.
+
 ## 0.3.2-test - 2026-06-12
 
 ### Added
