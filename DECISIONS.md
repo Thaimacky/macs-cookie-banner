@@ -379,3 +379,21 @@ Die bestehende **WPML-/Polylang-String-Translation-Registrierung bleibt als Over
 - **Nur eine Consent-Schicht:** Avada besitzt ein eigenes Privacy-Feature für Embeds. Das Modul ist Default AUS und im Admin mit fetter Warnung versehen, Avada-Privacy-Maps und LSCC-Maps **nicht** parallel zu aktivieren.
 
 **Folgen / offene Punkte:** Nach Consent erscheint die Google-**Embed**-Karte (Standort-Pin), **nicht** Avadas voll gestylte JS-API-Karte (eigene Marker/Styles/Zoom-Config gehen verloren) — bewusster Trade-off. Multi-Marker → nur die **primäre** Adresse. Adress-Extraktion ist versionsabhängig → robuster Fallback (kein Ersatz, Avada rendert normal; API bleibt via SRC-Gating geblockt; Restposten via Scanner sichtbar, Empfehlung `[lscc_google_map]`). Keyless `output=embed` ist inoffiziell — beobachten. Cache-/Optimierungs-Plugins können das SRC-Gating stören → auf realem Stack testen. Verbindliche Referenz: `MASTER_HANDBUCH.md`.
+
+## ADR-26: Validierung vor weiteren Features — 5-Site-Gate (Prozess-Entscheidung, ab v0.3.3)
+
+**Status:** Aktiv ab v0.3.3 (2026-06-16). Prozess-/Priorisierungs-Entscheidung, keine Code-Änderung.
+
+**Entscheidung:** Nach Fertigstellung der Infrastruktur (Consent-Code-Manager, Scanner/Drittanbieter-Oberfläche, YouTube-/YOTU-/Maps-Gating, GitHub-Auto-Updates) werden **keine neuen Dienst-Features** entwickelt, bevor LSCC auf **mindestens 5 echten Websites** produktiv analysiert wurde. Ablauf in drei Phasen, dokumentiert/erhoben in `VALIDIERUNG.md`:
+
+- **Phase A — Live-Test:** Pro Site Banner-/Widerruf-Funktion, Auto-Update, Privacy Check, Drittanbieter-Oberfläche (Gating-Status) und **Netzwerk-Monitor vor Consent** (Leak-Prüfung) erfassen; Cache-/Optimierungs-Konflikte notieren.
+- **Phase B — Inventur-Auswertung:** Aggregat-Matrix `Dienst | Prävalenz | Risiko | Aktuelle LSCC-Abdeckung | Priorität` über alle Sites. Diese Matrix — nicht Vermutung — bestimmt die nächste Entwicklungsphase.
+- **Phase C — wahrscheinlichste nächste Entwicklung (Hypothese):** Vimeo/oEmbed, reCAPTCHA, Calendly, Google-Fonts-Report (Letzteres voraussichtlich nur Reporting). Reihenfolge wird durch Phase B bestätigt oder verworfen.
+
+**Begründung:**
+
+- **Risiko liegt jetzt in der Realität, nicht im Code:** Die offenen Fragen (echte Leaks vor Consent, Cache-/Minify-Konflikte, tatsächliche Dienst-Prävalenz) lassen sich nur auf echten Stacks beantworten — wiederkehrendes „Folgen/offene Punkte" in ADR-23/24/25.
+- **Datengetriebene Priorisierung:** Weiterentwicklung an Diensten, die real selten vorkommen, wäre verschwendet. Die Matrix verhindert das.
+- **Stand reicht aus:** v0.3.3 ist funktional vollständig genug, um produktiv Daten zu sammeln; kein weiteres Feature ist Voraussetzung für die Validierung.
+
+**Folgen / offene Punkte:** Bekannte Abdeckungslücken vor der Erhebung: reCAPTCHA, Vimeo, Calendly (heute nur Scanner-Erkennung, kein Gating); Google Fonts ist nicht consent-gate-bar (nur Reporting/Local-Hosting-Empfehlung). Diese Lücken sind in `VALIDIERUNG.md` als Matrix-Vorbefüllung hinterlegt und beim Ausfüllen gegen die Realität zu bestätigen. Verbindliche Referenz: `MASTER_HANDBUCH.md`.
