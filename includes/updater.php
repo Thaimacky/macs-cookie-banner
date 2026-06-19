@@ -8,7 +8,7 @@
  * (enableReleaseAssets), which keeps the installed package free of the
  * repository's build/dev cruft.
  *
- * @package LightSwissCookieConsent
+ * @package MacsCookieBanner
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Bootstraps the plugin update checker.
  */
-final class Light_Swiss_Cookie_Consent_Updater {
+final class Macs_Cookie_Banner_Updater {
 
 	/**
 	 * GitHub repository the releases are published to.
@@ -35,7 +35,7 @@ final class Light_Swiss_Cookie_Consent_Updater {
 	 * changes: 0.3.4 acts as a bridge release that points existing sites at the
 	 * new GitHub repository for all future updates.
 	 */
-	const SLUG = 'light-swiss-cookie-consent';
+	const SLUG = 'macs-cookie-banner';
 
 	/**
 	 * The update checker instance.
@@ -50,7 +50,7 @@ final class Light_Swiss_Cookie_Consent_Updater {
 	 * @return void
 	 */
 	public static function init() {
-		$entry = LSCC_PLUGIN_DIR . 'includes/plugin-update-checker/plugin-update-checker.php';
+		$entry = MCB_PLUGIN_DIR . 'includes/plugin-update-checker/plugin-update-checker.php';
 
 		if ( ! is_readable( $entry ) ) {
 			return;
@@ -64,7 +64,7 @@ final class Light_Swiss_Cookie_Consent_Updater {
 
 		self::$checker = \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
 			self::REPOSITORY_URL,
-			LSCC_PLUGIN_FILE,
+			MCB_PLUGIN_FILE,
 			self::SLUG
 		);
 

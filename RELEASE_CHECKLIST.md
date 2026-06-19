@@ -2,10 +2,10 @@
 
 ## Release-Artefakte / Ablageort für Test-ZIPs (verbindlich)
 
-- [ ] Test-ZIP wird im **Überordner des Repositories** abgelegt: `G:\Cookie Banner Plugin\` — **nicht** im Repo-Ordner `light-swiss-cookie-consent\`.
+- [ ] Test-ZIP wird im **Überordner des Repositories** abgelegt: `G:\Cookie Banner Plugin\` — **nicht** im Repo-Ordner `macs-cookie-banner\`.
 - [ ] Liegen ältere ZIPs bereits im Parent-Ordner, wird die neue ZIP **im selben Ordner** erstellt.
-- [ ] Dateiname-Schema: `light-swiss-cookie-consent-v<VERSION>-test.zip`.
-- [ ] Top-Level-Ordner im ZIP: `light-swiss-cookie-consent/` (WordPress-installierbar).
+- [ ] Dateiname-Schema: `macs-cookie-banner-v<VERSION>-test.zip`.
+- [ ] Top-Level-Ordner im ZIP: `macs-cookie-banner/` (WordPress-installierbar).
 - [ ] Kein automatisches Ausweichen auf andere Orte; Ablageort nur per ausdrücklicher Auftraggeber-Anweisung änderbar. Details siehe `MASTER_HANDBUCH.md`, Sektion „Release-Artefakte / Ablageort für Test-ZIPs".
 
 ## Version 0.1.0
@@ -30,8 +30,8 @@
 - [ ] HTTPS testen: Consent-Cookie enthaelt `Secure`.
 - [ ] HTTP testen: Consent-Cookie wird ohne `Secure` gesetzt.
 - [ ] Consent-Cookie enthaelt `SameSite=Lax`.
-- [ ] `LSCC_DEBUG` false: keine Console-Ausgaben.
-- [ ] `LSCC_DEBUG` true: minimale Console-Ausgaben sichtbar.
+- [ ] `MCB_DEBUG` false: keine Console-Ausgaben.
+- [ ] `MCB_DEBUG` true: minimale Console-Ausgaben sichtbar.
 - [ ] WPML-String-Registrierung in Testumgebung pruefen.
 - [ ] Polylang-String-Registrierung in Testumgebung pruefen.
 - [ ] Sprachdateien bei Bedarf aus `.po` nach `.mo` kompilieren.
@@ -76,7 +76,7 @@
 - [ ] Im Settings-Modus ist der `Einstellungen`-Button oben ausgeblendet.
 - [ ] Lighthouse Performance ohne aktiviertes Plugin vs. mit aktiviertem Plugin: keine signifikante Verschlechterung auf einer leeren WordPress-Seite.
 - [ ] **Fresh-Install-Test (Inkognito-Fenster, neu geöffnet):** Banner erscheint, Reopen-Button ist versteckt.
-- [ ] **Upgrade-Test (Browser hatte v1-Consent aus v0.1.0 – v0.1.4):** Banner erscheint erneut, alter Consent wird durch `LSCC_CONSENT_VERSION = 2` invalidiert.
+- [ ] **Upgrade-Test (Browser hatte v1-Consent aus v0.1.0 – v0.1.4):** Banner erscheint erneut, alter Consent wird durch `MCB_CONSENT_VERSION = 2` invalidiert.
 - [ ] Nach „Alle akzeptieren": Banner verschwindet, Reopen-Button erscheint, `lscc_consent`-Cookie enthält `version: 2` und ein `expiresAt`.
 - [ ] Ctrl+F5 / Hard-Reload löscht den gespeicherten Consent nicht.
 - [ ] Plugin-Deinstallation löscht den Browser-Storage nicht (Cookie + localStorage bleiben).
@@ -185,7 +185,7 @@ Test auf einer echten WPML-Seite mit mindestens DE + EN (ideal zusätzlich FR/IT
 - [ ] **Admin-Override greift:** Ein im Admin geänderter Text bzw. eine WPML-String-Translation-Übersetzung hat Vorrang vor dem Locale-Default.
 - [ ] WPML-Sprachwechsel lädt das passende `.mo` (kategoriale Labels wechseln tatsächlich mit der Sprache — `switch_to_locale()`-Verhalten prüfen).
 - [ ] Eine Sprache jenseits der sechs Bundle-Sprachen fällt sauber auf Englisch zurück (kein deutscher Resttext, kein Fatal).
-- [ ] `.mo`-Dateien sind im ZIP/Install vorhanden (`languages/light-swiss-cookie-consent-<locale>.mo`).
+- [ ] `.mo`-Dateien sind im ZIP/Install vorhanden (`languages/macs-cookie-banner-<locale>.mo`).
 - [ ] Admin-Seiten (Einstellungen, Privacy Check, Avada-Inventar) erscheinen in der Operator-Sprache (deutsche Quelle) — bewusster Scope (ADR-19), kein Bug.
 
 ## Nativer LSCC-YouTube-Block (ab v0.2.0-test)

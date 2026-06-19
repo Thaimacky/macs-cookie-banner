@@ -22,7 +22,7 @@
  * IMPORTANT: use only ONE consent layer. If Avada's own Privacy feature already
  * gates Google Maps, do NOT enable this module (see the admin description).
  *
- * @package LightSwissCookieConsent
+ * @package MacsCookieBanner
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -32,7 +32,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Render-layer consent gating for Avada Google Maps.
  */
-final class Light_Swiss_Cookie_Consent_Avada_Maps_Compat {
+final class Macs_Cookie_Banner_Avada_Maps_Compat {
 	/**
 	 * Source fragment identifying the Google Maps JS API.
 	 */
@@ -48,7 +48,7 @@ final class Light_Swiss_Cookie_Consent_Avada_Maps_Compat {
 			return;
 		}
 
-		$options = Light_Swiss_Cookie_Consent::get_options();
+		$options = Macs_Cookie_Banner::get_options();
 
 		if ( empty( $options['avada_maps_block'] ) ) {
 			return;
@@ -81,13 +81,13 @@ final class Light_Swiss_Cookie_Consent_Avada_Maps_Compat {
 			return $output;
 		}
 
-		$embed = Light_Swiss_Cookie_Consent_Service_Components::build_maps_embed_url( $address );
+		$embed = Macs_Cookie_Banner_Service_Components::build_maps_embed_url( $address );
 
 		if ( '' === $embed ) {
 			return $output;
 		}
 
-		$markup = Light_Swiss_Cookie_Consent_Service_Components::render_google_map( array( 'url' => $embed ) );
+		$markup = Macs_Cookie_Banner_Service_Components::render_google_map( array( 'url' => $embed ) );
 
 		return '' !== $markup ? $markup : $output;
 	}

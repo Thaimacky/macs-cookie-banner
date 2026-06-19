@@ -4,16 +4,16 @@ This directory is prepared for WordPress translation files.
 
 Template:
 
-- `light-swiss-cookie-consent.pot`
+- `macs-cookie-banner.pot`
 
 Locale catalogues (`.po`) and compiled `.mo` (since v0.2.1):
 
-- `light-swiss-cookie-consent-de_CH.po` / `.mo`
-- `light-swiss-cookie-consent-en_US.po` / `.mo`
-- `light-swiss-cookie-consent-fr_FR.po` / `.mo`
-- `light-swiss-cookie-consent-it_IT.po` / `.mo`
-- `light-swiss-cookie-consent-tr_TR.po` / `.mo`
-- `light-swiss-cookie-consent-hu_HU.po` / `.mo`
+- `macs-cookie-banner-de_CH.po` / `.mo`
+- `macs-cookie-banner-en_US.po` / `.mo`
+- `macs-cookie-banner-fr_FR.po` / `.mo`
+- `macs-cookie-banner-it_IT.po` / `.mo`
+- `macs-cookie-banner-tr_TR.po` / `.mo`
+- `macs-cookie-banner-hu_HU.po` / `.mo`
 
 Scope: front-end / visitor-facing strings (category labels and descriptions,
 legal links, service-component placeholders) are translated in all six

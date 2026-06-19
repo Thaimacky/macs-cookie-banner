@@ -2,7 +2,7 @@
 /**
  * Lightweight privacy check admin page.
  *
- * @package LightSwissCookieConsent
+ * @package MacsCookieBanner
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Passive privacy hint checker.
  */
-final class Light_Swiss_Cookie_Consent_Privacy_Check {
+final class Macs_Cookie_Banner_Privacy_Check {
 	/**
 	 * Render the privacy check page.
 	 *
@@ -28,8 +28,8 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 		$fetch    = self::fetch_html( $scan_url );
 
 		$content_scan_results = null;
-		if ( isset( $_POST['lscc_run_content_scan'] ) ) {
-			check_admin_referer( 'lscc_content_scan', 'lscc_content_scan_nonce' );
+		if ( isset( $_POST['mcb_run_content_scan'] ) ) {
+			check_admin_referer( 'mcb_content_scan', 'mcb_content_scan_nonce' );
 			$content_scan_results = self::run_content_scan();
 		}
 
@@ -38,10 +38,10 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 				'status'         => 'info',
 				'problem'        => sprintf(
 					/* translators: %s: Checked URL. */
-					__( 'Geprüfte URL: %s', 'light-swiss-cookie-consent' ),
+					__( 'Geprüfte URL: %s', 'macs-cookie-banner' ),
 					$scan_url
 				),
-				'recommendation' => __( 'Nur diese eine URL wird geprüft (Server-Sicht, kein JavaScript). Es findet kein Crawl statt.', 'light-swiss-cookie-consent' ),
+				'recommendation' => __( 'Nur diese eine URL wird geprüft (Server-Sicht, kein JavaScript). Es findet kein Crawl statt.', 'macs-cookie-banner' ),
 			),
 		);
 
@@ -58,31 +58,31 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 		}
 		?>
 		<div class="wrap">
-			<h1><?php echo esc_html__( 'Privacy Check', 'light-swiss-cookie-consent' ); ?></h1>
+			<h1><?php echo esc_html__( 'Privacy Check', 'macs-cookie-banner' ); ?></h1>
 
 			<?php if ( 'host_mismatch' === $scan['notice'] ) : ?>
-				<div class="notice notice-warning"><p><?php echo esc_html__( 'Nur URLs dieser Website sind erlaubt. Es wurde die Startseite geprüft.', 'light-swiss-cookie-consent' ); ?></p></div>
+				<div class="notice notice-warning"><p><?php echo esc_html__( 'Nur URLs dieser Website sind erlaubt. Es wurde die Startseite geprüft.', 'macs-cookie-banner' ); ?></p></div>
 			<?php endif; ?>
 
-			<h2><?php echo esc_html__( 'Drittanbieter-Oberfläche', 'light-swiss-cookie-consent' ); ?></h2>
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin.php?page=light-swiss-cookie-consent-privacy-check' ) ); ?>">
-				<?php wp_nonce_field( 'lscc_surface_scan', 'lscc_surface_nonce' ); ?>
-				<input type="url" name="lscc_scan_url" class="regular-text" value="<?php echo esc_attr( $scan_url ); ?>" />
-				<?php submit_button( esc_html__( 'URL prüfen', 'light-swiss-cookie-consent' ), 'secondary', 'lscc_check_url', false ); ?>
-				<p class="description"><?php echo esc_html__( 'Nur URLs dieser Website. Server-Sicht ohne JavaScript — von GTM geladene Tags, klick-/JS-geladene Widgets und Unterseiten werden nicht erfasst.', 'light-swiss-cookie-consent' ); ?></p>
+			<h2><?php echo esc_html__( 'Drittanbieter-Oberfläche', 'macs-cookie-banner' ); ?></h2>
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin.php?page=macs-cookie-banner-privacy-check' ) ); ?>">
+				<?php wp_nonce_field( 'mcb_surface_scan', 'mcb_surface_nonce' ); ?>
+				<input type="url" name="mcb_scan_url" class="regular-text" value="<?php echo esc_attr( $scan_url ); ?>" />
+				<?php submit_button( esc_html__( 'URL prüfen', 'macs-cookie-banner' ), 'secondary', 'mcb_check_url', false ); ?>
+				<p class="description"><?php echo esc_html__( 'Nur URLs dieser Website. Server-Sicht ohne JavaScript — von GTM geladene Tags, klick-/JS-geladene Widgets und Unterseiten werden nicht erfasst.', 'macs-cookie-banner' ); ?></p>
 			</form>
 
 			<?php if ( null !== $surface ) : ?>
 				<?php self::render_surface_section( $surface ); ?>
 			<?php endif; ?>
 
-			<h2><?php echo esc_html__( 'Muster-Schnellprüfung', 'light-swiss-cookie-consent' ); ?></h2>
+			<h2><?php echo esc_html__( 'Muster-Schnellprüfung', 'macs-cookie-banner' ); ?></h2>
 			<table class="widefat striped">
 				<thead>
 					<tr>
-						<th scope="col"><?php echo esc_html__( 'Status', 'light-swiss-cookie-consent' ); ?></th>
-						<th scope="col"><?php echo esc_html__( 'Problem', 'light-swiss-cookie-consent' ); ?></th>
-						<th scope="col"><?php echo esc_html__( 'Empfehlung', 'light-swiss-cookie-consent' ); ?></th>
+						<th scope="col"><?php echo esc_html__( 'Status', 'macs-cookie-banner' ); ?></th>
+						<th scope="col"><?php echo esc_html__( 'Problem', 'macs-cookie-banner' ); ?></th>
+						<th scope="col"><?php echo esc_html__( 'Empfehlung', 'macs-cookie-banner' ); ?></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -109,16 +109,16 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 	private static function resolve_scan_url() {
 		$default = home_url( '/' );
 
-		if ( ! isset( $_POST['lscc_scan_url'] ) ) {
+		if ( ! isset( $_POST['mcb_scan_url'] ) ) {
 			return array(
 				'url'    => $default,
 				'notice' => '',
 			);
 		}
 
-		check_admin_referer( 'lscc_surface_scan', 'lscc_surface_nonce' );
+		check_admin_referer( 'mcb_surface_scan', 'mcb_surface_nonce' );
 
-		$candidate = esc_url_raw( trim( (string) wp_unslash( $_POST['lscc_scan_url'] ) ) );
+		$candidate = esc_url_raw( trim( (string) wp_unslash( $_POST['mcb_scan_url'] ) ) );
 
 		if ( '' === $candidate ) {
 			return array(
@@ -157,7 +157,7 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 				'timeout'             => 5,
 				'redirection'         => 2,
 				'limit_response_size' => 500000,
-				'user-agent'          => 'Mac\'s Cookie Banner Privacy Check/' . LSCC_VERSION,
+				'user-agent'          => 'Mac\'s Cookie Banner Privacy Check/' . MCB_VERSION,
 			)
 		);
 
@@ -165,8 +165,8 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 			return array(
 				'ok'            => false,
 				'body'          => '',
-				'error_problem' => __( 'Die URL konnte nicht geprüft werden.', 'light-swiss-cookie-consent' ),
-				'error_reco'    => __( 'Bitte prüfen Sie die URL oder starten Sie den Check später erneut.', 'light-swiss-cookie-consent' ),
+				'error_problem' => __( 'Die URL konnte nicht geprüft werden.', 'macs-cookie-banner' ),
+				'error_reco'    => __( 'Bitte prüfen Sie die URL oder starten Sie den Check später erneut.', 'macs-cookie-banner' ),
 			);
 		}
 
@@ -177,8 +177,8 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 			return array(
 				'ok'            => false,
 				'body'          => '',
-				'error_problem' => __( 'Die URL lieferte keine prüfbare Ausgabe.', 'light-swiss-cookie-consent' ),
-				'error_reco'    => __( 'Bitte prüfen Sie die eingebundenen externen Dienste manuell.', 'light-swiss-cookie-consent' ),
+				'error_problem' => __( 'Die URL lieferte keine prüfbare Ausgabe.', 'macs-cookie-banner' ),
+				'error_reco'    => __( 'Bitte prüfen Sie die eingebundenen externen Dienste manuell.', 'macs-cookie-banner' ),
 			);
 		}
 
@@ -219,8 +219,8 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 		if ( empty( $results ) ) {
 			$results[] = array(
 				'status'         => 'info',
-				'problem'        => __( 'Keine der einfachen Privacy-Check-Muster gefunden.', 'light-swiss-cookie-consent' ),
-				'recommendation' => __( 'Prüfen Sie externe Dienste trotzdem manuell, besonders eingebettete Medien, Tracking und Fonts.', 'light-swiss-cookie-consent' ),
+				'problem'        => __( 'Keine der einfachen Privacy-Check-Muster gefunden.', 'macs-cookie-banner' ),
+				'recommendation' => __( 'Prüfen Sie externe Dienste trotzdem manuell, besonders eingebettete Medien, Tracking und Fonts.', 'macs-cookie-banner' ),
 			);
 		}
 
@@ -240,8 +240,8 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 					'fonts.googleapis.com',
 					'fonts.gstatic.com',
 				),
-				'problem'        => __( 'Externe Google Fonts erkannt.', 'light-swiss-cookie-consent' ),
-				'recommendation' => __( 'Fonts lokal hosten oder ohne externe Google-Requests einbinden.', 'light-swiss-cookie-consent' ),
+				'problem'        => __( 'Externe Google Fonts erkannt.', 'macs-cookie-banner' ),
+				'recommendation' => __( 'Fonts lokal hosten oder ohne externe Google-Requests einbinden.', 'macs-cookie-banner' ),
 			),
 			array(
 				'status'         => 'kritisch',
@@ -249,8 +249,8 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 					'google-analytics.com',
 					'googletagmanager.com',
 				),
-				'problem'        => __( 'Google Analytics oder Google Tag Manager erkannt.', 'light-swiss-cookie-consent' ),
-				'recommendation' => __( 'Nur nach Zustimmung laden und korrekt einer Consent-Kategorie zuordnen.', 'light-swiss-cookie-consent' ),
+				'problem'        => __( 'Google Analytics oder Google Tag Manager erkannt.', 'macs-cookie-banner' ),
+				'recommendation' => __( 'Nur nach Zustimmung laden und korrekt einer Consent-Kategorie zuordnen.', 'macs-cookie-banner' ),
 			),
 			array(
 				'status'         => 'kritisch',
@@ -258,8 +258,8 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 					'facebook.net',
 					'connect.facebook.net',
 				),
-				'problem'        => __( 'Facebook-Script oder Meta-Dienst erkannt.', 'light-swiss-cookie-consent' ),
-				'recommendation' => __( 'Nur nach Zustimmung laden und Marketing-Scripts bewusst blockieren.', 'light-swiss-cookie-consent' ),
+				'problem'        => __( 'Facebook-Script oder Meta-Dienst erkannt.', 'macs-cookie-banner' ),
+				'recommendation' => __( 'Nur nach Zustimmung laden und Marketing-Scripts bewusst blockieren.', 'macs-cookie-banner' ),
 			),
 			array(
 				'status'         => 'wichtig',
@@ -267,16 +267,16 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 					'youtube.com',
 					'youtu.be',
 				),
-				'problem'        => __( 'YouTube-Inhalte oder YouTube-Links erkannt.', 'light-swiss-cookie-consent' ),
-				'recommendation' => __( 'Externe Medien erst nach Zustimmung laden oder datenschutzfreundliche Einbettung prüfen.', 'light-swiss-cookie-consent' ),
+				'problem'        => __( 'YouTube-Inhalte oder YouTube-Links erkannt.', 'macs-cookie-banner' ),
+				'recommendation' => __( 'Externe Medien erst nach Zustimmung laden oder datenschutzfreundliche Einbettung prüfen.', 'macs-cookie-banner' ),
 			),
 			array(
 				'status'         => 'wichtig',
 				'patterns'       => array(
 					'vimeo.com',
 				),
-				'problem'        => __( 'Vimeo-Inhalte oder Vimeo-Links erkannt.', 'light-swiss-cookie-consent' ),
-				'recommendation' => __( 'Externe Medien erst nach Zustimmung laden oder datenschutzfreundliche Einbettung prüfen.', 'light-swiss-cookie-consent' ),
+				'problem'        => __( 'Vimeo-Inhalte oder Vimeo-Links erkannt.', 'macs-cookie-banner' ),
+				'recommendation' => __( 'Externe Medien erst nach Zustimmung laden oder datenschutzfreundliche Einbettung prüfen.', 'macs-cookie-banner' ),
 			),
 		);
 	}
@@ -289,9 +289,9 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 	 */
 	private static function get_status_label( $status ) {
 		$labels = array(
-			'kritisch' => __( 'Kritisch', 'light-swiss-cookie-consent' ),
-			'wichtig'  => __( 'Wichtig', 'light-swiss-cookie-consent' ),
-			'info'     => __( 'Info', 'light-swiss-cookie-consent' ),
+			'kritisch' => __( 'Kritisch', 'macs-cookie-banner' ),
+			'wichtig'  => __( 'Wichtig', 'macs-cookie-banner' ),
+			'info'     => __( 'Info', 'macs-cookie-banner' ),
 		);
 
 		return isset( $labels[ $status ] ) ? $labels[ $status ] : $labels['info'];
@@ -326,8 +326,8 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 					'managed'            => false,
 					'managed_applicable' => false,
 					'recommendation'     => $fonts
-						? __( 'Empfehlung: lokal hosten. Consent ersetzt kein Local Hosting.', 'light-swiss-cookie-consent' )
-						: __( 'Keine externen Google Fonts auf dieser URL gefunden.', 'light-swiss-cookie-consent' ),
+						? __( 'Empfehlung: lokal hosten. Consent ersetzt kein Local Hosting.', 'macs-cookie-banner' )
+						: __( 'Keine externen Google Fonts auf dieser URL gefunden.', 'macs-cookie-banner' ),
 					'note'               => '',
 				);
 				continue;
@@ -390,7 +390,7 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 
 		if ( preg_match_all( '#<script\b([^>]*)>(.*?)</script>#is', $body, $matches, PREG_SET_ORDER ) ) {
 			foreach ( $matches as $block ) {
-				$vendor = Light_Swiss_Cookie_Consent_Codes::match_vendor( $block[1] . ' ' . $block[2] );
+				$vendor = Macs_Cookie_Banner_Codes::match_vendor( $block[1] . ' ' . $block[2] );
 
 				if ( '' === $vendor || 'custom' === $vendor ) {
 					continue;
@@ -484,12 +484,12 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 	 * @return array
 	 */
 	private static function registered_vendors() {
-		if ( ! class_exists( 'Light_Swiss_Cookie_Consent_Codes' ) ) {
+		if ( ! class_exists( 'Macs_Cookie_Banner_Codes' ) ) {
 			return array();
 		}
 
 		$vendors = array();
-		foreach ( Light_Swiss_Cookie_Consent_Codes::get_codes() as $entry ) {
+		foreach ( Macs_Cookie_Banner_Codes::get_codes() as $entry ) {
 			if ( ! empty( $entry['vendor'] ) && 'custom' !== $entry['vendor'] ) {
 				$vendors[] = $entry['vendor'];
 			}
@@ -505,16 +505,16 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 	 */
 	private static function get_surface_services() {
 		return array(
-			array( 'key' => 'ga4', 'label' => 'Google Analytics 4', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Statistik) laden.', 'light-swiss-cookie-consent' ) ),
-			array( 'key' => 'gtm', 'label' => 'Google Tag Manager', 'kind' => 'script', 'server_visible' => true, 'opaque' => true, 'note' => __( 'Container erkannt; die von GTM gefeuerten Tags sind serverseitig nicht prüfbar.', 'light-swiss-cookie-consent' ), 'recommend' => __( 'Über den Consent-Code-Manager laden und in GTM gefeuerte Tags separat prüfen.', 'light-swiss-cookie-consent' ) ),
-			array( 'key' => 'meta_pixel', 'label' => 'Meta / Facebook Pixel', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Marketing) laden.', 'light-swiss-cookie-consent' ) ),
-			array( 'key' => 'hotjar', 'label' => 'Hotjar', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Statistik) laden.', 'light-swiss-cookie-consent' ) ),
-			array( 'key' => 'recaptcha', 'label' => 'Google reCAPTCHA', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => __( 'Rechtliche Einordnung im Einzelfall prüfen.', 'light-swiss-cookie-consent' ), 'recommend' => __( 'Vor Consent blockieren bzw. v2-on-submit prüfen.', 'light-swiss-cookie-consent' ) ),
-			array( 'key' => 'calendly', 'label' => 'Calendly', 'kind' => 'script', 'server_visible' => false, 'opaque' => false, 'note' => __( 'Wird teils erst nach Interaktion geladen.', 'light-swiss-cookie-consent' ), 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Externe Medien) bzw. als gegatetes Embed lösen.', 'light-swiss-cookie-consent' ) ),
-			array( 'key' => 'youtube', 'label' => 'YouTube', 'kind' => 'embed', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( '[lscc_youtube] verwenden oder Avada-/YOTU-Gating aktivieren.', 'light-swiss-cookie-consent' ) ),
-			array( 'key' => 'vimeo', 'label' => 'Vimeo', 'kind' => 'embed', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( '[lscc_vimeo] verwenden.', 'light-swiss-cookie-consent' ) ),
-			array( 'key' => 'maps', 'label' => 'Google Maps', 'kind' => 'embed', 'server_visible' => true, 'opaque' => false, 'note' => __( 'Maps-JS-API lädt teils clientseitig.', 'light-swiss-cookie-consent' ), 'recommend' => __( '[lscc_google_map] verwenden; Maps-JS separat prüfen.', 'light-swiss-cookie-consent' ) ),
-			array( 'key' => 'google_fonts', 'label' => __( 'Externe Google Fonts', 'light-swiss-cookie-consent' ), 'kind' => 'font', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => '' ),
+			array( 'key' => 'ga4', 'label' => 'Google Analytics 4', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Statistik) laden.', 'macs-cookie-banner' ) ),
+			array( 'key' => 'gtm', 'label' => 'Google Tag Manager', 'kind' => 'script', 'server_visible' => true, 'opaque' => true, 'note' => __( 'Container erkannt; die von GTM gefeuerten Tags sind serverseitig nicht prüfbar.', 'macs-cookie-banner' ), 'recommend' => __( 'Über den Consent-Code-Manager laden und in GTM gefeuerte Tags separat prüfen.', 'macs-cookie-banner' ) ),
+			array( 'key' => 'meta_pixel', 'label' => 'Meta / Facebook Pixel', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Marketing) laden.', 'macs-cookie-banner' ) ),
+			array( 'key' => 'hotjar', 'label' => 'Hotjar', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Statistik) laden.', 'macs-cookie-banner' ) ),
+			array( 'key' => 'recaptcha', 'label' => 'Google reCAPTCHA', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => __( 'Rechtliche Einordnung im Einzelfall prüfen.', 'macs-cookie-banner' ), 'recommend' => __( 'Vor Consent blockieren bzw. v2-on-submit prüfen.', 'macs-cookie-banner' ) ),
+			array( 'key' => 'calendly', 'label' => 'Calendly', 'kind' => 'script', 'server_visible' => false, 'opaque' => false, 'note' => __( 'Wird teils erst nach Interaktion geladen.', 'macs-cookie-banner' ), 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Externe Medien) bzw. als gegatetes Embed lösen.', 'macs-cookie-banner' ) ),
+			array( 'key' => 'youtube', 'label' => 'YouTube', 'kind' => 'embed', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( '[lscc_youtube] verwenden oder Avada-/YOTU-Gating aktivieren.', 'macs-cookie-banner' ) ),
+			array( 'key' => 'vimeo', 'label' => 'Vimeo', 'kind' => 'embed', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( '[lscc_vimeo] verwenden.', 'macs-cookie-banner' ) ),
+			array( 'key' => 'maps', 'label' => 'Google Maps', 'kind' => 'embed', 'server_visible' => true, 'opaque' => false, 'note' => __( 'Maps-JS-API lädt teils clientseitig.', 'macs-cookie-banner' ), 'recommend' => __( '[lscc_google_map] verwenden; Maps-JS separat prüfen.', 'macs-cookie-banner' ) ),
+			array( 'key' => 'google_fonts', 'label' => __( 'Externe Google Fonts', 'macs-cookie-banner' ), 'kind' => 'font', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => '' ),
 		);
 	}
 
@@ -526,12 +526,12 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 	 */
 	private static function get_surface_status_label( $status ) {
 		$labels = array(
-			'nicht_gefunden' => __( 'Nicht gefunden', 'light-swiss-cookie-consent' ),
-			'verwaltet'      => __( 'Verwaltet', 'light-swiss-cookie-consent' ),
-			'teilweise'      => __( 'Teilweise verwaltet', 'light-swiss-cookie-consent' ),
-			'ungegatet'      => __( 'Ungegatet', 'light-swiss-cookie-consent' ),
-			'nicht_pruefbar' => __( 'Nicht prüfbar', 'light-swiss-cookie-consent' ),
-			'fonts_found'    => __( 'Externe Google Fonts erkannt', 'light-swiss-cookie-consent' ),
+			'nicht_gefunden' => __( 'Nicht gefunden', 'macs-cookie-banner' ),
+			'verwaltet'      => __( 'Verwaltet', 'macs-cookie-banner' ),
+			'teilweise'      => __( 'Teilweise verwaltet', 'macs-cookie-banner' ),
+			'ungegatet'      => __( 'Ungegatet', 'macs-cookie-banner' ),
+			'nicht_pruefbar' => __( 'Nicht prüfbar', 'macs-cookie-banner' ),
+			'fonts_found'    => __( 'Externe Google Fonts erkannt', 'macs-cookie-banner' ),
 		);
 
 		return isset( $labels[ $status ] ) ? $labels[ $status ] : $status;
@@ -544,18 +544,18 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 	 * @return void
 	 */
 	private static function render_surface_section( $surface ) {
-		$yes = __( 'Ja', 'light-swiss-cookie-consent' );
-		$no  = __( 'Nein', 'light-swiss-cookie-consent' );
+		$yes = __( 'Ja', 'macs-cookie-banner' );
+		$no  = __( 'Nein', 'macs-cookie-banner' );
 		?>
 		<table class="widefat striped">
 			<thead>
 				<tr>
-					<th scope="col"><?php echo esc_html__( 'Dienst', 'light-swiss-cookie-consent' ); ?></th>
-					<th scope="col"><?php echo esc_html__( 'Status', 'light-swiss-cookie-consent' ); ?></th>
-					<th scope="col" style="text-align:right;"><?php echo esc_html__( 'Gegated', 'light-swiss-cookie-consent' ); ?></th>
-					<th scope="col" style="text-align:right;"><?php echo esc_html__( 'Ungegatet', 'light-swiss-cookie-consent' ); ?></th>
-					<th scope="col"><?php echo esc_html__( 'Im Consent-Code-Manager', 'light-swiss-cookie-consent' ); ?></th>
-					<th scope="col"><?php echo esc_html__( 'Empfehlung / Hinweis', 'light-swiss-cookie-consent' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Dienst', 'macs-cookie-banner' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Status', 'macs-cookie-banner' ); ?></th>
+					<th scope="col" style="text-align:right;"><?php echo esc_html__( 'Gegated', 'macs-cookie-banner' ); ?></th>
+					<th scope="col" style="text-align:right;"><?php echo esc_html__( 'Ungegatet', 'macs-cookie-banner' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Im Consent-Code-Manager', 'macs-cookie-banner' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Empfehlung / Hinweis', 'macs-cookie-banner' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -571,7 +571,7 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 				<?php endforeach; ?>
 			</tbody>
 		</table>
-		<p class="description"><?php echo esc_html__( 'Hinweis: Server-Sicht ohne JavaScript. „Verwaltet" = auf dieser URL als LSCC-geblocktes Script/Platzhalter erkannt. „Nicht prüfbar" = serverseitig nicht sicher bestimmbar (z. B. GTM-gefeuerte Tags, klick-/JS-geladene Widgets). Externe Google Fonts lassen sich nicht per Consent lösen — lokal hosten.', 'light-swiss-cookie-consent' ); ?></p>
+		<p class="description"><?php echo esc_html__( 'Hinweis: Server-Sicht ohne JavaScript. „Verwaltet" = auf dieser URL als LSCC-geblocktes Script/Platzhalter erkannt. „Nicht prüfbar" = serverseitig nicht sicher bestimmbar (z. B. GTM-gefeuerte Tags, klick-/JS-geladene Widgets). Externe Google Fonts lassen sich nicht per Consent lösen — lokal hosten.', 'macs-cookie-banner' ); ?></p>
 		<?php
 	}
 
@@ -582,15 +582,15 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 	 * @return void
 	 */
 	private static function render_content_scan_section( $results ) {
-		$action_url = admin_url( 'admin.php?page=light-swiss-cookie-consent-privacy-check' );
+		$action_url = admin_url( 'admin.php?page=macs-cookie-banner-privacy-check' );
 		?>
-		<h2><?php echo esc_html__( 'Content Scan', 'light-swiss-cookie-consent' ); ?></h2>
+		<h2><?php echo esc_html__( 'Content Scan', 'macs-cookie-banner' ); ?></h2>
 		<p>
-			<?php echo esc_html__( 'Lokale Suche in veröffentlichten Beiträgen, Seiten und öffentlichen Custom Post Types (maximal 200 Inhalte pro Scan) nach bekannten externen Diensten. Kein Crawl, keine externen Requests, kein automatischer Scan.', 'light-swiss-cookie-consent' ); ?>
+			<?php echo esc_html__( 'Lokale Suche in veröffentlichten Beiträgen, Seiten und öffentlichen Custom Post Types (maximal 200 Inhalte pro Scan) nach bekannten externen Diensten. Kein Crawl, keine externen Requests, kein automatischer Scan.', 'macs-cookie-banner' ); ?>
 		</p>
 		<form method="post" action="<?php echo esc_url( $action_url ); ?>">
-			<?php wp_nonce_field( 'lscc_content_scan', 'lscc_content_scan_nonce' ); ?>
-			<?php submit_button( esc_html__( 'Content Scan starten', 'light-swiss-cookie-consent' ), 'primary', 'lscc_run_content_scan', false ); ?>
+			<?php wp_nonce_field( 'mcb_content_scan', 'mcb_content_scan_nonce' ); ?>
+			<?php submit_button( esc_html__( 'Content Scan starten', 'macs-cookie-banner' ), 'primary', 'mcb_run_content_scan', false ); ?>
 		</form>
 		<?php if ( null !== $results ) : ?>
 			<?php self::render_content_scan_results( $results ); ?>
@@ -613,7 +613,7 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 				<?php
 				printf(
 					/* translators: 1: Number of scanned posts, 2: Number of findings. */
-					esc_html__( 'Geprüft: %1$d Inhalte. Treffer: %2$d.', 'light-swiss-cookie-consent' ),
+					esc_html__( 'Geprüft: %1$d Inhalte. Treffer: %2$d.', 'macs-cookie-banner' ),
 					$scanned,
 					count( $findings )
 				);
@@ -621,17 +621,17 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 			</strong>
 		</p>
 		<?php if ( empty( $findings ) ) : ?>
-			<p><?php echo esc_html__( 'Keine bekannten externen Embeds in den geprüften Inhalten gefunden.', 'light-swiss-cookie-consent' ); ?></p>
+			<p><?php echo esc_html__( 'Keine bekannten externen Embeds in den geprüften Inhalten gefunden.', 'macs-cookie-banner' ); ?></p>
 		<?php else : ?>
 			<table class="widefat striped">
 				<thead>
 					<tr>
-						<th scope="col"><?php echo esc_html__( 'Risiko', 'light-swiss-cookie-consent' ); ?></th>
-						<th scope="col"><?php echo esc_html__( 'Dienst', 'light-swiss-cookie-consent' ); ?></th>
-						<th scope="col"><?php echo esc_html__( 'Inhaltstyp', 'light-swiss-cookie-consent' ); ?></th>
-						<th scope="col"><?php echo esc_html__( 'Titel', 'light-swiss-cookie-consent' ); ?></th>
-						<th scope="col"><?php echo esc_html__( 'Domain', 'light-swiss-cookie-consent' ); ?></th>
-						<th scope="col"><?php echo esc_html__( 'Empfehlung', 'light-swiss-cookie-consent' ); ?></th>
+						<th scope="col"><?php echo esc_html__( 'Risiko', 'macs-cookie-banner' ); ?></th>
+						<th scope="col"><?php echo esc_html__( 'Dienst', 'macs-cookie-banner' ); ?></th>
+						<th scope="col"><?php echo esc_html__( 'Inhaltstyp', 'macs-cookie-banner' ); ?></th>
+						<th scope="col"><?php echo esc_html__( 'Titel', 'macs-cookie-banner' ); ?></th>
+						<th scope="col"><?php echo esc_html__( 'Domain', 'macs-cookie-banner' ); ?></th>
+						<th scope="col"><?php echo esc_html__( 'Empfehlung', 'macs-cookie-banner' ); ?></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -735,10 +735,10 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 	 */
 	private static function get_post_type_label( $post_type ) {
 		if ( 'post' === $post_type ) {
-			return __( 'Beitrag', 'light-swiss-cookie-consent' );
+			return __( 'Beitrag', 'macs-cookie-banner' );
 		}
 		if ( 'page' === $post_type ) {
-			return __( 'Seite', 'light-swiss-cookie-consent' );
+			return __( 'Seite', 'macs-cookie-banner' );
 		}
 		$obj = get_post_type_object( $post_type );
 		if ( $obj && isset( $obj->labels->singular_name ) && '' !== $obj->labels->singular_name ) {
@@ -755,46 +755,46 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 	private static function get_content_scan_patterns() {
 		return array(
 			array(
-				'service'        => __( 'YouTube', 'light-swiss-cookie-consent' ),
+				'service'        => __( 'YouTube', 'macs-cookie-banner' ),
 				'risk'           => 'wichtig',
 				'needles'        => array( 'youtube-nocookie.com', 'youtube.com', 'youtu.be' ),
-				'recommendation' => __( 'Normales WordPress-YouTube-Embed gefunden. Für consent-sichere Einbettung [lscc_youtube id="VIDEO_ID"] verwenden.', 'light-swiss-cookie-consent' ),
+				'recommendation' => __( 'Normales WordPress-YouTube-Embed gefunden. Für consent-sichere Einbettung [lscc_youtube id="VIDEO_ID"] verwenden.', 'macs-cookie-banner' ),
 			),
 			array(
-				'service'        => __( 'Vimeo', 'light-swiss-cookie-consent' ),
+				'service'        => __( 'Vimeo', 'macs-cookie-banner' ),
 				'risk'           => 'wichtig',
 				'needles'        => array( 'player.vimeo.com', 'vimeo.com' ),
-				'recommendation' => __( '[lscc_vimeo id="VIDEO_ID"] verwenden.', 'light-swiss-cookie-consent' ),
+				'recommendation' => __( '[lscc_vimeo id="VIDEO_ID"] verwenden.', 'macs-cookie-banner' ),
 			),
 			array(
-				'service'        => __( 'Google Maps', 'light-swiss-cookie-consent' ),
+				'service'        => __( 'Google Maps', 'macs-cookie-banner' ),
 				'risk'           => 'wichtig',
 				'needles'        => array( 'google.com/maps', 'maps.google.' ),
-				'recommendation' => __( '[lscc_google_map url="..."] verwenden.', 'light-swiss-cookie-consent' ),
+				'recommendation' => __( '[lscc_google_map url="..."] verwenden.', 'macs-cookie-banner' ),
 			),
 			array(
-				'service'        => __( 'Google Fonts', 'light-swiss-cookie-consent' ),
+				'service'        => __( 'Google Fonts', 'macs-cookie-banner' ),
 				'risk'           => 'kritisch',
 				'needles'        => array( 'fonts.googleapis.com', 'fonts.gstatic.com' ),
-				'recommendation' => __( 'Fonts lokal hosten oder im Theme/Builder deaktivieren.', 'light-swiss-cookie-consent' ),
+				'recommendation' => __( 'Fonts lokal hosten oder im Theme/Builder deaktivieren.', 'macs-cookie-banner' ),
 			),
 			array(
-				'service'        => __( 'Google Tag Manager', 'light-swiss-cookie-consent' ),
+				'service'        => __( 'Google Tag Manager', 'macs-cookie-banner' ),
 				'risk'           => 'kritisch',
 				'needles'        => array( 'googletagmanager.com' ),
-				'recommendation' => __( 'Vor Consent blockieren oder über kontrollierte Script-Kategorie einbinden.', 'light-swiss-cookie-consent' ),
+				'recommendation' => __( 'Vor Consent blockieren oder über kontrollierte Script-Kategorie einbinden.', 'macs-cookie-banner' ),
 			),
 			array(
-				'service'        => __( 'Google Analytics', 'light-swiss-cookie-consent' ),
+				'service'        => __( 'Google Analytics', 'macs-cookie-banner' ),
 				'risk'           => 'kritisch',
 				'needles'        => array( 'google-analytics.com' ),
-				'recommendation' => __( 'Vor Consent blockieren oder über kontrollierte Script-Kategorie einbinden.', 'light-swiss-cookie-consent' ),
+				'recommendation' => __( 'Vor Consent blockieren oder über kontrollierte Script-Kategorie einbinden.', 'macs-cookie-banner' ),
 			),
 			array(
-				'service'        => __( 'Facebook / Meta', 'light-swiss-cookie-consent' ),
+				'service'        => __( 'Facebook / Meta', 'macs-cookie-banner' ),
 				'risk'           => 'kritisch',
 				'needles'        => array( 'connect.facebook.net', 'facebook.net' ),
-				'recommendation' => __( 'Vor Consent blockieren oder über kontrollierte Script-Kategorie einbinden.', 'light-swiss-cookie-consent' ),
+				'recommendation' => __( 'Vor Consent blockieren oder über kontrollierte Script-Kategorie einbinden.', 'macs-cookie-banner' ),
 			),
 		);
 	}

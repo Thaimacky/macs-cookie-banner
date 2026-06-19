@@ -6,7 +6,7 @@ Diese Karte beschreibt die aktiven Dateien, ihre Zustaendigkeiten und die wichti
 
 | Datei | Zweck |
 |---|---|
-| `light-swiss-cookie-consent.php` | Plugin-Bootstrap, Konstanten, Hauptklasse, Banner-Markup, Asset-Enqueue, WPML/Polylang-Registrierung, Shortcode `[simple_cookie_settings]`. |
+| `macs-cookie-banner.php` | Plugin-Bootstrap, Konstanten, Hauptklasse, Banner-Markup, Asset-Enqueue, WPML/Polylang-Registrierung, Shortcode `[simple_cookie_settings]`. |
 | `includes/admin-page.php` | Admin-Menue, Einstellungsseite, Speichern via `admin-post.php` mit Nonce-Pruefung, Render-Helpers fuer Text- und Color-Felder. |
 | `includes/privacy-check.php` | Passive Admin-Seite, die einmal die Startseite via `wp_remote_get` abruft und gegen eine statische Mustertabelle prueft. |
 | `includes/avada-inventory.php` | Passive, rein lesende Admin-Seite „Avada Inventar-Scan" (ab 0.1.8): zählt Video-/Map-/Embed-Typen in lokalen Inhalten zur Abschätzung der automatischen Abdeckung. Keine externen Requests, keine Schreibzugriffe, keine Inhaltsänderung. |
@@ -17,20 +17,20 @@ Diese Karte beschreibt die aktiven Dateien, ihre Zustaendigkeiten und die wichti
 | `includes/service-components.php` | Shortcodes `[lscc_youtube]`, `[lscc_vimeo]`, `[lscc_google_map]` mit Placeholder-Markup. |
 | `assets/js/banner.js` | Frontend-Logik: Consent-Speicherung, Banner-Steuerung, Script-Aktivierung, Media-Sync. |
 | `assets/css/banner.css` | Styles fuer Banner, Reopen-Button, Settings-Button und Media-Komponenten. |
-| `languages/light-swiss-cookie-consent.pot` | i18n-Template. Ab v0.2.1 vollständig aus den realen Quelltext-Callsites generiert (158 msgids; Audit). |
-| `languages/light-swiss-cookie-consent-*.po` | Vollständiger Katalog für `de_CH`, `en_US`, `fr_FR`, `it_IT`, `tr_TR`, `hu_HU`. Ab v0.2.1 befüllt: **frontend-/besucherseitige** Strings (Kategorie-Labels/-Beschreibungen, Rechtslinks, Service-Komponenten-Texte) in allen sechs Sprachen; Admin-only-Strings bleiben deutsche Quelle (Operator-Sprache). |
-| `languages/light-swiss-cookie-consent-*.mo` | Ab v0.2.1 kompiliert (sechs Locales). Nur Einträge mit echter Übersetzung; fehlende fallen auf die deutsche Quelle zurück. Notwendig, damit `__()`/`esc_html__()` der aktiven WPML-Sprache folgen. |
+| `languages/macs-cookie-banner.pot` | i18n-Template. Ab v0.2.1 vollständig aus den realen Quelltext-Callsites generiert (158 msgids; Audit). |
+| `languages/macs-cookie-banner-*.po` | Vollständiger Katalog für `de_CH`, `en_US`, `fr_FR`, `it_IT`, `tr_TR`, `hu_HU`. Ab v0.2.1 befüllt: **frontend-/besucherseitige** Strings (Kategorie-Labels/-Beschreibungen, Rechtslinks, Service-Komponenten-Texte) in allen sechs Sprachen; Admin-only-Strings bleiben deutsche Quelle (Operator-Sprache). |
+| `languages/macs-cookie-banner-*.mo` | Ab v0.2.1 kompiliert (sechs Locales). Nur Einträge mit echter Übersetzung; fehlende fallen auf die deutsche Quelle zurück. Notwendig, damit `__()`/`esc_html__()` der aktiven WPML-Sprache folgen. |
 
-## `light-swiss-cookie-consent.php`
+## `macs-cookie-banner.php`
 
 **Konstanten:**
 
-- `LSCC_VERSION` (ab 0.1.5: `'0.1.5'`) — Plugin-Versionsstring
-- `LSCC_CONSENT_VERSION` (ab 0.1.5: `2`) — Schema-Version des gespeicherten Consents; getrennt von `LSCC_VERSION`, wird nur bei strukturellen Änderungen erhöht und invalidiert dann clientseitige Consents älterer Schema-Versionen
-- `LSCC_PLUGIN_FILE`, `LSCC_PLUGIN_DIR`, `LSCC_PLUGIN_URL`
-- `LSCC_DEBUG` (Default `false`, kann via `wp-config.php` ueberschrieben werden)
+- `MCB_VERSION` (ab 0.1.5: `'0.1.5'`) — Plugin-Versionsstring
+- `MCB_CONSENT_VERSION` (ab 0.1.5: `2`) — Schema-Version des gespeicherten Consents; getrennt von `MCB_VERSION`, wird nur bei strukturellen Änderungen erhöht und invalidiert dann clientseitige Consents älterer Schema-Versionen
+- `MCB_PLUGIN_FILE`, `MCB_PLUGIN_DIR`, `MCB_PLUGIN_URL`
+- `MCB_DEBUG` (Default `false`, kann via `wp-config.php` ueberschrieben werden)
 
-**Hauptklasse `Light_Swiss_Cookie_Consent`:**
+**Hauptklasse `Macs_Cookie_Banner`:**
 
 - `OPTION_NAME = 'lscc_options'`
 - `COOKIE_NAME = 'lscc_consent'`
@@ -91,10 +91,10 @@ Diese Karte beschreibt die aktiven Dateien, ihre Zustaendigkeiten und die wichti
 
 ## `includes/admin-page.php`
 
-**Klasse `Light_Swiss_Cookie_Consent_Admin`:**
+**Klasse `Macs_Cookie_Banner_Admin`:**
 
 - `init()` — registriert `admin_menu` und `admin_post_lscc_save_settings`
-- `add_settings_page()` — Top-Level-Menue `light-swiss-cookie-consent` plus Submenues `Einstellungen`, `Privacy Check` und (ab 0.1.8) `Avada Inventar-Scan`. `admin-page.php` lädt `privacy-check.php` und `avada-inventory.php` via `require_once`.
+- `add_settings_page()` — Top-Level-Menue `macs-cookie-banner` plus Submenues `Einstellungen`, `Privacy Check` und (ab 0.1.8) `Avada Inventar-Scan`. `admin-page.php` lädt `privacy-check.php` und `avada-inventory.php` via `require_once`.
 - `save_settings()` — prueft `current_user_can( 'manage_options' )` und `wp_verify_nonce( ..., 'lscc_save_settings' )`, sanitisiert und speichert, dann `wp_safe_redirect`
 - `render_settings_page()` — rendert Formular mit Text- und Color-Feldern
 - `render_text_field()`, `render_color_field()` — Tabellenzeilen-Renderer
@@ -109,7 +109,7 @@ Diese Karte beschreibt die aktiven Dateien, ihre Zustaendigkeiten und die wichti
 
 ## `includes/privacy-check.php`
 
-**Klasse `Light_Swiss_Cookie_Consent_Privacy_Check`:**
+**Klasse `Macs_Cookie_Banner_Privacy_Check`:**
 
 - `render_page()` — Admin-Seite mit drei Sektionen (ab 0.3.1): `Drittanbieter-Oberfläche` (URL-Formular + Status-Tabelle), `Muster-Schnellprüfung` (alte Mustertabelle) und `Content Scan`. Prueft `current_user_can` und Nonces (`lscc_surface_scan`, `lscc_content_scan`). Holt die zu prüfende URL **einmal** und speist beide Sektionen.
 - `resolve_scan_url()` (ab 0.3.1) — liefert die zu prüfende URL: eigene **gleicher-Host**-URL (POST + Nonce) oder Startseite. SSRF-Schutz: Fremd-Hosts → Fallback Startseite + `host_mismatch`-Notice.
@@ -151,7 +151,7 @@ Der Check fuehrt keinen Crawl durch, prueft nur diese eine URL und veraendert ni
 
 ## `includes/avada-inventory.php`
 
-**Klasse `Light_Swiss_Cookie_Consent_Avada_Inventory`** (ab 0.1.8):
+**Klasse `Macs_Cookie_Banner_Avada_Inventory`** (ab 0.1.8):
 
 - Konstante `SCAN_LIMIT = 500` — max. geprüfte Inhalte pro Lauf.
 - `render_page()` — Admin-Seite; prüft `current_user_can( 'manage_options' )`, Button-getriggert über `lscc_run_avada_inventory` POST mit Nonce `lscc_avada_inventory`. Rein lesend.
@@ -165,17 +165,17 @@ Element-Klassifizierung (überschneidungsfrei) als Entscheidungsbasis; Diagnosti
 
 ## `includes/avada-compat.php`
 
-**Klasse `Light_Swiss_Cookie_Consent_Avada_Compat`** (ab 0.1.9):
+**Klasse `Macs_Cookie_Banner_Avada_Compat`** (ab 0.1.9):
 
 - `init()` — registriert nur im Frontend (`! is_admin()`) und nur bei aktivierter Option `avada_youtube_block` den Filter `pre_do_shortcode_tag` (Prio 10, 4 Argumente).
-- `intercept( $output, $tag, $attr, $m )` — bei `$tag === 'fusion_youtube'`: extrahiert die Video-ID, gibt `Light_Swiss_Cookie_Consent_Service_Components::render_youtube( array( 'id' => $video_id ) )` als Ersatz-Markup zurück (Kurzschluss der Avada-Ausgabe). Bei nicht parsebarer ID oder leerem Markup wird `$output` (false) zurückgegeben → Avada rendert normal weiter.
+- `intercept( $output, $tag, $attr, $m )` — bei `$tag === 'fusion_youtube'`: extrahiert die Video-ID, gibt `Macs_Cookie_Banner_Service_Components::render_youtube( array( 'id' => $video_id ) )` als Ersatz-Markup zurück (Kurzschluss der Avada-Ausgabe). Bei nicht parsebarer ID oder leerem Markup wird `$output` (false) zurückgegeben → Avada rendert normal weiter.
 - `extract_video_id( $raw )` — akzeptiert rohe IDs und YouTube-URLs (`youtu.be/ID`, `watch?v=ID`, `/embed/ID`, `/v/ID`); liefert `''` bei nicht parsebarem Wert.
 
 Reine Server-Interception: kein DOM-Hijacking, kein MutationObserver, kein Scanner, keine Inhaltsänderung. Das iframe wird erst nach `external_media`-Consent über die bestehende `banner.js`-Mechanik gebaut. Wiederverwendung von `Service_Components::render_youtube()` → identisches Platzhalter-/Consent-Verhalten wie `[lscc_youtube]`. Steuerung über `avada_youtube_block` (bool, Default `true`).
 
 ## `includes/yotu-compat.php`
 
-**Klasse `Light_Swiss_Cookie_Consent_Yotu_Compat`** (ab 0.2.2):
+**Klasse `Macs_Cookie_Banner_Yotu_Compat`** (ab 0.2.2):
 
 - Konstante `SCRIPT_HANDLE = 'yotu-script'` — Frontend-Script-Handle des Plugins „Yotuwp – Easy YouTube Embed".
 - `init()` — registriert nur im Frontend (`! is_admin()`) und nur bei aktivierter Option `yotu_consent_gating` die Filter `script_loader_tag` (Prio 10/3), `wp_inline_script_attributes` (10/1) und `do_shortcode_tag` (10/4).
@@ -189,7 +189,7 @@ Vor `external_media`-Consent: kein youtube.com, kein youtube-nocookie.com, kein 
 
 ## `includes/avada-maps-compat.php`
 
-**Klasse `Light_Swiss_Cookie_Consent_Avada_Maps_Compat`** (ab 0.3.2, Variante 3A-i):
+**Klasse `Macs_Cookie_Banner_Avada_Maps_Compat`** (ab 0.3.2, Variante 3A-i):
 
 - Konstante `MAPS_API_NEEDLE = 'maps.googleapis.com/maps/api/js'`.
 - `init()` — nur Frontend + nur bei `avada_maps_block`: Filter `pre_do_shortcode_tag` (10/4) und `script_loader_tag` (10/3).
@@ -201,7 +201,7 @@ Reine Server-Interception + Script-Gating; **kein** Avada-Reinit, kein DOM-Hijac
 
 ## `includes/consent-codes.php`
 
-**Klasse `Light_Swiss_Cookie_Consent_Codes`** (ab 0.3.0):
+**Klasse `Macs_Cookie_Banner_Codes`** (ab 0.3.0):
 
 - Konstanten: `OPTION_NAME = 'lscc_consent_codes'`, `NONCE_ACTION = 'lscc_save_consent_codes'`, `PAGE_SLUG`, `EXPORT_VERSION = 1`.
 - `init()` — im Admin: `admin_post_lscc_save_consent_codes` → `save()`, `admin_post_lscc_export_consent_codes` → `export()`, `admin_enqueue_scripts` → `enqueue_admin()` (lädt `assets/js/admin-consent-codes.js` nur auf der Manager-Seite). Im Frontend: `wp_head` (99), `wp_body_open`, `wp_footer` (5) → `render_location()`.
@@ -218,7 +218,7 @@ Reine Server-Interception + Script-Gating; **kein** Avada-Reinit, kein DOM-Hijac
 
 ## `includes/service-components.php`
 
-**Klasse `Light_Swiss_Cookie_Consent_Service_Components`:**
+**Klasse `Macs_Cookie_Banner_Service_Components`:**
 
 - `init()` — registriert die drei Shortcodes
 - `render_youtube( $atts )` — `youtube-nocookie.com`-Embed; Attribute `id` (ab 0.2.0 auch YouTube-URLs), `title` (ab 0.2.0, a11y-Titel) und `thumbnail_id` (lokales Mediathek-Bild)
@@ -266,7 +266,7 @@ Normale `<script>`-Tags ohne diese Markierung bleiben unangetastet.
 
 ## Privacy Check
 
-Die Admin-Seite `Privacy Check` ruft `Light_Swiss_Cookie_Consent_Privacy_Check::render_page()` auf. Sie ist passiv: sie prueft genau eine URL, schreibt keine Inhalte um und blockiert nichts automatisch.
+Die Admin-Seite `Privacy Check` ruft `Macs_Cookie_Banner_Privacy_Check::render_page()` auf. Sie ist passiv: sie prueft genau eine URL, schreibt keine Inhalte um und blockiert nichts automatisch.
 
 ## Service-Komponenten
 
@@ -290,7 +290,7 @@ Jede Komponente rendert vor Zustimmung nur einen Platzhalter mit Hinweistext und
 - Script-Aktivierung (`activateBlockedScripts`, `shouldCopyScriptAttribute`, `normalizeScriptType`)
 - Media-Komponenten (`createMediaIframe`, `setMediaComponentLoaded`, `syncMediaComponents`, `bindMediaComponents`, `acceptExternalMedia`). Ab 0.2.0: `bindMediaComponents` markiert die Komponente mit `data-lscc-autoplay-now`, wenn der Play-Button (`data-lscc-autoplay`) geklickt wurde; `createMediaIframe` hängt dann `autoplay=1` an (nur YouTube/Vimeo).
 - Event `lscc:consentChanged`
-- Debug-Logging hinter `LSCC_DEBUG`-Flag
+- Debug-Logging hinter `MCB_DEBUG`-Flag
 
 Kein externer Code, keine Libraries, kein jQuery.
 

@@ -1,44 +1,44 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Light Swiss Cookie Consent 0.3.2\n"
-"Language: hu_HU\n"
+"Language: tr_TR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Domain: light-swiss-cookie-consent\n"
+"X-Domain: macs-cookie-banner\n"
 
 msgid "Notwendig"
-msgstr "Szükséges"
+msgstr "Gerekli"
 
 msgid "Erforderlich für Grundfunktionen der Website."
-msgstr "A weboldal alapvető működéséhez szükséges."
+msgstr "Web sitesinin temel işlevleri için gereklidir."
 
 msgid "Statistik"
-msgstr "Statisztika"
+msgstr "İstatistik"
 
 msgid "Hilft uns, die Nutzung der Website zu verstehen."
-msgstr "Segít megérteni a weboldal használatát."
+msgstr "Web sitesinin nasıl kullanıldığını anlamamıza yardımcı olur."
 
 msgid "Marketing"
-msgstr "Marketing"
+msgstr "Pazarlama"
 
 msgid "Erlaubt Marketing- und Tracking-Dienste."
-msgstr "Engedélyezi a marketing- és nyomkövetési szolgáltatásokat."
+msgstr "Pazarlama ve izleme hizmetlerine izin verir."
 
 msgid "Externe Medien"
-msgstr "Külső média"
+msgstr "Harici medya"
 
 msgid "Lädt eingebettete Inhalte von externen Plattformen."
-msgstr "Beágyazott tartalmakat tölt be külső platformokról."
+msgstr "Harici platformlardan gömülü içerikleri yükler."
 
 msgid "Datenschutz & Impressum"
-msgstr "Adatvédelem és Impresszum"
+msgstr "Gizlilik ve Künye"
 
 msgid "Datenschutz"
-msgstr "Adatvédelem"
+msgstr "Gizlilik"
 
 msgid "Impressum"
-msgstr "Impresszum"
+msgstr "Künye"
 
 msgid "Light Swiss Cookie Consent"
 msgstr ""
@@ -178,7 +178,7 @@ msgstr ""
 msgid "Consent-Gültigkeit (Tage)"
 msgstr ""
 
-msgid "Default: 180 Tage. Erlaubt: 1 – 365. Ein kürzerer Wert (z. B. 60) lässt das Banner früher wieder erscheinen. Der Consent wird im Browser des Besuchers gespeichert (localStorage + Cookie); ein Plugin-Update oder eine Plugin-Deinstallation löscht diesen Browser-Speicher nicht automatisch. Bei strukturellen Änderungen wird stattdessen die Konstante LSCC_CONSENT_VERSION erhöht."
+msgid "Default: 180 Tage. Erlaubt: 1 – 365. Ein kürzerer Wert (z. B. 60) lässt das Banner früher wieder erscheinen. Der Consent wird im Browser des Besuchers gespeichert (localStorage + Cookie); ein Plugin-Update oder eine Plugin-Deinstallation löscht diesen Browser-Speicher nicht automatisch. Bei strukturellen Änderungen wird stattdessen die Konstante MCB_CONSENT_VERSION erhöht."
 msgstr ""
 
 msgid "YouTube-Thumbnails vor Consent laden"
@@ -431,7 +431,7 @@ msgid "[lscc_vimeo id=\"VIDEO_ID\"] verwenden."
 msgstr ""
 
 msgid "Google Maps"
-msgstr "Google Maps"
+msgstr "Google Haritalar"
 
 msgid "[lscc_google_map url=\"...\"] verwenden."
 msgstr ""
@@ -578,25 +578,25 @@ msgid "Hinweis: Slider (Fusion/Revolution/LayerSlider) und externe Speicher auss
 msgstr ""
 
 msgid "YouTube-Video"
-msgstr "YouTube-videó"
+msgstr "YouTube videosu"
 
 msgid "Dieses YouTube-Video wird erst nach Zustimmung zu externen Medien geladen."
-msgstr "Ez a YouTube-videó csak a külső médiához való hozzájárulás után töltődik be."
+msgstr "Bu YouTube videosu yalnızca harici medyaya onay verdikten sonra yüklenir."
 
 msgid "Vimeo-Video"
-msgstr "Vimeo-videó"
+msgstr "Vimeo videosu"
 
 msgid "Dieses Vimeo-Video wird erst nach Zustimmung zu externen Medien geladen."
-msgstr "Ez a Vimeo-videó csak a külső médiához való hozzájárulás után töltődik be."
+msgstr "Bu Vimeo videosu yalnızca harici medyaya onay verdikten sonra yüklenir."
 
 msgid "Diese Google-Maps-Karte wird erst nach Zustimmung zu externen Medien geladen."
-msgstr "Ez a Google Maps térkép csak a külső médiához való hozzájárulás után töltődik be."
+msgstr "Bu Google Haritalar haritası yalnızca harici medyaya onay verdikten sonra yüklenir."
 
 msgid "Externe Medien akzeptieren"
-msgstr "Külső média elfogadása"
+msgstr "Harici medyayı kabul et"
 
 msgid "Diese YouTube-Galerie wird erst nach Zustimmung zu externen Medien geladen."
-msgstr "Ez a YouTube-galéria csak a külső médiához való hozzájárulás után töltődik be."
+msgstr "Bu YouTube galerisi yalnızca harici medyaya onay verdikten sonra yüklenir."
 
 msgid "Eigenes Snippet"
 msgstr ""

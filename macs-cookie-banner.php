@@ -3,41 +3,41 @@
  * Plugin Name: Mac's Cookie Banner
  * Plugin URI:  https://github.com/Thaimacky/macs-cookie-banner
  * Description: Lightweight cookie consent banner with script blocking for WordPress.
- * Version:     0.3.4
+ * Version:     0.4.0
  * Author:      Mac's Cookie Banner
- * Text Domain: light-swiss-cookie-consent
+ * Text Domain: macs-cookie-banner
  * Domain Path: /languages
  *
- * @package LightSwissCookieConsent
+ * @package MacsCookieBanner
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'LSCC_VERSION', '0.3.4' );
+define( 'MCB_VERSION', '0.4.0' );
 
 /**
  * Consent schema version. Bump this whenever the stored consent shape
  * changes in a backwards-incompatible way. Existing client-side consents
  * with a different version are treated as invalid and the banner re-appears.
  */
-if ( ! defined( 'LSCC_CONSENT_VERSION' ) ) {
-	define( 'LSCC_CONSENT_VERSION', 2 );
+if ( ! defined( 'MCB_CONSENT_VERSION' ) ) {
+	define( 'MCB_CONSENT_VERSION', 2 );
 }
 
-define( 'LSCC_PLUGIN_FILE', __FILE__ );
-define( 'LSCC_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'LSCC_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'MCB_PLUGIN_FILE', __FILE__ );
+define( 'MCB_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'MCB_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
-if ( ! defined( 'LSCC_DEBUG' ) ) {
-	define( 'LSCC_DEBUG', false );
+if ( ! defined( 'MCB_DEBUG' ) ) {
+	define( 'MCB_DEBUG', false );
 }
 
 /**
  * Main plugin class.
  */
-final class Light_Swiss_Cookie_Consent {
+final class Macs_Cookie_Banner {
 	/**
 	 * Option name used for all plugin settings.
 	 */
@@ -61,27 +61,27 @@ final class Light_Swiss_Cookie_Consent {
 		add_action( 'wp_footer', array( __CLASS__, 'render_banner' ), 10 );
 		add_shortcode( 'simple_cookie_settings', array( __CLASS__, 'render_settings_shortcode' ) );
 
-		require_once LSCC_PLUGIN_DIR . 'includes/service-components.php';
-		Light_Swiss_Cookie_Consent_Service_Components::init();
+		require_once MCB_PLUGIN_DIR . 'includes/service-components.php';
+		Macs_Cookie_Banner_Service_Components::init();
 
-		require_once LSCC_PLUGIN_DIR . 'includes/avada-compat.php';
-		Light_Swiss_Cookie_Consent_Avada_Compat::init();
+		require_once MCB_PLUGIN_DIR . 'includes/avada-compat.php';
+		Macs_Cookie_Banner_Avada_Compat::init();
 
-		require_once LSCC_PLUGIN_DIR . 'includes/yotu-compat.php';
-		Light_Swiss_Cookie_Consent_Yotu_Compat::init();
+		require_once MCB_PLUGIN_DIR . 'includes/yotu-compat.php';
+		Macs_Cookie_Banner_Yotu_Compat::init();
 
-		require_once LSCC_PLUGIN_DIR . 'includes/avada-maps-compat.php';
-		Light_Swiss_Cookie_Consent_Avada_Maps_Compat::init();
+		require_once MCB_PLUGIN_DIR . 'includes/avada-maps-compat.php';
+		Macs_Cookie_Banner_Avada_Maps_Compat::init();
 
-		require_once LSCC_PLUGIN_DIR . 'includes/consent-codes.php';
-		Light_Swiss_Cookie_Consent_Codes::init();
+		require_once MCB_PLUGIN_DIR . 'includes/consent-codes.php';
+		Macs_Cookie_Banner_Codes::init();
 
-		require_once LSCC_PLUGIN_DIR . 'includes/updater.php';
-		Light_Swiss_Cookie_Consent_Updater::init();
+		require_once MCB_PLUGIN_DIR . 'includes/updater.php';
+		Macs_Cookie_Banner_Updater::init();
 
 		if ( is_admin() ) {
-			require_once LSCC_PLUGIN_DIR . 'includes/admin-page.php';
-			Light_Swiss_Cookie_Consent_Admin::init();
+			require_once MCB_PLUGIN_DIR . 'includes/admin-page.php';
+			Macs_Cookie_Banner_Admin::init();
 		}
 	}
 
@@ -92,7 +92,7 @@ final class Light_Swiss_Cookie_Consent {
 	 */
 	public static function load_textdomain() {
 		load_plugin_textdomain(
-			'light-swiss-cookie-consent',
+			'macs-cookie-banner',
 			false,
 			dirname( plugin_basename( __FILE__ ) ) . '/languages'
 		);
@@ -531,31 +531,31 @@ final class Light_Swiss_Cookie_Consent {
 	 */
 	public static function enqueue_assets() {
 		wp_enqueue_style(
-			'lscc-banner',
-			LSCC_PLUGIN_URL . 'assets/css/banner.css',
+			'mcb-banner',
+			MCB_PLUGIN_URL . 'assets/css/banner.css',
 			array(),
-			LSCC_VERSION
+			MCB_VERSION
 		);
 
 		wp_enqueue_script(
-			'lscc-banner',
-			LSCC_PLUGIN_URL . 'assets/js/banner.js',
+			'mcb-banner',
+			MCB_PLUGIN_URL . 'assets/js/banner.js',
 			array(),
-			LSCC_VERSION,
+			MCB_VERSION,
 			true
 		);
 
 		$options = self::get_options();
 
 		wp_localize_script(
-			'lscc-banner',
-			'lsccSettings',
+			'mcb-banner',
+			'mcbSettings',
 			array(
 				'cookieName'     => self::COOKIE_NAME,
 				'storageKey'     => self::COOKIE_NAME,
-				'consentVersion' => (int) LSCC_CONSENT_VERSION,
+				'consentVersion' => (int) MCB_CONSENT_VERSION,
 				'lifetimeDays'   => (int) $options['consent_lifetime_days'],
-				'debug'          => (bool) LSCC_DEBUG,
+				'debug'          => (bool) MCB_DEBUG,
 				'categories'     => array(
 					'necessary',
 					'statistics',
@@ -807,32 +807,32 @@ final class Light_Swiss_Cookie_Consent {
 						<div class="lscc__categories">
 							<label class="lscc__category">
 								<span class="lscc__category-copy">
-									<span class="lscc__category-title"><?php echo esc_html__( 'Notwendig', 'light-swiss-cookie-consent' ); ?></span>
-									<span class="lscc__category-text"><?php echo esc_html__( 'Erforderlich für Grundfunktionen der Website.', 'light-swiss-cookie-consent' ); ?></span>
+									<span class="lscc__category-title"><?php echo esc_html__( 'Notwendig', 'macs-cookie-banner' ); ?></span>
+									<span class="lscc__category-text"><?php echo esc_html__( 'Erforderlich für Grundfunktionen der Website.', 'macs-cookie-banner' ); ?></span>
 								</span>
 								<input type="checkbox" data-lscc-category="necessary" autocomplete="off" checked disabled>
 							</label>
 
 							<label class="lscc__category">
 								<span class="lscc__category-copy">
-									<span class="lscc__category-title"><?php echo esc_html__( 'Statistik', 'light-swiss-cookie-consent' ); ?></span>
-									<span class="lscc__category-text"><?php echo esc_html__( 'Hilft uns, die Nutzung der Website zu verstehen.', 'light-swiss-cookie-consent' ); ?></span>
+									<span class="lscc__category-title"><?php echo esc_html__( 'Statistik', 'macs-cookie-banner' ); ?></span>
+									<span class="lscc__category-text"><?php echo esc_html__( 'Hilft uns, die Nutzung der Website zu verstehen.', 'macs-cookie-banner' ); ?></span>
 								</span>
 								<input type="checkbox" data-lscc-category="statistics" autocomplete="off">
 							</label>
 
 							<label class="lscc__category">
 								<span class="lscc__category-copy">
-									<span class="lscc__category-title"><?php echo esc_html__( 'Marketing', 'light-swiss-cookie-consent' ); ?></span>
-									<span class="lscc__category-text"><?php echo esc_html__( 'Erlaubt Marketing- und Tracking-Dienste.', 'light-swiss-cookie-consent' ); ?></span>
+									<span class="lscc__category-title"><?php echo esc_html__( 'Marketing', 'macs-cookie-banner' ); ?></span>
+									<span class="lscc__category-text"><?php echo esc_html__( 'Erlaubt Marketing- und Tracking-Dienste.', 'macs-cookie-banner' ); ?></span>
 								</span>
 								<input type="checkbox" data-lscc-category="marketing" autocomplete="off">
 							</label>
 
 							<label class="lscc__category">
 								<span class="lscc__category-copy">
-									<span class="lscc__category-title"><?php echo esc_html__( 'Externe Medien', 'light-swiss-cookie-consent' ); ?></span>
-									<span class="lscc__category-text"><?php echo esc_html__( 'Lädt eingebettete Inhalte von externen Plattformen.', 'light-swiss-cookie-consent' ); ?></span>
+									<span class="lscc__category-title"><?php echo esc_html__( 'Externe Medien', 'macs-cookie-banner' ); ?></span>
+									<span class="lscc__category-text"><?php echo esc_html__( 'Lädt eingebettete Inhalte von externen Plattformen.', 'macs-cookie-banner' ); ?></span>
 								</span>
 								<input type="checkbox" data-lscc-category="external_media" autocomplete="off">
 							</label>
@@ -848,13 +848,13 @@ final class Light_Swiss_Cookie_Consent {
 					<?php if ( $options['show_legal_links'] && ( $privacy_url || $imprint_url ) ) : ?>
 						<div class="lscc__legal" data-lscc-legal>
 							<?php if ( $privacy_url && $imprint_url && $privacy_url === $imprint_url ) : ?>
-								<a class="lscc__legal-link" href="<?php echo esc_url( $privacy_url ); ?>"><?php echo esc_html__( 'Datenschutz & Impressum', 'light-swiss-cookie-consent' ); ?></a>
+								<a class="lscc__legal-link" href="<?php echo esc_url( $privacy_url ); ?>"><?php echo esc_html__( 'Datenschutz & Impressum', 'macs-cookie-banner' ); ?></a>
 							<?php else : ?>
 								<?php if ( $privacy_url ) : ?>
-									<a class="lscc__legal-link" href="<?php echo esc_url( $privacy_url ); ?>"><?php echo esc_html__( 'Datenschutz', 'light-swiss-cookie-consent' ); ?></a>
+									<a class="lscc__legal-link" href="<?php echo esc_url( $privacy_url ); ?>"><?php echo esc_html__( 'Datenschutz', 'macs-cookie-banner' ); ?></a>
 								<?php endif; ?>
 								<?php if ( $imprint_url ) : ?>
-									<a class="lscc__legal-link" href="<?php echo esc_url( $imprint_url ); ?>"><?php echo esc_html__( 'Impressum', 'light-swiss-cookie-consent' ); ?></a>
+									<a class="lscc__legal-link" href="<?php echo esc_url( $imprint_url ); ?>"><?php echo esc_html__( 'Impressum', 'macs-cookie-banner' ); ?></a>
 								<?php endif; ?>
 							<?php endif; ?>
 						</div>
@@ -870,4 +870,4 @@ final class Light_Swiss_Cookie_Consent {
 	}
 }
 
-Light_Swiss_Cookie_Consent::init();
+Macs_Cookie_Banner::init();

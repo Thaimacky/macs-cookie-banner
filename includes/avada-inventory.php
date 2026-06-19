@@ -8,7 +8,7 @@
  * content via WP_Query and counts string / regex matches. It performs no
  * external requests, writes nothing, and never changes any post or page.
  *
- * @package LightSwissCookieConsent
+ * @package MacsCookieBanner
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Passive Avada inventory counter.
  */
-final class Light_Swiss_Cookie_Consent_Avada_Inventory {
+final class Macs_Cookie_Banner_Avada_Inventory {
 	/**
 	 * Maximum number of posts inspected per scan run.
 	 */
@@ -35,21 +35,21 @@ final class Light_Swiss_Cookie_Consent_Avada_Inventory {
 		}
 
 		$results = null;
-		if ( isset( $_POST['lscc_run_avada_inventory'] ) ) {
-			check_admin_referer( 'lscc_avada_inventory', 'lscc_avada_inventory_nonce' );
+		if ( isset( $_POST['mcb_run_avada_inventory'] ) ) {
+			check_admin_referer( 'mcb_avada_inventory', 'mcb_avada_inventory_nonce' );
 			$results = self::run_inventory_scan();
 		}
 
-		$action_url = admin_url( 'admin.php?page=light-swiss-cookie-consent-avada-inventory' );
+		$action_url = admin_url( 'admin.php?page=macs-cookie-banner-avada-inventory' );
 		?>
 		<div class="wrap">
-			<h1><?php echo esc_html__( 'Avada Inventar-Scan', 'light-swiss-cookie-consent' ); ?></h1>
+			<h1><?php echo esc_html__( 'Avada Inventar-Scan', 'macs-cookie-banner' ); ?></h1>
 			<p>
-				<?php echo esc_html__( 'Passive, rein lesende Messung der eingebundenen Video-, Map- und Embed-Typen in lokalen Inhalten. Es werden keine Inhalte geändert, keine Migration durchgeführt und keine externen Requests gesendet. Der Scan dient ausschliesslich der Abschätzung, wie viele Einbindungen ein künftiges Avada-Kompatibilitätsmodul automatisch abdecken könnte.', 'light-swiss-cookie-consent' ); ?>
+				<?php echo esc_html__( 'Passive, rein lesende Messung der eingebundenen Video-, Map- und Embed-Typen in lokalen Inhalten. Es werden keine Inhalte geändert, keine Migration durchgeführt und keine externen Requests gesendet. Der Scan dient ausschliesslich der Abschätzung, wie viele Einbindungen ein künftiges Avada-Kompatibilitätsmodul automatisch abdecken könnte.', 'macs-cookie-banner' ); ?>
 			</p>
 			<form method="post" action="<?php echo esc_url( $action_url ); ?>">
-				<?php wp_nonce_field( 'lscc_avada_inventory', 'lscc_avada_inventory_nonce' ); ?>
-				<?php submit_button( esc_html__( 'Inventar-Scan starten', 'light-swiss-cookie-consent' ), 'primary', 'lscc_run_avada_inventory', false ); ?>
+				<?php wp_nonce_field( 'mcb_avada_inventory', 'mcb_avada_inventory_nonce' ); ?>
+				<?php submit_button( esc_html__( 'Inventar-Scan starten', 'macs-cookie-banner' ), 'primary', 'mcb_run_avada_inventory', false ); ?>
 			</form>
 			<?php if ( null !== $results ) : ?>
 				<?php self::render_results( $results ); ?>
@@ -72,13 +72,13 @@ final class Light_Swiss_Cookie_Consent_Avada_Inventory {
 
 		// Element-level (deduplicated) third-party buckets.
 		$buckets = array(
-			'fusion_youtube'      => __( 'fusion_youtube', 'light-swiss-cookie-consent' ),
-			'fusion_vimeo'        => __( 'fusion_vimeo', 'light-swiss-cookie-consent' ),
-			'oembed'              => __( 'oEmbed (YouTube/Vimeo, nackte URL)', 'light-swiss-cookie-consent' ),
-			'fusion_map'          => __( 'fusion_map (Google Maps)', 'light-swiss-cookie-consent' ),
-			'bg_video_3p'         => __( 'Background-Video (YouTube/Vimeo)', 'light-swiss-cookie-consent' ),
-			'fusion_code_embed'   => __( 'fusion_code (mit Drittanbieter-Embed)', 'light-swiss-cookie-consent' ),
-			'raw_iframe_3p'       => __( 'Rohe iframes (Drittanbieter)', 'light-swiss-cookie-consent' ),
+			'fusion_youtube'      => __( 'fusion_youtube', 'macs-cookie-banner' ),
+			'fusion_vimeo'        => __( 'fusion_vimeo', 'macs-cookie-banner' ),
+			'oembed'              => __( 'oEmbed (YouTube/Vimeo, nackte URL)', 'macs-cookie-banner' ),
+			'fusion_map'          => __( 'fusion_map (Google Maps)', 'macs-cookie-banner' ),
+			'bg_video_3p'         => __( 'Background-Video (YouTube/Vimeo)', 'macs-cookie-banner' ),
+			'fusion_code_embed'   => __( 'fusion_code (mit Drittanbieter-Embed)', 'macs-cookie-banner' ),
+			'raw_iframe_3p'       => __( 'Rohe iframes (Drittanbieter)', 'macs-cookie-banner' ),
 		);
 
 		$thirdparty_total = 0;
@@ -98,7 +98,7 @@ final class Light_Swiss_Cookie_Consent_Avada_Inventory {
 				<?php
 				printf(
 					/* translators: 1: scanned posts, 2: total matching posts. */
-					esc_html__( 'Geprüft: %1$d von %2$d Inhalten.', 'light-swiss-cookie-consent' ),
+					esc_html__( 'Geprüft: %1$d von %2$d Inhalten.', 'macs-cookie-banner' ),
 					$scanned,
 					$total
 				);
@@ -110,7 +110,7 @@ final class Light_Swiss_Cookie_Consent_Avada_Inventory {
 					<?php
 					printf(
 						/* translators: %d: scan limit. */
-						esc_html__( 'Hinweis: Begrenzung auf %d Inhalte erreicht. Die restlichen Inhalte wurden NICHT gemessen.', 'light-swiss-cookie-consent' ),
+						esc_html__( 'Hinweis: Begrenzung auf %d Inhalte erreicht. Die restlichen Inhalte wurden NICHT gemessen.', 'macs-cookie-banner' ),
 						(int) self::SCAN_LIMIT
 					);
 					?>
@@ -118,13 +118,13 @@ final class Light_Swiss_Cookie_Consent_Avada_Inventory {
 			<?php endif; ?>
 		</p>
 
-		<h2><?php echo esc_html__( '1. Verteilung (Drittanbieter-Embeds)', 'light-swiss-cookie-consent' ); ?></h2>
+		<h2><?php echo esc_html__( '1. Verteilung (Drittanbieter-Embeds)', 'macs-cookie-banner' ); ?></h2>
 		<table class="widefat striped">
 			<thead>
 				<tr>
-					<th scope="col"><?php echo esc_html__( 'Typ', 'light-swiss-cookie-consent' ); ?></th>
-					<th scope="col" style="text-align:right;"><?php echo esc_html__( 'Anzahl', 'light-swiss-cookie-consent' ); ?></th>
-					<th scope="col" style="text-align:right;"><?php echo esc_html__( 'Prozent', 'light-swiss-cookie-consent' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Typ', 'macs-cookie-banner' ); ?></th>
+					<th scope="col" style="text-align:right;"><?php echo esc_html__( 'Anzahl', 'macs-cookie-banner' ); ?></th>
+					<th scope="col" style="text-align:right;"><?php echo esc_html__( 'Prozent', 'macs-cookie-banner' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -136,39 +136,39 @@ final class Light_Swiss_Cookie_Consent_Avada_Inventory {
 					</tr>
 				<?php endforeach; ?>
 				<tr>
-					<td><strong><?php echo esc_html__( 'Summe Drittanbieter-Embeds', 'light-swiss-cookie-consent' ); ?></strong></td>
+					<td><strong><?php echo esc_html__( 'Summe Drittanbieter-Embeds', 'macs-cookie-banner' ); ?></strong></td>
 					<td style="text-align:right;"><strong><?php echo esc_html( (string) $thirdparty_total ); ?></strong></td>
 					<td style="text-align:right;"><strong>100 %</strong></td>
 				</tr>
 				<tr>
-					<td><?php echo esc_html__( 'Background-Video (self-hosted, kein Drittanbieter)', 'light-swiss-cookie-consent' ); ?></td>
+					<td><?php echo esc_html__( 'Background-Video (self-hosted, kein Drittanbieter)', 'macs-cookie-banner' ); ?></td>
 					<td style="text-align:right;"><?php echo esc_html( (string) (int) $counts['bg_video_self'] ); ?></td>
 					<td style="text-align:right;">&mdash;</td>
 				</tr>
 			</tbody>
 		</table>
 
-		<h2><?php echo esc_html__( '2. Automatisch abfangbar', 'light-swiss-cookie-consent' ); ?></h2>
+		<h2><?php echo esc_html__( '2. Automatisch abfangbar', 'macs-cookie-banner' ); ?></h2>
 		<table class="widefat striped">
 			<thead>
 				<tr>
-					<th scope="col"><?php echo esc_html__( 'Kategorie', 'light-swiss-cookie-consent' ); ?></th>
-					<th scope="col"><?php echo esc_html__( 'Automatisch', 'light-swiss-cookie-consent' ); ?></th>
-					<th scope="col"><?php echo esc_html__( 'Manuell', 'light-swiss-cookie-consent' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Kategorie', 'macs-cookie-banner' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Automatisch', 'macs-cookie-banner' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Manuell', 'macs-cookie-banner' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
 				<?php
 				$coverage_rows = array(
-					array( __( 'fusion_youtube', 'light-swiss-cookie-consent' ), true, false ),
-					array( __( 'fusion_vimeo', 'light-swiss-cookie-consent' ), true, false ),
-					array( __( 'oEmbed (YouTube/Vimeo)', 'light-swiss-cookie-consent' ), true, false ),
-					array( __( 'fusion_map (Google Maps)', 'light-swiss-cookie-consent' ), false, true ),
-					array( __( 'Background-Video (YouTube/Vimeo)', 'light-swiss-cookie-consent' ), false, true ),
-					array( __( 'fusion_code (mit Embed)', 'light-swiss-cookie-consent' ), false, true ),
-					array( __( 'Rohe iframes', 'light-swiss-cookie-consent' ), false, true ),
+					array( __( 'fusion_youtube', 'macs-cookie-banner' ), true, false ),
+					array( __( 'fusion_vimeo', 'macs-cookie-banner' ), true, false ),
+					array( __( 'oEmbed (YouTube/Vimeo)', 'macs-cookie-banner' ), true, false ),
+					array( __( 'fusion_map (Google Maps)', 'macs-cookie-banner' ), false, true ),
+					array( __( 'Background-Video (YouTube/Vimeo)', 'macs-cookie-banner' ), false, true ),
+					array( __( 'fusion_code (mit Embed)', 'macs-cookie-banner' ), false, true ),
+					array( __( 'Rohe iframes', 'macs-cookie-banner' ), false, true ),
 				);
-				$yes = esc_html__( 'Ja', 'light-swiss-cookie-consent' );
+				$yes = esc_html__( 'Ja', 'macs-cookie-banner' );
 				$no  = '&mdash;';
 				foreach ( $coverage_rows as $row ) :
 					?>
@@ -181,59 +181,59 @@ final class Light_Swiss_Cookie_Consent_Avada_Inventory {
 			</tbody>
 		</table>
 
-		<h2><?php echo esc_html__( '3. KPI: Automatische Abdeckung', 'light-swiss-cookie-consent' ); ?></h2>
+		<h2><?php echo esc_html__( '3. KPI: Automatische Abdeckung', 'macs-cookie-banner' ); ?></h2>
 		<ul>
 			<li>
-				<strong><?php echo esc_html__( 'Abdeckung_min', 'light-swiss-cookie-consent' ); ?>:</strong>
+				<strong><?php echo esc_html__( 'Abdeckung_min', 'macs-cookie-banner' ); ?>:</strong>
 				<?php echo esc_html( $coverage_min . ' %' ); ?>
-				<?php echo esc_html__( '(fusion_youtube + fusion_vimeo + oEmbed)', 'light-swiss-cookie-consent' ); ?>
+				<?php echo esc_html__( '(fusion_youtube + fusion_vimeo + oEmbed)', 'macs-cookie-banner' ); ?>
 			</li>
 			<li>
-				<strong><?php echo esc_html__( 'Abdeckung_max', 'light-swiss-cookie-consent' ); ?>:</strong>
+				<strong><?php echo esc_html__( 'Abdeckung_max', 'macs-cookie-banner' ); ?>:</strong>
 				<?php echo esc_html( $coverage_max . ' %' ); ?>
-				<?php echo esc_html__( '(zusätzlich fusion_map, sofern Google-Maps-Script-Gating ergänzt wird)', 'light-swiss-cookie-consent' ); ?>
+				<?php echo esc_html__( '(zusätzlich fusion_map, sofern Google-Maps-Script-Gating ergänzt wird)', 'macs-cookie-banner' ); ?>
 			</li>
 		</ul>
 
-		<h2><?php echo esc_html__( '4. Top-Sonderfälle (manuelle Prüfung nötig)', 'light-swiss-cookie-consent' ); ?></h2>
+		<h2><?php echo esc_html__( '4. Top-Sonderfälle (manuelle Prüfung nötig)', 'macs-cookie-banner' ); ?></h2>
 		<table class="widefat striped">
 			<thead>
 				<tr>
-					<th scope="col"><?php echo esc_html__( 'Sonderfall', 'light-swiss-cookie-consent' ); ?></th>
-					<th scope="col" style="text-align:right;"><?php echo esc_html__( 'Anzahl', 'light-swiss-cookie-consent' ); ?></th>
-					<th scope="col"><?php echo esc_html__( 'Bemerkung', 'light-swiss-cookie-consent' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Sonderfall', 'macs-cookie-banner' ); ?></th>
+					<th scope="col" style="text-align:right;"><?php echo esc_html__( 'Anzahl', 'macs-cookie-banner' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Bemerkung', 'macs-cookie-banner' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr>
 					<td>fusion_code</td>
 					<td style="text-align:right;"><?php echo esc_html( (int) $counts['fusion_code_embed'] . ' / ' . (int) $counts['fusion_code_total'] ); ?></td>
-					<td><?php echo esc_html__( 'Code-Blöcke mit Drittanbieter-Embed / Code-Blöcke gesamt. Inhalt ist base64-kodiert; nicht automatisch gatebar.', 'light-swiss-cookie-consent' ); ?></td>
+					<td><?php echo esc_html__( 'Code-Blöcke mit Drittanbieter-Embed / Code-Blöcke gesamt. Inhalt ist base64-kodiert; nicht automatisch gatebar.', 'macs-cookie-banner' ); ?></td>
 				</tr>
 				<tr>
-					<td><?php echo esc_html__( 'Background-Video', 'light-swiss-cookie-consent' ); ?></td>
+					<td><?php echo esc_html__( 'Background-Video', 'macs-cookie-banner' ); ?></td>
 					<td style="text-align:right;"><?php echo esc_html( (string) (int) $counts['bg_video_3p'] ); ?></td>
-					<td><?php echo esc_html__( 'YouTube/Vimeo als Container-/Spalten-Hintergrund. Attribut am Container, nicht sauber einzeln gatebar.', 'light-swiss-cookie-consent' ); ?></td>
+					<td><?php echo esc_html__( 'YouTube/Vimeo als Container-/Spalten-Hintergrund. Attribut am Container, nicht sauber einzeln gatebar.', 'macs-cookie-banner' ); ?></td>
 				</tr>
 				<tr>
-					<td><?php echo esc_html__( 'Rohe iframes', 'light-swiss-cookie-consent' ); ?></td>
+					<td><?php echo esc_html__( 'Rohe iframes', 'macs-cookie-banner' ); ?></td>
 					<td style="text-align:right;"><?php echo esc_html( (int) $counts['raw_iframe_3p'] . ' / ' . (int) $counts['raw_iframe_total'] ); ?></td>
-					<td><?php echo esc_html__( 'Drittanbieter-iframes / iframes gesamt. Handgepastete iframes werden vom Render-Filter nicht erfasst.', 'light-swiss-cookie-consent' ); ?></td>
+					<td><?php echo esc_html__( 'Drittanbieter-iframes / iframes gesamt. Handgepastete iframes werden vom Render-Filter nicht erfasst.', 'macs-cookie-banner' ); ?></td>
 				</tr>
 				<tr>
 					<td>Maps</td>
 					<td style="text-align:right;"><?php echo esc_html( (string) (int) $counts['fusion_map'] ); ?></td>
-					<td><?php echo esc_html__( 'Avada Maps nutzt meist die Google-Maps-JS-API; benötigt zusätzliches Script-Gating.', 'light-swiss-cookie-consent' ); ?></td>
+					<td><?php echo esc_html__( 'Avada Maps nutzt meist die Google-Maps-JS-API; benötigt zusätzliches Script-Gating.', 'macs-cookie-banner' ); ?></td>
 				</tr>
 			</tbody>
 		</table>
 
-		<h2><?php echo esc_html__( 'Diagnostik (Rohtreffer, mögliche Überschneidungen)', 'light-swiss-cookie-consent' ); ?></h2>
+		<h2><?php echo esc_html__( 'Diagnostik (Rohtreffer, mögliche Überschneidungen)', 'macs-cookie-banner' ); ?></h2>
 		<table class="widefat striped">
 			<thead>
 				<tr>
-					<th scope="col"><?php echo esc_html__( 'Muster', 'light-swiss-cookie-consent' ); ?></th>
-					<th scope="col" style="text-align:right;"><?php echo esc_html__( 'Vorkommen', 'light-swiss-cookie-consent' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Muster', 'macs-cookie-banner' ); ?></th>
+					<th scope="col" style="text-align:right;"><?php echo esc_html__( 'Vorkommen', 'macs-cookie-banner' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -257,7 +257,7 @@ final class Light_Swiss_Cookie_Consent_Avada_Inventory {
 				<?php endforeach; ?>
 			</tbody>
 		</table>
-		<p><em><?php echo esc_html__( 'Hinweis: Slider (Fusion/Revolution/LayerSlider) und externe Speicher ausserhalb des post_content werden nicht gemessen. Mehrsprachige Duplikate (WPML/Polylang) können Mehrfachzählungen erzeugen.', 'light-swiss-cookie-consent' ); ?></em></p>
+		<p><em><?php echo esc_html__( 'Hinweis: Slider (Fusion/Revolution/LayerSlider) und externe Speicher ausserhalb des post_content werden nicht gemessen. Mehrsprachige Duplikate (WPML/Polylang) können Mehrfachzählungen erzeugen.', 'macs-cookie-banner' ); ?></em></p>
 		<?php
 	}
 

@@ -2,7 +2,7 @@
 /**
  * Controlled external media service components.
  *
- * @package LightSwissCookieConsent
+ * @package MacsCookieBanner
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Service component shortcodes.
  */
-final class Light_Swiss_Cookie_Consent_Service_Components {
+final class Macs_Cookie_Banner_Service_Components {
 	/**
 	 * Register shortcodes.
 	 *
@@ -48,13 +48,13 @@ final class Light_Swiss_Cookie_Consent_Service_Components {
 
 		$title = '' !== trim( (string) $atts['title'] )
 			? sanitize_text_field( $atts['title'] )
-			: __( 'YouTube-Video', 'light-swiss-cookie-consent' );
+			: __( 'YouTube-Video', 'macs-cookie-banner' );
 
 		return self::render_component(
 			'youtube',
 			'https://www.youtube-nocookie.com/embed/' . rawurlencode( $video_id ),
 			$title,
-			__( 'Dieses YouTube-Video wird erst nach Zustimmung zu externen Medien geladen.', 'light-swiss-cookie-consent' ),
+			__( 'Dieses YouTube-Video wird erst nach Zustimmung zu externen Medien geladen.', 'macs-cookie-banner' ),
 			self::resolve_youtube_thumbnail_html( $atts['thumbnail_id'], $video_id )
 		);
 	}
@@ -117,7 +117,7 @@ final class Light_Swiss_Cookie_Consent_Service_Components {
 			return $local;
 		}
 
-		$options = Light_Swiss_Cookie_Consent::get_options();
+		$options = Macs_Cookie_Banner::get_options();
 
 		if ( ! empty( $options['youtube_remote_thumbnails'] ) && '' !== $video_id ) {
 			return sprintf(
@@ -186,8 +186,8 @@ final class Light_Swiss_Cookie_Consent_Service_Components {
 		return self::render_component(
 			'vimeo',
 			'https://player.vimeo.com/video/' . rawurlencode( $video_id ),
-			__( 'Vimeo-Video', 'light-swiss-cookie-consent' ),
-			__( 'Dieses Vimeo-Video wird erst nach Zustimmung zu externen Medien geladen.', 'light-swiss-cookie-consent' ),
+			__( 'Vimeo-Video', 'macs-cookie-banner' ),
+			__( 'Dieses Vimeo-Video wird erst nach Zustimmung zu externen Medien geladen.', 'macs-cookie-banner' ),
 			self::get_local_thumbnail_html( $atts['thumbnail_id'] )
 		);
 	}
@@ -222,8 +222,8 @@ final class Light_Swiss_Cookie_Consent_Service_Components {
 		return self::render_component(
 			'google-map',
 			$url,
-			__( 'Google Maps', 'light-swiss-cookie-consent' ),
-			__( 'Diese Google-Maps-Karte wird erst nach Zustimmung zu externen Medien geladen.', 'light-swiss-cookie-consent' )
+			__( 'Google Maps', 'macs-cookie-banner' ),
+			__( 'Diese Google-Maps-Karte wird erst nach Zustimmung zu externen Medien geladen.', 'macs-cookie-banner' )
 		);
 	}
 
@@ -302,9 +302,9 @@ final class Light_Swiss_Cookie_Consent_Service_Components {
 	 * @return string
 	 */
 	private static function render_component( $service, $src, $title, $notice, $thumbnail_html = '' ) {
-		$options      = Light_Swiss_Cookie_Consent::get_options();
-		$style        = Light_Swiss_Cookie_Consent::get_css_variables( $options );
-		$button_label = __( 'Externe Medien akzeptieren', 'light-swiss-cookie-consent' );
+		$options      = Macs_Cookie_Banner::get_options();
+		$style        = Macs_Cookie_Banner::get_css_variables( $options );
+		$button_label = __( 'Externe Medien akzeptieren', 'macs-cookie-banner' );
 		$notice_id    = wp_unique_id( 'lscc-media-notice-' );
 		$has_thumb    = '' !== $thumbnail_html;
 		$show_play    = $has_thumb || 'youtube' === $service || 'vimeo' === $service;

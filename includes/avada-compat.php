@@ -12,7 +12,7 @@
  * Scope (v0.1.9): YouTube only. Vimeo, Maps, background videos, fusion_code and
  * raw iframes are intentionally not handled here.
  *
- * @package LightSwissCookieConsent
+ * @package MacsCookieBanner
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Render-layer interception for Avada video elements.
  */
-final class Light_Swiss_Cookie_Consent_Avada_Compat {
+final class Macs_Cookie_Banner_Avada_Compat {
 	/**
 	 * Register the interception filter on the front end when enabled.
 	 *
@@ -34,7 +34,7 @@ final class Light_Swiss_Cookie_Consent_Avada_Compat {
 			return;
 		}
 
-		$options = Light_Swiss_Cookie_Consent::get_options();
+		$options = Macs_Cookie_Banner::get_options();
 
 		if ( empty( $options['avada_youtube_block'] ) ) {
 			return;
@@ -61,7 +61,7 @@ final class Light_Swiss_Cookie_Consent_Avada_Compat {
 
 		$atts     = is_array( $attr ) ? $attr : array();
 		$raw_id   = isset( $atts['id'] ) ? $atts['id'] : '';
-		$video_id = Light_Swiss_Cookie_Consent_Service_Components::extract_youtube_id( $raw_id );
+		$video_id = Macs_Cookie_Banner_Service_Components::extract_youtube_id( $raw_id );
 
 		// If we cannot safely determine the video id, do not break the page:
 		// let Avada render its original output.
@@ -69,7 +69,7 @@ final class Light_Swiss_Cookie_Consent_Avada_Compat {
 			return $output;
 		}
 
-		$markup = Light_Swiss_Cookie_Consent_Service_Components::render_youtube( array( 'id' => $video_id ) );
+		$markup = Macs_Cookie_Banner_Service_Components::render_youtube( array( 'id' => $video_id ) );
 
 		if ( '' === $markup ) {
 			return $output;

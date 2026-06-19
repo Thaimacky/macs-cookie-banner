@@ -25,7 +25,7 @@
  * iframe_api, no www-widgetapi, no i.ytimg.com. After consent: Yotu works
  * normally. Fully reversible (disable the option → all filters drop).
  *
- * @package LightSwissCookieConsent
+ * @package MacsCookieBanner
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -35,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Render-layer consent gating for the Yotuwp YouTube gallery.
  */
-final class Light_Swiss_Cookie_Consent_Yotu_Compat {
+final class Macs_Cookie_Banner_Yotu_Compat {
 	/**
 	 * Registered front-end script handle of the Yotuwp plugin.
 	 */
@@ -52,7 +52,7 @@ final class Light_Swiss_Cookie_Consent_Yotu_Compat {
 			return;
 		}
 
-		$options = Light_Swiss_Cookie_Consent::get_options();
+		$options = Macs_Cookie_Banner::get_options();
 
 		if ( empty( $options['yotu_consent_gating'] ) ) {
 			return;
@@ -161,8 +161,8 @@ final class Light_Swiss_Cookie_Consent_Yotu_Compat {
 	 * @return string
 	 */
 	private static function render_consent_notice() {
-		$text   = __( 'Diese YouTube-Galerie wird erst nach Zustimmung zu externen Medien geladen.', 'light-swiss-cookie-consent' );
-		$button = __( 'Externe Medien akzeptieren', 'light-swiss-cookie-consent' );
+		$text   = __( 'Diese YouTube-Galerie wird erst nach Zustimmung zu externen Medien geladen.', 'macs-cookie-banner' );
+		$button = __( 'Externe Medien akzeptieren', 'macs-cookie-banner' );
 
 		return sprintf(
 			'<div class="lscc-yotu-consent" data-lscc-gated-notice><p class="lscc-yotu-consent__text">%1$s</p><button type="button" class="lscc-yotu-consent__button" data-lscc-accept-media>%2$s</button></div>',

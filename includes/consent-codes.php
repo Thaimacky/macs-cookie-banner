@@ -15,7 +15,7 @@
  * nutzt ein versioniertes Envelope, das später die gesamte LSCC-Konfiguration
  * aufnehmen kann (nicht nur Consent-Codes).
  *
- * @package LightSwissCookieConsent
+ * @package MacsCookieBanner
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Consent-Code-Manager controller.
  */
-final class Light_Swiss_Cookie_Consent_Codes {
+final class Macs_Cookie_Banner_Codes {
 	/**
 	 * Option name holding the snippet entries.
 	 */
@@ -34,12 +34,12 @@ final class Light_Swiss_Cookie_Consent_Codes {
 	/**
 	 * Nonce action for saving.
 	 */
-	const NONCE_ACTION = 'lscc_save_consent_codes';
+	const NONCE_ACTION = 'mcb_save_consent_codes';
 
 	/**
 	 * Admin page slug.
 	 */
-	const PAGE_SLUG = 'light-swiss-cookie-consent-codes';
+	const PAGE_SLUG = 'macs-cookie-banner-codes';
 
 	/**
 	 * Export envelope format version.
@@ -77,7 +77,7 @@ final class Light_Swiss_Cookie_Consent_Codes {
 			'hotjar'      => 'Hotjar',
 			'recaptcha'   => 'Google reCAPTCHA',
 			'calendly'    => 'Calendly',
-			'custom'      => __( 'Eigenes Snippet', 'light-swiss-cookie-consent' ),
+			'custom'      => __( 'Eigenes Snippet', 'macs-cookie-banner' ),
 		);
 	}
 
@@ -89,7 +89,7 @@ final class Light_Swiss_Cookie_Consent_Codes {
 	public static function init() {
 		if ( is_admin() ) {
 			add_action( 'admin_post_' . self::NONCE_ACTION, array( __CLASS__, 'save' ) );
-			add_action( 'admin_post_lscc_export_consent_codes', array( __CLASS__, 'export' ) );
+			add_action( 'admin_post_mcb_export_consent_codes', array( __CLASS__, 'export' ) );
 			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin' ) );
 			return;
 		}
@@ -150,7 +150,7 @@ final class Light_Swiss_Cookie_Consent_Codes {
 	 * @return string
 	 */
 	private static function new_id() {
-		return 'lscc_code_' . wp_generate_password( 10, false, false );
+		return 'mcb_code_' . wp_generate_password( 10, false, false );
 	}
 
 	/**
@@ -337,10 +337,10 @@ final class Light_Swiss_Cookie_Consent_Codes {
 		}
 
 		wp_enqueue_script(
-			'lscc-admin-consent-codes',
-			LSCC_PLUGIN_URL . 'assets/js/admin-consent-codes.js',
+			'mcb-admin-consent-codes',
+			MCB_PLUGIN_URL . 'assets/js/admin-consent-codes.js',
 			array(),
-			LSCC_VERSION,
+			MCB_VERSION,
 			true
 		);
 	}
@@ -352,23 +352,23 @@ final class Light_Swiss_Cookie_Consent_Codes {
 	 */
 	public static function render_page() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Sie haben keine Berechtigung, diese Seite zu öffnen.', 'light-swiss-cookie-consent' ) );
+			wp_die( esc_html__( 'Sie haben keine Berechtigung, diese Seite zu öffnen.', 'macs-cookie-banner' ) );
 		}
 
 		$codes    = self::get_codes();
 		$can_raw  = current_user_can( 'unfiltered_html' );
-		$notice   = isset( $_GET['lscc_notice'] ) ? sanitize_key( wp_unslash( $_GET['lscc_notice'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$rejected = isset( $_GET['lscc_rejected'] ) ? (int) $_GET['lscc_rejected'] : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$notice   = isset( $_GET['mcb_notice'] ) ? sanitize_key( wp_unslash( $_GET['mcb_notice'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$rejected = isset( $_GET['mcb_rejected'] ) ? (int) $_GET['mcb_rejected'] : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		?>
 		<div class="wrap">
-			<h1><?php echo esc_html__( 'Consent-Code-Manager', 'light-swiss-cookie-consent' ); ?></h1>
+			<h1><?php echo esc_html__( 'Consent-Code-Manager', 'macs-cookie-banner' ); ?></h1>
 
 			<?php if ( 'saved' === $notice ) : ?>
-				<div class="notice notice-success is-dismissible"><p><?php echo esc_html__( 'Snippets gespeichert.', 'light-swiss-cookie-consent' ); ?></p></div>
+				<div class="notice notice-success is-dismissible"><p><?php echo esc_html__( 'Snippets gespeichert.', 'macs-cookie-banner' ); ?></p></div>
 			<?php elseif ( 'imported' === $notice ) : ?>
-				<div class="notice notice-success is-dismissible"><p><?php echo esc_html__( 'Konfiguration importiert.', 'light-swiss-cookie-consent' ); ?></p></div>
+				<div class="notice notice-success is-dismissible"><p><?php echo esc_html__( 'Konfiguration importiert.', 'macs-cookie-banner' ); ?></p></div>
 			<?php elseif ( 'import_error' === $notice ) : ?>
-				<div class="notice notice-error is-dismissible"><p><?php echo esc_html__( 'Import fehlgeschlagen: ungültiges JSON-Format.', 'light-swiss-cookie-consent' ); ?></p></div>
+				<div class="notice notice-error is-dismissible"><p><?php echo esc_html__( 'Import fehlgeschlagen: ungültiges JSON-Format.', 'macs-cookie-banner' ); ?></p></div>
 			<?php endif; ?>
 
 			<?php if ( $rejected > 0 ) : ?>
@@ -376,7 +376,7 @@ final class Light_Swiss_Cookie_Consent_Codes {
 					<?php
 					printf(
 						/* translators: %d: number of rejected snippets. */
-						esc_html__( '%d Snippet(s) ohne Code gespeichert: Zum Speichern von rohem Code wird die Berechtigung „unfiltered_html" benötigt.', 'light-swiss-cookie-consent' ),
+						esc_html__( '%d Snippet(s) ohne Code gespeichert: Zum Speichern von rohem Code wird die Berechtigung „unfiltered_html" benötigt.', 'macs-cookie-banner' ),
 						(int) $rejected
 					);
 					?>
@@ -384,14 +384,14 @@ final class Light_Swiss_Cookie_Consent_Codes {
 			<?php endif; ?>
 
 			<?php if ( ! $can_raw ) : ?>
-				<div class="notice notice-info"><p><?php echo esc_html__( 'Hinweis: Ihr Benutzerkonto besitzt nicht die Berechtigung „unfiltered_html". Code-Felder werden beim Speichern verworfen. (Bei Multisite nur Super-Admins.)', 'light-swiss-cookie-consent' ); ?></p></div>
+				<div class="notice notice-info"><p><?php echo esc_html__( 'Hinweis: Ihr Benutzerkonto besitzt nicht die Berechtigung „unfiltered_html". Code-Felder werden beim Speichern verworfen. (Bei Multisite nur Super-Admins.)', 'macs-cookie-banner' ); ?></p></div>
 			<?php endif; ?>
 
-			<p><?php echo esc_html__( 'Hier eingefügte Tracking-/Marketing-Snippets laden erst nach Zustimmung zur gewählten Kategorie. Vollständigen Vendor-Code einfügen (mit <script>-Tags); <noscript>-Teile werden entfernt.', 'light-swiss-cookie-consent' ); ?></p>
+			<p><?php echo esc_html__( 'Hier eingefügte Tracking-/Marketing-Snippets laden erst nach Zustimmung zur gewählten Kategorie. Vollständigen Vendor-Code einfügen (mit <script>-Tags); <noscript>-Teile werden entfernt.', 'macs-cookie-banner' ); ?></p>
 
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 				<input type="hidden" name="action" value="<?php echo esc_attr( self::NONCE_ACTION ); ?>" />
-				<?php wp_nonce_field( self::NONCE_ACTION, 'lscc_codes_nonce' ); ?>
+				<?php wp_nonce_field( self::NONCE_ACTION, 'mcb_codes_nonce' ); ?>
 
 				<div data-lscc-codes-list>
 					<?php
@@ -404,21 +404,21 @@ final class Light_Swiss_Cookie_Consent_Codes {
 				</div>
 
 				<p>
-					<button type="button" class="button" data-lscc-code-add><?php echo esc_html__( '+ Snippet hinzufügen', 'light-swiss-cookie-consent' ); ?></button>
+					<button type="button" class="button" data-lscc-code-add><?php echo esc_html__( '+ Snippet hinzufügen', 'macs-cookie-banner' ); ?></button>
 				</p>
 
-				<?php submit_button( esc_html__( 'Snippets speichern', 'light-swiss-cookie-consent' ) ); ?>
+				<?php submit_button( esc_html__( 'Snippets speichern', 'macs-cookie-banner' ) ); ?>
 
 				<hr />
-				<h2><?php echo esc_html__( 'Import / Export (für Rollout über mehrere Websites)', 'light-swiss-cookie-consent' ); ?></h2>
-				<p class="description"><?php echo esc_html__( 'Export liefert ein versioniertes JSON-Envelope (aktuell die Consent-Codes; später erweiterbar auf die gesamte LSCC-Konfiguration). Beim Import ersetzt das Envelope die aktuellen Snippets.', 'light-swiss-cookie-consent' ); ?></p>
+				<h2><?php echo esc_html__( 'Import / Export (für Rollout über mehrere Websites)', 'macs-cookie-banner' ); ?></h2>
+				<p class="description"><?php echo esc_html__( 'Export liefert ein versioniertes JSON-Envelope (aktuell die Consent-Codes; später erweiterbar auf die gesamte LSCC-Konfiguration). Beim Import ersetzt das Envelope die aktuellen Snippets.', 'macs-cookie-banner' ); ?></p>
 				<p>
-					<textarea name="lscc_import_json" rows="4" class="large-text code" placeholder="<?php echo esc_attr__( 'JSON-Envelope hier einfügen, um zu importieren …', 'light-swiss-cookie-consent' ); ?>"></textarea>
+					<textarea name="mcb_import_json" rows="4" class="large-text code" placeholder="<?php echo esc_attr__( 'JSON-Envelope hier einfügen, um zu importieren …', 'macs-cookie-banner' ); ?>"></textarea>
 				</p>
 			</form>
 
 			<p>
-				<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=lscc_export_consent_codes' ), 'lscc_export_consent_codes' ) ); ?>"><?php echo esc_html__( 'Export herunterladen (JSON)', 'light-swiss-cookie-consent' ); ?></a>
+				<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=mcb_export_consent_codes' ), 'mcb_export_consent_codes' ) ); ?>"><?php echo esc_html__( 'Export herunterladen (JSON)', 'macs-cookie-banner' ); ?></a>
 			</p>
 
 			<?php self::render_template_row( $can_raw ); ?>
@@ -435,7 +435,7 @@ final class Light_Swiss_Cookie_Consent_Codes {
 	 * @return void
 	 */
 	private static function render_row( $entry, $index, $can_raw ) {
-		$base    = 'lscc_codes[' . $index . ']';
+		$base    = 'mcb_codes[' . $index . ']';
 		$vendors = self::vendor_labels();
 		$vendor  = isset( $entry['vendor'] ) ? $entry['vendor'] : '';
 		$badge   = ( '' !== $vendor && isset( $vendors[ $vendor ] ) ) ? $vendors[ $vendor ] : '';
@@ -445,17 +445,17 @@ final class Light_Swiss_Cookie_Consent_Codes {
 			<input type="hidden" name="<?php echo esc_attr( $base ); ?>[source]" value="<?php echo esc_attr( isset( $entry['source'] ) ? $entry['source'] : 'manual' ); ?>" />
 
 			<p>
-				<label><strong><?php echo esc_html__( 'Name', 'light-swiss-cookie-consent' ); ?></strong>
+				<label><strong><?php echo esc_html__( 'Name', 'macs-cookie-banner' ); ?></strong>
 					<input type="text" class="regular-text" name="<?php echo esc_attr( $base ); ?>[label]" value="<?php echo esc_attr( $entry['label'] ); ?>" />
 				</label>
 				<?php if ( '' !== $badge ) : ?>
 					<span class="dashicons dashicons-yes" style="color:#46b450;"></span>
-					<em><?php echo esc_html( sprintf( /* translators: %s: vendor name. */ __( 'Erkannt: %s', 'light-swiss-cookie-consent' ), $badge ) ); ?></em>
+					<em><?php echo esc_html( sprintf( /* translators: %s: vendor name. */ __( 'Erkannt: %s', 'macs-cookie-banner' ), $badge ) ); ?></em>
 				<?php endif; ?>
 			</p>
 
 			<p>
-				<label><strong><?php echo esc_html__( 'Kategorie', 'light-swiss-cookie-consent' ); ?></strong>
+				<label><strong><?php echo esc_html__( 'Kategorie', 'macs-cookie-banner' ); ?></strong>
 					<select name="<?php echo esc_attr( $base ); ?>[category]">
 						<?php foreach ( self::category_labels() as $key => $label ) : ?>
 							<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $entry['category'], $key ); ?>><?php echo esc_html( $label ); ?></option>
@@ -463,7 +463,7 @@ final class Light_Swiss_Cookie_Consent_Codes {
 					</select>
 				</label>
 				&nbsp;
-				<label><strong><?php echo esc_html__( 'Position', 'light-swiss-cookie-consent' ); ?></strong>
+				<label><strong><?php echo esc_html__( 'Position', 'macs-cookie-banner' ); ?></strong>
 					<select name="<?php echo esc_attr( $base ); ?>[location]">
 						<?php foreach ( self::location_labels() as $key => $label ) : ?>
 							<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $entry['location'], $key ); ?>><?php echo esc_html( $label ); ?></option>
@@ -471,19 +471,19 @@ final class Light_Swiss_Cookie_Consent_Codes {
 					</select>
 				</label>
 				&nbsp;
-				<label><input type="checkbox" name="<?php echo esc_attr( $base ); ?>[enabled]" value="1" <?php checked( ! empty( $entry['enabled'] ) ); ?> /> <?php echo esc_html__( 'Aktiv', 'light-swiss-cookie-consent' ); ?></label>
+				<label><input type="checkbox" name="<?php echo esc_attr( $base ); ?>[enabled]" value="1" <?php checked( ! empty( $entry['enabled'] ) ); ?> /> <?php echo esc_html__( 'Aktiv', 'macs-cookie-banner' ); ?></label>
 			</p>
 
 			<p>
-				<label><strong><?php echo esc_html__( 'Code', 'light-swiss-cookie-consent' ); ?></strong><br />
+				<label><strong><?php echo esc_html__( 'Code', 'macs-cookie-banner' ); ?></strong><br />
 					<textarea name="<?php echo esc_attr( $base ); ?>[code]" rows="6" class="large-text code" <?php disabled( ! $can_raw ); ?>><?php echo esc_textarea( $entry['code'] ); ?></textarea>
 				</label>
 			</p>
 
 			<p>
-				<button type="button" class="button" data-lscc-code-up><?php echo esc_html__( '↑', 'light-swiss-cookie-consent' ); ?></button>
-				<button type="button" class="button" data-lscc-code-down><?php echo esc_html__( '↓', 'light-swiss-cookie-consent' ); ?></button>
-				<button type="button" class="button button-link-delete" data-lscc-code-remove><?php echo esc_html__( 'Löschen', 'light-swiss-cookie-consent' ); ?></button>
+				<button type="button" class="button" data-lscc-code-up><?php echo esc_html__( '↑', 'macs-cookie-banner' ); ?></button>
+				<button type="button" class="button" data-lscc-code-down><?php echo esc_html__( '↓', 'macs-cookie-banner' ); ?></button>
+				<button type="button" class="button button-link-delete" data-lscc-code-remove><?php echo esc_html__( 'Löschen', 'macs-cookie-banner' ); ?></button>
 			</p>
 		</div>
 		<?php
@@ -519,10 +519,10 @@ final class Light_Swiss_Cookie_Consent_Codes {
 	 */
 	private static function category_labels() {
 		return array(
-			'necessary'      => __( 'Notwendig', 'light-swiss-cookie-consent' ),
-			'statistics'     => __( 'Statistik', 'light-swiss-cookie-consent' ),
-			'marketing'      => __( 'Marketing', 'light-swiss-cookie-consent' ),
-			'external_media' => __( 'Externe Medien', 'light-swiss-cookie-consent' ),
+			'necessary'      => __( 'Notwendig', 'macs-cookie-banner' ),
+			'statistics'     => __( 'Statistik', 'macs-cookie-banner' ),
+			'marketing'      => __( 'Marketing', 'macs-cookie-banner' ),
+			'external_media' => __( 'Externe Medien', 'macs-cookie-banner' ),
 		);
 	}
 
@@ -533,9 +533,9 @@ final class Light_Swiss_Cookie_Consent_Codes {
 	 */
 	private static function location_labels() {
 		return array(
-			'head'      => __( 'Head', 'light-swiss-cookie-consent' ),
-			'body_open' => __( 'Body-Anfang', 'light-swiss-cookie-consent' ),
-			'footer'    => __( 'Footer', 'light-swiss-cookie-consent' ),
+			'head'      => __( 'Head', 'macs-cookie-banner' ),
+			'body_open' => __( 'Body-Anfang', 'macs-cookie-banner' ),
+			'footer'    => __( 'Footer', 'macs-cookie-banner' ),
 		);
 	}
 
@@ -546,19 +546,19 @@ final class Light_Swiss_Cookie_Consent_Codes {
 	 */
 	public static function save() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Sie haben keine Berechtigung, diese Einstellungen zu speichern.', 'light-swiss-cookie-consent' ) );
+			wp_die( esc_html__( 'Sie haben keine Berechtigung, diese Einstellungen zu speichern.', 'macs-cookie-banner' ) );
 		}
 
-		$nonce = isset( $_POST['lscc_codes_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['lscc_codes_nonce'] ) ) : '';
+		$nonce = isset( $_POST['mcb_codes_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['mcb_codes_nonce'] ) ) : '';
 		if ( ! wp_verify_nonce( $nonce, self::NONCE_ACTION ) ) {
-			wp_die( esc_html__( 'Ungültige Sicherheitsprüfung.', 'light-swiss-cookie-consent' ) );
+			wp_die( esc_html__( 'Ungültige Sicherheitsprüfung.', 'macs-cookie-banner' ) );
 		}
 
 		$can_raw  = current_user_can( 'unfiltered_html' );
 		$rejected = 0;
 
 		// Import branch takes precedence when JSON is provided.
-		$import_raw = isset( $_POST['lscc_import_json'] ) ? trim( (string) wp_unslash( $_POST['lscc_import_json'] ) ) : '';
+		$import_raw = isset( $_POST['mcb_import_json'] ) ? trim( (string) wp_unslash( $_POST['mcb_import_json'] ) ) : '';
 		if ( '' !== $import_raw ) {
 			$imported = self::parse_import( $import_raw );
 			if ( null === $imported ) {
@@ -569,7 +569,7 @@ final class Light_Swiss_Cookie_Consent_Codes {
 			self::redirect( 'imported', $rejected );
 		}
 
-		$posted  = isset( $_POST['lscc_codes'] ) && is_array( $_POST['lscc_codes'] ) ? wp_unslash( $_POST['lscc_codes'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized per field below.
+		$posted  = isset( $_POST['mcb_codes'] ) && is_array( $_POST['mcb_codes'] ) ? wp_unslash( $_POST['mcb_codes'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized per field below.
 		$entries = self::build_entries( $posted, $can_raw, $rejected, 'manual' );
 
 		update_option( self::OPTION_NAME, $entries );
@@ -662,14 +662,14 @@ final class Light_Swiss_Cookie_Consent_Codes {
 	 */
 	public static function export() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Sie haben keine Berechtigung, diese Aktion auszuführen.', 'light-swiss-cookie-consent' ) );
+			wp_die( esc_html__( 'Sie haben keine Berechtigung, diese Aktion auszuführen.', 'macs-cookie-banner' ) );
 		}
 
-		check_admin_referer( 'lscc_export_consent_codes' );
+		check_admin_referer( 'mcb_export_consent_codes' );
 
 		$envelope = array(
 			'lscc_export_version' => self::EXPORT_VERSION,
-			'plugin_version'      => LSCC_VERSION,
+			'plugin_version'      => MCB_VERSION,
 			'type'                => 'lscc-config',
 			// Erweiterbar: hier können später weitere Konfigurationsteile ergänzt
 			// werden (z. B. 'options'), ohne das Envelope-Format zu brechen.
@@ -697,8 +697,8 @@ final class Light_Swiss_Cookie_Consent_Codes {
 			add_query_arg(
 				array(
 					'page'          => self::PAGE_SLUG,
-					'lscc_notice'   => $notice,
-					'lscc_rejected' => (int) $rejected,
+					'mcb_notice'   => $notice,
+					'mcb_rejected' => (int) $rejected,
 				),
 				admin_url( 'admin.php' )
 			)

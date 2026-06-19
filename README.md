@@ -2,7 +2,7 @@
 
 Ein leichtes, konservatives WordPress Cookie-Consent-Plugin ohne React, Vue, jQuery, npm, Composer oder Build-System.
 
-> Hinweis: Produktname seit v0.3.4 **Mac's Cookie Banner** (vormals „Light Swiss Cookie Consent"). Der technische Slug, der Ordnername `light-swiss-cookie-consent`, die Textdomain und alle Datenbank-Keys (`lscc_options`, `lscc_consent`, `LSCC_*`) bleiben unveraendert, damit bestehende Installationen ohne Migration weiterlaufen.
+> Hinweis: Mit **v0.4.0** vollstaendig umbenannt auf **Mac's Cookie Banner** — Ordner/Slug/Hauptdatei/Textdomain `macs-cookie-banner`, Konstanten `MCB_*`, Klassen `Macs_Cookie_Banner*`, Menues/Nonces/Actions/Handles/JS-Global. **Bewusst unveraendert** fuer nahtlose Bestands-Kompatibilitaet (kein Migrator): Datenbank-Keys `lscc_options`/`lscc_consent_codes`, Consent-Cookie + localStorage `lscc_consent`, WPML-Kontext, CSS-Praefix `.lscc`/`data-lscc`/`--lscc` sowie die Shortcodes `[lscc_*]`/`[simple_cookie_settings]`. Dadurch laufen bestehende Installationen, Einstellungen und Consents ohne Migration weiter.
 
 ## Ziel
 
@@ -120,27 +120,27 @@ Die Auswahl wird in `localStorage` und als Cookie gespeichert.
 - Ablaufzeit (Default): 180 Tage, im Admin auf 1 – 365 Tage konfigurierbar (`Consent-Speicherung > Consent-Gültigkeit (Tage)`)
 - SameSite: `Lax`
 - Secure: wird bei HTTPS gesetzt
-- Consent-Schema-Version: `LSCC_CONSENT_VERSION` (ab v0.1.5: `2`), getrennt von der Plugin-Version
+- Consent-Schema-Version: `MCB_CONSENT_VERSION` (ab v0.1.5: `2`), getrennt von der Plugin-Version
 
 Ein gespeicherter Consent gilt nur dann als gültig, wenn er:
 
 - JSON-parsebar ist,
 - eine `categories`-Struktur enthält,
-- dieselbe `version` wie `LSCC_CONSENT_VERSION` hat,
+- dieselbe `version` wie `MCB_CONSENT_VERSION` hat,
 - weder das gespeicherte `expiresAt` noch `createdAt + lifetimeDays` in der Vergangenheit liegt.
 
 Andernfalls erscheint das Banner erneut. Der `Cookie-Einstellungen`-Reopen-Button erscheint ausschliesslich nach gültig gespeichertem Consent.
 
 ### Wann erscheint das Banner erneut?
 
-- Bei jeder Erhöhung von `LSCC_CONSENT_VERSION` (z. B. nach einem strukturellen Update der Consent-Schema). v0.1.5 hat die Version auf `2` angehoben, dadurch werden alle älteren Consent-Werte aus v0.1.0 – v0.1.4 invalidiert und das Banner erscheint erneut.
+- Bei jeder Erhöhung von `MCB_CONSENT_VERSION` (z. B. nach einem strukturellen Update der Consent-Schema). v0.1.5 hat die Version auf `2` angehoben, dadurch werden alle älteren Consent-Werte aus v0.1.0 – v0.1.4 invalidiert und das Banner erscheint erneut.
 - Wenn der Admin die `Consent-Gültigkeit (Tage)` verkürzt (z. B. von 180 auf 60). Bestehende Consents, deren `createdAt` älter als der neue Wert ist, werden ungültig.
 - In einer wirklich frischen Browser-Session ohne `localStorage` und ohne Cookie (z. B. echtes Inkognito).
 
 ### Was löscht der Consent nicht?
 
 - **Ctrl+F5 / Hard-Reload** löscht weder Cookies noch `localStorage`. Wenn ein gültiger Consent existiert, bleibt er bestehen.
-- **Plugin-Deinstallation** löscht ausschliesslich die WordPress-Optionen des Plugins. Der bereits auf dem Client gespeicherte Browser-Storage (Cookie + `localStorage`) liegt im Browser des Besuchers und wird vom Plugin nicht ferngesteuert. Bei einem strukturellen Reset hilft daher das Erhöhen von `LSCC_CONSENT_VERSION` zuverlässiger als das Neuinstallieren des Plugins.
+- **Plugin-Deinstallation** löscht ausschliesslich die WordPress-Optionen des Plugins. Der bereits auf dem Client gespeicherte Browser-Storage (Cookie + `localStorage`) liegt im Browser des Besuchers und wird vom Plugin nicht ferngesteuert. Bei einem strukturellen Reset hilft daher das Erhöhen von `MCB_CONSENT_VERSION` zuverlässiger als das Neuinstallieren des Plugins.
 
 ## Overlay, Blur und Floating-Button
 
@@ -149,14 +149,14 @@ Andernfalls erscheint das Banner erneut. Der `Cookie-Einstellungen`-Reopen-Butto
 Standardmaessig ist der Debug-Modus deaktiviert:
 
 ```php
-define( 'LSCC_DEBUG', false );
+define( 'MCB_DEBUG', false );
 ```
 
-Wenn `LSCC_DEBUG` auf `true` gesetzt wird, darf das Frontend minimale `console.log`-Ausgaben schreiben. Bei `false` schreibt das Plugin keine Debug-Ausgaben.
+Wenn `MCB_DEBUG` auf `true` gesetzt wird, darf das Frontend minimale `console.log`-Ausgaben schreiben. Bei `false` schreibt das Plugin keine Debug-Ausgaben.
 
 ## Installation
 
-1. Den Ordner `light-swiss-cookie-consent` nach `wp-content/plugins/` kopieren (Ordnername bleibt aus Kompatibilitaetsgruenden unveraendert).
+1. Den Ordner `macs-cookie-banner` nach `wp-content/plugins/` kopieren.
 2. Das Plugin in WordPress aktivieren — es erscheint in der Plugin-Liste als **Mac's Cookie Banner**.
 3. Unter `Mac's Cookie Banner > Einstellungen` die Darstellung anpassen.
 
@@ -208,7 +208,7 @@ Unterstützte Sprachen mit eigenem Default-Text:
 - Türkisch (`tr`, `tr_TR`, ...)
 - Ungarisch (`hu`, `hu_HU`, ...)
 
-Die Locale-Lookup-Logik in `Light_Swiss_Cookie_Consent::extract_language_prefix()` akzeptiert sowohl `de_CH` als auch `de-CH`, `de`, `DE`, `de_AT`, `pt_BR` und ähnliche Varianten und mappt sie auf den passenden 2- bis 3-Buchstaben-Sprachpräfix. Wenn keine der unterstützten Sprachen passt, fällt der Default auf Englisch zurück.
+Die Locale-Lookup-Logik in `Macs_Cookie_Banner::extract_language_prefix()` akzeptiert sowohl `de_CH` als auch `de-CH`, `de`, `DE`, `de_AT`, `pt_BR` und ähnliche Varianten und mappt sie auf den passenden 2- bis 3-Buchstaben-Sprachpräfix. Wenn keine der unterstützten Sprachen passt, fällt der Default auf Englisch zurück.
 
 Deutsche Texte verwenden Schweizer Schreibweise: echte Umlaute (`ä`, `ö`, `ü`) sind erlaubt, das ß wird nicht verwendet.
 

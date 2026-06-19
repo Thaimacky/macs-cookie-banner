@@ -8,6 +8,33 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.4.0-test - 2026-06-20
+
+### Changed (Vollständiger Rebrand — Variante B-minus)
+
+Vollständiger sichtbarer **und** struktureller Rebrand auf **Mac's Cookie Banner**. Umbenannt wurden ausschliesslich **Code-Identifier**; alle persistenten Daten-/Content-/Consent-Identitäten bleiben als String-Literal erhalten → **kein Migrator, keine DB-/Consent-/Cookie-/localStorage-Migration**.
+
+**Umbenannt:**
+- Plugin-Ordner/Slug + Hauptdatei → `macs-cookie-banner` / `macs-cookie-banner.php`
+- Textdomain → `macs-cookie-banner`; Sprachdateien → `languages/macs-cookie-banner-*.{po,mo,pot}`
+- PHP-Klassen `Light_Swiss_Cookie_Consent*` → `Macs_Cookie_Banner*`
+- Konstanten `LSCC_*` → `MCB_*` (`MCB_CONSENT_VERSION`-**Wert bleibt 2**)
+- Admin-Menü-Slugs → `macs-cookie-banner*`
+- Nonces/Actions → `mcb_*`; Script-/Style-Handles `lscc-banner`→`mcb-banner`, `lscc-admin-consent-codes`→`mcb-admin-consent-codes`; JS-Global `lsccSettings`→`mcbSettings`
+- PUC-`SLUG` → `macs-cookie-banner`; `REPOSITORY_URL` = `Thaimacky/macs-cookie-banner`
+- Version → `0.4.0`
+
+**Bewusst unverändert (keine Migration, keine Brüche):**
+- DB-Optionen `lscc_options`, `lscc_consent_codes`; Transient `lscc_detected_imprint_url`
+- Consent-Cookie + localStorage `lscc_consent`; `CONSENT_VERSION`-Wert `2`
+- Export-Envelope `lscc_export_version` / `type:'lscc-config'` (Alt-Exporte importierbar)
+- WPML-/Polylang-Kontext `Light Swiss Cookie Consent`
+- CSS-Klassen `.lscc*`, `data-lscc-*`-Attribute, `--lscc-*`-Variablen
+- Shortcodes `[lscc_youtube]`/`[lscc_vimeo]`/`[lscc_google_map]`/`[simple_cookie_settings]`
+- Event `lscc:consentChanged`
+
+→ Bestehende Websites, Einstellungen, Consents, Shortcodes, WPML-Übersetzungen und CSS-Anpassungen funktionieren unverändert. Bestands-Installationen ziehen 0.4.0 in-place (alter Ordner bleibt cosmetisch); der neue Ordner `macs-cookie-banner` entsteht bei Neuinstallation.
+
 ## 0.3.4-test - 2026-06-19
 
 ### Changed (Rebranding — nur sichtbare Bezeichnung)

@@ -1,7 +1,7 @@
 (function () {
 	'use strict';
 
-	var settings = window.lsccSettings || {};
+	var settings = window.mcbSettings || {};
 	var storageKey = settings.storageKey || 'lscc_consent';
 	var cookieName = settings.cookieName || 'lscc_consent';
 	var consentVersion = settings.consentVersion || 2;
