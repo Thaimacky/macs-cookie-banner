@@ -672,3 +672,7 @@ msgstr "Footer"
 
 msgid "Sie haben keine Berechtigung, diese Aktion auszuführen."
 msgstr "Sie haben keine Berechtigung, diese Aktion auszuführen."
+
+#: macs-cookie-banner.php
+msgid "Cookie-Einstellungen-Button ausblenden"
+msgstr "Cookie-Einstellungen-Button ausblenden"

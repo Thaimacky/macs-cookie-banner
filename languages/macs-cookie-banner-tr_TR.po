@@ -672,3 +672,7 @@ msgstr ""
 
 msgid "Sie haben keine Berechtigung, diese Aktion auszuführen."
 msgstr ""
+
+#: macs-cookie-banner.php
+msgid "Cookie-Einstellungen-Button ausblenden"
+msgstr "Çerez ayarları düğmesini gizle"

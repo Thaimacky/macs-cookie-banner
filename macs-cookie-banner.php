@@ -3,7 +3,7 @@
  * Plugin Name: Mac's Cookie Banner
  * Plugin URI:  https://github.com/Thaimacky/macs-cookie-banner
  * Description: Lightweight cookie consent banner with script blocking for WordPress.
- * Version:     0.5.3
+ * Version:     0.5.4
  * Author:      Mac's Cookie Banner
  * Text Domain: macs-cookie-banner
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MCB_VERSION', '0.5.3' );
+define( 'MCB_VERSION', '0.5.4' );
 
 /**
  * Consent schema version. Bump this whenever the stored consent shape
@@ -592,6 +592,7 @@ final class Macs_Cookie_Banner {
 				'consentVersion' => (int) MCB_CONSENT_VERSION,
 				'lifetimeDays'   => (int) $options['consent_lifetime_days'],
 				'debug'          => (bool) MCB_DEBUG,
+				'locale'         => function_exists( 'determine_locale' ) ? determine_locale() : get_locale(),
 				'categories'     => array(
 					'necessary',
 					'statistics',
@@ -905,6 +906,7 @@ final class Macs_Cookie_Banner {
 
 		<button type="button" class="lscc-reopen <?php echo esc_attr( $preset_class ); ?>" style="<?php echo esc_attr( $style ); ?>" data-lscc-reopen data-lscc-open-consent-settings aria-controls="lscc-root" data-position="<?php echo esc_attr( $options['reopen_position'] ); ?>" hidden>
 			<?php echo esc_html( $reopen_text ); ?>
+			<span class="lscc-reopen-dismiss" data-lscc-reopen-dismiss role="button" tabindex="-1" aria-label="<?php echo esc_attr__( 'Cookie-Einstellungen-Button ausblenden', 'macs-cookie-banner' ); ?>">&times;</span>
 		</button>
 		<?php
 	}

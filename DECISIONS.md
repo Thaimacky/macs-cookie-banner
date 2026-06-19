@@ -424,3 +424,19 @@ Die bestehende **WPML-/Polylang-String-Translation-Registrierung bleibt als Over
 **Begründung:** Bei 40 Sites ist „nichts ungewollt verändern" wertvoller als Automatik-Komfort. Stille Darstellungsänderungen erzeugen Support-Fälle und Vertrauensverlust; die sichere Beibehaltung ist die einzig vertretbare Vorauswahl. Konsistent mit den ABSOLUTEN NO-GOS (keine automatische Migration) und der Projektphilosophie.
 
 **Folgen / offene Punkte:** Optional ein **wiederverwendbares Admin-Pattern** „Neue Funktion / Funktionsübernahme" (dismissible Notice mit den zwei Optionen, sichere Vorauswahl) als gemeinsame Komponente künftiger Features. **Nicht** Teil von v0.5.1 (dort nur der Avada-Import-Button gemäß dieser Richtlinie). Verbindliche Referenz: `MASTER_HANDBUCH.md`.
+
+## ADR-28: Locale-aware Banner-Anzeige bei Sprachwechsel (umgesetzt in v0.5.4)
+
+**Status:** Aktiv ab v0.5.4 (2026-06-20).
+
+**Kontext:** Auf mehrsprachigen Sites (WPML/Polylang) blieb das Banner nach einem Sprachwechsel verschwunden, sobald ein gültiger Consent existierte — der Besucher sah die Cookie-Informationen nicht in der neu gewählten Sprache. Gleichzeitig darf ein Sprachwechsel **kein** Re-Consent erzwingen.
+
+**Entscheidung:** Das Banner wird **erneut angezeigt**, wenn sich die aktive Front-End-Locale gegenüber der zuletzt angezeigten/bestätigten Locale geändert hat — **ohne** den Consent zu verändern:
+
+- PHP übergibt `locale` (`determine_locale()`, Fallback `get_locale()`) an `mcbSettings`.
+- `banner.js` persistiert die zuletzt bestätigte Locale in einem **separaten, leichten** localStorage-Key `mcb_consent_locale` (Metadaten). **`lscc_consent`, Cookie, localStorage-Consent und `MCB_CONSENT_VERSION` bleiben unverändert.**
+- Bei gültigem Consent: `currentLocale !== mcb_consent_locale` → Banner erneut anzeigen (Auswahl bleibt vorausgewählt). Update der Locale in `saveAndClose()`. Bestehender Consent **ohne** gespeicherte Locale → aktuelle still übernehmen (kein erzwungenes Wiedererscheinen).
+
+**Begründung:** Erfüllt die rechtliche/UX-Erwartung („Cookie-Infos in der aktuellen Sprache sichtbar") ohne Re-Consent-Welle und ohne Consent-Migration. Konsistent mit ADR-8 (Consent clientseitig) und ADR-27 (keine ungewollte automatische Änderung — der Consent selbst bleibt unangetastet).
+
+**Folgen / offene Punkte:** Greift nur bei verfügbarem localStorage (Fallback: Feature inaktiv, kein Fehler). Locale-Granularität = `determine_locale()` (z. B. `de_CH` vs. `en_US`). Verbindliche Referenz: `MASTER_HANDBUCH.md`.

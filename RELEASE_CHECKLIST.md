@@ -8,6 +8,30 @@
 - [ ] Top-Level-Ordner im ZIP: `macs-cookie-banner/` (WordPress-installierbar).
 - [ ] Kein automatisches Ausweichen auf andere Orte; Ablageort nur per ausdrücklicher Auftraggeber-Anweisung änderbar. Details siehe `MASTER_HANDBUCH.md`, Sektion „Release-Artefakte / Ablageort für Test-ZIPs".
 
+## Locale-aware Anzeige + Reopen-Markenfarbe + X-Dismiss (ab v0.5.4)
+
+**Sprachwechsel (alle vorhandenen Locales: de_CH, en_US, fr_FR, it_IT, tr_TR, hu_HU):**
+- [ ] Consent auf **Deutsch** speichern → auf **Englisch** wechseln: Banner erscheint **erneut auf Englisch**; gespeicherte Auswahl bleibt erhalten (Häkchen vorausgewählt).
+- [ ] Speichern/Schliessen → **Reload (Sprache bleibt Englisch):** Banner erscheint **nicht** erneut.
+- [ ] Erneuter Wechsel zurück auf Deutsch → Banner erscheint erneut auf Deutsch; Auswahl bleibt.
+- [ ] **Kein** Re-Consent, **kein** gelöschter Consent/Cookie/localStorage, `MCB_CONSENT_VERSION` unverändert (`2`).
+- [ ] Bestehender Consent ohne gespeicherte Locale (Erstkontakt nach Update) → **kein** erzwungenes Wiedererscheinen.
+
+**Reopen-/Cookie-Einstellungs-Button Markenfarbe:**
+- [ ] **Classic:** unverändert/dezent.
+- [ ] **Modern/Premium:** Button trägt **sichtbar die Markenfarbe** (Primary-Hintergrund), Text lesbar (Auto-Kontrast), 1px-weisse Outline, dezenter Schatten + Hover; nach **Avada-Farbimport** tragen Haupt- und Reopen-Button dieselbe Farbe.
+- [ ] Kein Glass/Transparenz/Blur/Neon/Animation; Popup-Hintergrund unverändert; Button bleibt lesbar; Mobile ok.
+
+**Temporärer X-Dismiss:**
+- [ ] „×" im Reopen-Button sichtbar (Desktop + Mobile); Klick blendet den Button **sofort** aus.
+- [ ] Klick auf „×" öffnet **nicht** das Consent-Modal (Interception ok).
+- [ ] **Kein** Consent-/Cookie-/Einstellungs-Eingriff; nach **Reload** erscheint der Button wieder.
+- [ ] X-Dismiss ≠ `hidden`-Option (letztere bleibt dauerhaft über Plugin-Einstellung).
+
+**reopen_position (Regressionsprüfung, ab v0.5.0 unverändert):**
+- [ ] Alle Positionen funktionieren: bottom-right/-left, top-right/-left, hidden.
+- [ ] Gespeicherte Position bleibt nach Update unverändert (keine Rücksetzung auf Default); ADR-27.
+
 ## Lokalisierung Banner-Texte + Premium-Reopen (ab v0.5.3)
 
 - [ ] **DE-Seite:** Banner **vollständig Deutsch** — Titel „Cookie-Einstellungen", Beschreibung, „Alle akzeptieren"/„Nur notwendige"/„Auswahl speichern", Reopen-Button „Cookie-Einstellungen", Kategorien, Hinweise. **Kein** englischer Resttext.

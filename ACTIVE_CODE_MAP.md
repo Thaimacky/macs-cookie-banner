@@ -79,7 +79,9 @@ Diese Karte beschreibt die aktiven Dateien, ihre Zustaendigkeiten und die wichti
 - `get_options()` — gesetzte Optionen + Defaults
 - `get_translated_option( $key, $label )` — ab 0.5.3: folgt der **aktiven Locale**, wenn der gespeicherte Wert leer ist oder einem mitgelieferten Default-Text entspricht (`is_shipped_default_text()` → `get_neutral_text()`); echter Operator-Text und WPML/Polylang behalten Vorrang. Behebt den Sprach-Mix der 7 option-basierten Texte (Titel/Beschreibung/Buttons/Reopen).
 - `is_shipped_default_text( $key, $value )` (ab 0.5.3) — prüft, ob `$value` einem Default aus `get_default_text_table()` (irgendeiner Sprache) entspricht.
-- `enqueue_assets()` — registriert `lscc-banner` Style und Script und uebergibt Settings via `wp_localize_script` an `lsccSettings`
+- `enqueue_assets()` — registriert `mcb-banner` Style und Script und uebergibt Settings via `wp_localize_script` an `mcbSettings`. Ab 0.5.4 zusätzlich `locale` (`determine_locale()`) für die locale-aware Banner-Anzeige (ADR-28).
+- **Locale-aware Display (ab 0.5.4, ADR-28):** `banner.js` speichert in separatem localStorage-Key `mcb_consent_locale` die Locale, in der der Consent zuletzt angezeigt/bestätigt wurde. Bei `currentLocale !== mcb_consent_locale` wird das Banner erneut gezeigt (Consent/Cookie/`lscc_consent`/`CONSENT_VERSION` unverändert, Inputs vorbefüllt); Update der Locale in `saveAndClose()`. Bestehender Consent ohne Locale → still übernommen.
+- **Temporärer Reopen-Dismiss (ab 0.5.4):** `<span data-lscc-reopen-dismiss>` (X) im Reopen-Button; JS setzt In-Memory-`reopenDismissed` (kein Storage) → Button bis zum Reload versteckt. Unabhängig von der `hidden`-Position. `setBannerVisible()` berücksichtigt `reopenDismissed`.
 - `get_css_variables( $options )` — baut das `--lscc-*` Style-String fuer Inline-Styles
 - `render_settings_shortcode()` — gibt den Reopen-Button als HTML zurueck (Shortcode `[simple_cookie_settings]`)
 - `render_banner()` — gibt das Banner-DOM und den festen Reopen-Button im Footer aus

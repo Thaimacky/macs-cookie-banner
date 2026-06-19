@@ -8,6 +8,24 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.5.4-test - 2026-06-20
+
+### Added
+
+- **Locale-aware Banner-Anzeige bei Sprachwechsel (ADR-28).** Wechselt der Besucher die Front-End-Sprache (z. B. de_CH → en_US), erscheint das Banner **erneut in der neuen Sprache** — **ohne** Re-Consent: bestehende Auswahl bleibt erhalten und vorausgewählt, `lscc_consent`/Cookie/localStorage und `MCB_CONSENT_VERSION` werden **nicht** verändert. Umsetzung: PHP übergibt `locale` (`determine_locale()`) an `mcbSettings`; `banner.js` merkt sich in einem **separaten, leichten** localStorage-Key `mcb_consent_locale`, in welcher Locale der Consent zuletzt angezeigt/bestätigt wurde, und zeigt das Banner erneut, wenn aktuelle ≠ gespeicherte Locale. Nach Speichern/Schliessen wird die Locale aktualisiert. Bestehende Consents ohne gespeicherte Locale übernehmen die aktuelle **still** (kein erzwungenes Wiedererscheinen).
+- **Temporäres Ausblenden des Reopen-Buttons (X).** Kleines „×" im Reopen-Button; Klick blendet den Button **für diese Seitenansicht** aus (reine Komfortfunktion). **Keine** Speicherung, kein Consent-/Cookie-/Einstellungs-Eingriff — nach einem normalen Reload erscheint der Button wieder. Ersetzt **nicht** die `hidden`-Position (dauerhaft über Plugin-Einstellung).
+
+### Changed
+
+- **Reopen-/Cookie-Einstellungs-Button trägt jetzt sichtbar die Markenfarbe** in den Presets **Modern** und **Premium**: Primary als Hintergrund, Auto-Kontrast-Textfarbe (`--lscc-primary-text`), dezente 1px-weisse Outline, markenfarbener Schatten + dezenter Hover, Radius passend zum Preset. **Classic** bleibt unverändert (dezent/dunkel). Nach Avada-Farbimport tragen Haupt- **und** Reopen-Button sichtbar dieselbe Markenfarbe. Kein Glass/Transparenz/Blur/Neon/Animation; Popup-Hintergrund unverändert.
+- Plugin-Header und `MCB_VERSION` auf `0.5.4`. `MCB_CONSENT_VERSION` bleibt `2`.
+- Neuer i18n-String „Cookie-Einstellungen-Button ausblenden" (aria-label des X) in **allen 6 Locales** ergänzt (de_CH/en_US/fr_FR/it_IT/tr_TR/hu_HU) + `.pot`; `.mo` neu kompiliert (Round-Trip verifiziert, kein Sprach-Mix).
+
+### Bewusst unverändert
+
+- `reopen_position` (bottom-right/-left, top-right/-left, hidden) **unverändert** — alle Positionen funktionieren weiter, Werte bleiben nach Update erhalten, Default `bottom-right`, ADR-27 (keine automatische Positionsänderung/Rücksetzung). Kein neuer Positionsmodus.
+- Keine Consent-Logik-/Kategorie-Änderung; keine DB-Migration; kein Eingriff in Scanner/CCM/Auto-Updater/Privacy Check; `lscc_consent` unangetastet (Locale-Metadaten in separatem Key `mcb_consent_locale`).
+
 ## 0.5.3-test - 2026-06-20
 
 ### Fixed

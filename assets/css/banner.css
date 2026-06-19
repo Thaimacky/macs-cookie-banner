@@ -501,6 +501,15 @@
 	min-height: 48px;
 	padding: 12px 20px;
 	border-radius: 999px;
+	background: var(--lscc-primary, #e11d48);
+	color: var(--lscc-primary-text, #ffffff);
+	border: 1px solid #ffffff;
+	box-shadow: 0 8px 22px -8px var(--lscc-primary, #e11d48), 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+
+.lscc--preset-modern.lscc-reopen:hover,
+.lscc--preset-modern.lscc-settings-button:hover {
+	box-shadow: 0 10px 26px -8px var(--lscc-primary, #e11d48), 0 10px 28px rgba(0, 0, 0, 0.26);
 }
 
 .lscc--preset-modern .lscc__category {
@@ -525,14 +534,46 @@
 	box-shadow: 0 0 0 1px var(--lscc-primary, #e11d48), 0 8px 28px -4px var(--lscc-primary, #e11d48);
 }
 
-.lscc--preset-premium.lscc-reopen {
-	border: 1px solid var(--lscc-primary, #e11d48);
+.lscc--preset-premium.lscc-reopen,
+.lscc--preset-premium.lscc-settings-button {
 	border-radius: 8px;
+	background: var(--lscc-primary, #e11d48);
+	color: var(--lscc-primary-text, #ffffff);
+	border: 1px solid #ffffff;
 	box-shadow: 0 8px 24px -6px var(--lscc-primary, #e11d48), 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
-.lscc--preset-premium.lscc-reopen:hover {
+.lscc--preset-premium.lscc-reopen:hover,
+.lscc--preset-premium.lscc-settings-button:hover {
 	box-shadow: 0 10px 30px -6px var(--lscc-primary, #e11d48), 0 12px 34px rgba(0, 0, 0, 0.34);
+}
+
+/* Temporary dismiss control (X) inside the reopen button (v0.5.4). The reopen
+ * button is position:fixed, so this absolute badge sits at its top-right corner.
+ * No animation. */
+.lscc-reopen-dismiss {
+	position: absolute;
+	top: -7px;
+	right: -7px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 18px;
+	height: 18px;
+	padding: 0;
+	border: 1px solid var(--lscc-bg, #111827);
+	border-radius: 50%;
+	background: var(--lscc-text, #f9fafb);
+	color: var(--lscc-bg, #111827);
+	font-size: 13px;
+	font-weight: 700;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.lscc-reopen-dismiss:focus-visible {
+	outline: 2px solid var(--lscc-primary, #e11d48);
+	outline-offset: 1px;
 }
 
 /* Preset spacing grows only from tablet up; mobile keeps the tight base layout. */

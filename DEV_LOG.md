@@ -1,5 +1,19 @@
 # DEV LOG
 
+## 0.5.4-test - 2026-06-20
+
+- Minor-Bump 0.5.3 → 0.5.4. Header + `MCB_VERSION` auf `0.5.4`. `MCB_CONSENT_VERSION` bleibt `2`.
+- **Problem 1 — Locale-aware Re-Display (ADR-28).** Root Cause: bei gültigem gespeichertem Consent zeigt `initBanner()` das Banner nie wieder; bei Sprachwechsel sieht der Besucher die Cookie-Infos nicht in der neuen Sprache.
+  - **Locale-Herkunft:** PHP `enqueue_assets()` übergibt `'locale' => determine_locale()` (Fallback `get_locale()`) an `wp_localize_script('mcb-banner','mcbSettings', …)`.
+  - **JS-Vergleich:** `currentLocale = settings.locale`; gespeicherte Locale aus separatem localStorage-Key `mcb_consent_locale` (`getStoredLocale()`); im `hasStoredConsent()`-Zweig: leere gespeicherte Locale → still übernehmen (kein Re-Show); `currentLocale !== storedLocale` → `setBannerVisible(true)` (Consent bleibt, Inputs vorbefüllt via bestehendes `updateInputs`).
+  - **Locale-Update:** in `saveAndClose()` nach `writeConsent()` → `setStoredLocale(currentLocale)`.
+  - **Kein** Eingriff in `lscc_consent`/Cookie/`writeConsent`/`CONSENT_VERSION`; rein additiver leichter Key.
+- **Problem 2 — Reopen-Button Markenfarbe.** `banner.css`: `.lscc--preset-modern`/`.lscc--preset-premium` für `.lscc-reopen` **und** `.lscc-settings-button`: `background: var(--lscc-primary)`, `color: var(--lscc-primary-text)`, 1px weisse Outline, markenfarbener Schatten + `:hover`, Radius je Preset (Modern Pill, Premium 8px). Classic unverändert. Kein Glass/Blur/Transparenz/Animation.
+- **Zusatz 1 — reopen_position verifiziert (keine Regression).** Enum (5 Werte) + `data-position`-Render + 4 CSS-Positionsregeln + JS-`positionHidden`-Guard unverändert; in 0.5.4 **nicht** angefasst. Werte bleiben nach Update erhalten (sanitize_options), Default `bottom-right`, ADR-27.
+- **Zusatz 2 — temporärer X-Dismiss.** `render_banner()`: `<span class="lscc-reopen-dismiss" data-lscc-reopen-dismiss role="button" tabindex="-1" aria-label="…ausblenden">×</span>` im Reopen-`<button>` (absolut positioniert, Button ist `position:fixed`). `banner.js`: Klick-Listener mit `preventDefault()/stopPropagation()` (verhindert das Öffnen via `bindSettingsTriggers`) setzt In-Memory-Flag `reopenDismissed=true` + `reopenButton.hidden=true`; `setBannerVisible()` berücksichtigt `reopenDismissed`. **Keine** Speicherung → nach Reload wieder sichtbar. Kein Consent-/Cookie-/Settings-Eingriff. Ersetzt **nicht** die `hidden`-Option.
+- **i18n:** neuer aria-label-String in alle 6 `.po` + `.pot`; `.mo` neu kompiliert (Python-msgfmt, Round-Trip 0 Mismatch); kein Sprach-Mix.
+- Validierung: Klammerbalance (php 339/339·69/69; js 395/395·143/143; css 82/82); `lscc_consent` unberührt; KEEP-Tokens intakt. Kein PHP-CLI lokal → WP-Test in RELEASE_CHECKLIST.
+
 ## 0.5.3-test - 2026-06-20
 
 - Patch-Bump 0.5.2 → 0.5.3. Header + `MCB_VERSION` auf `0.5.3`. `MCB_CONSENT_VERSION` bleibt `2`.

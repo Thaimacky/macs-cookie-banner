@@ -7,6 +7,9 @@
 	var consentVersion = settings.consentVersion || 2;
 	var lifetimeDays = (typeof settings.lifetimeDays === 'number' && settings.lifetimeDays > 0) ? settings.lifetimeDays : 180;
 	var debugEnabled = Boolean(settings.debug);
+	var currentLocale = typeof settings.locale === 'string' ? settings.locale : '';
+	var localeKey = 'mcb_consent_locale';
+	var reopenDismissed = false;
 	var allowedCategories = ['necessary', 'statistics', 'marketing', 'external_media'];
 	var categories = Array.isArray(settings.categories) ? settings.categories.filter(isAllowedCategory) : allowedCategories.slice();
 
@@ -539,8 +542,10 @@
 		// Position "hidden": the reopen button is never shown. The element stays in
 		// the DOM (init requires it) but is kept hidden permanently; consent can
 		// still be re-opened via the [simple_cookie_settings] shortcut.
+		// "reopenDismissed": visitor temporarily hid the reopen button via its X
+		// for this page view (no storage; reappears on the next reload).
 		var positionHidden = reopenButton.getAttribute('data-position') === 'hidden';
-		reopenButton.hidden = visible || !hasStoredConsent() || positionHidden;
+		reopenButton.hidden = visible || !hasStoredConsent() || positionHidden || reopenDismissed;
 		syncSettingsTriggers(visible);
 
 		var overlay = document.querySelector('[data-lscc-overlay]');
@@ -610,8 +615,30 @@
 		});
 	}
 
+	function getStoredLocale() {
+		try {
+			return window.localStorage.getItem(localeKey) || '';
+		} catch (error) {
+			return '';
+		}
+	}
+
+	function setStoredLocale(locale) {
+		if (!locale) {
+			return;
+		}
+		try {
+			window.localStorage.setItem(localeKey, locale);
+		} catch (error) {
+			/* localStorage can be unavailable in hardened browser modes. */
+		}
+	}
+
 	function saveAndClose(root, reopenButton, consent) {
 		writeConsent(consent);
+		// Record the locale the banner was last confirmed in, so a later language
+		// switch re-displays it. Separate light key; lscc_consent is untouched.
+		setStoredLocale(currentLocale);
 		// Keep the visible checkboxes in lockstep with the saved consent, so the
 		// quick actions ("Alle akzeptieren" / "Nur notwendige") and the settings
 		// panel never drift apart.
@@ -653,6 +680,19 @@
 		bindSettingsTriggers(root, reopenButton);
 		bindMediaComponents(root, reopenButton);
 
+		var reopenDismiss = reopenButton.querySelector('[data-lscc-reopen-dismiss]');
+		if (reopenDismiss) {
+			reopenDismiss.addEventListener('click', function (event) {
+				// Temporary, visitor-initiated hide of the reopen button. Does not
+				// touch consent, cookie, localStorage or settings; the button
+				// reappears after a normal page reload.
+				event.preventDefault();
+				event.stopPropagation();
+				reopenDismissed = true;
+				reopenButton.hidden = true;
+			});
+		}
+
 		// Stored consent is the single source of truth for the checkboxes on every
 		// load — independent of any browser form-state restoration after a reload.
 		updateInputs(root, getStoredConsent());
@@ -661,6 +701,22 @@
 		if (hasStoredConsent()) {
 			activateBlockedScripts();
 			syncMediaComponents();
+
+			// Locale-aware display: if the visitor switched the site language
+			// since the consent was last shown, re-display the (informational)
+			// banner in the new language. Existing consent, cookie, localStorage
+			// and the consent version are left untouched; the checkboxes stay
+			// pre-filled from the stored consent.
+			var storedLocale = getStoredLocale();
+			if (storedLocale === '') {
+				// Consent exists but no locale was recorded yet (e.g. consent from
+				// before this version): adopt the current one silently, no re-show.
+				setStoredLocale(currentLocale);
+			} else if (currentLocale !== '' && storedLocale !== currentLocale) {
+				setBannerVisible(root, reopenButton, true, false);
+				return;
+			}
+
 			setBannerVisible(root, reopenButton, false, false);
 			return;
 		}
