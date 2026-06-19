@@ -8,6 +8,29 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.5.2-test - 2026-06-20
+
+### Added
+
+- **Design-Presets (1-Dropdown-UX).** Neue Admin-Option „Design-Preset" mit drei Werten: **Classic** (Default = bisheriges Banner, keine optische Änderung), **Modern** (größere Radien, mehr Luft, weichere Schatten, Pill-Buttons), **Premium** (stärkere Elevation, hochwertige Schatten, dezenter Glow mit der Markenfarbe am Hauptbutton). Auswählen → speichern → Banner sieht sofort anders aus, **ohne** Farb-/CSS-Kenntnisse.
+- Presets verändern **ausschliesslich** Form/Radius/Schatten/Glow/Abstände/Button-Stil. **Farben bleiben** aus den manuellen Farbfeldern bzw. dem Avada-Farbimport (v0.5.1); Premium-Glow nutzt `var(--lscc-primary)`.
+
+### Changed
+
+- Plugin-Header und `MCB_VERSION` auf `0.5.2`. `MCB_CONSENT_VERSION` bleibt `2`.
+
+### Technisch / Architektur (additiv, ADR-27-konform)
+
+- `macs-cookie-banner.php`: neue Enum-Option `design_preset` (`classic|modern|premium`, Default `classic`) über die bestehende typisierte Options-Mechanik (`get_default_options()` + `get_enum_option_keys()`); `render_banner()` und `render_settings_shortcode()` hängen die Klasse `lscc--preset-<wert>` an Root, Overlay, Reopen-Button und Settings-Shortcode-Button. `get_css_variables()` unverändert.
+- `assets/css/banner.css`: **additive**, class-gescopte Blöcke `.lscc--preset-modern` / `.lscc--preset-premium` (Classic = Baseline). Größere Paddings nur ab Tablet (`min-width: 761px`) → Mobile behält das kompakte Basis-Layout.
+- `includes/admin-page.php`: Select-Feld „Design-Preset" (Sektion „Darstellung") + Hinweis, dass Presets keine Farben ändern.
+
+### Bewusst unverändert / nicht enthalten
+
+- **Glass-Preset bewusst verschoben** (späterer Release).
+- **Keine** Farbänderung durch Presets; Default `classic` → kein Auto-Visual-Change beim Update (ADR-27).
+- Kein Eingriff in Consent, Scanner, Privacy Check, Consent-Code-Manager, Auto-Update, Cookies/Storage, Shortcodes, Avada-Import, Reopen-Button-Logik. Keine Migration, keine Änderung der Consent-/Storage-Datenstruktur.
+
 ## 0.5.1-test - 2026-06-20
 
 ### Added

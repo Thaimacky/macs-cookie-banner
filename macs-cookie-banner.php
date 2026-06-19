@@ -3,7 +3,7 @@
  * Plugin Name: Mac's Cookie Banner
  * Plugin URI:  https://github.com/Thaimacky/macs-cookie-banner
  * Description: Lightweight cookie consent banner with script blocking for WordPress.
- * Version:     0.5.1
+ * Version:     0.5.2
  * Author:      Mac's Cookie Banner
  * Text Domain: macs-cookie-banner
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MCB_VERSION', '0.5.1' );
+define( 'MCB_VERSION', '0.5.2' );
 
 /**
  * Consent schema version. Bump this whenever the stored consent shape
@@ -135,6 +135,7 @@ final class Macs_Cookie_Banner {
 			'youtube_remote_thumbnails'  => false,
 			'yotu_consent_gating'        => false,
 			'avada_maps_block'           => false,
+			'design_preset'              => 'classic',
 		);
 	}
 
@@ -389,6 +390,11 @@ final class Macs_Cookie_Banner {
 				'top-right',
 				'top-left',
 				'hidden',
+			),
+			'design_preset'   => array(
+				'classic',
+				'modern',
+				'premium',
 			),
 		);
 	}
@@ -753,12 +759,14 @@ final class Macs_Cookie_Banner {
 	public static function render_settings_shortcode() {
 		$options     = self::get_options();
 		$style       = self::get_css_variables( $options );
-		$reopen_text = self::get_translated_option( 'reopen_text', 'Reopen settings button' );
+		$reopen_text  = self::get_translated_option( 'reopen_text', 'Reopen settings button' );
+		$preset_class = 'lscc--preset-' . $options['design_preset'];
 
 		return sprintf(
-			'<button type="button" class="lscc-settings-button" style="%1$s" data-lscc-open-consent-settings aria-controls="lscc-root">%2$s</button>',
+			'<button type="button" class="lscc-settings-button %3$s" style="%1$s" data-lscc-open-consent-settings aria-controls="lscc-root">%2$s</button>',
 			esc_attr( $style ),
-			esc_html( $reopen_text )
+			esc_html( $reopen_text ),
+			esc_attr( $preset_class )
 		);
 	}
 
@@ -770,6 +778,8 @@ final class Macs_Cookie_Banner {
 	public static function render_banner() {
 		$options = self::get_options();
 		$style   = self::get_css_variables( $options );
+
+		$preset_class = 'lscc--preset-' . $options['design_preset'];
 
 		$banner_title        = self::get_translated_option( 'banner_title', 'Banner title' );
 		$banner_text         = self::get_translated_option( 'banner_text', 'Banner text' );
@@ -783,9 +793,9 @@ final class Macs_Cookie_Banner {
 		$imprint_url = self::get_imprint_url( $options );
 		?>
 		<?php if ( $options['overlay_enabled'] ) : ?>
-			<div class="lscc-overlay<?php echo $options['blur_enabled'] ? ' lscc-overlay--blur' : ''; ?>" style="<?php echo esc_attr( $style ); ?>" data-lscc-overlay aria-hidden="true" hidden></div>
+			<div class="lscc-overlay <?php echo esc_attr( $preset_class ); ?><?php echo $options['blur_enabled'] ? ' lscc-overlay--blur' : ''; ?>" style="<?php echo esc_attr( $style ); ?>" data-lscc-overlay aria-hidden="true" hidden></div>
 		<?php endif; ?>
-		<div id="lscc-root" class="lscc" style="<?php echo esc_attr( $style ); ?>" data-lscc-root aria-hidden="true" hidden>
+		<div id="lscc-root" class="lscc <?php echo esc_attr( $preset_class ); ?>" style="<?php echo esc_attr( $style ); ?>" data-lscc-root aria-hidden="true" hidden>
 			<div class="lscc__panel" role="dialog" aria-labelledby="lscc-title" aria-describedby="lscc-description">
 				<div class="lscc__content">
 					<div class="lscc__intro">
@@ -865,7 +875,7 @@ final class Macs_Cookie_Banner {
 			</div>
 		</div>
 
-		<button type="button" class="lscc-reopen" style="<?php echo esc_attr( $style ); ?>" data-lscc-reopen data-lscc-open-consent-settings aria-controls="lscc-root" data-position="<?php echo esc_attr( $options['reopen_position'] ); ?>" hidden>
+		<button type="button" class="lscc-reopen <?php echo esc_attr( $preset_class ); ?>" style="<?php echo esc_attr( $style ); ?>" data-lscc-reopen data-lscc-open-consent-settings aria-controls="lscc-root" data-position="<?php echo esc_attr( $options['reopen_position'] ); ?>" hidden>
 			<?php echo esc_html( $reopen_text ); ?>
 		</button>
 		<?php

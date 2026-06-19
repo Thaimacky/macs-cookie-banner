@@ -476,3 +476,74 @@
 	outline: 2px solid var(--lscc-primary-text, #ffffff);
 	outline-offset: 2px;
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Design presets (v0.5.2). Additive and class-scoped. Colors stay in the CSS
+ * variables; presets change only shape, radius, shadow, glow, spacing and
+ * button style. Classic = baseline (no rules required).
+ * ────────────────────────────────────────────────────────────────────────── */
+
+/* Preset: Modern — larger radii, softer elevation, pill buttons. */
+.lscc--preset-modern .lscc__panel {
+	border-radius: 16px;
+	box-shadow: 0 24px 64px rgba(0, 0, 0, 0.22);
+}
+
+.lscc--preset-modern .lscc__button {
+	min-height: 48px;
+	padding: 12px 20px;
+	border-radius: 999px;
+	font-weight: 600;
+}
+
+.lscc--preset-modern.lscc-reopen,
+.lscc--preset-modern.lscc-settings-button {
+	min-height: 48px;
+	padding: 12px 20px;
+	border-radius: 999px;
+}
+
+.lscc--preset-modern .lscc__category {
+	border-radius: 12px;
+}
+
+/* Preset: Premium — deep elevation plus a subtle brand glow on the primary button. */
+.lscc--preset-premium .lscc__panel {
+	border-radius: 12px;
+	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.18), 0 28px 72px rgba(0, 0, 0, 0.4);
+}
+
+.lscc--preset-premium .lscc__title {
+	font-weight: 700;
+}
+
+.lscc--preset-premium .lscc__button--primary {
+	box-shadow: 0 0 0 1px var(--lscc-primary, #e11d48), 0 6px 20px -4px var(--lscc-primary, #e11d48);
+}
+
+.lscc--preset-premium .lscc__button--primary:hover {
+	box-shadow: 0 0 0 1px var(--lscc-primary, #e11d48), 0 8px 28px -4px var(--lscc-primary, #e11d48);
+}
+
+.lscc--preset-premium.lscc-reopen {
+	box-shadow: 0 8px 24px -6px var(--lscc-primary, #e11d48), 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Preset spacing grows only from tablet up; mobile keeps the tight base layout. */
+@media (min-width: 761px) {
+	.lscc--preset-modern .lscc__panel {
+		padding: 28px;
+	}
+
+	.lscc--preset-modern .lscc__content {
+		gap: 24px;
+	}
+
+	.lscc--preset-modern .lscc__category {
+		padding: 16px;
+	}
+
+	.lscc--preset-premium .lscc__panel {
+		padding: 26px;
+	}
+}

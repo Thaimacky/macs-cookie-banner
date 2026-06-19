@@ -8,6 +8,20 @@
 - [ ] Top-Level-Ordner im ZIP: `macs-cookie-banner/` (WordPress-installierbar).
 - [ ] Kein automatisches Ausweichen auf andere Orte; Ablageort nur per ausdrücklicher Auftraggeber-Anweisung änderbar. Details siehe `MASTER_HANDBUCH.md`, Sektion „Release-Artefakte / Ablageort für Test-ZIPs".
 
+## Design-Presets (ab v0.5.2)
+
+- [ ] Plugin aktiviert/aktualisiert ohne PHP-Fehler; Bestands-`lscc_options` unverändert (Default-Preset `classic`).
+- [ ] Admin → „Einstellungen" zeigt Sektion „Darstellung" mit Dropdown „Design-Preset" (Classic/Modern/Premium) + Hinweis „Presets verändern keine Farben".
+- [ ] **Classic (Default):** Banner sieht **identisch** zur bisherigen Version aus (keine optische Änderung) — Desktop **und** Mobile.
+- [ ] **Modern:** größere Radien, mehr Luft, Pill-Buttons, weicherer Schatten; auf Mobile **kein** Overflow / kein abgeschnittener Text (kompaktes Basis-Padding bleibt < 761 px).
+- [ ] **Premium:** stärkere Elevation, Glow am Hauptbutton in der **Markenfarbe** (folgt manueller Farbe bzw. Avada-Import); Titel kräftiger.
+- [ ] Preset-Wechsel ändert **keine Farben** (Hintergrund/Text/Buttons/Border-Farbwerte unverändert; nur Form/Schatten/Abstände).
+- [ ] Klasse `lscc--preset-<wert>` liegt an Root, Overlay, **Reopen-Button** und **Settings-Shortcode-Button** ([simple_cookie_settings] übernimmt den Preset-Look).
+- [ ] Reopen-Button und `[simple_cookie_settings]` funktionieren in allen drei Presets (Öffnen/Schliessen/Widerruf).
+- [ ] Cross-Browser (Chrome/Firefox/Safari) Desktop + Mobile; keine Regressionen am Consent-Verhalten.
+- [ ] **ADR-27:** Update auf 0.5.2 ändert ohne Operator-Auswahl **nichts** optisch (Default `classic`).
+- [ ] Consent, Scanner, Privacy Check, CCM, Auto-Update, Cookies/Storage, Shortcodes, Avada-Import unverändert.
+
 ## Avada-Farbimport (ab v0.5.1)
 
 - [ ] Plugin aktiviert/aktualisiert ohne PHP-Fehler; Bestands-`lscc_options` unverändert (Farben/Consent bleiben).

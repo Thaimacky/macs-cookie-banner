@@ -1,5 +1,19 @@
 # DEV LOG
 
+## 0.5.2-test - 2026-06-20
+
+- Minor-Bump 0.5.1 → 0.5.2. Plugin-Header und `MCB_VERSION` auf `0.5.2`. `MCB_CONSENT_VERSION` bleibt `2`.
+- **Feature: Design-Presets (Phase 4 / Feature 2).** Classic/Modern/Premium; **Glass bewusst verschoben**. Rein additiv, CSS-only, ADR-27-konform.
+- **`macs-cookie-banner.php`:**
+  - Neue Enum-Option `design_preset` (`classic|modern|premium`, Default `classic`) in `get_default_options()` + `get_enum_option_keys()`. `sanitize_options()` akzeptiert den Wert automatisch; fehlend/ungültig → Default `classic` (= heutiges Aussehen, kein Visual-Change bei Bestands-Sites).
+  - `render_banner()`: `$preset_class = 'lscc--preset-' . $options['design_preset']` an `#lscc-root`, `.lscc-overlay` und `.lscc-reopen` angehängt (esc_attr).
+  - `render_settings_shortcode()`: gleiche Klasse an `.lscc-settings-button` (sprintf-`%3$s`).
+  - `get_css_variables()` unverändert (Presets sind class-basiert, keine neuen Variablen).
+- **`assets/css/banner.css`:** additive Blöcke `.lscc--preset-modern` (Radius 16px, Pill-Buttons, weicherer Schatten, Kategorie-Radius) und `.lscc--preset-premium` (tiefere Elevation, Glow am Primärbutton via `var(--lscc-primary)`, kräftigerer Titel). Größere Paddings/Gaps **nur** unter `@media (min-width: 761px)` → **kein** Mobile-Regress; Classic = Baseline (keine Regeln).
+- **`includes/admin-page.php`:** Select „Design-Preset" (Sektion „Darstellung") via bestehendem `render_select_field` + Hinweis „Presets verändern keine Farben".
+- **Bewusst NICHT:** keine Farbänderung durch Presets; kein Glass; kein neuer Render-Pfad/JS; keine Migration; kein Eingriff in Consent/Scanner/CCM/Privacy/Updater/Cookies/Storage/Shortcodes/Avada-Import/Reopen-Logik.
+- Validierung: Klammerbalance der geänderten Dateien geprüft; KEEP-Tokens unberührt; CSS additiv (Default-Pfad unverändert). Kein PHP-CLI lokal → Desktop-/Mobile-Sichttest auf WP in RELEASE_CHECKLIST.
+
 ## 0.5.1-test - 2026-06-20
 
 - Minor-Bump 0.5.0 → 0.5.1. Plugin-Header und `MCB_VERSION` auf `0.5.1`. `MCB_CONSENT_VERSION` bleibt `2`.

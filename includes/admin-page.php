@@ -216,6 +216,27 @@ final class Macs_Cookie_Banner_Admin {
 				<input type="hidden" name="action" value="mcb_save_settings">
 				<?php wp_nonce_field( 'mcb_save_settings', 'mcb_settings_nonce' ); ?>
 
+				<h2><?php echo esc_html__( 'Darstellung', 'macs-cookie-banner' ); ?></h2>
+				<table class="form-table" role="presentation">
+					<?php
+					self::render_select_field(
+						'design_preset',
+						esc_html__( 'Design-Preset', 'macs-cookie-banner' ),
+						$options['design_preset'],
+						array(
+							'classic' => esc_html__( 'Classic', 'macs-cookie-banner' ),
+							'modern'  => esc_html__( 'Modern', 'macs-cookie-banner' ),
+							'premium' => esc_html__( 'Premium', 'macs-cookie-banner' ),
+						)
+					);
+					?>
+					<tr>
+						<td colspan="2">
+							<p class="description" style="margin:0;"><?php echo esc_html__( 'Presets verändern nur Form, Radius, Schatten, Glow und Abstände — nicht die Farben. Farben kommen weiterhin aus den Farb-Feldern bzw. dem Avada-Farbimport.', 'macs-cookie-banner' ); ?></p>
+						</td>
+					</tr>
+				</table>
+
 				<h2><?php echo esc_html__( 'Texte', 'macs-cookie-banner' ); ?></h2>
 				<table class="form-table" role="presentation">
 					<?php self::render_text_field( 'banner_title', esc_html__( 'Titel', 'macs-cookie-banner' ), $options['banner_title'] ); ?>

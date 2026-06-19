@@ -72,6 +72,7 @@ Diese Karte beschreibt die aktiven Dateien, ihre Zustaendigkeiten und die wichti
 
 - Overlay-Element wird nur ausgegeben, wenn `overlay_enabled` true ist. Initial `hidden`. JS toggelt den Zustand parallel zum Banner.
 - Reopen-Button erhält das Attribut `data-position` und positioniert sich rein per CSS-Klassen und CSS-Variablen. Ab 0.5.0: Wert `hidden` → `banner.js::setBannerVisible()` hält den Button dauerhaft versteckt (Button bleibt im DOM, da `initBanner()` ihn voraussetzt); Widerruf dann nur über `[simple_cookie_settings]`.
+- Ab 0.5.2: Enum-Option `design_preset` (`classic`/`modern`/`premium`, Default `classic`). Render hängt die Klasse `lscc--preset-<wert>` an `#lscc-root`, `.lscc-overlay`, `.lscc-reopen` und `.lscc-settings-button`. Additive, class-gescopte CSS-Blöcke in `banner.css` ändern nur Form/Radius/Schatten/Glow/Abstände/Button-Stil — **keine** Farben (die kommen weiter aus den `--lscc-*`-Variablen). Größere Paddings nur ab `min-width: 761px`. Glass-Preset bewusst verschoben.
 - Legal-Links erscheinen unten in `.lscc__content` als `.lscc__legal`-Block, nur wenn `show_legal_links` true ist UND mindestens eine der beiden URLs aufgeloest werden konnte.
 - `get_text_option_keys()` / `get_color_option_keys()` — Schluessellisten
 - `sanitize_options()` — zentrale Sanitization mit `sanitize_text_field` und `sanitize_hex_color`
