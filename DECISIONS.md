@@ -397,3 +397,30 @@ Die bestehende **WPML-/Polylang-String-Translation-Registrierung bleibt als Over
 - **Stand reicht aus:** v0.3.3 ist funktional vollständig genug, um produktiv Daten zu sammeln; kein weiteres Feature ist Voraussetzung für die Validierung.
 
 **Folgen / offene Punkte:** Bekannte Abdeckungslücken vor der Erhebung: reCAPTCHA, Vimeo, Calendly (heute nur Scanner-Erkennung, kein Gating); Google Fonts ist nicht consent-gate-bar (nur Reporting/Local-Hosting-Empfehlung). Diese Lücken sind in `VALIDIERUNG.md` als Matrix-Vorbefüllung hinterlegt und beim Ausfüllen gegen die Realität zu bestätigen. Verbindliche Referenz: `MASTER_HANDBUCH.md`.
+
+## ADR-27: „Bestehende Einstellungen beibehalten" als Default bei darstellungsverändernden Features (Architektur-/UX-Richtlinie, ab 2026-06-20)
+
+**Status:** Aktiv ab 2026-06-20. Architektur-/UX-Richtlinie, **keine** Code-Änderung in v0.5.1. Verbindlich für **alle** künftigen UX-/Design-Features.
+
+**Kontext:** Beim Rollout auf ≈40 Avada-Sites verliert der Betreiber später den Überblick, welche individuelle Darstellung (Farben, Reopen-Position, Design-Optionen) je Site bewusst gesetzt wurde. Ein Feature, das bestehende Darstellung automatisch ändert, übernimmt oder migriert, würde unbemerkt site-spezifische Konfigurationen überschreiben — bei 40 Sites nicht rekonstruierbar.
+
+**Entscheidung:** Jedes Feature, das die bestehende Darstellung beeinflussen könnte (Farben, Position, Layout, Presets, Effekte), MUSS:
+
+1. **Default = bestehende Einstellungen unverändert beibehalten.** Kein Auto-Apply, keine Auto-Migration, keine Auto-Übernahme bei Update oder Aktivierung.
+2. **Opt-in nur auf ausdrückliche Operator-Aktion** (Button/Checkbox), nie automatisch, nie als Live-Sync, nie über einen permanenten Hook.
+3. **Post-Update-Hinweis statt stiller Änderung** — Muster:
+   - „Neue Funktion verfügbar: …"
+   - ☑ **Bestehende Einstellungen beibehalten (empfohlen)** ← Vorauswahl/Default
+   - ☐ Neue Funktion aktiv nutzen
+4. **Fokus = bewusste Beibehaltung vs. bewusste Übernahme**, nicht das Feintuning selbst (z. B. nicht „links/rechts", sondern „aktuelle Konfiguration behalten oder neu setzen").
+5. **Reversibel**; keine destruktive Überschreibung ohne expliziten Klick. Standardempfehlung ist **immer** „Bestehende Einstellungen beibehalten".
+
+**Anwendung (Beispiele):**
+
+- **Avada-Farbimport (v0.5.1):** Das Update ändert keine Farben. Nur der Button „Avada-Farben übernehmen" überträgt Werte — auf Wunsch, reversibel.
+- **Reopen-Positionen inkl. „Versteckt" (v0.5.0):** Bestehende Position bleibt; neue Werte greifen nur bei aktiver Auswahl. Default `bottom-right`.
+- **Design-Presets (geplant):** Default = `classic` (= bisheriges Aussehen); kein automatischer Wechsel.
+
+**Begründung:** Bei 40 Sites ist „nichts ungewollt verändern" wertvoller als Automatik-Komfort. Stille Darstellungsänderungen erzeugen Support-Fälle und Vertrauensverlust; die sichere Beibehaltung ist die einzig vertretbare Vorauswahl. Konsistent mit den ABSOLUTEN NO-GOS (keine automatische Migration) und der Projektphilosophie.
+
+**Folgen / offene Punkte:** Optional ein **wiederverwendbares Admin-Pattern** „Neue Funktion / Funktionsübernahme" (dismissible Notice mit den zwei Optionen, sichere Vorauswahl) als gemeinsame Komponente künftiger Features. **Nicht** Teil von v0.5.1 (dort nur der Avada-Import-Button gemäß dieser Richtlinie). Verbindliche Referenz: `MASTER_HANDBUCH.md`.
