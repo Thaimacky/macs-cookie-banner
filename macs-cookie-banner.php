@@ -3,7 +3,7 @@
  * Plugin Name: Mac's Cookie Banner
  * Plugin URI:  https://github.com/Thaimacky/macs-cookie-banner
  * Description: Lightweight cookie consent banner with script blocking for WordPress.
- * Version:     0.5.0
+ * Version:     0.5.1
  * Author:      Mac's Cookie Banner
  * Text Domain: macs-cookie-banner
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MCB_VERSION', '0.5.0' );
+define( 'MCB_VERSION', '0.5.1' );
 
 /**
  * Consent schema version. Bump this whenever the stored consent shape
@@ -80,6 +80,7 @@ final class Macs_Cookie_Banner {
 		Macs_Cookie_Banner_Updater::init();
 
 		if ( is_admin() ) {
+			require_once MCB_PLUGIN_DIR . 'includes/avada-colors.php';
 			require_once MCB_PLUGIN_DIR . 'includes/admin-page.php';
 			Macs_Cookie_Banner_Admin::init();
 		}

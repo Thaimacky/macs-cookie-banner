@@ -1,5 +1,21 @@
 # DEV LOG
 
+## 0.5.1-test - 2026-06-20
+
+- Minor-Bump 0.5.0 → 0.5.1. Plugin-Header und `MCB_VERSION` auf `0.5.1`. `MCB_CONSENT_VERSION` bleibt `2`.
+- **Feature: Avada-Farbimport (Phase 4 / Feature 1, ADR-27-konform).** Ein-Klick-Übernahme **einer** Markenfarbe; Ziel „Banner wirkt wie die Website", nicht „alle Avada-Farben kopieren".
+- **Neue Datei `includes/avada-colors.php`, Klasse `Macs_Cookie_Banner_Avada_Colors`** (read-only, registriert **keine** Hooks):
+  - `is_active()` — Avada erkannt (`function_exists('Avada') || class_exists('Avada') || defined('AVADA_VERSION')`), **kein** Versions-Gating.
+  - `get_brand_color()` — Prioritätskette `primary_color → accent_color → link_color → button_gradient_top_color`, erster gültiger Hex gewinnt.
+  - `read_raw()` — `fusion_get_option()` → `Avada()->settings->get()` → Roh-Fallback `get_option('fusion_options')`, defensiv.
+  - `resolve_color()` — Hex via `sanitize_hex_color()`; einzelne `var(--awb-colorN)`-Referenz gegen Palette aufgelöst.
+  - `map_to_banner()` — Markenfarbe → `primary_button_color` + `border_color`; `primary_text_color` = `contrast_color()`.
+  - `contrast_color()` — WCAG-Kontrastvergleich Weiss vs. `#111827` → lesbarer Button-Text.
+- **`includes/admin-page.php`:** `admin_post_mcb_import_avada_colors` → `import_avada_colors()` (Cap + Nonce `mcb_import_avada_colors` + `is_active()`-Recheck; Merge nur der gemappten Farbschlüssel in `lscc_options` via `sanitize_options` + `update_option`; Redirect `mcb_avada=imported|empty`). Button „Avada-Farben übernehmen" nur bei `is_active()`; Erfolg-/Warn-Notice.
+- **`macs-cookie-banner.php`:** `require_once includes/avada-colors.php` nur im `is_admin()`-Zweig.
+- **Bewusst NICHT:** kein Auto-Import/Live-Sync/Hook/Wizard/Popup (ADR-27); kein BG-/Text-/Overlay-Import; `secondary_button_color` unverändert; kein neuer Options-Key; keine Migration; kein Avada-Schreibzugriff; keine Legacy-/6.x-Pfade.
+- Validierung: Klammer-/Brace-Balance der geänderten Dateien geprüft; KEEP-Tokens unberührt. Kein PHP-CLI lokal → Aktivierungs-/Avada-Test auf realer moderner Avada-Site in RELEASE_CHECKLIST.
+
 ## 0.5.0-test - 2026-06-20
 
 - Minor-Bump 0.4.0 → 0.5.0. Plugin-Header und `MCB_VERSION` auf `0.5.0`. `MCB_CONSENT_VERSION` bleibt `2`.

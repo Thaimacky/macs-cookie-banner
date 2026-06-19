@@ -24,6 +24,7 @@ final class Macs_Cookie_Banner_Admin {
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'add_settings_page' ) );
 		add_action( 'admin_post_mcb_save_settings', array( __CLASS__, 'save_settings' ) );
+		add_action( 'admin_post_mcb_import_avada_colors', array( __CLASS__, 'import_avada_colors' ) );
 	}
 
 	/**
@@ -123,6 +124,51 @@ final class Macs_Cookie_Banner_Admin {
 	}
 
 	/**
+	 * Import the Avada brand color into the banner accent colors (ADR-27).
+	 *
+	 * Runs only on the explicit "Avada-Farben übernehmen" click. Read-only on
+	 * the Avada side; writes only the mapped accent color keys into the existing
+	 * options. Background, text, overlay and the secondary button stay untouched.
+	 *
+	 * @return void
+	 */
+	public static function import_avada_colors() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Sie haben keine Berechtigung, diese Aktion auszuführen.', 'macs-cookie-banner' ) );
+		}
+
+		$nonce = isset( $_POST['mcb_avada_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['mcb_avada_nonce'] ) ) : '';
+
+		if ( ! wp_verify_nonce( $nonce, 'mcb_import_avada_colors' ) ) {
+			wp_die( esc_html__( 'Ungültige Sicherheitsprüfung.', 'macs-cookie-banner' ) );
+		}
+
+		$result = 'empty';
+
+		if ( Macs_Cookie_Banner_Avada_Colors::is_active() ) {
+			$mapped = Macs_Cookie_Banner_Avada_Colors::map_to_banner( Macs_Cookie_Banner_Avada_Colors::get_brand_color() );
+
+			if ( ! empty( $mapped ) ) {
+				$current = Macs_Cookie_Banner::get_options();
+				$merged  = Macs_Cookie_Banner::sanitize_options( array_merge( $current, $mapped ) );
+				update_option( Macs_Cookie_Banner::OPTION_NAME, $merged );
+				$result = 'imported';
+			}
+		}
+
+		wp_safe_redirect(
+			add_query_arg(
+				array(
+					'page'      => 'macs-cookie-banner',
+					'mcb_avada' => $result,
+				),
+				admin_url( 'admin.php' )
+			)
+		);
+		exit;
+	}
+
+	/**
 	 * Render settings page.
 	 *
 	 * @return void
@@ -141,6 +187,29 @@ final class Macs_Cookie_Banner_Admin {
 				<div class="notice notice-success is-dismissible">
 					<p><?php echo esc_html__( 'Einstellungen gespeichert.', 'macs-cookie-banner' ); ?></p>
 				</div>
+			<?php endif; ?>
+
+			<?php if ( isset( $_GET['mcb_avada'] ) ) : ?>
+				<?php $mcb_avada_result = sanitize_text_field( wp_unslash( $_GET['mcb_avada'] ) ); ?>
+				<?php if ( 'imported' === $mcb_avada_result ) : ?>
+					<div class="notice notice-success is-dismissible">
+						<p><?php echo esc_html__( 'Avada-Farben übernommen. Bei Bedarf manuell anpassen und speichern.', 'macs-cookie-banner' ); ?></p>
+					</div>
+				<?php elseif ( 'empty' === $mcb_avada_result ) : ?>
+					<div class="notice notice-warning is-dismissible">
+						<p><?php echo esc_html__( 'Keine Avada-Markenfarbe gefunden. Farben unverändert.', 'macs-cookie-banner' ); ?></p>
+					</div>
+				<?php endif; ?>
+			<?php endif; ?>
+
+			<?php if ( Macs_Cookie_Banner_Avada_Colors::is_active() ) : ?>
+				<h2><?php echo esc_html__( 'Avada-Farben', 'macs-cookie-banner' ); ?></h2>
+				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-bottom:1em;">
+					<input type="hidden" name="action" value="mcb_import_avada_colors">
+					<?php wp_nonce_field( 'mcb_import_avada_colors', 'mcb_avada_nonce' ); ?>
+					<p class="description" style="margin:0 0 .5em;"><?php echo esc_html__( 'Übernimmt die Markenfarbe aus Avada in Primärbutton und Rahmen (Button-Text wird automatisch lesbar kontrastiert). Bestehende Farben bleiben, bis Sie hier klicken.', 'macs-cookie-banner' ); ?></p>
+					<?php submit_button( esc_html__( 'Avada-Farben übernehmen', 'macs-cookie-banner' ), 'secondary', 'mcb_import_avada', false ); ?>
+				</form>
 			<?php endif; ?>
 
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">

@@ -8,6 +8,29 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.5.1-test - 2026-06-20
+
+### Added
+
+- **Avada-Farbimport (1-Klick, Agentur-UX).** Neuer Admin-Button „Avada-Farben übernehmen" (Sektion Farben) — **nur sichtbar, wenn Avada aktiv ist**. Übernimmt **eine** Markenfarbe aus den Avada-Theme-Optionen in den **Primärbutton** und die **Rahmenfarbe** des Banners; die **Button-Textfarbe** wird automatisch per WCAG-Kontrast lesbar gesetzt. Ziel: „Banner wirkt sofort wie die Website".
+- **Markenfarb-Prioritätskette** (erster gültiger Treffer gewinnt): `primary_color` → `accent_color` → `link_color` → `button_gradient_top_color` (nur Notnagel). `var(--awb-colorN)`-Referenzen werden gegen die Avada-Palette aufgelöst.
+
+### Changed
+
+- Plugin-Header und `MCB_VERSION` auf `0.5.1`. `MCB_CONSENT_VERSION` bleibt `2`.
+
+### Technisch / Architektur (ADR-27-konform)
+
+- Neue read-only-Klasse `includes/avada-colors.php` (`Macs_Cookie_Banner_Avada_Colors`): `is_active()`, `get_brand_color()`, `read_raw()`, `resolve_color()`, `map_to_banner()`, `contrast_color()`. **Keine** Frontend-Hooks, **kein** Avada-Schreibzugriff, **kein** Versions-Gating, **kein** Legacy-Pfad.
+- `includes/admin-page.php`: admin-post-Action `mcb_import_avada_colors` (+ Nonce `mcb_import_avada_colors`), Button + Erfolg-/Warn-Notice. Import schreibt **nur** auf bewussten Klick (Modell A: Klick → sofort speichern → Meldung).
+- `macs-cookie-banner.php`: `require_once includes/avada-colors.php` **nur im Admin**.
+
+### Bewusst unverändert
+
+- **Kein** Auto-Import, Live-Sync, Hook, Wizard, Popup oder Post-Update-Dialog (ADR-27): Farben ändern sich **ausschliesslich** auf Klick.
+- Importiert werden nur Primärbutton-/Rahmenfarbe (+ berechneter Button-Text). **Nicht** importiert: `secondary_button_color`, `background_color`, `text_color`, `overlay_color`, komplette Palette.
+- Kein neuer Options-Key, keine Migration. Consent, Scanner, Privacy Check, Consent-Code-Manager, GitHub-Updater, Shortcodes, Cookies/Storage, Reopen-Button, Maps/YouTube unverändert.
+
 ## 0.5.0-test - 2026-06-20
 
 ### Added

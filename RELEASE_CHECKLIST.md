@@ -8,6 +8,21 @@
 - [ ] Top-Level-Ordner im ZIP: `macs-cookie-banner/` (WordPress-installierbar).
 - [ ] Kein automatisches Ausweichen auf andere Orte; Ablageort nur per ausdrücklicher Auftraggeber-Anweisung änderbar. Details siehe `MASTER_HANDBUCH.md`, Sektion „Release-Artefakte / Ablageort für Test-ZIPs".
 
+## Avada-Farbimport (ab v0.5.1)
+
+- [ ] Plugin aktiviert/aktualisiert ohne PHP-Fehler; Bestands-`lscc_options` unverändert (Farben/Consent bleiben).
+- [ ] **Moderne Avada-Site:** in „Einstellungen → Farben" erscheint die Sektion „Avada-Farben" mit Button „Avada-Farben übernehmen".
+- [ ] **Nicht-Avada-Theme:** Button/Sektion **nicht** sichtbar; keine Konsole-/PHP-Fehler.
+- [ ] Klick auf „Avada-Farben übernehmen": Primärbutton **und** Rahmenfarbe = Avada-Markenfarbe; Erfolg-Notice erscheint.
+- [ ] Button-Textfarbe (`primary_text_color`) ist automatisch lesbar (heller Markenton → dunkler Text, dunkler Markenton → weisser Text).
+- [ ] **Prioritätskette:** `primary_color` gewinnt; bei leerem `primary_color` greift `accent_color`, dann `link_color`, zuletzt `button_gradient_top_color`.
+- [ ] `var(--awb-colorN)`-Wert wird korrekt zu Hex aufgelöst (Avada Global Colors).
+- [ ] **Sekundärbutton, Hintergrund, Text, Overlay bleiben unverändert** (kein Import).
+- [ ] Keine auflösbare Markenfarbe → Warn-Notice „Keine Avada-Markenfarbe gefunden. Farben unverändert."; **keine** Änderung.
+- [ ] **ADR-27:** Update auf 0.5.1 ändert ohne Klick **keine** Farben; kein Auto-Import, kein Live-Sync.
+- [ ] Nach Import manuell anpassbar (Farbfelder editieren + „Auswahl speichern") und persistent.
+- [ ] Banner-Frontend, Consent, Auto-Update, Scanner, Consent-Code-Manager unverändert.
+
 ## Reopen-Button-Position „Versteckt" (ab v0.5.0)
 
 - [ ] Plugin aktiviert/aktualisiert ohne PHP-Fehler; Bestands-`lscc_options` unverändert (Einstellungen + Consent bleiben).
