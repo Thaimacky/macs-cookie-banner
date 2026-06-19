@@ -8,6 +8,28 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.5.3-test - 2026-06-20
+
+### Fixed
+
+- **Sprach-Mix im Banner behoben (kritisch).** Auf mehrsprachigen Sites erschienen Titel, Beschreibung, die Buttons „Accept all/Necessary only/Save selection" und der Reopen-Button „Cookie settings" weiter auf Englisch, während die Kategorien bereits lokalisiert waren. Ursache: die **sieben editierbaren Texte** sind option-basiert (`get_translated_option()`) und lieferten den **gespeicherten** Wert (einmal in der Admin-Sprache gespeichert), statt der aktiven Front-End-Sprache zu folgen. `get_translated_option()` erkennt jetzt, ob der gespeicherte Wert nur einem mitgelieferten **Default-Text (in irgendeiner Sprache)** entspricht; falls ja (oder leer), folgt er der aktiven Locale über `get_default_text_table()` (de/en/fr/it/tr/hu). Echte, vom Operator angepasste Texte sowie WPML/Polylang-String-Translation behalten weiterhin Vorrang.
+- **Folge:** auf einer DE-Seite vollständig Deutsch, FR vollständig Französisch, IT/EN/TR/HU analog — kein gemischtes Banner mehr.
+
+### Changed
+
+- **Sprachdateien `.mo` neu kompiliert** (alle 6 Locales: de_CH, en_US, fr_FR, it_IT, tr_TR, hu_HU) aus den `.po`, damit `.po`/`.mo` wieder konsistent sind (der beim 0.4.0-Rebrand in den `.po` aktualisierte Admin-Hilfetext `MCB_CONSENT_VERSION` war noch nicht in die `.mo` übernommen). Round-Trip-verifiziert, 0 Mismatches; Frontend-Übersetzungen unverändert.
+- **Premium-Preset, Reopen-Button:** optisch an den Premium-Look angeglichen — dezenter 1px-Rand in der Markenfarbe, passender Radius (8px), markenfarbener Glow, minimal hochwertigerer Hover. Kein Glass/Transparenz/Blur/Neon/Animation; Popup-Hintergrund unverändert.
+- Plugin-Header und `MCB_VERSION` auf `0.5.3`. `MCB_CONSENT_VERSION` bleibt `2`.
+
+### Sprachinventur (Stand 0.5.3)
+
+- Vorhandene Locales (einzige Quelle der Wahrheit = `languages/`): **de_CH, en_US, fr_FR, it_IT, tr_TR, hu_HU** (je `.po` + `.mo`) + `macs-cookie-banner.pot`. **Keine** weiteren Varianten (kein de_DE, de_*_formal, fr_CH, es_ES, th_TH).
+- Besucherseitige Frontend-Strings (Kategorien, Beschreibungen, Rechtslinks, Service-Hinweise) sind in **allen 6** Locales vollständig übersetzt → kein englischer Fallback. Die übrigen msgids sind **Admin-/Operator-Strings** und bewusst deutsche Quelle (ADR-19), nicht besucherseitig.
+
+### Bewusst unverändert
+
+- Keine Consent-Logik-, Scanner-, Privacy-Check-, CCM-, Updater-Änderung; keine Datenstruktur-/Cookie-/Storage-/Shortcode-Änderung; kein neues Feature/Preset; Popup-Hintergrund unverändert (kein Glass).
+
 ## 0.5.2-test - 2026-06-20
 
 ### Added

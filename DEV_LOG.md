@@ -1,5 +1,17 @@
 # DEV LOG
 
+## 0.5.3-test - 2026-06-20
+
+- Patch-Bump 0.5.2 → 0.5.3. Header + `MCB_VERSION` auf `0.5.3`. `MCB_CONSENT_VERSION` bleibt `2`.
+- **Bugfix Sprach-Mix (Problem 1, kritisch).** Root Cause: die 7 editierbaren Texte (`banner_title`, `banner_text`, `accept_all_text`, `necessary_only_text`, `settings_text`, `save_settings_text`, `reopen_text`) sind **option-basiert** (`get_translated_option()` → gespeicherter Wert aus `lscc_options`), **nicht** `__()`-basiert. Nach einem Admin-Speichern war der Wert in der Admin-Sprache (hier Englisch) fixiert und folgte der Front-End-Locale nicht mehr; die `__()`-basierten Kategorien/Hinweise folgten dagegen via `.mo` → sichtbarer Mix.
+  - Fix in `get_translated_option()`: wenn der gespeicherte Wert leer ist **oder** exakt einem mitgelieferten Default-Text (irgendeiner Sprache) entspricht (`is_shipped_default_text()` über `get_default_text_table()`), wird `get_neutral_text( $key )` (aktive Locale via `determine_locale()`) genutzt. Operator-Custom-Text und WPML-/Polylang-Übersetzung behalten Vorrang (Filter/`pll__` danach unverändert).
+  - Deckt alle 6 Bundle-Sprachen ab (de/en/fr/it/tr/hu); **kein** `.mo`-Eintrag nötig (Defaults kommen aus PHP-Tabelle).
+- **Sprachinventur** (einzige Wahrheit `languages/`): 6 Locales de_CH/en_US/fr_FR/it_IT/tr_TR/hu_HU (je .po+.mo) + .pot. Keine formellen/weiteren Varianten. Frontend-Strings in allen 6 vollständig; 204 leere msgstr je Nicht-DE = Admin-Strings (ADR-19, deutsche Quelle).
+- **`.mo` neu kompiliert** aus den `.po` (Python-msgfmt, kanonischer Algorithmus; po hat keine msgctxt/Plural/fuzzy). Round-Trip mit `gettext.GNUTranslations` verifiziert: de_CH 222/222, en/fr/it/tr/hu je 19/19, **0 Mismatch**. Behebt die einzige po/mo-Divergenz (Admin-Hilfetext `MCB_CONSENT_VERSION` + Header-Slug aus dem 0.4.0-Rebrand). Frontend-Übersetzungen unverändert.
+- **Premium-Reopen-Button (Problem 2).** `.lscc--preset-premium.lscc-reopen`: 1px-Rand `var(--lscc-primary)`, `border-radius: 8px`, markenfarbener Glow + `:hover`. Kein Glass/Transparenz/Blur/Neon/Animation; kein Popup-Hintergrund-Eingriff.
+- **Bewusst NICHT:** keine Consent-/Scanner-/Privacy-/CCM-/Updater-Änderung; keine neue Option/Preset; keine Datenstruktur-/Cookie-/Storage-/Shortcode-Änderung.
+- Validierung: Klammerbalance geprüft; KEEP-Tokens unberührt. Kein PHP-CLI lokal → Sprach-/Sichttest auf WP in RELEASE_CHECKLIST.
+
 ## 0.5.2-test - 2026-06-20
 
 - Minor-Bump 0.5.1 → 0.5.2. Plugin-Header und `MCB_VERSION` auf `0.5.2`. `MCB_CONSENT_VERSION` bleibt `2`.

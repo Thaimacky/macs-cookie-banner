@@ -3,7 +3,7 @@
  * Plugin Name: Mac's Cookie Banner
  * Plugin URI:  https://github.com/Thaimacky/macs-cookie-banner
  * Description: Lightweight cookie consent banner with script blocking for WordPress.
- * Version:     0.5.2
+ * Version:     0.5.3
  * Author:      Mac's Cookie Banner
  * Text Domain: macs-cookie-banner
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MCB_VERSION', '0.5.2' );
+define( 'MCB_VERSION', '0.5.3' );
 
 /**
  * Consent schema version. Bump this whenever the stored consent shape
@@ -523,13 +523,41 @@ final class Macs_Cookie_Banner {
 	public static function get_translated_option( $key, $label ) {
 		$options = self::get_options();
 		$value   = isset( $options[ $key ] ) ? $options[ $key ] : '';
-		$value   = apply_filters( 'wpml_translate_single_string', $value, 'Light Swiss Cookie Consent', $label );
+
+		// A stored value that is empty or merely one of our shipped default
+		// texts (in any bundled language) is not a deliberate operator override.
+		// In that case follow the active locale so the banner never mixes
+		// languages (e.g. a persisted English default shown on a German page).
+		if ( '' === $value || self::is_shipped_default_text( $key, $value ) ) {
+			$value = self::get_neutral_text( $key );
+		}
+
+		$value = apply_filters( 'wpml_translate_single_string', $value, 'Light Swiss Cookie Consent', $label );
 
 		if ( function_exists( 'pll__' ) ) {
 			return pll__( $value );
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Whether a stored text equals one of the bundled default texts in any
+	 * bundled language. Such values are treated as non-overrides so the banner
+	 * follows the active locale instead of a persisted default string.
+	 *
+	 * @param string $key   Option key.
+	 * @param string $value Stored value.
+	 * @return bool
+	 */
+	private static function is_shipped_default_text( $key, $value ) {
+		foreach ( self::get_default_text_table() as $texts ) {
+			if ( isset( $texts[ $key ] ) && $texts[ $key ] === $value ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

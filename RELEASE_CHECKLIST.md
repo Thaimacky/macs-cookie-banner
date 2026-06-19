@@ -8,6 +8,17 @@
 - [ ] Top-Level-Ordner im ZIP: `macs-cookie-banner/` (WordPress-installierbar).
 - [ ] Kein automatisches Ausweichen auf andere Orte; Ablageort nur per ausdrücklicher Auftraggeber-Anweisung änderbar. Details siehe `MASTER_HANDBUCH.md`, Sektion „Release-Artefakte / Ablageort für Test-ZIPs".
 
+## Lokalisierung Banner-Texte + Premium-Reopen (ab v0.5.3)
+
+- [ ] **DE-Seite:** Banner **vollständig Deutsch** — Titel „Cookie-Einstellungen", Beschreibung, „Alle akzeptieren"/„Nur notwendige"/„Auswahl speichern", Reopen-Button „Cookie-Einstellungen", Kategorien, Hinweise. **Kein** englischer Resttext.
+- [ ] **EN/FR/IT/TR/HU-Seite:** jeweils vollständig in der Sprache; kein Mix, kein englischer Fallback (sofern Übersetzung existiert).
+- [ ] **Reopen-Button** folgt der aktiven Sprache (DE „Cookie-Einstellungen", FR „Paramètres des cookies", IT „Impostazioni dei cookie", EN „Cookie settings").
+- [ ] **Operator-Override bleibt:** ein im Admin individuell geänderter Text wird **nicht** überschrieben und erscheint wie eingegeben; WPML/Polylang-String-Translation hat weiterhin Vorrang.
+- [ ] Frisch gespeicherte Einstellungen (Admin in Operator-Sprache) führen **nicht** mehr zu fixiertem Banner-Text.
+- [ ] **Sprachdateien:** `languages/` enthält de_CH/en_US/fr_FR/it_IT/tr_TR/hu_HU (je .po+.mo) + .pot; `.mo` aus `.po` kompiliert (konsistent).
+- [ ] **Premium-Preset:** Reopen-Button mit dezentem 1px-Markenrand, Radius und Glow passend zum Banner; Hover dezent; **kein** Glass/Transparenz/Blur; Popup-Hintergrund unverändert.
+- [ ] Consent/Scanner/Privacy/CCM/Updater/Cookies/Storage/Shortcodes unverändert.
+
 ## Design-Presets (ab v0.5.2)
 
 - [ ] Plugin aktiviert/aktualisiert ohne PHP-Fehler; Bestands-`lscc_options` unverändert (Default-Preset `classic`).
