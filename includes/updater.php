@@ -23,10 +23,17 @@ final class Light_Swiss_Cookie_Consent_Updater {
 	/**
 	 * GitHub repository the releases are published to.
 	 */
-	const REPOSITORY_URL = 'https://github.com/Thaimacky/light-swiss-cookie-consent/';
+	const REPOSITORY_URL = 'https://github.com/Thaimacky/macs-cookie-banner/';
 
 	/**
 	 * Plugin slug used by the update checker (must match the plugin folder).
+	 *
+	 * Deliberately kept as the historical slug during the 0.3.4 rebrand
+	 * (display name -> "Mac's Cookie Banner"). The folder, text domain and all
+	 * stored DB keys keep their original identity so existing installations
+	 * update in place without losing settings or consents. Only REPOSITORY_URL
+	 * changes: 0.3.4 acts as a bridge release that points existing sites at the
+	 * new GitHub repository for all future updates.
 	 */
 	const SLUG = 'light-swiss-cookie-consent';
 

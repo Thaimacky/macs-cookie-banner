@@ -157,7 +157,7 @@ final class Light_Swiss_Cookie_Consent_Privacy_Check {
 				'timeout'             => 5,
 				'redirection'         => 2,
 				'limit_response_size' => 500000,
-				'user-agent'          => 'Light Swiss Cookie Consent Privacy Check/' . LSCC_VERSION,
+				'user-agent'          => 'Mac\'s Cookie Banner Privacy Check/' . LSCC_VERSION,
 			)
 		);
 

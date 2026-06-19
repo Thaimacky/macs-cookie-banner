@@ -1,10 +1,12 @@
-# Light Swiss Cookie Consent
+# Mac's Cookie Banner
 
 Ein leichtes, konservatives WordPress Cookie-Consent-Plugin ohne React, Vue, jQuery, npm, Composer oder Build-System.
 
+> Hinweis: Produktname seit v0.3.4 **Mac's Cookie Banner** (vormals „Light Swiss Cookie Consent"). Der technische Slug, der Ordnername `light-swiss-cookie-consent`, die Textdomain und alle Datenbank-Keys (`lscc_options`, `lscc_consent`, `LSCC_*`) bleiben unveraendert, damit bestehende Installationen ohne Migration weiterlaufen.
+
 ## Ziel
 
-Light Swiss Cookie Consent zeigt ein modernes dunkles Cookie-Banner an, speichert die Auswahl in `localStorage` und als Cookie und laedt blockierte Skripte erst nach Zustimmung.
+Mac's Cookie Banner zeigt ein modernes dunkles Cookie-Banner an, speichert die Auswahl in `localStorage` und als Cookie und laedt blockierte Skripte erst nach Zustimmung.
 
 ## Kategorien
 
@@ -48,7 +50,7 @@ Falls ein Skript als Modul geladen werden soll:
 
 ## Admin-Einstellungen
 
-Unter `Light Swiss Cookie Consent > Einstellungen` koennen Texte und Farben gepflegt werden.
+Unter `Mac's Cookie Banner > Einstellungen` koennen Texte und Farben gepflegt werden.
 
 Einstellbare Farben:
 
@@ -69,7 +71,7 @@ Der Shortcode oeffnet die Consent-Einstellungen ohne Seitenreload:
 
 ## Privacy Check
 
-Unter `Light Swiss Cookie Consent > Privacy Check` stehen zwei passive Hinweis-Werkzeuge bereit:
+Unter `Mac's Cookie Banner > Privacy Check` stehen zwei passive Hinweis-Werkzeuge bereit:
 
 1. **Startseiten-Pruefung** — laedt einmal `home_url('/')` via `wp_remote_get` (Timeout 5 s, max. 500 KB) und prueft das HTML gegen eine kurze statische Mustertabelle.
 2. **Content Scan** — durchsucht ausschliesslich lokal die letzten 200 veroeffentlichten Beitraege, Seiten und oeffentlichen Custom Post Types nach bekannten Drittanbieter-Domains. Wird ausschliesslich auf Klick auf den Button `Content Scan starten` ausgefuehrt (nicht automatisch beim Aufruf der Admin-Seite). Keine externen Requests, kein Crawl, kein Auto-Block, keine Aenderung der Inhalte.
@@ -154,9 +156,9 @@ Wenn `LSCC_DEBUG` auf `true` gesetzt wird, darf das Frontend minimale `console.l
 
 ## Installation
 
-1. Den Ordner `light-swiss-cookie-consent` nach `wp-content/plugins/` kopieren.
-2. Das Plugin in WordPress aktivieren.
-3. Unter `Light Swiss Cookie Consent > Einstellungen` die Darstellung anpassen.
+1. Den Ordner `light-swiss-cookie-consent` nach `wp-content/plugins/` kopieren (Ordnername bleibt aus Kompatibilitaetsgruenden unveraendert).
+2. Das Plugin in WordPress aktivieren — es erscheint in der Plugin-Liste als **Mac's Cookie Banner**.
+3. Unter `Mac's Cookie Banner > Einstellungen` die Darstellung anpassen.
 
 ## Overlay, Blur und Floating-Button
 

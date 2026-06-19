@@ -1,12 +1,37 @@
 # Changelog
 
-Alle nennenswerten Aenderungen an Light Swiss Cookie Consent werden in dieser Datei dokumentiert.
+Alle nennenswerten Aenderungen an Mac's Cookie Banner (vormals Light Swiss Cookie Consent) werden in dieser Datei dokumentiert.
 
 Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semantischer Versionierung:
 
 - `PATCH` fuer Bugfixes und Sicherheitskorrekturen
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
+
+## 0.3.4-test - 2026-06-19
+
+### Changed (Rebranding — nur sichtbare Bezeichnung)
+
+- **Produktname umgestellt: „Light Swiss Cookie Consent" → „Mac's Cookie Banner".** Betroffen ausschliesslich sichtbare Stellen im WordPress-Backend und in der Doku:
+  - Plugin-Header `Plugin Name`, `Author`, `Plugin URI`.
+  - Admin-Hauptmenue und Seitentitel (`<h1>`) der Einstellungsseite.
+  - Plugin-Liste in WordPress zeigt jetzt **Mac's Cookie Banner**.
+  - `README.md` und dieser Changelog.
+  - HTTP-User-Agent des Privacy-Check-Scanners.
+- **Auto-Update-Ziel umgestellt:** `includes/updater.php` `REPOSITORY_URL` → `https://github.com/Thaimacky/macs-cookie-banner/`.
+- Plugin-Header und `LSCC_VERSION` auf `0.3.4`. `LSCC_CONSENT_VERSION` bleibt `2`.
+
+### Bridge-Release-Hinweis
+
+- **0.3.4 ist ein Bruecken-Release.** Es wird einmalig zusaetzlich im alten Repo `Thaimacky/light-swiss-cookie-consent` veroeffentlicht. Bestehende Installationen (auf 0.3.3) sehen das Update dort, ziehen es automatisch und pollen ab dann das neue Repo `Thaimacky/macs-cookie-banner`. Ab 0.3.5 erscheinen Releases nur noch im neuen Repo.
+
+### Explizit unveraendert (keine Migration, kein Datenverlust)
+
+- Slug/Ordnername `light-swiss-cookie-consent`, Hauptdateiname, PUC-`SLUG`, Textdomain `light-swiss-cookie-consent`.
+- DB-Keys `lscc_options`, `lscc_consent_codes`, Transient `lscc_detected_imprint_url`.
+- Cookie-/Storage-Name `lscc_consent`, `LSCC_CONSENT_VERSION = 2`.
+- Konstanten-/Hook-/CSS-Praefix `LSCC_`/`lscc_`, PHP-Klassennamen `Light_Swiss_Cookie_Consent*`, WPML/Polylang-String-Kontext `Light Swiss Cookie Consent`.
+- Folge: bestehende Einstellungen und Consents bleiben vollstaendig erhalten; die DB wird durch das Update nicht veraendert.
 
 ## 0.3.3-test - 2026-06-16
 

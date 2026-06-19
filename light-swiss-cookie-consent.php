@@ -1,10 +1,10 @@
 <?php
 /**
- * Plugin Name: Light Swiss Cookie Consent
- * Plugin URI:  https://example.com/light-swiss-cookie-consent
+ * Plugin Name: Mac's Cookie Banner
+ * Plugin URI:  https://github.com/Thaimacky/macs-cookie-banner
  * Description: Lightweight cookie consent banner with script blocking for WordPress.
- * Version:     0.3.3
- * Author:      Light Swiss Cookie Consent
+ * Version:     0.3.4
+ * Author:      Mac's Cookie Banner
  * Text Domain: light-swiss-cookie-consent
  * Domain Path: /languages
  *
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'LSCC_VERSION', '0.3.3' );
+define( 'LSCC_VERSION', '0.3.4' );
 
 /**
  * Consent schema version. Bump this whenever the stored consent shape

@@ -33,8 +33,8 @@ final class Light_Swiss_Cookie_Consent_Admin {
 	 */
 	public static function add_settings_page() {
 		add_menu_page(
-			esc_html__( 'Light Swiss Cookie Consent', 'light-swiss-cookie-consent' ),
-			esc_html__( 'Light Swiss Cookie Consent', 'light-swiss-cookie-consent' ),
+			esc_html__( 'Mac\'s Cookie Banner', 'light-swiss-cookie-consent' ),
+			esc_html__( 'Mac\'s Cookie Banner', 'light-swiss-cookie-consent' ),
 			'manage_options',
 			'light-swiss-cookie-consent',
 			array( __CLASS__, 'render_settings_page' ),
@@ -135,7 +135,7 @@ final class Light_Swiss_Cookie_Consent_Admin {
 		$options = Light_Swiss_Cookie_Consent::get_options();
 		?>
 		<div class="wrap">
-			<h1><?php echo esc_html__( 'Light Swiss Cookie Consent', 'light-swiss-cookie-consent' ); ?></h1>
+			<h1><?php echo esc_html__( 'Mac\'s Cookie Banner', 'light-swiss-cookie-consent' ); ?></h1>
 
 			<?php if ( isset( $_GET['updated'] ) && 'true' === sanitize_text_field( wp_unslash( $_GET['updated'] ) ) ) : ?>
 				<div class="notice notice-success is-dismissible">
