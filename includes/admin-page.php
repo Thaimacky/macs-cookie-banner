@@ -189,9 +189,19 @@ final class Macs_Cookie_Banner_Admin {
 							'bottom-left'  => esc_html__( 'Unten links', 'macs-cookie-banner' ),
 							'top-right'    => esc_html__( 'Oben rechts', 'macs-cookie-banner' ),
 							'top-left'     => esc_html__( 'Oben links', 'macs-cookie-banner' ),
+							'hidden'       => esc_html__( 'Versteckt', 'macs-cookie-banner' ),
 						)
 					);
 					?>
+					<?php if ( 'hidden' === $options['reopen_position'] ) : ?>
+						<tr>
+							<td colspan="2">
+								<div class="notice notice-warning inline" style="margin:0;">
+									<p><?php echo esc_html__( 'Bei verstecktem Cookie-Einstellungs-Button muss ein alternativer Widerrufsweg vorhanden sein (z. B. [simple_cookie_settings] im Footer).', 'macs-cookie-banner' ); ?></p>
+								</div>
+							</td>
+						</tr>
+					<?php endif; ?>
 					<?php self::render_number_field( 'reopen_offset_x', esc_html__( 'Offset X (px)', 'macs-cookie-banner' ), $options['reopen_offset_x'], 0, 200, 1 ); ?>
 					<?php self::render_number_field( 'reopen_offset_y', esc_html__( 'Offset Y (px)', 'macs-cookie-banner' ), $options['reopen_offset_y'], 0, 200, 1 ); ?>
 				</table>

@@ -536,7 +536,11 @@
 
 		root.hidden = !visible;
 		root.setAttribute('aria-hidden', visible ? 'false' : 'true');
-		reopenButton.hidden = visible || !hasStoredConsent();
+		// Position "hidden": the reopen button is never shown. The element stays in
+		// the DOM (init requires it) but is kept hidden permanently; consent can
+		// still be re-opened via the [simple_cookie_settings] shortcut.
+		var positionHidden = reopenButton.getAttribute('data-position') === 'hidden';
+		reopenButton.hidden = visible || !hasStoredConsent() || positionHidden;
 		syncSettingsTriggers(visible);
 
 		var overlay = document.querySelector('[data-lscc-overlay]');

@@ -8,6 +8,18 @@
 - [ ] Top-Level-Ordner im ZIP: `macs-cookie-banner/` (WordPress-installierbar).
 - [ ] Kein automatisches Ausweichen auf andere Orte; Ablageort nur per ausdrücklicher Auftraggeber-Anweisung änderbar. Details siehe `MASTER_HANDBUCH.md`, Sektion „Release-Artefakte / Ablageort für Test-ZIPs".
 
+## Reopen-Button-Position „Versteckt" (ab v0.5.0)
+
+- [ ] Plugin aktiviert/aktualisiert ohne PHP-Fehler; Bestands-`lscc_options` unverändert (Einstellungen + Consent bleiben).
+- [ ] Admin → „Floating-Button": Dropdown „Position" zeigt zusätzlich **Versteckt**.
+- [ ] Positionen `Unten rechts/links`, `Oben rechts/links` verhalten sich unverändert (Reopen-Button erscheint nach Consent an der gewählten Ecke).
+- [ ] **Versteckt gewählt + gespeichert:** Reopen-Button erscheint **nicht** — auch nicht nach „Alle akzeptieren"/„Nur notwendige", nicht nach Reload, nicht nach Hard-Reload.
+- [ ] **DSGVO-Hinweis** erscheint in den Einstellungen, sobald `Versteckt` aktiv ist (Warnbox mit `[simple_cookie_settings]`-Empfehlung).
+- [ ] Im Hidden-Modus öffnet `[simple_cookie_settings]` (z. B. im Footer) weiterhin die Consent-Einstellungen ohne Seitenreload.
+- [ ] Banner-Erscheinen ohne gespeicherten Consent unverändert; Consent-Speicherung/-Gültigkeit unverändert (`lscc_consent`, `version: 2`).
+- [ ] Umschalten Versteckt → eine Ecke (und zurück) funktioniert ohne Reststörung; bei unbekanntem/leerem Wert greift Default `bottom-right`.
+- [ ] Kein Konsolenfehler in Chrome/Firefox; `initBanner()` läuft (Button bleibt im DOM, nur versteckt).
+
 ## Version 0.1.0
 
 - [ ] Plugin in einer echten WordPress-Testinstallation aktivieren.

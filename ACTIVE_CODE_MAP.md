@@ -60,7 +60,7 @@ Diese Karte beschreibt die aktiven Dateien, ihre Zustaendigkeiten und die wichti
 | `overlay_opacity` | float | `0.45` | clamp 0.0–1.0 |
 | `blur_enabled` | bool | `true` | Checkbox |
 | `blur_strength` | int | `4` | clamp 0–20 |
-| `reopen_position` | enum | `bottom-right` | `bottom-right` / `bottom-left` / `top-right` / `top-left` |
+| `reopen_position` | enum | `bottom-right` | `bottom-right` / `bottom-left` / `top-right` / `top-left` / `hidden` (ab 0.5.0) |
 | `reopen_offset_x` | int | `24` | clamp 0–200 |
 | `reopen_offset_y` | int | `24` | clamp 0–200 |
 | `show_legal_links` | bool | `true` | Checkbox |
@@ -70,7 +70,7 @@ Diese Karte beschreibt die aktiven Dateien, ihre Zustaendigkeiten und die wichti
 **Render-Verhalten:**
 
 - Overlay-Element wird nur ausgegeben, wenn `overlay_enabled` true ist. Initial `hidden`. JS toggelt den Zustand parallel zum Banner.
-- Reopen-Button erhält das Attribut `data-position` und positioniert sich rein per CSS-Klassen und CSS-Variablen.
+- Reopen-Button erhält das Attribut `data-position` und positioniert sich rein per CSS-Klassen und CSS-Variablen. Ab 0.5.0: Wert `hidden` → `banner.js::setBannerVisible()` hält den Button dauerhaft versteckt (Button bleibt im DOM, da `initBanner()` ihn voraussetzt); Widerruf dann nur über `[simple_cookie_settings]`.
 - Legal-Links erscheinen unten in `.lscc__content` als `.lscc__legal`-Block, nur wenn `show_legal_links` true ist UND mindestens eine der beiden URLs aufgeloest werden konnte.
 - `get_text_option_keys()` / `get_color_option_keys()` — Schluessellisten
 - `sanitize_options()` — zentrale Sanitization mit `sanitize_text_field` und `sanitize_hex_color`

@@ -1,5 +1,19 @@
 # DEV LOG
 
+## 0.5.0-test - 2026-06-20
+
+- Minor-Bump 0.4.0 → 0.5.0. Plugin-Header und `MCB_VERSION` auf `0.5.0`. `MCB_CONSENT_VERSION` bleibt `2`.
+- **Feature: Reopen-Button-Position „Versteckt" (Phase 4 / Feature 3).** Bewusst minimal-invasiv auf bestehender `reopen_position`-Infrastruktur, keine neue Architektur.
+- **Root Cause / betroffene Stellen** (Analyse vor Umsetzung):
+  - `reopen_position` ist bereits ein Enum (`get_enum_option_keys()`); der Reopen-Button rendert mit `data-position` (Render-Zeile in `render_banner()`).
+  - Sichtbarkeit wird **ausschliesslich** in `assets/js/banner.js::setBannerVisible()` gesetzt (`reopenButton.hidden = …`); `initBanner()` bricht ab, wenn kein `[data-lscc-reopen]` existiert (`if (!root || !reopenButton) return;`) → Button **muss** im DOM bleiben.
+- **Umsetzung:**
+  - `macs-cookie-banner.php`: `hidden` in die `reopen_position`-Allowlist (`get_enum_option_keys()`) aufgenommen. `sanitize_options()` akzeptiert den Wert dadurch automatisch; unbekannte/fehlende Werte fallen weiterhin auf Default `bottom-right`.
+  - `assets/js/banner.js`: in `setBannerVisible()` ein `positionHidden = data-position === 'hidden'`-Guard ergänzt → Button bleibt bei `hidden` permanent versteckt; kein Wiedererscheinen nach Consent/Reload.
+  - `includes/admin-page.php`: Select-Option „Versteckt"; bedingter DSGVO-Warnhinweis (nur bei aktivem `hidden`).
+- **Bewusst NICHT:** keine Consent-Logik-, DB-, Shortcode-Änderung; keine neue Option, keine neue CSS-Klasse, kein neuer Render-Pfad. `[simple_cookie_settings]` bleibt der Widerrufsweg im Hidden-Modus.
+- Validierung: Klammer-/Brace-Balance der drei geänderten Dateien geprüft; KEEP-Tokens (`lscc_*`/`data-lscc`/Shortcodes) unberührt. Kein PHP-CLI lokal → Aktivierungstest auf WP-Instanz in RELEASE_CHECKLIST.
+
 ## 0.3.2-test - 2026-06-12
 
 - Patch-Bump 0.3.1 → 0.3.2. Plugin-Header und `LSCC_VERSION` auf `0.3.2`. `LSCC_CONSENT_VERSION` bleibt `2`.

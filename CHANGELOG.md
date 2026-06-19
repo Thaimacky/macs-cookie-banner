@@ -8,6 +8,27 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.5.0-test - 2026-06-20
+
+### Added
+
+- **Reopen-Button: neue Position „Versteckt" + frei wählbare Ecken.** Die bestehende Option `reopen_position` (Enum) wird um den Wert `hidden` erweitert (zusätzlich zu `bottom-right`/`bottom-left`/`top-right`/`top-left`). Bei `hidden` wird der „Cookie-Einstellungen"-Button **nie** angezeigt — kein automatisches Wiedererscheinen, kein „nach Reload anzeigen". Der Consent-Widerruf erfolgt dann ausschliesslich über den Shortcode `[simple_cookie_settings]`.
+- **DSGVO-Admin-Hinweis:** Ist `Versteckt` aktiv, erscheint in den Einstellungen ein Warnhinweis: „Bei verstecktem Cookie-Einstellungs-Button muss ein alternativer Widerrufsweg vorhanden sein (z. B. `[simple_cookie_settings]` im Footer)."
+
+### Changed
+
+- Plugin-Header und `MCB_VERSION` auf `0.5.0`. `MCB_CONSENT_VERSION` bleibt `2`.
+
+### Technisch (minimal-invasiv, bestehende Mechanik wiederverwendet)
+
+- `macs-cookie-banner.php`: `get_enum_option_keys()` um `hidden` ergänzt. Render unverändert — der Button trägt weiterhin `data-position`.
+- `assets/js/banner.js`: `setBannerVisible()` hält den Button bei `data-position="hidden"` dauerhaft versteckt (`reopenButton` bleibt im DOM, da `initBanner` ihn voraussetzt).
+- `includes/admin-page.php`: Select-Option „Versteckt" + bedingter DSGVO-Warnhinweis.
+
+### Bewusst unverändert
+
+- Keine Consent-Logik-Änderung, keine DB-Migration, keine Shortcode-Änderung. `lscc_options`/`lscc_consent`/`CONSENT_VERSION` unberührt. Bestehende Installationen erhalten `hidden` als zusätzliche Wahlmöglichkeit; Default bleibt `bottom-right`.
+
 ## 0.4.0-test - 2026-06-20
 
 ### Changed (Vollständiger Rebrand — Variante B-minus)
