@@ -1,5 +1,16 @@
 # DEV LOG
 
+## 0.5.8-test - 2026-06-21
+
+- **Avada-Farbimport: Client-Resolver-Fallback.** 0.5.7 (serverseitige Palette-Auflösung) griff auf den Kundensites nicht — `read_palette_raw()`/`get_palette()` liefern dort keine brauchbare Palette, daher `resolve_color('var(--awb-color5)')` = leer → `map_to_banner()` `[]` → `update_option()` nie → Backend-Feld blieb `#e11d48`.
+- Pragmatische Lösung statt weiterem Palette-Raten: der Browser kennt den Wert (`getComputedStyle('--awb-color5') = #1e4884`). Dieser wird im Admin-Import-Formular aufgelöst und als Hidden-Feld `mcb_avada_client_color` mitgesendet.
+- `includes/avada-colors.php`: neuer Helfer `get_brand_css_vars()` (referenzierte `--awb-colorX` in Prioritätsreihenfolge; Regex `--[a-z0-9_-]+`, beliebige Nummer/Anzahl). Resolver/`get_palette()` aus 0.5.7 unverändert als Server-Pfad erhalten.
+- `includes/admin-page.php`:
+  - `import_avada_colors()`: Server-Pfad zuerst (`get_brand_color()`); bei leer Fallback auf `$_POST['mcb_avada_client_color']` → `sanitize_hex_color()` → nur gültiges Hex wird zu `$brand`. Nonce + `manage_options` wie gehabt; ungültig → keine Änderung + bestehende Notice.
+  - Import-Formular: Hidden-Feld + Inline-JS. JS liest die CSS-Variablen via `getComputedStyle(document.documentElement)`, Fallback gleich-origin Frontend-iframe (Avada gibt `:root`-Global-Colors dort sicher aus), `rgb()/rgba()`→Hex, füllt das Hidden-Feld.
+- Version 0.5.7 → 0.5.8.
+- Scope: nur Avada-Import + zugehörige Admin-UI. Consent/Locale/Presets/Reopen/Scanner/CCM/Auto-Update unberührt.
+
 ## 0.5.7-test - 2026-06-21
 
 - **Root-Cause-Fix Avada-Farbimport.** Bruchstelle war der Lookup `isset( $palette['awb-color5'] )` in `resolve_color()` gegen eine `get_palette()`-Map, die nach `entry['id']`/`['slug']` indexierte — Avada legt die `--awb-colorN`-Identität nicht verbatim als id ab, sie ergibt sich aus der **Position** im `color_palette`-Array. Lookup verfehlte → `resolve_color()` leer → `get_brand_color()` leer → `map_to_banner()` `[]` → `update_option()` nie → Banner `#e11d48`.

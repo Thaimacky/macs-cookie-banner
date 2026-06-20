@@ -8,6 +8,16 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.5.8-test - 2026-06-21
+
+### Fixed
+
+- **Avada-Farbimport übernimmt jetzt zuverlässig die aktive Primary Color (Client-Resolver-Fallback).** Server-Pfad bleibt (direktes Hex + Palette-Auflösung). Wenn PHP `var(--awb-colorX)` nicht serverseitig auflösen kann (Avada-Palette serverseitig nicht zuverlässig lesbar), endet der Import nicht mehr still mit „keine gefunden": Der Browser löst die **tatsächlich aktive** CSS-Variable per `getComputedStyle(document.documentElement).getPropertyValue('--awb-colorX')` auf (mit verstecktem, gleich-origin Frontend-iframe als Fallback, wo Avada die `:root`-Global-Colors garantiert ausgibt), normalisiert `rgb()/rgba()` zu Hex und sendet den Wert als Hidden-Feld mit. PHP akzeptiert ihn **nur** nach `manage_options` + Nonce und **nur** als gültiges `sanitize_hex_color()`; dann werden `primary_button_color`, `border_color`, `primary_text_color` geschrieben.
+- Greift für beliebige `var(--awb-colorX)` (color1/5/12/27 …), keine feste Nummer, keine feste Anzahl, **kein** Raten über `color_palette`. Bei ungültigem/leerem Wert: keine Änderung + bestehende Warnung. Keine Frontend-Auswirkung, reiner Admin-Import.
+- Neuer Helfer `Macs_Cookie_Banner_Avada_Colors::get_brand_css_vars()` (liefert die referenzierten CSS-Variablen in Prioritätsreihenfolge).
+- Keine Änderungen an Consent, Locale, Presets, Reopen, Scanner, Consent-Code-Manager oder Auto-Update.
+- Version 0.5.7 → 0.5.8 (Header + `MCB_VERSION`).
+
 ## 0.5.7-test - 2026-06-21
 
 ### Fixed

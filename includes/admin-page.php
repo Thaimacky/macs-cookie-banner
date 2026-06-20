@@ -146,7 +146,21 @@ final class Macs_Cookie_Banner_Admin {
 		$result = 'empty';
 
 		if ( Macs_Cookie_Banner_Avada_Colors::is_active() ) {
-			$mapped = Macs_Cookie_Banner_Avada_Colors::map_to_banner( Macs_Cookie_Banner_Avada_Colors::get_brand_color() );
+			// 1) Server path: direct hex or palette-resolved global color.
+			$brand = Macs_Cookie_Banner_Avada_Colors::get_brand_color();
+
+			// 2) Fallback: when the server cannot resolve var(--awb-colorX),
+			// accept the value the browser resolved from the live CSS variable
+			// (submitted as a hidden field). Guarded by the manage_options +
+			// nonce checks above; only a valid hex is ever used.
+			if ( '' === $brand && isset( $_POST['mcb_avada_client_color'] ) ) {
+				$client = sanitize_hex_color( wp_unslash( $_POST['mcb_avada_client_color'] ) );
+				if ( $client ) {
+					$brand = $client;
+				}
+			}
+
+			$mapped = Macs_Cookie_Banner_Avada_Colors::map_to_banner( $brand );
 
 			if ( ! empty( $mapped ) ) {
 				$current = Macs_Cookie_Banner::get_options();
@@ -203,13 +217,68 @@ final class Macs_Cookie_Banner_Admin {
 			<?php endif; ?>
 
 			<?php if ( Macs_Cookie_Banner_Avada_Colors::is_active() ) : ?>
+				<?php $mcb_avada_vars = Macs_Cookie_Banner_Avada_Colors::get_brand_css_vars(); ?>
 				<h2><?php echo esc_html__( 'Avada-Farben', 'macs-cookie-banner' ); ?></h2>
-				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-bottom:1em;">
+				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-bottom:1em;" data-mcb-avada-form>
 					<input type="hidden" name="action" value="mcb_import_avada_colors">
+					<input type="hidden" name="mcb_avada_client_color" value="" data-mcb-avada-client>
 					<?php wp_nonce_field( 'mcb_import_avada_colors', 'mcb_avada_nonce' ); ?>
 					<p class="description" style="margin:0 0 .5em;"><?php echo esc_html__( 'Übernimmt die Markenfarbe aus Avada in Primärbutton und Rahmen (Button-Text wird automatisch lesbar kontrastiert). Bestehende Farben bleiben, bis Sie hier klicken.', 'macs-cookie-banner' ); ?></p>
 					<?php submit_button( esc_html__( 'Avada-Farben übernehmen', 'macs-cookie-banner' ), 'secondary', 'mcb_import_avada', false ); ?>
 				</form>
+				<?php if ( ! empty( $mcb_avada_vars ) ) : ?>
+				<script>
+				( function () {
+					var VARS = <?php echo wp_json_encode( array_values( $mcb_avada_vars ) ); ?>;
+					var HOME = <?php echo wp_json_encode( esc_url_raw( home_url( '/' ) ) ); ?>;
+					var field = document.querySelector( '[data-mcb-avada-client]' );
+					if ( ! field || ! VARS.length ) { return; }
+
+					function clamp( n ) { n = parseInt( n, 10 ); return ( isNaN( n ) ? 0 : Math.max( 0, Math.min( 255, n ) ) ); }
+					function toHex( value ) {
+						value = ( value || '' ).trim();
+						if ( ! value ) { return ''; }
+						if ( /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test( value ) ) { return value; }
+						var m = value.match( /rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/i );
+						if ( m ) {
+							var h = function ( x ) { x = clamp( x ).toString( 16 ); return x.length === 1 ? '0' + x : x; };
+							return '#' + h( m[1] ) + h( m[2] ) + h( m[3] );
+						}
+						return '';
+					}
+					function resolveFrom( doc ) {
+						if ( ! doc || ! doc.documentElement ) { return ''; }
+						var cs = ( doc.defaultView || window ).getComputedStyle( doc.documentElement );
+						for ( var i = 0; i < VARS.length; i++ ) {
+							var hex = toHex( cs.getPropertyValue( VARS[ i ] ) );
+							if ( hex ) { return hex; }
+						}
+						return '';
+					}
+
+					// 1) Resolve against the current admin document.
+					var hex = resolveFrom( document );
+					if ( hex ) { field.value = hex; return; }
+
+					// 2) Fallback: a hidden, same-origin iframe of the front-end,
+					// where Avada always emits the global color custom properties.
+					try {
+						var ifr = document.createElement( 'iframe' );
+						ifr.setAttribute( 'aria-hidden', 'true' );
+						ifr.style.cssText = 'position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;border:0;opacity:0;';
+						ifr.addEventListener( 'load', function () {
+							try {
+								var h = resolveFrom( ifr.contentDocument );
+								if ( h ) { field.value = h; }
+							} catch ( e ) {}
+							window.setTimeout( function () { if ( ifr.parentNode ) { ifr.parentNode.removeChild( ifr ); } }, 200 );
+						} );
+						ifr.src = HOME;
+						document.body.appendChild( ifr );
+					} catch ( e ) {}
+				} )();
+				</script>
+				<?php endif; ?>
 			<?php endif; ?>
 
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">

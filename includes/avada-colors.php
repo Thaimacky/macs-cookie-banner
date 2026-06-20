@@ -53,6 +53,33 @@ final class Macs_Cookie_Banner_Avada_Colors {
 	}
 
 	/**
+	 * Return the CSS custom-property names the Avada brand color references, in
+	 * priority order (e.g. array( '--awb-color5' )).
+	 *
+	 * When server-side palette resolution fails, the admin import lets the
+	 * browser resolve these variables via getComputedStyle() and submits the
+	 * resulting hex back. No assumption about the color number/count: whatever
+	 * `var(--awb-colorX)` the customer's primary color points to is returned.
+	 * Empty when the brand color is already a direct hex or no reference exists.
+	 *
+	 * @return string[] List of CSS variable names (deduplicated, priority order).
+	 */
+	public static function get_brand_css_vars() {
+		$vars = array();
+
+		foreach ( self::BRAND_KEYS as $key ) {
+			$raw = self::read_raw( $key );
+			if ( is_string( $raw ) && preg_match( '/(--[a-z0-9_-]+)/i', $raw, $m ) ) {
+				if ( ! in_array( $m[1], $vars, true ) ) {
+					$vars[] = $m[1];
+				}
+			}
+		}
+
+		return $vars;
+	}
+
+	/**
 	 * Read a single Avada theme option value defensively.
 	 *
 	 * @param string $key Avada option key.
