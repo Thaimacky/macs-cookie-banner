@@ -143,6 +143,11 @@ final class Macs_Cookie_Banner_Admin {
 			wp_die( esc_html__( 'Ungültige Sicherheitsprüfung.', 'macs-cookie-banner' ) );
 		}
 
+		// TEMP DEBUG (v0.5.6-debug): runtime proof of the live Avada palette and
+		// the primary_color -> hex resolution chain. Read-only, no behaviour
+		// change. Remove together with debug_runtime_proof() after diagnosis.
+		Macs_Cookie_Banner_Avada_Colors::debug_runtime_proof();
+
 		$result = 'empty';
 
 		if ( Macs_Cookie_Banner_Avada_Colors::is_active() ) {

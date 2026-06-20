@@ -1,5 +1,14 @@
 # DEV LOG
 
+## 0.5.6-debug - 2026-06-21
+
+- **Temporärer Avada-Palette Runtime-Proof (Debug-Build).** Ziel: auf einer Live-Site beweisen, dass `fusion_options['primary_color'] == var(--awb-colorX)` UND `awb-colorX == #RRGGBB`, bevor der Resolver geändert wird.
+- `includes/avada-colors.php`: neue, rein lesende Methode `debug_runtime_proof()` am Klassenende (loggt color_palette komplett + Keys, primary_color roh, Regex-Token, gefundenen Map-Eintrag, finale Hex, map_to_banner). **Resolver unverändert** (0.5.5-Baseline; `/--awb-color\d+/` + slug-basierte `get_palette()`).
+- `includes/admin-page.php`: eine TEMP-Zeile in `import_avada_colors()` ruft `debug_runtime_proof()` nach dem Nonce-Check auf — vor der bestehenden Logik, ohne deren Verhalten/Ausgabe zu ändern.
+- Version 0.5.5 → 0.5.6 (Header + `MCB_VERSION`).
+- **Hinweis:** Voraussetzung `WP_DEBUG`/`WP_DEBUG_LOG=true`. Methode + Aufruf werden nach der Diagnose wieder entfernt (kein Bestandteil des finalen Fixes).
+- **Bewusst zurückgenommen:** ein in derselben Sitzung begonnener Resolver-Umbau wurde verworfen (`git checkout`), um erst den Ist-Zustand zu beweisen.
+
 ## 0.5.5-test - 2026-06-20
 
 - Patch-Bump 0.5.4 → 0.5.5. Header + `MCB_VERSION` auf `0.5.5`. `MCB_CONSENT_VERSION` bleibt `2`.

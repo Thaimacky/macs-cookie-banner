@@ -8,6 +8,12 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.5.6-debug - 2026-06-21
+
+### Debug (temporär — nicht für Produktion)
+
+- **Avada-Palette Runtime-Proof.** Temporäre, rein lesende Diagnose `Macs_Cookie_Banner_Avada_Colors::debug_runtime_proof()`, ausgelöst beim Klick auf „Avada-Farben übernehmen". Loggt nach `wp-content/debug.log` (Präfix `MCB-AVADA-PROOF`): (1) vollständiger `color_palette`-Inhalt, (2) alle Palette-Keys + je Eintrag dessen Keys/Wert, (3) roher `primary_color`, (4) Regex-Auflösung `var(--awb-colorX)` → `awb-colorX`, (5) der vom aktuellen Resolver gefundene Palette-Eintrag, (6) finale Hex-Farbe (`resolve_color`/`get_brand_color`), (7) `map_to_banner()`-Ergebnis. **Keine** Änderung an Consent/Locale/Presets/Reopen/Admin-UI/Importlogik; Resolver-Logik unverändert (0.5.5-Baseline). Voraussetzung: `WP_DEBUG_LOG=true`. Wird nach der Diagnose wieder entfernt.
+
 ## 0.5.5-test - 2026-06-20
 
 ### Fixed
