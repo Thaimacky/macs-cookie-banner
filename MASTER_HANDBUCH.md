@@ -14,6 +14,7 @@
 - 2026-06-11 — v0.3.0: Consent-Code-Manager (Phase 1 der Produktiv-Roadmap, ADR-23) — zentrale, consent-gegatete Verwaltung von Tracking-Snippets (GA4/GTM/Pixel/Hotjar). Nutzt die bestehende Script-Blockade (kein neues Frontend-JS). Versioniertes Export/Import-Envelope, scannerfähiges Datenmodell. Versionshistorie ergänzt; keine Änderung an Philosophie/No-Gos.
 - 2026-06-12 — v0.3.1: Scanner-Ausbau „Drittanbieter-Oberfläche" (Phase 2, ADR-24) — Gating-Status pro Dienst (5-Status-Modell inkl. „Nicht prüfbar"), Cross-Reference zum Consent-Code-Manager, eigene gleicher-Host-Test-URL, Google-Fonts-Sonderhinweis. Reine Lese-/Hinweisfunktion, ADR-4-konform; keine Maps/Vimeo-Umsetzung. Versionshistorie ergänzt; keine Änderung an Philosophie/No-Gos.
 - 2026-06-16 — v0.3.3: GitHub-Auto-Updates via Plugin-Update-Checker (PUC v5.6), Updates aus Release-ZIP-Asset (`enableReleaseAssets`); `.gitignore`-Härtung (verankerte Dev-Ignores, damit gebündeltes PUC-`vendor/` tracked bleibt). Versionshistorie ergänzt; keine Änderung an Philosophie/No-Gos.
+- 2026-06-21 — Additive Erweiterung: Sektion „PFLICHT: DEBUGGING / RUNTIME-PROOFS — KEINE ARBEITSVERLAGERUNG AUF DEN USER" ergänzt. Marcel ist Entscheider/Tester, nie Debug-Operator: keine FTP/SFTP/Server-/debug.log-/wp-config-/DB-/Quellcode-Suche, keine WP-CLI/mu-plugins. Runtime-Werte primär per Admin-Notice/UI sichtbar machen; Server-Logs nur als letztes Mittel. Antwortformat bei Problemen: Problem/Ursache/Fix/Nächster Schritt. Priorität HOCH, verbindlich. Inhalt sonst unverändert.
 - 2026-06-16 — Prozess-Entscheidung ADR-26: „Validierung vor weiteren Features — 5-Site-Gate". Vor neuen Dienst-Features wird LSCC auf mind. 5 echten Websites produktiv analysiert (Phase A Live-Test → Phase B Aggregat-Matrix → Phase C nächste Entwicklung). Erhebungsinstrument `VALIDIERUNG.md` angelegt. Keine Code-/Philosophie-/No-Go-Änderung; reine Priorisierung.
 - 2026-06-16 — Additive Erweiterung/Verschärfung: Sektion „PFLICHT: KOPIERMARKIERUNG FÜR BERICHTE" auf harte Pflichtregel angehoben — exakter Markertext (🚨 KOPIEREN AB/BIS HIER FÜR CHATGPT 🚨), Konsequenzen bei Fehlen (unvollständig/nicht abnahmefähig/nicht freigegeben/erneut erstellen) und expliziter Geltungsbereich (Analysen, Abschlussberichte, Patches, Releases, Inventuren, Roadmaps, ADR-Berichte, Debug-Reports, Validierungsberichte). Inhalt sonst unverändert.
 - 2026-06-12 — v0.3.2: Avada-Google-Maps Consent-Gating (Phase 3A, Variante 3A-i, ADR-25) — `fusion_map` → LSCC-Platzhalter → Google-Maps-Embed nach Consent; Maps-JS-API SRC-basiert gegated; `[lscc_google_map address="…"]`. Opt-in, Default AUS. Reuse bestehender Muster (Render-Interception + Script-Gating), kein Avada-Reinit/Observer/DOM-Hijack. Avada-Privacy-Maps und LSCC-Maps nicht parallel (eine Consent-Schicht). Versionshistorie ergänzt; keine Änderung an Philosophie/No-Gos.
@@ -401,6 +402,33 @@ Regeln:
 * Prozess-/Meta-Hinweise dürfen ausserhalb (vor dem Start- bzw. nach dem End-Block) stehen.
 
 Diese Regel gilt zusätzlich zur Regel „PFLICHT: AKTION USER / PROMPT-BLÖCKE".
+
+---
+
+# PFLICHT: DEBUGGING / RUNTIME-PROOFS — KEINE ARBEITSVERLAGERUNG AUF DEN USER
+
+VERBINDLICH (ab 2026-06-21). Priorität HOCH. Gilt für ChatGPT, Claude, Codex, Claude Code und alle zukünftigen Entwickler-Agenten.
+
+**Grundsatz:** Marcel ist **Entscheider und Tester, nicht Debug-Operator.** Der technische Agent trägt die Verantwortung für Ursachenanalyse, Runtime-Proofs, Debugging, Eingrenzung, Dokumentation und Beweisführung. Der User übernimmt **niemals** technische Ermittlungsarbeit.
+
+**Marcel wird NIEMALS geschickt auf:** FTP, SFTP, Server-Dateisuche, `debug.log`-Suche, `wp-config`-Suche/-Änderung, manuelle Log-Auswertung, Quellcode-Suche, Datenbank-Suche, WP-CLI, mu-plugins.
+
+**Wenn Runtime-Werte für eine Fehleranalyse nötig sind — in dieser Reihenfolge:**
+1. Werte direkt im WordPress-Admin anzeigen.
+2. Werte direkt im sichtbaren UI anzeigen.
+3. Werte über temporäre Admin-Notices ausgeben.
+4. Werte über temporäre Diagnose-Dialoge ausgeben.
+5. Erst wenn technisch absolut unmöglich, auf Server-Logs ausweichen.
+
+Temporärer Diagnose-Code wird nach dem Test wieder vollständig entfernt.
+
+**Antwortformat bei Problemen (knapp):**
+1. Problem
+2. Ursache
+3. Fix
+4. Nächster Schritt
+
+Keine langen Analysen. Keine mehrseitigen Berichte. Keine Server-Schnitzeljagden. Keine Arbeitsverlagerung auf den User.
 
 ---
 
