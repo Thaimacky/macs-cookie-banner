@@ -87,8 +87,11 @@ final class Macs_Cookie_Banner_Avada_Colors {
 	/**
 	 * Resolve a raw Avada color value to a hex color.
 	 *
-	 * Accepts a plain hex (sanitized) and a single Avada global color reference
-	 * `var(--awb-colorN)` / `--awb-colorN`, resolved against the color palette.
+	 * Accepts a plain hex (sanitized) and ANY Avada global-color reference of the
+	 * form `var(--awb-colorN)`, `var(--awb-custom_color_N)` or a bare `--awb-...`
+	 * token — with no assumption about how many global colors exist or which
+	 * number the brand color points to. The reference is matched dynamically
+	 * against the live palette built in get_palette().
 	 *
 	 * @param string $value Raw value.
 	 * @return string Hex color, or '' when it cannot be resolved.
@@ -104,12 +107,13 @@ final class Macs_Cookie_Banner_Avada_Colors {
 			return $hex;
 		}
 
-		if ( preg_match( '/--awb-color\d+/', $value, $matches ) ) {
+		// Any CSS custom-property reference, e.g. var(--awb-color5),
+		// var(--awb-color27) or var(--awb-custom_color_3).
+		if ( preg_match( '/--([a-z0-9_-]+)/i', $value, $matches ) ) {
 			$palette = self::get_palette();
-			$slug    = ltrim( $matches[0], '-' );
-			if ( isset( $palette[ $slug ] ) ) {
-				$resolved = sanitize_hex_color( $palette[ $slug ] );
-				return $resolved ? $resolved : '';
+			$token   = self::normalize_token( $matches[1] );
+			if ( '' !== $token && isset( $palette[ $token ] ) ) {
+				return $palette[ $token ];
 			}
 		}
 
@@ -117,35 +121,147 @@ final class Macs_Cookie_Banner_Avada_Colors {
 	}
 
 	/**
-	 * Read the Avada global color palette as slug => raw color.
+	 * Build the Avada global color palette as a normalized token => hex map.
 	 *
-	 * @return array
+	 * Structure-agnostic: each palette entry may be an associative array
+	 * (`color` plus an `id`/`slug`/key) or a plain color string, and entries may
+	 * be keyed by identifier or by position. The CSS variable `--awb-colorN` that
+	 * Avada emits maps to the N-th palette entry, so position is the canonical
+	 * source ("colorN"); any explicit identifier is honored as well and wins over
+	 * position. No fixed count or numbering is assumed.
+	 *
+	 * @return array Map of normalized color token (e.g. "color5", "customcolor3") => hex.
 	 */
 	private static function get_palette() {
-		$map     = array();
-		$palette = function_exists( 'fusion_get_option' ) ? fusion_get_option( 'color_palette' ) : '';
-
+		$palette = self::read_palette_raw();
 		if ( ! is_array( $palette ) ) {
-			$options = get_option( 'fusion_options' );
-			if ( is_array( $options ) && isset( $options['color_palette'] ) && is_array( $options['color_palette'] ) ) {
-				$palette = $options['color_palette'];
+			return array();
+		}
+
+		$by_id       = array();
+		$by_position = array();
+		$position    = 0;
+
+		foreach ( $palette as $key => $entry ) {
+			$position++;
+
+			if ( is_array( $entry ) ) {
+				$raw_color = isset( $entry['color'] ) ? $entry['color'] : '';
+				$ids       = array();
+				foreach ( array( 'id', 'slug', 'key', 'name' ) as $id_key ) {
+					if ( isset( $entry[ $id_key ] ) && is_string( $entry[ $id_key ] ) && '' !== $entry[ $id_key ] ) {
+						$ids[] = $entry[ $id_key ];
+					}
+				}
+			} else {
+				$raw_color = is_string( $entry ) ? $entry : '';
+				$ids       = array();
+			}
+
+			if ( is_string( $key ) && '' !== $key ) {
+				$ids[] = $key;
+			}
+
+			$hex = self::color_value_to_hex( $raw_color );
+			if ( '' === $hex ) {
+				continue;
+			}
+
+			foreach ( $ids as $id ) {
+				$token = self::normalize_token( $id );
+				if ( '' !== $token && ! isset( $by_id[ $token ] ) ) {
+					$by_id[ $token ] = $hex;
+				}
+			}
+
+			$by_position[ 'color' . $position ] = $hex;
+		}
+
+		// Explicit identifiers win; positional mapping fills the gaps so a palette
+		// that stores colors without ids still resolves.
+		return $by_id + $by_position;
+	}
+
+	/**
+	 * Read the raw Avada global color palette from the available sources.
+	 *
+	 * @return array Raw palette array, or empty array when unavailable.
+	 */
+	private static function read_palette_raw() {
+		if ( function_exists( 'fusion_get_option' ) ) {
+			$palette = fusion_get_option( 'color_palette' );
+			if ( is_array( $palette ) ) {
+				return $palette;
 			}
 		}
 
-		if ( is_array( $palette ) ) {
-			foreach ( $palette as $entry ) {
-				if ( ! is_array( $entry ) ) {
-					continue;
-				}
-				$slug = isset( $entry['id'] ) ? $entry['id'] : ( isset( $entry['slug'] ) ? $entry['slug'] : '' );
-				$col  = isset( $entry['color'] ) ? $entry['color'] : '';
-				if ( '' !== $slug && '' !== $col ) {
-					$map[ $slug ] = $col;
+		if ( function_exists( 'Avada' ) ) {
+			$avada = Avada();
+			if ( is_object( $avada ) && isset( $avada->settings ) && is_object( $avada->settings ) && method_exists( $avada->settings, 'get' ) ) {
+				$palette = $avada->settings->get( 'color_palette' );
+				if ( is_array( $palette ) ) {
+					return $palette;
 				}
 			}
 		}
 
-		return $map;
+		$options = get_option( 'fusion_options' );
+		if ( is_array( $options ) && isset( $options['color_palette'] ) && is_array( $options['color_palette'] ) ) {
+			return $options['color_palette'];
+		}
+
+		return array();
+	}
+
+	/**
+	 * Normalize a color identifier or reference token for comparison.
+	 *
+	 * Lowercases, strips every non-alphanumeric character and a leading "awb"
+	 * prefix so that `--awb-color5`, `awb-color5`, `color_5` and a positional
+	 * `color5` all collapse to the same token ("color5"); custom colors collapse
+	 * to e.g. "customcolor3".
+	 *
+	 * @param string $token Raw identifier or reference token.
+	 * @return string Normalized token, or '' when empty.
+	 */
+	private static function normalize_token( $token ) {
+		$token = strtolower( (string) $token );
+		$token = preg_replace( '/[^a-z0-9]/', '', $token );
+		$token = preg_replace( '/^awb/', '', (string) $token );
+
+		return (string) $token;
+	}
+
+	/**
+	 * Convert a stored palette color value to a hex color.
+	 *
+	 * Accepts a hex value directly and converts an rgb()/rgba() value to hex
+	 * (alpha dropped), so global colors defined with transparency still resolve.
+	 *
+	 * @param string $value Raw color value.
+	 * @return string Hex color, or '' when it cannot be parsed.
+	 */
+	private static function color_value_to_hex( $value ) {
+		$value = is_string( $value ) ? trim( $value ) : '';
+		if ( '' === $value ) {
+			return '';
+		}
+
+		$hex = sanitize_hex_color( $value );
+		if ( $hex ) {
+			return $hex;
+		}
+
+		if ( preg_match( '/rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/i', $value, $m ) ) {
+			return sprintf(
+				'#%02x%02x%02x',
+				min( 255, (int) $m[1] ),
+				min( 255, (int) $m[2] ),
+				min( 255, (int) $m[3] )
+			);
+		}
+
+		return '';
 	}
 
 	/**
@@ -224,77 +340,5 @@ final class Macs_Cookie_Banner_Avada_Colors {
 		$c = $c / 255;
 
 		return ( $c <= 0.03928 ) ? $c / 12.92 : pow( ( $c + 0.055 ) / 1.055, 2.4 );
-	}
-
-	/**
-	 * TEMPORARY runtime proof (v0.5.6-debug). Logs the live Avada palette and the
-	 * full primary_color resolution chain to debug.log. Read-only: it does NOT
-	 * change the import, options, or any banner value. Remove after diagnosis.
-	 *
-	 * Requires WP_DEBUG_LOG to be enabled on the target site; output lands in
-	 * wp-content/debug.log, every line prefixed "MCB-AVADA-PROOF".
-	 *
-	 * @return void
-	 */
-	public static function debug_runtime_proof() {
-		$log = static function ( $label, $data ) {
-			$rendered = is_string( $data ) ? $data : wp_json_encode( $data );
-			error_log( 'MCB-AVADA-PROOF | ' . $label . ' = ' . $rendered );
-		};
-
-		$log( '--- BEGIN', gmdate( 'c' ) );
-
-		// (1) Full raw color_palette, exactly as Avada stores it.
-		$palette_raw = null;
-		if ( function_exists( 'fusion_get_option' ) ) {
-			$palette_raw = fusion_get_option( 'color_palette' );
-		}
-		if ( ! is_array( $palette_raw ) ) {
-			$opts        = get_option( 'fusion_options' );
-			$palette_raw = ( is_array( $opts ) && isset( $opts['color_palette'] ) ) ? $opts['color_palette'] : $palette_raw;
-		}
-		$log( '1 color_palette type', gettype( $palette_raw ) );
-		$log( '1 color_palette json', $palette_raw );
-		$log( '1 color_palette var_export', var_export( $palette_raw, true ) );
-
-		// (2) All keys in the palette + each entry's own keys/value.
-		if ( is_array( $palette_raw ) ) {
-			$log( '2 palette top-level keys', array_keys( $palette_raw ) );
-			foreach ( $palette_raw as $k => $entry ) {
-				$log( '2 entry[' . $k . '] keys', is_array( $entry ) ? array_keys( $entry ) : ( '(' . gettype( $entry ) . ')' ) );
-				$log( '2 entry[' . $k . '] value', $entry );
-			}
-		} else {
-			$log( '2 palette', 'NOT AN ARRAY' );
-		}
-
-		// (3) Raw primary_color, as read by the live reader chain.
-		$primary = self::read_raw( 'primary_color' );
-		$log( '3 primary_color raw', '"' . $primary . '"' );
-
-		// (4) Regex resolution var(--awb-colorX) -> awb-colorX.
-		$token = '';
-		if ( preg_match( '/--awb-[a-z0-9_]*?\d+/i', $primary, $m ) ) {
-			$token = ltrim( $m[0], '-' );
-			$log( '4 regex token', $token );
-		} else {
-			$log( '4 regex token', 'NO MATCH on "' . $primary . '"' );
-		}
-
-		// (5) Palette entry the current resolver finds for that token.
-		$palette_map = self::get_palette();
-		$log( '5 get_palette() slug=>color map', $palette_map );
-		if ( '' !== $token ) {
-			$log( '5 entry for "' . $token . '"', isset( $palette_map[ $token ] ) ? $palette_map[ $token ] : 'NOT FOUND IN MAP' );
-		}
-
-		// (6) Final resolved hex.
-		$log( '6 resolve_color(primary_color)', '"' . self::resolve_color( $primary ) . '"' );
-		$log( '6 get_brand_color()', '"' . self::get_brand_color() . '"' );
-
-		// (7) What map_to_banner() would write.
-		$log( '7 map_to_banner(get_brand_color())', self::map_to_banner( self::get_brand_color() ) );
-
-		$log( '--- END', '' );
 	}
 }

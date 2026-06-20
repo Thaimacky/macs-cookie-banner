@@ -1,5 +1,14 @@
 # DEV LOG
 
+## 0.5.7-test - 2026-06-21
+
+- **Root-Cause-Fix Avada-Farbimport.** Bruchstelle war der Lookup `isset( $palette['awb-color5'] )` in `resolve_color()` gegen eine `get_palette()`-Map, die nach `entry['id']`/`['slug']` indexierte — Avada legt die `--awb-colorN`-Identität nicht verbatim als id ab, sie ergibt sich aus der **Position** im `color_palette`-Array. Lookup verfehlte → `resolve_color()` leer → `get_brand_color()` leer → `map_to_banner()` `[]` → `update_option()` nie → Banner `#e11d48`.
+- `includes/avada-colors.php`: `resolve_color()` + `get_palette()` ersetzt; neue private Helfer `read_palette_raw()`, `normalize_token()`, `color_value_to_hex()`. Auflösung jetzt positions- **und** id-basiert (normalisiert), beliebige `awb-colorN`/`awb-custom_color_N`, rgba→Hex. Keine feste Anzahl/Nummer.
+- `includes/admin-page.php`: TEMP-Debug-Aufruf aus `import_avada_colors()` entfernt.
+- `includes/avada-colors.php`: `debug_runtime_proof()` entfernt (war 0.5.6-debug).
+- Version 0.5.6 → 0.5.7.
+- Scope strikt: nur Resolver. Consent/Locale/Presets/Reopen/Admin-UI/Scanner/CCM/Auto-Update unberührt.
+
 ## 0.5.6-debug - 2026-06-21
 
 - **Temporärer Avada-Palette Runtime-Proof (Debug-Build).** Ziel: auf einer Live-Site beweisen, dass `fusion_options['primary_color'] == var(--awb-colorX)` UND `awb-colorX == #RRGGBB`, bevor der Resolver geändert wird.

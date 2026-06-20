@@ -8,6 +8,16 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.5.7-test - 2026-06-21
+
+### Fixed
+
+- **Avada-Farbimport übernahm nichts (Root Cause behoben).** Der Palette-Resolver in `includes/avada-colors.php` suchte die Farbe per `isset( $palette['awb-color5'] )`, baute die Map aber nach dem `id`/`slug`-Feld der Avada-Einträge — das verbatim-Token `awb-colorN` existierte dort nie, daher lieferte `resolve_color()` leer, `map_to_banner()` blieb `[]` und `update_option()` lief nie → Banner behielt den Default `#e11d48`. Neu wird `--awb-colorN` **positionsbasiert** (N-ter Palette-Eintrag, exakt wie Avada die `:root`-Variablen erzeugt) plus normalisierte `id`/`slug`-Treffer aufgelöst. Greift für beliebige Nummern (`--awb-color1/5/12/27…`), beliebig viele Global Colors und `--awb-custom_color_N`; `rgb()/rgba()`-Globals werden zu Hex konvertiert. Keine feste Farbanzahl, kein hartcodiertes Token.
+- Neue private Helfer: `read_palette_raw()`, `normalize_token()`, `color_value_to_hex()`. `resolve_color()`/`get_palette()` ersetzt.
+- **Entfernt:** der temporäre `0.5.6-debug`-Runtime-Proof (`debug_runtime_proof()` + TEMP-Aufruf in `import_avada_colors()`).
+- Nur der Avada-Resolver wurde angefasst — keine Änderung an Consent, Locale, Presets, Reopen, Admin-UI, Scanner, Consent-Code-Manager, Auto-Update, Brand-Keys, `map_to_banner` oder Importlogik.
+- Version 0.5.6 → 0.5.7 (Header + `MCB_VERSION`).
+
 ## 0.5.6-debug - 2026-06-21
 
 ### Debug (temporär — nicht für Produktion)
