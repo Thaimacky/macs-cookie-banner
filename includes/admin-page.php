@@ -162,10 +162,21 @@ final class Macs_Cookie_Banner_Admin {
 
 			$mapped = Macs_Cookie_Banner_Avada_Colors::map_to_banner( $brand );
 
+			// TEMP DEBUG: runtime proof. Remove after diagnosis.
+			error_log( 'MCB IMPORT START brand=' . var_export( $brand, true ) . ' mapped=' . wp_json_encode( $mapped ) );
+
 			if ( ! empty( $mapped ) ) {
 				$current = Macs_Cookie_Banner::get_options();
 				$merged  = Macs_Cookie_Banner::sanitize_options( array_merge( $current, $mapped ) );
+
+				// TEMP DEBUG: value about to be written.
+				error_log( 'MCB BEFORE UPDATE=' . wp_json_encode( $merged ) );
+
 				update_option( Macs_Cookie_Banner::OPTION_NAME, $merged );
+
+				// TEMP DEBUG: value actually stored after update_option().
+				error_log( 'MCB AFTER UPDATE=' . wp_json_encode( get_option( Macs_Cookie_Banner::OPTION_NAME ) ) );
+
 				$result = 'imported';
 			}
 		}
