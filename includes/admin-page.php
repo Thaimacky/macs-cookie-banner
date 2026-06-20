@@ -144,8 +144,14 @@ final class Macs_Cookie_Banner_Admin {
 		}
 
 		$result = 'empty';
+		$debug  = array(); // TEMP DEBUG: shown once as an admin notice. Remove after diagnosis.
 
 		if ( Macs_Cookie_Banner_Avada_Colors::is_active() ) {
+			$raw_primary                     = Macs_Cookie_Banner_Avada_Colors::read_raw( 'primary_color' );
+			$debug['PRIMARY_COLOR_RAW']      = '' !== $raw_primary ? $raw_primary : '(leer)';
+			$resolved                        = Macs_Cookie_Banner_Avada_Colors::resolve_color( $raw_primary );
+			$debug['PRIMARY_COLOR_RESOLVED'] = '' !== $resolved ? $resolved : '(serverseitig nicht aufloesbar)';
+
 			// 1) Server path: direct hex or palette-resolved global color.
 			$brand = Macs_Cookie_Banner_Avada_Colors::get_brand_color();
 
@@ -153,33 +159,46 @@ final class Macs_Cookie_Banner_Admin {
 			// accept the value the browser resolved from the live CSS variable
 			// (submitted as a hidden field). Guarded by the manage_options +
 			// nonce checks above; only a valid hex is ever used.
-			if ( '' === $brand && isset( $_POST['mcb_avada_client_color'] ) ) {
-				$client = sanitize_hex_color( wp_unslash( $_POST['mcb_avada_client_color'] ) );
-				if ( $client ) {
-					$brand = $client;
-				}
+			$client_raw                  = isset( $_POST['mcb_avada_client_color'] ) ? wp_unslash( $_POST['mcb_avada_client_color'] ) : '';
+			$client_hex                  = '' !== $client_raw ? (string) sanitize_hex_color( $client_raw ) : '';
+			$debug['CLIENT_COLOR_RAW']   = '' !== $client_raw ? $client_raw : '(leer)';
+			$debug['CLIENT_COLOR_VALID'] = '' !== $client_hex ? $client_hex : '(kein gueltiges Hex)';
+
+			if ( '' === $brand && '' !== $client_hex ) {
+				$brand = $client_hex;
 			}
+			$debug['BRAND_USED'] = '' !== $brand ? $brand : '(leer)';
 
-			$mapped = Macs_Cookie_Banner_Avada_Colors::map_to_banner( $brand );
-
-			// TEMP DEBUG: runtime proof. Remove after diagnosis.
-			error_log( 'MCB IMPORT START brand=' . var_export( $brand, true ) . ' mapped=' . wp_json_encode( $mapped ) );
+			$mapped                 = Macs_Cookie_Banner_Avada_Colors::map_to_banner( $brand );
+			$debug['MAPPED_VALUES'] = ! empty( $mapped ) ? $mapped : '(leer)';
 
 			if ( ! empty( $mapped ) ) {
 				$current = Macs_Cookie_Banner::get_options();
 				$merged  = Macs_Cookie_Banner::sanitize_options( array_merge( $current, $mapped ) );
 
-				// TEMP DEBUG: value about to be written.
-				error_log( 'MCB BEFORE UPDATE=' . wp_json_encode( $merged ) );
+				$debug['BEFORE_UPDATE'] = array(
+					'primary_button_color' => isset( $merged['primary_button_color'] ) ? $merged['primary_button_color'] : '',
+					'border_color'         => isset( $merged['border_color'] ) ? $merged['border_color'] : '',
+					'primary_text_color'   => isset( $merged['primary_text_color'] ) ? $merged['primary_text_color'] : '',
+				);
 
 				update_option( Macs_Cookie_Banner::OPTION_NAME, $merged );
 
-				// TEMP DEBUG: value actually stored after update_option().
-				error_log( 'MCB AFTER UPDATE=' . wp_json_encode( get_option( Macs_Cookie_Banner::OPTION_NAME ) ) );
+				$stored                = get_option( Macs_Cookie_Banner::OPTION_NAME );
+				$debug['AFTER_UPDATE'] = array(
+					'primary_button_color' => ( is_array( $stored ) && isset( $stored['primary_button_color'] ) ) ? $stored['primary_button_color'] : '',
+					'border_color'         => ( is_array( $stored ) && isset( $stored['border_color'] ) ) ? $stored['border_color'] : '',
+					'primary_text_color'   => ( is_array( $stored ) && isset( $stored['primary_text_color'] ) ) ? $stored['primary_text_color'] : '',
+				);
 
 				$result = 'imported';
 			}
+		} else {
+			$debug['AVADA'] = '(nicht aktiv)';
 		}
+
+		// TEMP DEBUG: hand the proof to the settings page for a one-off notice.
+		set_transient( 'mcb_avada_debug_' . get_current_user_id(), $debug, 120 );
 
 		wp_safe_redirect(
 			add_query_arg(
@@ -225,6 +244,23 @@ final class Macs_Cookie_Banner_Admin {
 						<p><?php echo esc_html__( 'Keine Avada-Markenfarbe gefunden. Farben unverändert.', 'macs-cookie-banner' ); ?></p>
 					</div>
 				<?php endif; ?>
+			<?php endif; ?>
+
+			<?php
+			// TEMP DEBUG: one-off runtime proof of the Avada import. Remove after diagnosis.
+			$mcb_dbg_key = 'mcb_avada_debug_' . get_current_user_id();
+			$mcb_dbg     = get_transient( $mcb_dbg_key );
+			if ( is_array( $mcb_dbg ) && ! empty( $mcb_dbg ) ) :
+				delete_transient( $mcb_dbg_key );
+				?>
+				<div class="notice notice-info">
+					<p><strong><?php echo esc_html__( 'Avada-Import — Debug', 'macs-cookie-banner' ); ?></strong></p>
+					<pre style="white-space:pre-wrap;background:#fff;border:1px solid #ccd0d4;padding:10px;max-width:900px;overflow:auto;"><?php
+					foreach ( $mcb_dbg as $mcb_dbg_k => $mcb_dbg_v ) {
+						echo esc_html( $mcb_dbg_k . ":\n  " . ( is_scalar( $mcb_dbg_v ) ? (string) $mcb_dbg_v : wp_json_encode( $mcb_dbg_v ) ) ) . "\n";
+					}
+					?></pre>
+				</div>
 			<?php endif; ?>
 
 			<?php if ( Macs_Cookie_Banner_Avada_Colors::is_active() ) : ?>
