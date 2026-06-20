@@ -9,6 +9,7 @@
 	var debugEnabled = Boolean(settings.debug);
 	var currentLocale = typeof settings.locale === 'string' ? settings.locale : '';
 	var localeKey = 'mcb_consent_locale';
+	var seenLocalesKey = 'mcb_consent_locales_seen';
 	var reopenDismissed = false;
 	var allowedCategories = ['necessary', 'statistics', 'marketing', 'external_media'];
 	var categories = Array.isArray(settings.categories) ? settings.categories.filter(isAllowedCategory) : allowedCategories.slice();
@@ -615,7 +616,36 @@
 		});
 	}
 
-	function getStoredLocale() {
+	function getSeenLocales() {
+		try {
+			var raw = window.localStorage.getItem(seenLocalesKey);
+			var list = raw ? JSON.parse(raw) : [];
+			return Array.isArray(list) ? list : [];
+		} catch (error) {
+			return [];
+		}
+	}
+
+	function setSeenLocales(list) {
+		try {
+			window.localStorage.setItem(seenLocalesKey, JSON.stringify(list));
+		} catch (error) {
+			/* localStorage can be unavailable in hardened browser modes. */
+		}
+	}
+
+	function addSeenLocale(locale) {
+		if (!locale) {
+			return;
+		}
+		var list = getSeenLocales();
+		if (list.indexOf(locale) === -1) {
+			list.push(locale);
+			setSeenLocales(list);
+		}
+	}
+
+	function getLegacyLocale() {
 		try {
 			return window.localStorage.getItem(localeKey) || '';
 		} catch (error) {
@@ -623,22 +653,11 @@
 		}
 	}
 
-	function setStoredLocale(locale) {
-		if (!locale) {
-			return;
-		}
-		try {
-			window.localStorage.setItem(localeKey, locale);
-		} catch (error) {
-			/* localStorage can be unavailable in hardened browser modes. */
-		}
-	}
-
 	function saveAndClose(root, reopenButton, consent) {
 		writeConsent(consent);
-		// Record the locale the banner was last confirmed in, so a later language
-		// switch re-displays it. Separate light key; lscc_consent is untouched.
-		setStoredLocale(currentLocale);
+		// Mark the current locale as "seen" so the banner is shown at most once
+		// per language. Separate light key; lscc_consent is untouched.
+		addSeenLocale(currentLocale);
 		// Keep the visible checkboxes in lockstep with the saved consent, so the
 		// quick actions ("Alle akzeptieren" / "Nur notwendige") and the settings
 		// panel never drift apart.
@@ -702,17 +721,25 @@
 			activateBlockedScripts();
 			syncMediaComponents();
 
-			// Locale-aware display: if the visitor switched the site language
-			// since the consent was last shown, re-display the (informational)
-			// banner in the new language. Existing consent, cookie, localStorage
-			// and the consent version are left untouched; the checkboxes stay
-			// pre-filled from the stored consent.
-			var storedLocale = getStoredLocale();
-			if (storedLocale === '') {
-				// Consent exists but no locale was recorded yet (e.g. consent from
-				// before this version): adopt the current one silently, no re-show.
-				setStoredLocale(currentLocale);
-			} else if (currentLocale !== '' && storedLocale !== currentLocale) {
+			// Locale-aware display: show the banner at most ONCE per language by
+			// tracking every locale it was already seen/confirmed in. Existing
+			// consent, cookie, localStorage and the consent version stay
+			// untouched; the checkboxes remain pre-filled from the stored consent.
+			var seen = getSeenLocales();
+			if (seen.length === 0) {
+				// Migrate the v0.5.4 single-locale key, if present.
+				var legacy = getLegacyLocale();
+				if (legacy) {
+					addSeenLocale(legacy);
+					seen = getSeenLocales();
+				}
+			}
+			if (seen.length === 0) {
+				// Consent exists but no locale was ever recorded: adopt the current
+				// one silently (no re-show for already-consented visitors).
+				addSeenLocale(currentLocale);
+			} else if (currentLocale !== '' && seen.indexOf(currentLocale) === -1) {
+				// A language not seen before -> show the banner once.
 				setBannerVisible(root, reopenButton, true, false);
 				return;
 			}

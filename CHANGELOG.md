@@ -8,6 +8,23 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.5.5-test - 2026-06-20
+
+### Fixed
+
+- **Locale-Re-Display zu aggressiv (Problem 1).** Bisher löste **jeder** Sprachwechsel ein erneutes Banner aus (Vergleich gegen *eine* zuletzt gesehene Locale). Jetzt wird je Sprache **nur einmal** erneut angezeigt: `banner.js` führt eine **Liste gesehener Locales** im separaten Key `mcb_consent_locales_seen` (z. B. `["de_CH","en_US"]`). Bei `currentLocale` **nicht** in der Liste → Banner einmal zeigen; nach Speichern/Schliessen wird die Locale aufgenommen. Rückwechsel auf bereits gesehene Sprachen zeigt das Banner **nicht** erneut. Der 0.5.4-Einzelkey `mcb_consent_locale` wird einmalig migriert. `lscc_consent`/Cookie/localStorage-Consent/`MCB_CONSENT_VERSION` unverändert, kein Re-Consent.
+- **Weiße 1px-Outline am Reopen-/Cookie-Einstellungs-Button (Problem 2).** Für **Modern/Premium** jetzt **klar sichtbar**: `border: 1px solid rgba(255,255,255,0.95)` **plus** `box-shadow: inset 0 0 0 1px rgba(255,255,255,0.85)` (auch im Hover erhalten) — wirkt auf jeder Markenfarbe deutlich. Primary-Hintergrund + Auto-Kontrast-Text bleiben; dezenter Schatten/Hover; Radius je Preset. Classic unverändert.
+
+### Changed
+
+- **Position des Cookie-Einstellungen-Buttons leichter auffindbar (Problem 3).** Das Positions-Dropdown ist jetzt **prominent in der Sektion „Darstellung"** (statt unten unter „Floating-Button") mit klarer Beschriftung **„Cookie-Einstellungen-Button Position"** (Unten rechts/links, Oben rechts/links, Versteckt) und Hinweis: „Für Websites mit Chat-Buttons oder WhatsApp-Buttons kann unten links sinnvoll sein." Die Feinjustierung (Offsets) bleibt in der umbenannten Sektion „Floating-Button — Feinjustierung". **Nur eine** Positions-Option (kein Duplikat). **Keine automatische Positionsänderung, keine Rücksetzung** — bestehende Werte bleiben (ADR-27).
+- Plugin-Header und `MCB_VERSION` auf `0.5.5`. `MCB_CONSENT_VERSION` bleibt `2`.
+
+### Bewusst unverändert
+
+- `reopen_position`-Werte/-Logik (bottom/top-right/-left, hidden) inhaltlich unverändert — nur prominenter platziert; alle Positionen funktionieren weiter, Werte bleiben nach Update erhalten.
+- Keine neuen Presets/Features; keine Consent-Logik-Änderung; kein Eingriff in Scanner/CCM/Privacy/Updater; keine DB-Migration; `lscc_consent` unangetastet.
+
 ## 0.5.4-test - 2026-06-20
 
 ### Added

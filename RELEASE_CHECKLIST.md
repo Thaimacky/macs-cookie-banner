@@ -8,6 +8,24 @@
 - [ ] Top-Level-Ordner im ZIP: `macs-cookie-banner/` (WordPress-installierbar).
 - [ ] Kein automatisches Ausweichen auf andere Orte; Ablageort nur per ausdrücklicher Auftraggeber-Anweisung änderbar. Details siehe `MASTER_HANDBUCH.md`, Sektion „Release-Artefakte / Ablageort für Test-ZIPs".
 
+## Locale „einmal pro Sprache" + sichtbare Outline + Position prominent (ab v0.5.5)
+
+**Locale (Banner nur einmal pro Sprache):**
+- [ ] Consent auf **DE** speichern → auf **EN** wechseln: Banner erscheint **einmal** auf Englisch.
+- [ ] EN speichern/schliessen → zurück auf **DE**: Banner erscheint **nicht** erneut.
+- [ ] Erneut auf **EN**: Banner erscheint **nicht** erneut.
+- [ ] Neue Sprache **FR** (erstmals): Banner erscheint **einmal**.
+- [ ] localStorage-Key `mcb_consent_locales_seen` enthält die bestätigten Locales (z. B. `["de_CH","en_US","fr_FR"]`); `lscc_consent`/`MCB_CONSENT_VERSION` unverändert.
+- [ ] Bestehender 0.5.4-Consent (Key `mcb_consent_locale`) wird migriert → kein doppeltes Wiedererscheinen.
+
+**Reopen-Button weiße Outline:**
+- [ ] **Modern/Premium:** Primary-Hintergrund sichtbar **und** weiße 1px-Outline **klar erkennbar** (auch auf hellen/dunklen Markenfarben); Text lesbar; Hover dezent (Outline bleibt); Mobile ok. Classic unverändert.
+
+**Position prominent:**
+- [ ] Admin → „Einstellungen": in der Sektion **„Darstellung"** steht direkt ein Dropdown **„Cookie-Einstellungen-Button Position"** mit Hinweis Chat/WhatsApp → unten links.
+- [ ] **Nur ein** Positions-Dropdown (kein doppeltes); „Floating-Button — Feinjustierung" enthält nur die Offsets.
+- [ ] Alle Positionen funktionieren (bottom/top-right/-left, hidden); gespeicherte Position bleibt nach Update erhalten (keine Rücksetzung, ADR-27).
+
 ## Locale-aware Anzeige + Reopen-Markenfarbe + X-Dismiss (ab v0.5.4)
 
 **Sprachwechsel (alle vorhandenen Locales: de_CH, en_US, fr_FR, it_IT, tr_TR, hu_HU):**

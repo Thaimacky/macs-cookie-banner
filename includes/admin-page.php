@@ -235,7 +235,35 @@ final class Macs_Cookie_Banner_Admin {
 							<p class="description" style="margin:0;"><?php echo esc_html__( 'Presets verändern nur Form, Radius, Schatten, Glow und Abstände — nicht die Farben. Farben kommen weiterhin aus den Farb-Feldern bzw. dem Avada-Farbimport.', 'macs-cookie-banner' ); ?></p>
 						</td>
 					</tr>
-				</table>
+										<?php
+						self::render_select_field(
+							'reopen_position',
+							esc_html__( 'Cookie-Einstellungen-Button Position', 'macs-cookie-banner' ),
+							$options['reopen_position'],
+							array(
+								'bottom-right' => esc_html__( 'Unten rechts', 'macs-cookie-banner' ),
+								'bottom-left'  => esc_html__( 'Unten links', 'macs-cookie-banner' ),
+								'top-right'    => esc_html__( 'Oben rechts', 'macs-cookie-banner' ),
+								'top-left'     => esc_html__( 'Oben links', 'macs-cookie-banner' ),
+								'hidden'       => esc_html__( 'Versteckt', 'macs-cookie-banner' ),
+							)
+						);
+						?>
+						<tr>
+							<td colspan="2">
+								<p class="description" style="margin:0;"><?php echo esc_html__( 'Für Websites mit Chat-Buttons oder WhatsApp-Buttons kann unten links sinnvoll sein.', 'macs-cookie-banner' ); ?></p>
+							</td>
+						</tr>
+						<?php if ( 'hidden' === $options['reopen_position'] ) : ?>
+							<tr>
+								<td colspan="2">
+									<div class="notice notice-warning inline" style="margin:0;">
+										<p><?php echo esc_html__( 'Bei verstecktem Cookie-Einstellungs-Button muss ein alternativer Widerrufsweg vorhanden sein (z. B. [simple_cookie_settings] im Footer).', 'macs-cookie-banner' ); ?></p>
+									</div>
+								</td>
+							</tr>
+						<?php endif; ?>
+</table>
 
 				<h2><?php echo esc_html__( 'Texte', 'macs-cookie-banner' ); ?></h2>
 				<table class="form-table" role="presentation">
@@ -267,31 +295,9 @@ final class Macs_Cookie_Banner_Admin {
 					<?php self::render_number_field( 'blur_strength', esc_html__( 'Blur-Stärke (0 - 20 px)', 'macs-cookie-banner' ), $options['blur_strength'], 0, 20, 1 ); ?>
 				</table>
 
-				<h2><?php echo esc_html__( 'Floating-Button', 'macs-cookie-banner' ); ?></h2>
+				<h2><?php echo esc_html__( 'Floating-Button — Feinjustierung', 'macs-cookie-banner' ); ?></h2>
 				<table class="form-table" role="presentation">
-					<?php
-					self::render_select_field(
-						'reopen_position',
-						esc_html__( 'Position', 'macs-cookie-banner' ),
-						$options['reopen_position'],
-						array(
-							'bottom-right' => esc_html__( 'Unten rechts', 'macs-cookie-banner' ),
-							'bottom-left'  => esc_html__( 'Unten links', 'macs-cookie-banner' ),
-							'top-right'    => esc_html__( 'Oben rechts', 'macs-cookie-banner' ),
-							'top-left'     => esc_html__( 'Oben links', 'macs-cookie-banner' ),
-							'hidden'       => esc_html__( 'Versteckt', 'macs-cookie-banner' ),
-						)
-					);
-					?>
-					<?php if ( 'hidden' === $options['reopen_position'] ) : ?>
-						<tr>
-							<td colspan="2">
-								<div class="notice notice-warning inline" style="margin:0;">
-									<p><?php echo esc_html__( 'Bei verstecktem Cookie-Einstellungs-Button muss ein alternativer Widerrufsweg vorhanden sein (z. B. [simple_cookie_settings] im Footer).', 'macs-cookie-banner' ); ?></p>
-								</div>
-							</td>
-						</tr>
-					<?php endif; ?>
+					
 					<?php self::render_number_field( 'reopen_offset_x', esc_html__( 'Offset X (px)', 'macs-cookie-banner' ), $options['reopen_offset_x'], 0, 200, 1 ); ?>
 					<?php self::render_number_field( 'reopen_offset_y', esc_html__( 'Offset Y (px)', 'macs-cookie-banner' ), $options['reopen_offset_y'], 0, 200, 1 ); ?>
 				</table>

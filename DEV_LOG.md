@@ -1,5 +1,13 @@
 # DEV LOG
 
+## 0.5.5-test - 2026-06-20
+
+- Patch-Bump 0.5.4 → 0.5.5. Header + `MCB_VERSION` auf `0.5.5`. `MCB_CONSENT_VERSION` bleibt `2`.
+- **Problem 1 — Locale pro Sprache nur einmal.** Root Cause: 0.5.4 verglich gegen **eine** zuletzt gesehene Locale (`mcb_consent_locale`) → jeder Wechsel zeigte das Banner. Fix: Liste gesehener Locales `mcb_consent_locales_seen` (JSON-Array). `banner.js`: `getSeenLocales()/addSeenLocale()/setSeenLocales()` + `getLegacyLocale()` (Migration des 0.5.4-Keys). `initBanner()`-Logik: seen leer → ggf. Legacy migrieren; weiterhin leer → currentLocale still aufnehmen (kein Re-Show); `currentLocale` nicht in seen → einmal zeigen. `saveAndClose()` ruft `addSeenLocale(currentLocale)`. Kein Eingriff in `lscc_consent`/Cookie/`CONSENT_VERSION`.
+- **Problem 2 — weiße Outline sichtbar.** `banner.css` Modern/Premium `.lscc-reopen`+`.lscc-settings-button`: `border: 1px solid rgba(255,255,255,0.95)` + `box-shadow: inset 0 0 0 1px rgba(255,255,255,0.85), …` (Inset-Ring auch in `:hover`, da box-shadow im Hover ersetzt wird). Primary-BG + `--lscc-primary-text` bleiben. Classic unverändert.
+- **Problem 3 — Position prominent.** `includes/admin-page.php`: Positions-Select aus „Floating-Button" **in die Sektion „Darstellung"** verschoben (genau **ein** Select, kein doppeltes `lscc_options[reopen_position]`-Feld), Label „Cookie-Einstellungen-Button Position", Hinweis Chat/WhatsApp → unten links; DSGVO-Hidden-Hinweis mitgezogen. „Floating-Button" → „Floating-Button — Feinjustierung" (nur Offsets). Umsetzung deterministisch per Marker-Splice (Einrückung irrelevant für Korrektheit). **Keine** Sanitize-/Enum-/Render-Änderung an `reopen_position` → ADR-27, keine Rücksetzung.
+- Validierung: Klammerbalance (php 339/339·69/69; admin 285/285·24/24; js 412/412·150/150; css 82/82); `<?php`/`?>` 127/126 (Datei endet im PHP-Modus, normal); genau 1 `reopen_position`-Select; 0 verwaiste alte Locale-Helper; reopen_position-Enum/CSS/JS regressionsfrei. Kein PHP-CLI lokal → WP-Test in RELEASE_CHECKLIST.
+
 ## 0.5.4-test - 2026-06-20
 
 - Minor-Bump 0.5.3 → 0.5.4. Header + `MCB_VERSION` auf `0.5.4`. `MCB_CONSENT_VERSION` bleibt `2`.
