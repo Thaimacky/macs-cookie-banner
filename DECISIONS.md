@@ -499,3 +499,20 @@ Die bestehende **WPML-/Polylang-String-Translation-Registrierung bleibt als Over
 **Begründung:** Klares Opt-in, ein Schalter, keine fragilen Avada-Save-Hooks (Abgleich beim Admin-Besuch statt Event-Hook). Wiederverwendung der bestehenden Bausteine (`resolve_primary()`, `map_to_banner()`, `reset_caches()`); die manuelle Importfunktion `import_avada_colors()` bleibt **unverändert**.
 
 **Folgen / offene Punkte:** `run_avada_sync()` ist serverseitig — eine Primary Color als `var(--awb-colorX)`, die nur im Browser auflöst, kann der Auto-Sync nicht still übernehmen (Status `unresolved`); der manuelle „Jetzt synchronisieren"-Button (mit Client-Fallback) deckt diesen Fall ab. Keine Änderung an Consent, Locale, Scanner, CCM, Updater, Presets oder der bestehenden Importlogik. Verbindliche Referenz: `MASTER_HANDBUCH.md`.
+
+## ADR-33: Auto-Sync-Entscheidung bei Aktivierung/Update erzwingen (umgesetzt in v0.5.13)
+
+**Status:** Aktiv ab v0.5.13 (2026-06-21). Korrigiert die UX-Auslösung aus ADR-32.
+
+**Kontext (Bug v0.5.12):** Die Erstabfrage war als **passive** `admin_notices`-Notice implementiert, ohne Bindung an Aktivierung/Update. Der WordPress-Update-Flow rendert seine Ergebnisseite ohne `admin_notices`, und die Notice hing zusätzlich an einem Laufzeit-Gate — die Frage erschien nach dem Update faktisch nicht. Gefordert ist „Aktivierung ODER Update → sofortige, erforderliche Entscheidung", nicht abhängig vom zufälligen Besuch einer bestimmten Admin-Seite.
+
+**Entscheidung:** Echte Trigger + erzwungene Anzeige:
+- **Aktivierung:** `register_activation_hook` → `Macs_Cookie_Banner::on_activate()` setzt `mcb_avada_decision_pending = '1'` (wenn noch nicht entschieden).
+- **Update:** Versions-Stamp `mcb_seen_version` in `maybe_force_avada_decision()` (`admin_init`, Prio 1). Weicht `MCB_VERSION` vom gespeicherten Stand ab und ist noch nicht entschieden → `pending = '1'`. Fängt Updater, ZIP-Upload und direkten Datei-Replace gleichermaßen.
+- **Erzwungene Anzeige:** Bei gesetztem `pending` + nicht entschieden + Avada aktiv + `manage_options` wird der Operator beim nächsten regulären Admin-Load **einmal** auf die Einstellungsseite umgeleitet (Guards: nur GET, nicht AJAX/`admin-post.php`, nicht Bulk-Aktivierung, nicht auf der Zielseite selbst → kein Loop). `pending` wird beim Redirect auf `'0'` gesetzt → einmalige Umleitung, **keine Falle** (Plugins-Seite/Deaktivieren bleibt erreichbar).
+- **Persistenter Prompt:** Solange nicht entschieden, zeigt die **nicht** schließbare Notice `maybe_render_sync_decision_notice()` die Frage auf jeder Admin-Seite (Backstop, damit die Entscheidung immer erreichbar ist) — nicht mehr „passiv/zufällig", sondern durch echten Trigger erzwungen.
+- **Persistenz / nie wieder:** Antwort (Ja/Nein) setzt `mcb_avada_sync_decided = '1'` und `pending = '0'`; danach greifen alle Gates und es wird nie wieder gefragt.
+
+**Begründung:** Garantierte Sofort-Abfrage nach Aktivierung **und** Update, ohne den Operator hart zu blockieren. Standard-WP-Muster (Flag + `admin_init`-Redirect).
+
+**Folgen / offene Punkte:** Bestehende Checkbox „Banner-Farben automatisch mit Avada synchronisieren" und der Button „Jetzt synchronisieren" bleiben unverändert erhalten. Keine Änderung an Consent, Locale, Scanner, CCM, Updater, Presets, Importlogik. Verbindliche Referenz: `MASTER_HANDBUCH.md`.

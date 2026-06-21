@@ -8,6 +8,17 @@
 - [ ] Top-Level-Ordner im ZIP: `macs-cookie-banner/` (WordPress-installierbar).
 - [ ] Kein automatisches Ausweichen auf andere Orte; Ablageort nur per ausdrücklicher Auftraggeber-Anweisung änderbar. Details siehe `MASTER_HANDBUCH.md`, Sektion „Release-Artefakte / Ablageort für Test-ZIPs".
 
+## Auto-Sync-Entscheidung erzwungen bei Aktivierung/Update (ab v0.5.13, ADR-33)
+
+- [ ] **Aktivierung:** Plugin auf Avada-Site neu aktivieren → unmittelbar danach landet man auf der Einstellungsseite mit der Entscheidungsfrage (Ja/Nein).
+- [ ] **Update:** Bestehende Installation (entschieden noch nicht/zurückgesetzt) auf 0.5.13 updaten → beim nächsten Admin-Aufruf erzwungener Redirect zur Frage.
+- [ ] Frage ist **nicht** schließbar und bleibt auf jeder Admin-Seite sichtbar, bis entschieden.
+- [ ] Kein Redirect-Loop; man kann weiterhin zur Plugins-Seite (Deaktivieren möglich).
+- [ ] Kein Redirect bei AJAX, `admin-post.php`, POST oder Bulk-Aktivierung.
+- [ ] „Ja"/„Nein" → Entscheidung gespeichert; Frage erscheint **nie wieder** (auch nach Reload/erneutem Update derselben Version).
+- [ ] Nicht-Avada-Site: keine Frage, kein Redirect.
+- [ ] Checkbox „… automatisch synchronisieren" und „Jetzt synchronisieren" unverändert vorhanden.
+
 ## Avada Auto-Sync (ab v0.5.12, ADR-32)
 
 **Erstabfrage:**

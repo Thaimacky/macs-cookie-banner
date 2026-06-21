@@ -8,6 +8,17 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.5.13-test - 2026-06-22
+
+### Fixed
+
+- **Avada Auto-Sync-Entscheidung wird jetzt bei Aktivierung UND Update erzwungen (ADR-33).** Bisher (0.5.12) war die Erstabfrage eine passive `admin_notices`-Notice ohne Aktivierungs-/Update-Bindung → erschien nach dem Update faktisch nicht.
+- Echte Trigger: `register_activation_hook` → `Macs_Cookie_Banner::on_activate()` und Versions-Stamp `mcb_seen_version` (Upgrade-Erkennung in `maybe_force_avada_decision()` auf `admin_init`, Prio 1) setzen `mcb_avada_decision_pending`.
+- Erzwungene Anzeige: einmaliger Redirect auf die Einstellungsseite beim nächsten Admin-Load (Guards: nur GET, kein AJAX/`admin-post.php`, keine Bulk-Aktivierung, kein Loop) + nicht schließbarer, persistenter Prompt bis zur Entscheidung. `pending` wird beim Redirect geleert → keine Falle (Deaktivieren bleibt möglich).
+- Entscheidung wird dauerhaft gespeichert (`mcb_avada_sync_decided`), `pending` in beiden Handlern geleert → danach nie wieder gefragt.
+- Bestehende Checkbox „Banner-Farben automatisch mit Avada synchronisieren" und Button „Jetzt synchronisieren" bleiben unverändert erhalten.
+- Version 0.5.12 → 0.5.13 (Header + `MCB_VERSION`). Keine Änderung an Consent, Locale, Scanner, CCM, Updater, Presets, Importlogik.
+
 ## 0.5.12-test - 2026-06-21
 
 ### Added

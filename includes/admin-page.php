@@ -26,9 +26,10 @@ final class Macs_Cookie_Banner_Admin {
 		add_action( 'admin_post_mcb_save_settings', array( __CLASS__, 'save_settings' ) );
 		add_action( 'admin_post_mcb_import_avada_colors', array( __CLASS__, 'import_avada_colors' ) );
 
-		// Avada Auto-Sync (ADR-32).
+		// Avada Auto-Sync (ADR-32 / forced decision ADR-33).
 		add_action( 'admin_post_mcb_avada_sync_decision', array( __CLASS__, 'save_avada_sync_decision' ) );
 		add_action( 'admin_post_mcb_save_avada_sync', array( __CLASS__, 'save_avada_sync' ) );
+		add_action( 'admin_init', array( __CLASS__, 'maybe_force_avada_decision' ), 1 );
 		add_action( 'admin_init', array( __CLASS__, 'maybe_auto_sync' ) );
 		add_action( 'admin_notices', array( __CLASS__, 'maybe_render_sync_decision_notice' ) );
 	}
@@ -42,6 +43,17 @@ final class Macs_Cookie_Banner_Admin {
 	 * Option name: whether the user has made the initial auto-sync decision. ADR-32.
 	 */
 	const OPTION_AVADA_SYNC_DECIDED = 'mcb_avada_sync_decided';
+
+	/**
+	 * Option name: a decision must be forced on the next admin load (set by the
+	 * activation hook and by upgrade detection). ADR-33.
+	 */
+	const OPTION_AVADA_DECISION_PENDING = 'mcb_avada_decision_pending';
+
+	/**
+	 * Option name: last plugin version seen in admin (upgrade detection). ADR-33.
+	 */
+	const OPTION_SEEN_VERSION = 'mcb_seen_version';
 
 	/**
 	 * Whether Avada auto-sync is enabled.
@@ -59,6 +71,69 @@ final class Macs_Cookie_Banner_Admin {
 	 */
 	public static function is_avada_sync_decided() {
 		return '1' === (string) get_option( self::OPTION_AVADA_SYNC_DECIDED, '' );
+	}
+
+	/**
+	 * Force the Avada Auto-Sync decision right after activation or update (ADR-33).
+	 *
+	 * Real trigger, not a passive notice: the activation hook and an upgrade
+	 * detection (version stamp) set a pending flag; on the next normal admin load
+	 * this redirects the operator once to the settings page, where a persistent,
+	 * non-dismissible decision panel is shown until they choose. After the choice
+	 * the decision is stored permanently and never asked again.
+	 *
+	 * Guards: admins only, never on AJAX / admin-post / POST / bulk-activation, and
+	 * never on the target page itself (no redirect loop). The pending flag is
+	 * cleared on redirect so the operator is shown the screen but never trapped
+	 * (e.g. they can still reach the Plugins page to deactivate); the persistent
+	 * notice keeps the prompt reachable until decided.
+	 *
+	 * @return void
+	 */
+	public static function maybe_force_avada_decision() {
+		if ( ! current_user_can( 'manage_options' ) || wp_doing_ajax() ) {
+			return;
+		}
+
+		// Upgrade / first-load detection: stamp version, flag pending if undecided.
+		$seen = (string) get_option( self::OPTION_SEEN_VERSION, '' );
+		if ( MCB_VERSION !== $seen ) {
+			if ( ! self::is_avada_sync_decided() ) {
+				update_option( self::OPTION_AVADA_DECISION_PENDING, '1' );
+			}
+			update_option( self::OPTION_SEEN_VERSION, MCB_VERSION );
+		}
+
+		if ( self::is_avada_sync_decided() ) {
+			return;
+		}
+		if ( '1' !== (string) get_option( self::OPTION_AVADA_DECISION_PENDING, '' ) ) {
+			return;
+		}
+		if ( ! Macs_Cookie_Banner_Avada_Colors::is_active() ) {
+			return;
+		}
+
+		// Never break form posts or bulk plugin activation, and only on GET.
+		$method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) : 'GET';
+		if ( 'GET' !== $method || isset( $_GET['activate-multi'] ) ) {
+			return;
+		}
+		$GLOBALS_pagenow = isset( $GLOBALS['pagenow'] ) ? $GLOBALS['pagenow'] : '';
+		if ( 'admin-post.php' === $GLOBALS_pagenow || 'admin-ajax.php' === $GLOBALS_pagenow ) {
+			return;
+		}
+
+		// Already on the settings page? Let the persistent panel handle it.
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+		if ( 'macs-cookie-banner' === $page ) {
+			return;
+		}
+
+		// Show once via redirect; clear pending so the operator is never trapped.
+		update_option( self::OPTION_AVADA_DECISION_PENDING, '0' );
+		wp_safe_redirect( admin_url( 'admin.php?page=macs-cookie-banner' ) );
+		exit;
 	}
 
 	/**
@@ -311,6 +386,7 @@ final class Macs_Cookie_Banner_Admin {
 
 		update_option( self::OPTION_AVADA_AUTOSYNC, $choice );
 		update_option( self::OPTION_AVADA_SYNC_DECIDED, '1' );
+		update_option( self::OPTION_AVADA_DECISION_PENDING, '0' );
 
 		$sync = ( 'on' === $choice ) ? self::run_avada_sync() : 'off';
 
@@ -345,6 +421,7 @@ final class Macs_Cookie_Banner_Admin {
 
 		update_option( self::OPTION_AVADA_AUTOSYNC, $choice );
 		update_option( self::OPTION_AVADA_SYNC_DECIDED, '1' );
+		update_option( self::OPTION_AVADA_DECISION_PENDING, '0' );
 
 		$sync = ( 'on' === $choice ) ? self::run_avada_sync() : 'off';
 

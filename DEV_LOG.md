@@ -1,5 +1,17 @@
 # DEV LOG
 
+## 0.5.13-test - 2026-06-22
+
+- **UX-Fix ADR-33:** Auto-Sync-Frage erscheint jetzt erzwungen bei Aktivierung UND Update statt passiv.
+- `macs-cookie-banner.php`: `register_activation_hook(MCB_PLUGIN_FILE, [Macs_Cookie_Banner,'on_activate'])`; `on_activate()` setzt `mcb_avada_decision_pending=1`, wenn nicht entschieden.
+- `includes/admin-page.php`:
+  - Neue Optionen `mcb_avada_decision_pending`, `mcb_seen_version`.
+  - `maybe_force_avada_decision()` (`admin_init`, Prio 1): Versions-Stamp → Upgrade-Erkennung setzt pending; bei pending+undecided+Avada einmaliger `wp_safe_redirect` auf `?page=macs-cookie-banner`, pending danach `0`. Guards: nur GET, kein AJAX/admin-post, kein `activate-multi`, nicht auf Zielseite (kein Loop), `manage_options`.
+  - `save_avada_sync_decision()` + `save_avada_sync()` leeren `pending` zusätzlich.
+  - Persistenter, nicht schließbarer Prompt `maybe_render_sync_decision_notice()` bleibt als Backstop.
+- Checkbox + „Jetzt synchronisieren" unverändert. Version 0.5.12 → 0.5.13.
+- Scope: nur Auslösung der Auto-Sync-Entscheidung. Consent/Locale/Scanner/CCM/Updater/Presets/Importlogik unberührt.
+
 ## 0.5.12-test - 2026-06-21
 
 - **Feature Avada Auto-Sync (ADR-32).** Opt-in-Entscheidung des Betreibers; nie ungefragtes Überschreiben manueller Farben.

@@ -3,7 +3,7 @@
  * Plugin Name: Mac's Cookie Banner
  * Plugin URI:  https://github.com/Thaimacky/macs-cookie-banner
  * Description: Lightweight cookie consent banner with script blocking for WordPress.
- * Version:     0.5.12
+ * Version:     0.5.13
  * Author:      Mac's Cookie Banner
  * Text Domain: macs-cookie-banner
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MCB_VERSION', '0.5.12' );
+define( 'MCB_VERSION', '0.5.13' );
 
 /**
  * Consent schema version. Bump this whenever the stored consent shape
@@ -910,6 +910,23 @@ final class Macs_Cookie_Banner {
 		</button>
 		<?php
 	}
+
+	/**
+	 * Activation hook (ADR-33).
+	 *
+	 * Flags that the Avada Auto-Sync decision must be forced on the next admin
+	 * load, unless the operator already decided. The admin controller (loaded only
+	 * in wp-admin) reads this flag; the actual prompt/redirect lives there.
+	 *
+	 * @return void
+	 */
+	public static function on_activate() {
+		if ( '1' !== (string) get_option( 'mcb_avada_sync_decided', '' ) ) {
+			update_option( 'mcb_avada_decision_pending', '1' );
+		}
+	}
 }
+
+register_activation_hook( MCB_PLUGIN_FILE, array( 'Macs_Cookie_Banner', 'on_activate' ) );
 
 Macs_Cookie_Banner::init();
