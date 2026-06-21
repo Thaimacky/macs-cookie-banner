@@ -1,5 +1,14 @@
 # DEV LOG
 
+## 1.0.0-rc2 - 2026-06-22 (UX-Fix Speicherweg)
+
+- **Bug:** Auto-Sync-Checkbox nicht über „Einstellungen speichern" deaktivierbar — sie lag in eigenem Formular (`mcb_save_avada_sync`); der Haupt-Button (`mcb_save_settings`) ignorierte `mcb_avada_autosync` → Wert blieb auf altem `'on'`.
+- **Fix (einheitlicher Speicherweg):**
+  - `includes/admin-page.php`: separates Autosync-Formular entfernt; Checkbox als „Avada-Synchronisierung"-Zeile **ins Haupt-Formular** verschoben; `save_settings()` persistiert `mcb_avada_autosync` (gated auf `is_active()`, setzt zusätzlich `mcb_avada_sync_decided='1'`).
+  - **Speichern-Button oben + unten** im Haupt-Formular (`mcb_save_top` + bestehender Bottom-Button); beide POSTen identisch an `mcb_save_settings`.
+  - „Jetzt synchronisieren" (Import) bleibt eigenes Aktions-Formular.
+- Auto-Sync-Logik/`maybe_auto_sync`/Aktivierungs-Trigger/Cache-Reset/Consent/Scanner unverändert. Handler `save_avada_sync()` bleibt (ungenutzt, harmlos). Version bleibt 1.0.0 (unveröffentlicht); RC2-Build.
+
 ## 1.0.0 - 2026-06-22 (Release-Kandidat)
 
 - Umsetzung der drei beschlossenen 1.0-Restpunkte (keine neuen Features):

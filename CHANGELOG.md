@@ -21,6 +21,12 @@ Erste offizielle Stable-Freigabe (Release-Kandidat) nach abgeschlossener Complia
 
 - Version 0.5.13 → **1.0.0** (Header + `MCB_VERSION`). `MCB_CONSENT_VERSION` unverändert.
 
+### Fixed (RC2)
+
+- **Einheitlicher Speicherweg auf der Einstellungsseite.** Die Auto-Sync-Checkbox „Banner-Farben automatisch mit Avada synchronisieren" lag bisher in einem eigenen Formular mit eigenem Button und wurde vom Haupt-Button „Einstellungen speichern" nicht persistiert (deaktivieren wirkungslos). Neu: die Checkbox ist Teil des Haupt-Formulars und wird in `save_settings()` gespeichert (Avada-gated; nur die separate Option `mcb_avada_autosync`, kein Eingriff in `lscc_options`). Das separate Autosync-Formular entfällt.
+- **Speichern-Button oben und unten:** „Einstellungen speichern" steht jetzt am Anfang und am Ende der Seite; beide lösen exakt dieselbe Aktion aus. „Jetzt synchronisieren" bleibt als eigener Aktions-Button bestehen.
+- Keine Änderung an Auto-Sync-Logik, Avada-Import, Cache-Reset, Consent, Banner, Scanner oder Aktivierungs-/Update-Workflow.
+
 ### Hinweise
 
 - Bekannte, dokumentierte Architekturgrenze: rohe `<iframe>`/oEmbed-Einbindungen sowie Avada-Vimeo/Background-Video/`fusion_code` werden nicht automatisch geblockt (über CCM/Shortcodes führen; Scanner macht ungated sichtbar).
