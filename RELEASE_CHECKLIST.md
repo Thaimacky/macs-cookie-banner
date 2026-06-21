@@ -8,6 +8,15 @@
 - [ ] Top-Level-Ordner im ZIP: `macs-cookie-banner/` (WordPress-installierbar).
 - [ ] Kein automatisches Ausweichen auf andere Orte; Ablageort nur per ausdrücklicher Auftraggeber-Anweisung änderbar. Details siehe `MASTER_HANDBUCH.md`, Sektion „Release-Artefakte / Ablageort für Test-ZIPs".
 
+## Avada-Farbe: ausschließlich Primary Color (ab v0.5.10, ADR-30)
+
+- [ ] Avada Primary Color = direkter Hex (z. B. `#2ecc4e`). Klick „Avada-Farben übernehmen" → Banner-Primärbutton + Rahmen = **`#2ecc4e`** (nicht der alte/Palette-Wert).
+- [ ] Avada Primary Color = Global Color `var(--awb-colorX)` → übernommen wird **deren** aktueller Wert (Browser-Auflösung der **Primary**-Variable), nicht eine andere Palette-Position.
+- [ ] `accent_color`/`link_color`/`button_gradient_top_color` zeigen **andere** Farben/Global Colors → werden **ignoriert**; nur `primary_color` zählt.
+- [ ] Primary Color als `rgb()/rgba()` → wird zu Hex übernommen.
+- [ ] Kein Debug-Notice mehr sichtbar (`0.5.9-debug` entfernt).
+- [ ] Keine Änderung an Consent/Locale/Reopen/Presets/Frontend/Cache-Reset/Speicherung.
+
 ## Avada-Farbe: Fusion-Cache-Reset nach Import (ab v0.5.9, ADR-29)
 
 - [ ] Avada aktiv, Markenfarbe ≠ Banner-Default. Klick „Avada-Farben übernehmen".

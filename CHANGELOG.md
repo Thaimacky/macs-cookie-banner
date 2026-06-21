@@ -8,6 +8,17 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.5.10-test - 2026-06-21
+
+### Fixed
+
+- **Avada-Farbimport übernimmt jetzt ausschließlich die aktive Primary Color (Root Cause behoben, ADR-30).** Bisher lief `get_brand_color()` die Prioritätskette `primary_color → accent_color → link_color → button_gradient_top_color` ab und löste `var(--awb-colorN)` positionsbasiert über die Palette auf. Nach Umstellung der Avada Primary Color von `var(--awb-color5)` (`#1e4884`) auf direktes `#2ecc4e` übernahm das Banner weiterhin `#1e4884`, weil die Kette auf Sekundärschlüssel zurückfiel, die noch `var(--awb-color5)` (= 5. Palette-Eintrag „Dark Blue") enthielten.
+- Neu bindet der Import **strikt** an `primary_color`: `import_avada_colors()` nutzt `resolve_primary( read_raw('primary_color') )` statt `get_brand_color()`. **Kein** accent/link/gradient, **kein** Palette-/`awb-colorN`-Matching, **keine** Brand-Key-Kette.
+- Neuer Helfer `Macs_Cookie_Banner_Avada_Colors::resolve_primary()` — übernimmt direkte `#hex`- und `rgb()/rgba()`-Werte (via vorhandenem `color_value_to_hex()`); eine `var(--…)`-Referenz ergibt bewusst leer.
+- Client-Fallback nur noch für `primary_color`: `get_brand_css_vars()` scannt ausschließlich `primary_color`. Greift nur, wenn `primary_color` selbst eine `var(--awb-colorX)` ist (dann löst der Browser genau diese auf); bei direktem Hex kein Fallback.
+- **Entfernt:** die temporäre `0.5.9-debug`-Beweis-Notice samt `$debug`-Instrumentierung in `import_avada_colors()`/`render_settings_page()`.
+- Version 0.5.9 → 0.5.10 (Header + `MCB_VERSION`). `MCB_CONSENT_VERSION` unverändert. Keine Änderung an Consent, Locale, Reopen, Presets, Frontend, Cache-Reset (ADR-29), `map_to_banner`, Speicherung, Scanner, CCM, Updater.
+
 ## 0.5.9-debug - 2026-06-21
 
 ### Debug (temporär — nicht für Produktion)

@@ -452,3 +452,19 @@ Die bestehende **WPML-/Polylang-String-Translation-Registrierung bleibt als Over
 **Begründung:** Behebt die letzte Lücke der Farbübernahme (kein Ctrl+F5 mehr nötig) mit minimalem, versionssicherem Eingriff. Kein Eingriff am Resolver, an Consent, Locale, Reopen, Presets oder Frontend.
 
 **Folgen / offene Punkte:** Greift nur, wenn die Avada/Fusion-Cache-API existiert (sonst stille Degradation, Farbe ist gespeichert, ggf. weiterhin manueller Flush nötig). Verbindliche Referenz: `MASTER_HANDBUCH.md`.
+
+## ADR-30: Farbimport ausschließlich an die Avada Primary Color binden (umgesetzt in v0.5.10)
+
+**Status:** Aktiv ab v0.5.10 (2026-06-21). Verschärft/ersetzt die Farbquellen-Logik aus ADR-27 (Importauslösung bleibt unverändert: nur auf Klick).
+
+**Kontext (bewiesen):** Der Import übernahm nicht die aktuell aktive Primary Color. `get_brand_color()` lief eine Prioritätskette `BRAND_KEYS = primary_color → accent_color → link_color → button_gradient_top_color` ab und löste `var(--awb-colorN)` **positionsbasiert** über die Palette auf. Nachdem die Avada Primary Color von `var(--awb-color5)` (= `#1e4884`) auf den direkten Hex `#2ecc4e` geändert wurde, übernahm das Banner weiterhin `#1e4884`: Sobald `primary_color` serverseitig nicht als direkter Hex auflöste, fiel die Kette auf `accent_color`/`link_color`/`button_gradient_top_color` zurück, die noch `var(--awb-color5)` → 5. Palette-Eintrag „Dark Blue" `#1e4884` lieferten. Der Client-Fallback scannte dieselben Sekundärschlüssel und lieferte ebenfalls `#1e4884`.
+
+**Entscheidung (Fachregel):** Das Banner übernimmt **ausschließlich** die aktuell aktive Avada **Primary Color**. **Kein** `accent_color`/`link_color`/`button_gradient_top_color`, **kein** Palette-/`awb-colorN`-Matching, **keine** Brand-Key-Prioritätskette.
+
+- `import_avada_colors()` nutzt `resolve_primary( read_raw('primary_color') )` statt `get_brand_color()`.
+- `resolve_primary()` akzeptiert nur einen **direkten** Farbwert (`#hex` oder `rgb()/rgba()` via `color_value_to_hex()`); eine `var(--…)`-Referenz ergibt bewusst ''.
+- Client-Fallback (`get_brand_css_vars()`) scannt **nur** `primary_color`. Greift ausschließlich, wenn `primary_color` selbst eine `var(--awb-colorX)` ist, die der Server nicht auflöst → der Browser löst genau diese Variable auf. Bei direktem Hex: kein Fallback.
+
+**Begründung:** Direkte, vorhersagbare Bindung an die eine Farbe, die der Betreiber als Primary Color setzt. Beseitigt das positionsbasierte Palette-Matching als Fehlerquelle vollständig.
+
+**Folgen / offene Punkte:** `get_brand_color()`, `resolve_color()`, `get_palette()`, `BRAND_KEYS` bleiben im Code vorhanden, werden vom Import aber **nicht mehr aufgerufen** (Legacy, später entfernbar). Cache-Reset (ADR-29), `map_to_banner`, Speicherung, Consent, Locale, Reopen, Presets, Frontend, Scanner, CCM, Updater unverändert. Verbindliche Referenz: `MASTER_HANDBUCH.md`.

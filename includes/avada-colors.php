@@ -53,30 +53,25 @@ final class Macs_Cookie_Banner_Avada_Colors {
 	}
 
 	/**
-	 * Return the CSS custom-property names the Avada brand color references, in
-	 * priority order (e.g. array( '--awb-color5' )).
+	 * Return the CSS custom-property the Avada **Primary Color** references.
 	 *
-	 * When server-side palette resolution fails, the admin import lets the
-	 * browser resolve these variables via getComputedStyle() and submits the
-	 * resulting hex back. No assumption about the color number/count: whatever
-	 * `var(--awb-colorX)` the customer's primary color points to is returned.
-	 * Empty when the brand color is already a direct hex or no reference exists.
+	 * Fachregel (ADR-30): nur `primary_color` zählt — **kein** Brand-Key-Scan über
+	 * accent/link/gradient. Wenn `primary_color` eine Global-Color-Referenz
+	 * `var(--awb-colorX)` ist, die der Server nicht auflöst, lässt der Admin-Import
+	 * den Browser **genau diese** Variable via getComputedStyle() auflösen und
+	 * sendet den Hex zurück. Ist `primary_color` bereits ein direkter Hex/rgba-Wert,
+	 * ist die Liste leer (kein Fallback nötig).
 	 *
-	 * @return string[] List of CSS variable names (deduplicated, priority order).
+	 * @return string[] Die referenzierte CSS-Variable als Ein-Element-Liste, oder leer.
 	 */
 	public static function get_brand_css_vars() {
-		$vars = array();
+		$raw = self::read_raw( 'primary_color' );
 
-		foreach ( self::BRAND_KEYS as $key ) {
-			$raw = self::read_raw( $key );
-			if ( is_string( $raw ) && preg_match( '/(--[a-z0-9_-]+)/i', $raw, $m ) ) {
-				if ( ! in_array( $m[1], $vars, true ) ) {
-					$vars[] = $m[1];
-				}
-			}
+		if ( is_string( $raw ) && preg_match( '/(--[a-z0-9_-]+)/i', $raw, $m ) ) {
+			return array( $m[1] );
 		}
 
-		return $vars;
+		return array();
 	}
 
 	/**
@@ -145,6 +140,24 @@ final class Macs_Cookie_Banner_Avada_Colors {
 		}
 
 		return '';
+	}
+
+	/**
+	 * Resolve the Avada Primary Color to a hex value — and ONLY the primary color.
+	 *
+	 * Fachregel (ADR-30): das Banner übernimmt ausschließlich die aktuell aktive
+	 * Avada Primary Color. Diese Methode akzeptiert deshalb nur einen **direkten**
+	 * Farbwert (`#hex` oder `rgb()/rgba()`, via {@see color_value_to_hex()}). Sie
+	 * macht **kein** Palette-/`var(--awb-colorN)`-Matching und keinen Brand-Key-
+	 * Fallback. Ist `primary_color` selbst eine Global-Color-Referenz
+	 * (`var(--awb-colorX)`), liefert sie bewusst '' — der Importpfad nutzt dann
+	 * den vom Browser aufgelösten Wert genau dieser Primary-Variable.
+	 *
+	 * @param string $value Raw primary_color value.
+	 * @return string Hex color, or '' when it is not a direct color value.
+	 */
+	public static function resolve_primary( $value ) {
+		return self::color_value_to_hex( is_string( $value ) ? trim( $value ) : '' );
 	}
 
 	/**

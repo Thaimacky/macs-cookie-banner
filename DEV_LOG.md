@@ -1,5 +1,16 @@
 # DEV LOG
 
+## 0.5.10-test - 2026-06-21
+
+- **Root Cause bestätigt (ADR-30):** Import war nicht an `primary_color` gebunden. `get_brand_color()` lief `BRAND_KEYS` (primary→accent→link→gradient) und löste `var(--awb-colorN)` positionsbasiert über `get_palette()` auf. Direktes `primary_color = #2ecc4e` wurde übersprungen, sobald die Kette auf einen Sekundärschlüssel mit `var(--awb-color5)` (= Palette-Position 5 „Dark Blue" = `#1e4884`) zurückfiel; der Client-Fallback scannte dieselben Sekundärschlüssel und lieferte ebenfalls `#1e4884`.
+- **Fix (genau nach Vorgabe):**
+  - `includes/admin-page.php` → `import_avada_colors()`: `$brand = resolve_primary( read_raw('primary_color') )` statt `get_brand_color()`. Client-Fallback nur noch, wenn Server `''` liefert (d. h. `primary_color` ist selbst ein `var(--…)`).
+  - `includes/avada-colors.php`: neuer Helfer `resolve_primary()` (direktes `#hex`/`rgb()/rgba()` via `color_value_to_hex()`; `var(--…)` → ''). `get_brand_css_vars()` scannt nur noch `primary_color` statt alle `BRAND_KEYS`.
+  - **Debug entfernt:** `0.5.9-debug`-Beweis-Notice (`$debug`-Array, `SRC_*`, `IMPORT_*`, set_transient + Info-Notice-Block in `render_settings_page()`).
+- **Legacy belassen** (vom Import nicht mehr aufgerufen): `get_brand_color()`, `resolve_color()`, `get_palette()`, `BRAND_KEYS`. Spätere Entfernung möglich.
+- Version 0.5.9 → 0.5.10 (Header + `MCB_VERSION`). `MCB_CONSENT_VERSION` unverändert.
+- Scope: nur Avada-Farbquelle + zugehörige Admin-UI/JS-Var-Liste. Consent, Locale, Reopen, Presets, Frontend, Cache-Reset (ADR-29), `map_to_banner`, Speicherung, Scanner, CCM, Updater unberührt.
+
 ## 0.5.9-debug - 2026-06-21
 
 - **Neuer Beweis vom User:** Avada Primary Color auf Grün (`#2ecc4e`, direkter Hex, **keine** Global Color/Palette) gestellt, „Avada-Farben übernehmen" geklickt → Plugin-Feld „Primärbutton" bleibt `#1e4884`. Cache/Frontend/Rendering/`update_option` ausgeschlossen → Problem liegt **vor** dem Speichern, beim Lesen des Werts.
