@@ -2,6 +2,8 @@
 
 Diese Karte beschreibt die aktiven Dateien, ihre Zustaendigkeiten und die wichtigsten Funktionen. Stand: Version 0.1.0.
 
+> **Offizieller Avada-Stand (ab v0.5.13):** Farbquelle ist **ausschliesslich** Avada `primary_color` (ADR-30); der sichtbare Reopen-/Settings-Button nutzt die Primary Color in allen Presets (ADR-31); Auto-Sync ist opt-in (ADR-32) mit bei Aktivierung/Update **erzwungener** Entscheidung (ADR-33); Cache-Reset ueber die vorhandene Avada/Fusion-API (ADR-29). Arbeits-/Lieferregeln: ADR-34 und `MASTER_HANDBUCH.md` (Abschnitt „Verbindliche Learnings & Arbeitsregeln").
+
 ## Datei-Uebersicht
 
 | Datei | Zweck |

@@ -1,5 +1,26 @@
 # Release Checklist
 
+## Compliance vor DE/CH-Livegang (nächstes Arbeitspaket, ab 2026-06-22)
+
+Vor dem Livegang müssen alle Tracking-/Consent-Integrationen erkannt, klassifiziert und consent-gesteuert sein (Scanner / Blockierung / Consent Mode / echte Live-Site-Validierung).
+
+**Priorität 1 (Pflicht vor Livegang):**
+- [ ] Google Analytics 4 erkannt + vor Consent blockiert
+- [ ] Google Tag Manager erkannt + vor Consent blockiert
+- [ ] Meta Pixel erkannt + vor Consent blockiert
+- [ ] YouTube Embeds gegated
+- [ ] Google Maps gegated
+- [ ] Google Ads / Conversion Tracking / Remarketing erkannt + blockiert
+
+**Priorität 2:**
+- [ ] Hotjar
+- [ ] Microsoft Clarity
+- [ ] LinkedIn Insight
+- [ ] TikTok Pixel
+
+**Priorität 3:**
+- [ ] HubSpot, Brevo/Sendinblue, Mailchimp, Calendly, Vimeo, Typeform, Trustpilot, weitere Drittanbieter
+
 ## Release-Artefakte / Ablageort für Test-ZIPs (verbindlich)
 
 - [ ] Test-ZIP wird im **Überordner des Repositories** abgelegt: `G:\Cookie Banner Plugin\` — **nicht** im Repo-Ordner `macs-cookie-banner\`.

@@ -8,6 +8,14 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## Dokumentation - 2026-06-22
+
+### Documentation (kein Code)
+
+- Konsolidierte, verbindliche Learnings der Avada-/Auto-Sync-/Debugging-Phase dokumentiert: Avada `primary_color` als einzige Farbquelle (kein accent/link/gradient, kein Palette-Matching), sichtbarer Button in allen Presets primary-color-basiert, Auto-Sync opt-in mit erzwungener Entscheidung bei Aktivierung/Update, Avada/Fusion-Cache über vorhandene API, Marcel ist nicht Debug-Operator, Root-Cause-First, Lieferformat „Problem/Ursache/Fix/Nächster Schritt".
+- Neuer **ADR-34** (Arbeitsweise/Prozess). Erweiterte Abschnitte in `MASTER_HANDBUCH.md` („Verbindliche Learnings & Arbeitsregeln") und `RELEASE_CHECKLIST.md` (Compliance vor DE/CH-Livegang).
+- Kein Code geändert; keine Versionsänderung.
+
 ## 0.5.13-test - 2026-06-22
 
 ### Fixed

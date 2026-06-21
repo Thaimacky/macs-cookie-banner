@@ -26,6 +26,55 @@
 - 2026-06-21 — v0.5.11 / ADR-31: Der sichtbare Reopen-/Settings-Button folgt der importierten **Primary Color in allen Presets**. Root Cause (CSS): im Default-Preset *Classic* füllte `.lscc-reopen` mit `var(--lscc-bg)` und `.lscc-settings-button` mit `var(--lscc-secondary)` — nur Modern/Premium nutzten `var(--lscc-primary)`; der Import schreibt aber `primary_button_color`, daher im Default unsichtbar. Fix: Basisregeln in `banner.css` auf `var(--lscc-primary)`/`var(--lscc-primary-text)`. Temporäre Runtime-Proofs 0.5.10-debug2/-debug3 wieder entfernt. Rein Darstellung; Consent/Locale/Scanner/CCM/Updater/Avada-Import/Cache-Reset unberührt.
 - 2026-06-21 — v0.5.10 / ADR-30: Avada-Farbimport bindet **ausschließlich** an die aktuell aktive **Primary Color**. Bewiesener Root Cause: die bisherige Brand-Key-Prioritätskette (`primary_color → accent_color → link_color → button_gradient_top_color`) mit positionsbasiertem Palette-Matching übernahm nach Wechsel der Primary Color auf direktes `#2ecc4e` weiterhin den alten `var(--awb-color5)`-Wert `#1e4884` (5. Palette-Eintrag) aus den Sekundärschlüsseln. Neu: `resolve_primary(read_raw('primary_color'))`, kein accent/link/gradient, kein Palette-/`awb-colorN`-Matching; Client-Fallback nur für `primary_color`. Temporäre `0.5.9-debug`-Notice entfernt. Keine Änderung an Consent/Locale/Reopen/Presets/Frontend/Cache-Reset/Speicherung/Scanner/CCM/Updater.
 
+## Verbindliche Learnings & Arbeitsregeln (Stand v0.5.13, 2026-06-22)
+
+Konsolidierter, verbindlicher Stand aus der Avada-/Auto-Sync-/Debugging-Phase. Details in den jeweiligen ADRs (DECISIONS.md).
+
+### A) Avada Primary Color ist die einzige Farbquelle (ADR-30)
+- Das Banner folgt **ausschließlich** der aktuell aktiven Avada `primary_color`.
+- **Keine** Ableitung über `accent_color`, `link_color`, `button_gradient_top_color`.
+- **Kein** Palette-Matching, **keine** positionsbasierte `color1/color5/colorN`-Logik, **keine** Heuristik, **keine** Fallback-Farbkette.
+
+### B) Sichtbarer Button nutzt die Primary Color (ADR-31)
+- Der sichtbare Reopen-/Cookie-Einstellungen-Button verwendet in **allen** Presets die importierte Primary Color.
+- Classic fällt **nicht** mehr auf `background_color`/`secondary_button_color` zurück; Modern/Premium bleiben optisch erweitert, aber primary-color-basiert.
+- Wenn Backend-Wert korrekt, Frontend aber falsch: Prüfreihenfolge **Quelle → Speicherung → get_options → Render → sichtbares Element → Cache**.
+
+### C) Avada Auto-Sync (ADR-32)
+- Opt-in, Default **AUS**. Bestehende Kundenfarben werden **nie ungefragt** überschrieben.
+- Bei aktivem Auto-Sync darf automatisch aktualisiert werden; im manuellen Modus niemals.
+- Entscheidung bleibt gespeichert, ist später jederzeit änderbar; „Jetzt synchronisieren" bleibt dauerhaft verfügbar.
+
+### D) Aktivierungs-/Update-UX (ADR-33)
+- Zwingende Betreiberentscheidungen dürfen **nicht** nur über passive `admin_notices` laufen.
+- Aktivierung **und** Update müssen die Entscheidung zuverlässig auslösen; Update-Flow, ZIP-Upload und direkter Datei-Replace sind zu berücksichtigen.
+- Passive Hinweise gelten **nicht** als ausreichende UX.
+
+### E) Avada/Fusion Cache (ADR-29)
+- Nach erfolgreichem Import/Auto-Sync wird der Avada/Fusion-Cache über die **vorhandene** Avada/Fusion-API defensiv geleert. **Keine** eigene Cache-Lösung.
+- Kein Cache-Reset verfügbar → **kein Fatal**, nur Degradation/Hinweis.
+- DB-Wert, Render-Wert und sichtbarer Frontend-Wert sind **getrennte Ebenen**.
+
+### F) Marcel ist Entscheider/Tester, NICHT Debug-Operator (verbindlich)
+Marcel macht **keine**: FTP-/SFTP-Analysen, debug.log-Auswertungen, wp-config-Änderungen, WP-CLI-Aufrufe, DB-Abfragen, PHP-Codeinspektionen, Server-Diagnosen, manuelle Code-Suchen, manuelle Prompt-Zusammenstellungen.
+Runtime-Proofs werden bevorzugt über **Admin-Notice / Debug-Panel / UI-Ausgabe / sichtbaren Diagnoseblock** bereitgestellt. Debugging wird **nicht** auf Marcel ausgelagert.
+
+### G) Antwort- und Lieferformat (verbindlich)
+- Standardformat für Antworten: **Problem · Ursache · Fix · Nächster Schritt**. Keine langen Analyseblöcke.
+- Sagt Marcel „Prompt": **vollständigen Copy/Paste-Prompt** liefern — keine Fragmente, keine zusammenzusetzenden Zusatzteile.
+- Berichte zur ChatGPT-Weitergabe enden in der Pflicht-Kopiermarkierung (siehe Lieferregeln unten).
+
+### H) Root-Cause-First (verbindlich)
+Vor jedem Fix: **1) Runtime-Pfad beweisen, 2) verantwortliche Stelle beweisen, 3) erst dann patchen.**
+Verboten: Blindfixes, Vermutungen, mehrere Resolver-Versionen „auf Verdacht", zusätzliche Fallback-Ketten ohne fachliche Freigabe, Debug-Zyklen ohne klare Entscheidungsfrage.
+
+### I) Nächste Phase — Compliance DE/CH-Livegang (Arbeitspaket)
+Vor Livegang müssen Tracking-/Consent-Integrationen vollständig erkannt, klassifiziert und consent-gesteuert sein.
+- **Priorität 1:** Google Analytics 4, Google Tag Manager, Meta Pixel, YouTube Embeds, Google Maps, Google Ads / Conversion / Remarketing.
+- **Priorität 2:** Hotjar, Microsoft Clarity, LinkedIn Insight, TikTok Pixel.
+- **Priorität 3:** HubSpot, Brevo/Sendinblue, Mailchimp, Calendly, Vimeo, Typeform, Trustpilot, weitere Drittanbieter.
+- Technischer Fokus: Scanner / Blockierung / Consent Mode / echte Live-Site-Validierung.
+
 ## Zweck dieser Datei
 
 Diese Datei dient als dauerhafte Übergabe-/Kontinuitätsdatei für zukünftige Claude-/Codex-/AI-Sessions.

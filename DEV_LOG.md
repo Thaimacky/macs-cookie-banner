@@ -1,5 +1,12 @@
 # DEV LOG
 
+## Phasenabschluss Avada/Auto-Sync - 2026-06-22 (Doku)
+
+- Abschluss der Avada-Farb-/Auto-Sync-/Debugging-Phase (v0.5.8 → v0.5.13). Debug-Residue-Scan: **keine** Reste (`mcb_primary_proof`, `mcb-fe-proof`, Runtime-Proof, MCB-AVADA-PROOF, TEMP DEBUG, debug.log/FTP/WP-CLI) im produktiven Code; verbleibende Treffer sind legitime Sync-Variablen (`$raw_primary`/`$brand`) und die gebündelte PUC-Library (Drittcode).
+- Verbindliche Learnings dokumentiert (A–I) in `MASTER_HANDBUCH.md`; Prozessregeln als **ADR-34** (Root-Cause-First, kein Debug bei Marcel, Lieferformat); Compliance-Roadmap in `RELEASE_CHECKLIST.md`.
+- Offizieller fachlicher Stand: Avada `primary_color` = einzige Farbquelle (ADR-30); sichtbarer Button primary-color-basiert in allen Presets (ADR-31); Auto-Sync opt-in (ADR-32) mit erzwungener Entscheidung bei Aktivierung/Update (ADR-33); Cache-Reset über Avada-API (ADR-29).
+- Kein Code geändert. Nächster Fokus: DE/CH-Livegang — Tracking-/Consent-Blockierung (GA4, GTM, Meta Pixel, YouTube, Google Maps, Google Ads).
+
 ## 0.5.13-test - 2026-06-22
 
 - **UX-Fix ADR-33:** Auto-Sync-Frage erscheint jetzt erzwungen bei Aktivierung UND Update statt passiv.

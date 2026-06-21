@@ -516,3 +516,18 @@ Die bestehende **WPML-/Polylang-String-Translation-Registrierung bleibt als Over
 **Begründung:** Garantierte Sofort-Abfrage nach Aktivierung **und** Update, ohne den Operator hart zu blockieren. Standard-WP-Muster (Flag + `admin_init`-Redirect).
 
 **Folgen / offene Punkte:** Bestehende Checkbox „Banner-Farben automatisch mit Avada synchronisieren" und der Button „Jetzt synchronisieren" bleiben unverändert erhalten. Keine Änderung an Consent, Locale, Scanner, CCM, Updater, Presets, Importlogik. Verbindliche Referenz: `MASTER_HANDBUCH.md`.
+
+## ADR-34: Arbeitsweise — Root-Cause-First, kein Debug bei Marcel, festes Lieferformat (Prozess, ab 2026-06-22)
+
+**Status:** Aktiv ab 2026-06-22. Prozess-Entscheidung (kein Code), konsolidiert aus der v0.5.x-Avada-Phase.
+
+**Kontext:** Die Avada-Farbphase brauchte mehrere Debug-Runden. Learnings sollen künftige Sessions schneller und ohne Last für den Auftraggeber machen.
+
+**Entscheidung:**
+- **Root-Cause-First:** Vor jedem Fix wird (1) der Runtime-Pfad bewiesen und (2) die verantwortliche Stelle bewiesen; (3) erst danach wird gepatcht. Verboten: Blindfixes, Vermutungen, mehrere Resolver-Versionen „auf Verdacht", zusätzliche Fallback-Ketten ohne fachliche Freigabe, Debug-Zyklen ohne klare Entscheidungsfrage.
+- **Marcel ist nicht Debug-Operator:** keine FTP/SFTP/debug.log/wp-config/WP-CLI/DB/PHP-Inspektion/Server-Diagnose/manuelle Code-Suche/manuelle Prompt-Zusammenstellung. Runtime-Proofs bevorzugt als Admin-Notice/Debug-Panel/UI-Ausgabe/sichtbarer Diagnoseblock.
+- **Lieferformat:** Antworten als „Problem · Ursache · Fix · Nächster Schritt"; bei „Prompt" ein vollständiger Copy/Paste-Prompt; ChatGPT-Berichte mit Pflicht-Kopiermarkierung.
+
+**Begründung:** Verhindert Spekulations-Schleifen, hält die Debug-Last beim Agenten, liefert abnahmefähige Ergebnisse.
+
+**Folgen / offene Punkte:** Gilt für alle künftigen Arbeitspakete. Verbindliche Referenz: `MASTER_HANDBUCH.md` (Abschnitt „Verbindliche Learnings & Arbeitsregeln").
