@@ -1,5 +1,12 @@
 # DEV LOG
 
+## 0.5.9-debug - 2026-06-21
+
+- **Neuer Beweis vom User:** Avada Primary Color auf Grün (`#2ecc4e`, direkter Hex, **keine** Global Color/Palette) gestellt, „Avada-Farben übernehmen" geklickt → Plugin-Feld „Primärbutton" bleibt `#1e4884`. Cache/Frontend/Rendering/`update_option` ausgeschlossen → Problem liegt **vor** dem Speichern, beim Lesen des Werts.
+- **Minimal-Debug (read-only), nur Admin-Notice.** `includes/admin-page.php` → `import_avada_colors()`: vor dem bisherigen Ablauf werden die drei Quellen separat abgefragt und in `$debug` gelegt: `SRC_fusion_get_option(primary_color)`, `SRC_Avada()->settings->get(primary_color)`, `SRC_fusion_options['primary_color']`. Zusätzlich `IMPORT_FINAL_VALUE` (tatsächlich verwendeter `$brand`) und `IMPORT_RESOLVED_HEX` (`resolve_color()` des aktuellen primary). Formatierung via lokalem `$fmt`-Closure (string/null/scalar/json). Anzeige über die bereits vorhandene einmalige Debug-Notice.
+- **Keine** Änderung an Resolver, Cache-Logik, Import-Speicherung, Consent, Locale, Reopen, Presets, Frontend. `MCB_VERSION` unverändert 0.5.9. Temporär — Entfernung nach Diagnose.
+- Ziel: beweisen, ob der Import die aktuelle Primary Color (`#2ecc4e`) liest oder einen alten Wert.
+
 ## 0.5.9-test - 2026-06-21
 
 - **Root Cause Avada-Farbe „kommt nicht an": Fusion-Cache, nicht der Import.** Beweis aus 0.5.8: `PRIMARY_COLOR_RESOLVED = #1e4884`, `AFTER_UPDATE = #1e4884` (DB korrekt). Banner blieb dennoch `#e11d48`, bis Avada-/Browser-Cache geleert wurde → Avada/Fusion lieferte das gecachte Inline-CSS mit `--lscc-primary:#e11d48`.

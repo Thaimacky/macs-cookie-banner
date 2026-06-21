@@ -8,6 +8,13 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.5.9-debug - 2026-06-21
+
+### Debug (temporär — nicht für Produktion)
+
+- **Beweis-Build: welchen `primary_color`-Wert liest der Import wirklich?** Reine, lesende Admin-Notice nach Klick auf „Avada-Farben übernehmen". Zeigt nebeneinander: `fusion_get_option('primary_color')`, `Avada()->settings->get('primary_color')`, `fusion_options['primary_color']`, den tatsächlich verwendeten Import-Wert (`IMPORT_FINAL_VALUE`) und den aufgelösten Hex (`IMPORT_RESOLVED_HEX`). Kein `debug.log`, kein FTP/WP-CLI.
+- **Keine** Änderung an Resolver, Cache-Logik, Import-Speicherung, Consent, Locale, Reopen, Presets oder Frontend. `MCB_VERSION` bleibt 0.5.9. Wird nach der Diagnose wieder entfernt.
+
 ## 0.5.9-test - 2026-06-21
 
 ### Fixed

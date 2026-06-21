@@ -148,6 +148,44 @@ final class Macs_Cookie_Banner_Admin {
 		$debug         = array(); // TEMP DEBUG: shown once as an admin notice. Remove after diagnosis.
 
 		if ( Macs_Cookie_Banner_Avada_Colors::is_active() ) {
+			// MINIMAL DEBUG (v0.5.9-debug): prove exactly what each Avada source
+			// returns for primary_color, plus the value the import actually uses.
+			// Strictly read-only; no resolver/cache/logic change.
+			$fmt = static function ( $value ) {
+				if ( is_string( $value ) ) {
+					return '' === $value ? '(leer)' : $value;
+				}
+				if ( null === $value ) {
+					return '(null)';
+				}
+				if ( is_scalar( $value ) ) {
+					return (string) $value;
+				}
+				return (string) wp_json_encode( $value );
+			};
+
+			$src_fusion_get = function_exists( 'fusion_get_option' )
+				? fusion_get_option( 'primary_color' )
+				: '(fusion_get_option() fehlt)';
+
+			$src_avada_settings = '(Avada() fehlt)';
+			if ( function_exists( 'Avada' ) ) {
+				$avada_obj = Avada();
+				if ( is_object( $avada_obj ) && isset( $avada_obj->settings ) && is_object( $avada_obj->settings ) && method_exists( $avada_obj->settings, 'get' ) ) {
+					$src_avada_settings = $avada_obj->settings->get( 'primary_color' );
+				}
+			}
+
+			$src_fusion_options = '(fusion_options[primary_color] nicht gesetzt)';
+			$fusion_options_raw = get_option( 'fusion_options' );
+			if ( is_array( $fusion_options_raw ) && isset( $fusion_options_raw['primary_color'] ) ) {
+				$src_fusion_options = $fusion_options_raw['primary_color'];
+			}
+
+			$debug['SRC_fusion_get_option(primary_color)']      = $fmt( $src_fusion_get );
+			$debug['SRC_Avada()->settings->get(primary_color)'] = $fmt( $src_avada_settings );
+			$debug["SRC_fusion_options['primary_color']"]       = $fmt( $src_fusion_options );
+
 			$raw_primary                     = Macs_Cookie_Banner_Avada_Colors::read_raw( 'primary_color' );
 			$debug['PRIMARY_COLOR_RAW']      = '' !== $raw_primary ? $raw_primary : '(leer)';
 			$resolved                        = Macs_Cookie_Banner_Avada_Colors::resolve_color( $raw_primary );
@@ -169,6 +207,11 @@ final class Macs_Cookie_Banner_Admin {
 				$brand = $client_hex;
 			}
 			$debug['BRAND_USED'] = '' !== $brand ? $brand : '(leer)';
+
+			// The value the import actually uses + the resolved hex of the
+			// CURRENT primary_color (proof for the #2ecc4e vs #1e4884 question).
+			$debug['IMPORT_FINAL_VALUE']  = '' !== $brand ? $brand : '(leer)';
+			$debug['IMPORT_RESOLVED_HEX'] = '' !== $resolved ? $resolved : '(serverseitig nicht aufloesbar)';
 
 			$mapped                 = Macs_Cookie_Banner_Avada_Colors::map_to_banner( $brand );
 			$debug['MAPPED_VALUES'] = ! empty( $mapped ) ? $mapped : '(leer)';
