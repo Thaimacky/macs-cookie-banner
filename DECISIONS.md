@@ -468,3 +468,15 @@ Die bestehende **WPML-/Polylang-String-Translation-Registrierung bleibt als Over
 **Begründung:** Direkte, vorhersagbare Bindung an die eine Farbe, die der Betreiber als Primary Color setzt. Beseitigt das positionsbasierte Palette-Matching als Fehlerquelle vollständig.
 
 **Folgen / offene Punkte:** `get_brand_color()`, `resolve_color()`, `get_palette()`, `BRAND_KEYS` bleiben im Code vorhanden, werden vom Import aber **nicht mehr aufgerufen** (Legacy, später entfernbar). Cache-Reset (ADR-29), `map_to_banner`, Speicherung, Consent, Locale, Reopen, Presets, Frontend, Scanner, CCM, Updater unverändert. Verbindliche Referenz: `MASTER_HANDBUCH.md`.
+
+## ADR-31: Sichtbarer Reopen-/Settings-Button folgt der Primary Color in ALLEN Presets (umgesetzt in v0.5.11)
+
+**Status:** Aktiv ab v0.5.11 (2026-06-21).
+
+**Kontext (bewiesen):** Import, Speicherung, DB und `get_options()` liefern die importierte Primary Color nachweislich korrekt (`#2ecc4e`). Der sichtbare Button blieb dennoch in der alten Farbe. CSS-/Render-Analyse: Im **Classic-Preset** (Default `design_preset = classic`) war die Button-**Füllung** nicht an `--lscc-primary` gebunden — `.lscc-reopen` nutzte `background: var(--lscc-bg)` (= `background_color`), `.lscc-settings-button` nutzte `background: var(--lscc-secondary)` (= `secondary_button_color`); nur Modern/Premium banden die Füllung an `var(--lscc-primary)`. Der Avada-Import schreibt aber `primary_button_color`/`border_color`/`primary_text_color`, also Variablen, die der sichtbare Classic-Button für die Füllung nicht verwendet → die importierte Farbe konnte im Default-Preset nicht sichtbar werden.
+
+**Entscheidung:** Der sichtbare Cookie-Einstellungen-/Reopen-Button folgt in **allen** Presets der importierten Primary Color. Die Basis-Regeln `.lscc-reopen` und `.lscc-settings-button` in `assets/css/banner.css` nutzen jetzt `background: var(--lscc-primary)`, `border-color: var(--lscc-primary)`, `color: var(--lscc-primary-text)` (WCAG-Auto-Kontrast aus dem Import). Modern/Premium-Overrides bleiben unverändert (gleiche Füllvariable + ihr spezifisches Radius/Shadow).
+
+**Begründung:** Erfüllt die Erwartung „Button trägt die Markenfarbe" unabhängig vom Preset. Rein CSS-seitig, keine Render-/Datenänderung.
+
+**Folgen / offene Punkte:** Reine Darstellung; Consent, Locale, Scanner, CCM, Updater, Avada-Import, Cache-Reset unberührt. Mit v0.5.11 wurden zudem die temporären Runtime-Proofs `0.5.10-debug2` (Admin-Speicherkette) und `0.5.10-debug3` (Frontend-Box) wieder entfernt. Verbindliche Referenz: `MASTER_HANDBUCH.md`.

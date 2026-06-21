@@ -1,5 +1,13 @@
 # DEV LOG
 
+## 0.5.11-test - 2026-06-21
+
+- **Root Cause bestätigt (ADR-31):** Classic-Preset band die sichtbare Button-Füllung nicht an `--lscc-primary`. `.lscc-reopen` = `var(--lscc-bg)`, `.lscc-settings-button` = `var(--lscc-secondary)`; nur Modern/Premium = `var(--lscc-primary)`. Import schreibt `primary_button_color` → im Default unsichtbar.
+- **Fix:** `assets/css/banner.css` Basisregeln `.lscc-reopen` (vormals :206-213) und `.lscc-settings-button` (vormals :269-276) → `background: var(--lscc-primary)`, `border-color: var(--lscc-primary)`, `color: var(--lscc-primary-text)`. Modern/Premium-Overrides unberührt (gleiche Füllvariable).
+- **Debug entfernt:** `0.5.10-debug2` (Admin `mcb_primary_proof` + Speicherketten-Notice) und `0.5.10-debug3` (Frontend-Proof-Box in `render_banner()`). `import_avada_colors()` wieder schlank.
+- Version 0.5.10 → 0.5.11 (Header + `MCB_VERSION`). `MCB_CONSENT_VERSION` unverändert.
+- Scope: nur CSS-Button-Bindung + Debug-Rückbau. Consent, Locale, Scanner, CCM, Updater, Avada-Import, Cache-Reset, `map_to_banner`, Speicherung unberührt.
+
 ## 0.5.10-debug3 - 2026-06-21
 
 - **Importpfad komplett sauber:** RAW/RESOLVED/FINAL/BEFORE/AFTER/FORM = `#2ecc4e`. Avada, Mapping, sanitize_options, update_option, DB, get_options() ausgeschlossen. Verbleibt: Frontend-Auslieferung/Render.

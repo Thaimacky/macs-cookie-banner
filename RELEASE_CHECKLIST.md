@@ -8,6 +8,15 @@
 - [ ] Top-Level-Ordner im ZIP: `macs-cookie-banner/` (WordPress-installierbar).
 - [ ] Kein automatisches Ausweichen auf andere Orte; Ablageort nur per ausdrücklicher Auftraggeber-Anweisung änderbar. Details siehe `MASTER_HANDBUCH.md`, Sektion „Release-Artefakte / Ablageort für Test-ZIPs".
 
+## Sichtbarer Button folgt Primary Color in allen Presets (ab v0.5.11, ADR-31)
+
+- [ ] **Classic** (Default): nach „Avada-Farben übernehmen" trägt der **Reopen-Button** sichtbar die Primary Color (Füllung + Rahmen), Text lesbar (Auto-Kontrast).
+- [ ] **Classic**: der Shortcode-Button `[simple_cookie_settings]` (`.lscc-settings-button`) trägt ebenfalls die Primary Color.
+- [ ] **Modern** und **Premium**: unverändert korrekt (Primary-Füllung, Outline/Glow).
+- [ ] Primary-Button im Banner-Panel (`.lscc__button--primary`) unverändert in Primary Color.
+- [ ] Kein Frontend-Debug-Kasten sichtbar (0.5.10-debug3 entfernt); keine Admin-Debug-Notice (0.5.10-debug2 entfernt).
+- [ ] Keine Änderung an Consent/Locale/Scanner/CCM/Updater/Avada-Import/Cache-Reset.
+
 ## Avada-Farbe: ausschließlich Primary Color (ab v0.5.10, ADR-30)
 
 - [ ] Avada Primary Color = direkter Hex (z. B. `#2ecc4e`). Klick „Avada-Farben übernehmen" → Banner-Primärbutton + Rahmen = **`#2ecc4e`** (nicht der alte/Palette-Wert).

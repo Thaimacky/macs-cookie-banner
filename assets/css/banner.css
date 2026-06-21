@@ -206,9 +206,11 @@
 .lscc-reopen {
 	position: fixed;
 	z-index: 99998;
-	background: var(--lscc-bg);
-	border-color: var(--lscc-border);
-	color: var(--lscc-text);
+	/* The visible reopen button follows the imported Primary Color in ALL presets
+	   (ADR-31). primary_text_color is the WCAG auto-contrast set by the import. */
+	background: var(--lscc-primary);
+	border-color: var(--lscc-primary);
+	color: var(--lscc-primary-text);
 	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
 }
 
@@ -270,9 +272,10 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	background: var(--lscc-secondary);
-	border-color: var(--lscc-border);
-	color: var(--lscc-text);
+	/* Follows the imported Primary Color in ALL presets (ADR-31). */
+	background: var(--lscc-primary);
+	border-color: var(--lscc-primary);
+	color: var(--lscc-primary-text);
 }
 
 .lscc-media {

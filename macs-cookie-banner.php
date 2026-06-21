@@ -3,7 +3,7 @@
  * Plugin Name: Mac's Cookie Banner
  * Plugin URI:  https://github.com/Thaimacky/macs-cookie-banner
  * Description: Lightweight cookie consent banner with script blocking for WordPress.
- * Version:     0.5.10
+ * Version:     0.5.11
  * Author:      Mac's Cookie Banner
  * Text Domain: macs-cookie-banner
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MCB_VERSION', '0.5.10' );
+define( 'MCB_VERSION', '0.5.11' );
 
 /**
  * Consent schema version. Bump this whenever the stored consent shape
@@ -908,44 +908,6 @@ final class Macs_Cookie_Banner {
 			<?php echo esc_html( $reopen_text ); ?>
 			<span class="lscc-reopen-dismiss" data-lscc-reopen-dismiss role="button" tabindex="-1" aria-label="<?php echo esc_attr__( 'Cookie-Einstellungen-Button ausblenden', 'macs-cookie-banner' ); ?>">&times;</span>
 		</button>
-		<?php
-		// FRONTEND RUNTIME-PROOF (v0.5.10-debug3): admin-only, read-only box. Shows
-		// what the rendered banner actually received. Visitors never see it. The
-		// banner output above is unchanged; RENDER_SOURCE is the exact inline style
-		// emitted to #lscc-root / .lscc-reopen ($style), the computed values are
-		// read live from the DOM via getComputedStyle.
-		if ( current_user_can( 'manage_options' ) ) :
-			?>
-			<div id="mcb-fe-proof" style="position:fixed;left:12px;bottom:12px;z-index:2147483647;background:#fff;color:#111;border:2px solid #d63638;border-radius:6px;padding:10px 12px;font:12px/1.5 monospace;max-width:560px;box-shadow:0 4px 16px rgba(0,0,0,.25);">
-				<strong>MCB Frontend Runtime-Proof</strong><br>
-				ROOT_PRIMARY: <span data-mcb-root-primary>…</span><br>
-				ROOT_BORDER: <span data-mcb-root-border>…</span><br>
-				REOPEN_PRIMARY: <span data-mcb-reopen-primary>…</span><br>
-				RENDER_SOURCE:
-				<code style="display:block;margin-top:4px;white-space:pre-wrap;word-break:break-all;background:#f6f7f7;padding:6px;border:1px solid #ccd0d4;"><?php echo esc_html( $style ); ?></code>
-			</div>
-			<script>
-			( function () {
-				function val( sel, prop ) {
-					var el = document.querySelector( sel );
-					if ( ! el ) { return '(Element fehlt)'; }
-					var v = getComputedStyle( el ).getPropertyValue( prop );
-					return v ? v.trim() : '(leer)';
-				}
-				function fill() {
-					var box = document.getElementById( 'mcb-fe-proof' );
-					if ( ! box ) { return; }
-					box.querySelector( '[data-mcb-root-primary]' ).textContent   = val( '#lscc-root', '--lscc-primary' );
-					box.querySelector( '[data-mcb-root-border]' ).textContent    = val( '#lscc-root', '--lscc-border' );
-					box.querySelector( '[data-mcb-reopen-primary]' ).textContent = val( '.lscc-reopen', '--lscc-primary' );
-				}
-				if ( 'loading' !== document.readyState ) { fill(); }
-				else { document.addEventListener( 'DOMContentLoaded', fill ); }
-			} )();
-			</script>
-			<?php
-		endif;
-		?>
 		<?php
 	}
 }

@@ -8,6 +8,15 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.5.11-test - 2026-06-21
+
+### Fixed
+
+- **Sichtbarer Cookie-Einstellungen-/Reopen-Button folgt jetzt in ALLEN Presets der importierten Primary Color (ADR-31).** Root Cause (CSS-/Render-Analyse, bewiesen): Import/Speicherung/DB/`get_options()` lieferten korrekt `#2ecc4e`, aber im **Classic-Preset** (Default) war die Button-Füllung nicht an `--lscc-primary` gebunden — `.lscc-reopen` nutzte `var(--lscc-bg)` (`background_color`), `.lscc-settings-button` `var(--lscc-secondary)` (`secondary_button_color`). Nur Modern/Premium nutzten `var(--lscc-primary)`. Der Import schreibt aber `primary_button_color` → im Default-Preset nicht sichtbar.
+- `assets/css/banner.css`: Basisregeln `.lscc-reopen` und `.lscc-settings-button` auf `background: var(--lscc-primary)`, `border-color: var(--lscc-primary)`, `color: var(--lscc-primary-text)` umgestellt. Modern/Premium-Overrides unverändert.
+- **Entfernt:** die temporären Runtime-Proofs `0.5.10-debug2` (Admin-Speicherkette) und `0.5.10-debug3` (Frontend-Box).
+- Version 0.5.10 → 0.5.11 (Header + `MCB_VERSION`). `MCB_CONSENT_VERSION` unverändert. Keine Änderung an Consent, Locale, Scanner, CCM, Updater, Avada-Import, Cache-Reset.
+
 ## 0.5.10-debug3 - 2026-06-21
 
 ### Debug (temporär — nicht für Produktion)
