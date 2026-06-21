@@ -1,5 +1,12 @@
 # DEV LOG
 
+## 0.5.10-debug3 - 2026-06-21
+
+- **Importpfad komplett sauber:** RAW/RESOLVED/FINAL/BEFORE/AFTER/FORM = `#2ecc4e`. Avada, Mapping, sanitize_options, update_option, DB, get_options() ausgeschlossen. Verbleibt: Frontend-Auslieferung/Render.
+- **Frontend-Proof.** `macs-cookie-banner.php` → `render_banner()`: nach dem Banner-Markup eine admin-only (`manage_options`) fixierte Box mit `ROOT_PRIMARY`/`ROOT_BORDER` (getComputedStyle an `#lscc-root`), `REOPEN_PRIMARY` (an `.lscc-reopen`) und `RENDER_SOURCE` = `$style` (`get_css_variables(get_options())`, exakt der ausgegebene Inline-Style). JS liest die Computed-Werte via `getComputedStyle().getPropertyValue()`.
+- **Keine** Änderung an Markup/Render/Import/Resolver/Cache/Speicherung. Besucher sehen nichts (nur eingeloggte Admins). `MCB_VERSION` unverändert 0.5.10. Temporär.
+- Ziel: Steht im Frontend `#2ecc4e` → Cache/Auslieferung. Steht `#1e4884` → Render nutzt andere Daten als der bewiesene `get_options()`.
+
 ## 0.5.10-debug2 - 2026-06-21
 
 - **Avada bewiesen sauber:** RAW_PRIMARY = RESOLVED_PRIMARY = FINAL_BRAND = `#2ecc4e`. Fehler liegt im Banner-Speicherpfad.

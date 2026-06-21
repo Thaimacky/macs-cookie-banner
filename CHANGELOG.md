@@ -8,6 +8,13 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.5.10-debug3 - 2026-06-21
+
+### Debug (temporär — nicht für Produktion)
+
+- **Frontend-Runtime-Proof (admin-only, read-only).** Importpfad inkl. `get_options()` ist bewiesen `#2ecc4e`. Diese Stufe zeigt direkt im gerenderten Frontend eine fixierte Box (nur für eingeloggte Admins, `manage_options`; Besucher sehen sie nie) mit: `ROOT_PRIMARY` (getComputedStyle `--lscc-primary` an `#lscc-root`), `ROOT_BORDER` (`--lscc-border`), `REOPEN_PRIMARY` (`--lscc-primary` an `.lscc-reopen`) sowie `RENDER_SOURCE` (der exakt ausgegebene Inline-Style `$style` aus `get_css_variables(get_options())`).
+- **Keine** Änderung an Banner-Markup, Render-Logik, Import, Resolver, Cache oder Speicherung. `MCB_VERSION` bleibt 0.5.10. Wird nach der Diagnose entfernt.
+
 ## 0.5.10-debug2 - 2026-06-21
 
 ### Debug (temporär — nicht für Produktion)
