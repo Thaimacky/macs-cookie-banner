@@ -292,6 +292,36 @@ final class Macs_Cookie_Banner_Avada_Colors {
 	}
 
 	/**
+	 * Reset the Avada/Fusion caches via the theme's own API.
+	 *
+	 * After the brand color is written, Avada/Fusion keeps serving the inline CSS
+	 * it generated earlier (the cached `--lscc-primary` custom property) until its
+	 * own cache is rebuilt — which is why the banner kept showing the previous
+	 * color until a manual Avada/browser cache flush (root cause, see ADR-29).
+	 * This calls Avada's existing cache-reset API only; no custom cache handling
+	 * is introduced. The known entry points are tried in order and the first one
+	 * that exists wins.
+	 *
+	 * @return bool True when an Avada/Fusion cache-reset entry point was invoked.
+	 */
+	public static function reset_caches() {
+		// 1) Canonical Fusion helper: resets the dynamic CSS and Fusion caches.
+		if ( function_exists( 'fusion_reset_all_caches' ) ) {
+			fusion_reset_all_caches();
+			return true;
+		}
+
+		// 2) Fusion_Cache class API (same effect on alternate/older Avada builds).
+		if ( class_exists( 'Fusion_Cache' ) && method_exists( 'Fusion_Cache', 'reset_all_caches' ) ) {
+			$cache = new Fusion_Cache();
+			$cache->reset_all_caches();
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Map a brand color onto the banner accent color keys.
 	 *
 	 * Sets the primary button and the border to the brand color and computes a

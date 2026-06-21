@@ -8,6 +8,15 @@
 - [ ] Top-Level-Ordner im ZIP: `macs-cookie-banner/` (WordPress-installierbar).
 - [ ] Kein automatisches Ausweichen auf andere Orte; Ablageort nur per ausdrücklicher Auftraggeber-Anweisung änderbar. Details siehe `MASTER_HANDBUCH.md`, Sektion „Release-Artefakte / Ablageort für Test-ZIPs".
 
+## Avada-Farbe: Fusion-Cache-Reset nach Import (ab v0.5.9, ADR-29)
+
+- [ ] Avada aktiv, Markenfarbe ≠ Banner-Default. Klick „Avada-Farben übernehmen".
+- [ ] Banner zeigt **sofort** die neue Farbe — **ohne** Ctrl+F5 / manuelles Avada-Cache-Leeren.
+- [ ] Admin-Notice erscheint: „Avada-Farben übernommen. Fusion/Avada Cache wurde automatisch geleert."
+- [ ] Debug-Notice (falls aktiv) zeigt `CACHE_RESET: geleert (Fusion/Avada API)`.
+- [ ] Theme **ohne** Fusion-Cache-API (Nicht-Avada / fehlende Funktion): Import speichert Farbe, **kein** Fehler; Notice fällt auf Standardtext zurück (`mcb_cache=0`).
+- [ ] Keine Änderung an Consent/Locale/Reopen/Presets/Frontend; Resolver-Logik unverändert.
+
 ## Locale „einmal pro Sprache" + sichtbare Outline + Position prominent (ab v0.5.5)
 
 **Locale (Banner nur einmal pro Sprache):**

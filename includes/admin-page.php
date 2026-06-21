@@ -143,8 +143,9 @@ final class Macs_Cookie_Banner_Admin {
 			wp_die( esc_html__( 'Ungültige Sicherheitsprüfung.', 'macs-cookie-banner' ) );
 		}
 
-		$result = 'empty';
-		$debug  = array(); // TEMP DEBUG: shown once as an admin notice. Remove after diagnosis.
+		$result        = 'empty';
+		$cache_cleared = false;
+		$debug         = array(); // TEMP DEBUG: shown once as an admin notice. Remove after diagnosis.
 
 		if ( Macs_Cookie_Banner_Avada_Colors::is_active() ) {
 			$raw_primary                     = Macs_Cookie_Banner_Avada_Colors::read_raw( 'primary_color' );
@@ -191,6 +192,13 @@ final class Macs_Cookie_Banner_Admin {
 					'primary_text_color'   => ( is_array( $stored ) && isset( $stored['primary_text_color'] ) ) ? $stored['primary_text_color'] : '',
 				);
 
+				// Avada/Fusion caches the generated inline CSS (the old
+				// --lscc-primary value), so flush it via Avada's own API right
+				// after the new color is stored — otherwise the banner keeps the
+				// previous color until a manual cache/browser flush (ADR-29).
+				$cache_cleared          = Macs_Cookie_Banner_Avada_Colors::reset_caches();
+				$debug['CACHE_RESET']   = $cache_cleared ? 'geleert (Fusion/Avada API)' : '(keine Fusion-Cache-API gefunden)';
+
 				$result = 'imported';
 			}
 		} else {
@@ -205,6 +213,7 @@ final class Macs_Cookie_Banner_Admin {
 				array(
 					'page'      => 'macs-cookie-banner',
 					'mcb_avada' => $result,
+					'mcb_cache' => $cache_cleared ? '1' : '0',
 				),
 				admin_url( 'admin.php' )
 			)
@@ -236,8 +245,13 @@ final class Macs_Cookie_Banner_Admin {
 			<?php if ( isset( $_GET['mcb_avada'] ) ) : ?>
 				<?php $mcb_avada_result = sanitize_text_field( wp_unslash( $_GET['mcb_avada'] ) ); ?>
 				<?php if ( 'imported' === $mcb_avada_result ) : ?>
+					<?php $mcb_cache_cleared = isset( $_GET['mcb_cache'] ) && '1' === sanitize_text_field( wp_unslash( $_GET['mcb_cache'] ) ); ?>
 					<div class="notice notice-success is-dismissible">
-						<p><?php echo esc_html__( 'Avada-Farben übernommen. Bei Bedarf manuell anpassen und speichern.', 'macs-cookie-banner' ); ?></p>
+						<?php if ( $mcb_cache_cleared ) : ?>
+							<p><?php echo esc_html__( 'Avada-Farben übernommen. Fusion/Avada Cache wurde automatisch geleert.', 'macs-cookie-banner' ); ?></p>
+						<?php else : ?>
+							<p><?php echo esc_html__( 'Avada-Farben übernommen. Bei Bedarf manuell anpassen und speichern.', 'macs-cookie-banner' ); ?></p>
+						<?php endif; ?>
 					</div>
 				<?php elseif ( 'empty' === $mcb_avada_result ) : ?>
 					<div class="notice notice-warning is-dismissible">

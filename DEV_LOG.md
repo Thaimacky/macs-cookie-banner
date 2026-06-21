@@ -1,5 +1,14 @@
 # DEV LOG
 
+## 0.5.9-test - 2026-06-21
+
+- **Root Cause Avada-Farbe „kommt nicht an": Fusion-Cache, nicht der Import.** Beweis aus 0.5.8: `PRIMARY_COLOR_RESOLVED = #1e4884`, `AFTER_UPDATE = #1e4884` (DB korrekt). Banner blieb dennoch `#e11d48`, bis Avada-/Browser-Cache geleert wurde → Avada/Fusion lieferte das gecachte Inline-CSS mit `--lscc-primary:#e11d48`.
+- **Fix:** Cache-Reset über Avadas eigene API direkt nach dem Speichern.
+  - `includes/avada-colors.php`: neuer Helfer `reset_caches()` — defensiv `fusion_reset_all_caches()` → sonst `Fusion_Cache::reset_all_caches()`; keiner vorhanden → `false`, kein Fehler. Keine eigene Cache-Logik.
+  - `includes/admin-page.php`: `import_avada_colors()` ruft `reset_caches()` nach `update_option()`, hängt `mcb_cache=1|0` an den Redirect, `$debug['CACHE_RESET']` als Proof. `render_settings_page()`: Notice „Avada-Farben übernommen. Fusion/Avada Cache wurde automatisch geleert." bei `mcb_cache=1`.
+- Version 0.5.8 → 0.5.9 (Header + `MCB_VERSION`). `MCB_CONSENT_VERSION` unverändert.
+- Scope: nur Avada-Cache-Reset + zugehörige Admin-Notice. Resolver/Import-Logik, Consent, Locale, Reopen, Presets, Frontend, Scanner, CCM, Auto-Update unberührt (ADR-29).
+
 ## 0.5.8-test - 2026-06-21
 
 - **Avada-Farbimport: Client-Resolver-Fallback.** 0.5.7 (serverseitige Palette-Auflösung) griff auf den Kundensites nicht — `read_palette_raw()`/`get_palette()` liefern dort keine brauchbare Palette, daher `resolve_color('var(--awb-color5)')` = leer → `map_to_banner()` `[]` → `update_option()` nie → Backend-Feld blieb `#e11d48`.

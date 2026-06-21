@@ -440,3 +440,15 @@ Die bestehende **WPML-/Polylang-String-Translation-Registrierung bleibt als Over
 **Begründung:** Erfüllt die rechtliche/UX-Erwartung („Cookie-Infos in der aktuellen Sprache sichtbar") ohne Re-Consent-Welle und ohne Consent-Migration. Konsistent mit ADR-8 (Consent clientseitig) und ADR-27 (keine ungewollte automatische Änderung — der Consent selbst bleibt unangetastet).
 
 **Folgen / offene Punkte:** Greift nur bei verfügbarem localStorage (Fallback: Feature inaktiv, kein Fehler). Locale-Granularität = `determine_locale()` (z. B. `de_CH` vs. `en_US`). Verbindliche Referenz: `MASTER_HANDBUCH.md`.
+
+## ADR-29: Avada/Fusion-Cache nach Farbimport automatisch leeren (umgesetzt in v0.5.9)
+
+**Status:** Aktiv ab v0.5.9 (2026-06-21).
+
+**Kontext:** Der Avada-Farbimport (ADR-27, ab 0.5.8 inkl. Client-Resolver-Fallback) schreibt die Markenfarbe nachweislich korrekt in die DB (`PRIMARY_COLOR_RESOLVED = #1e4884`, `AFTER_UPDATE = #1e4884`). Trotzdem blieb das Banner in der alten Farbe (`#e11d48`), bis Avada-/Browser-Cache manuell geleert wurde. **Root Cause:** Avada/Fusion cacht das generierte Inline-CSS und lieferte die alte CSS-Variable `--lscc-primary:#e11d48` weiter aus. Nicht der Resolver, nicht die DB, nicht die Banner-Ausgabe waren betroffen.
+
+**Entscheidung:** Nach erfolgreichem Import wird der Avada/Fusion-Cache **über Avadas eigene API** geleert — keine eigene Cache-Lösung. `Macs_Cookie_Banner_Avada_Colors::reset_caches()` ruft defensiv die bekannten Einstiegspunkte in Reihenfolge auf: (1) `fusion_reset_all_caches()`, (2) `Fusion_Cache::reset_all_caches()`. Erster vorhandener gewinnt; ist keiner verfügbar → `false`, kein Fehler. Aufruf in `import_avada_colors()` unmittelbar nach `update_option()`. Bei Erfolg Admin-Notice: „Avada-Farben übernommen. Fusion/Avada Cache wurde automatisch geleert."
+
+**Begründung:** Behebt die letzte Lücke der Farbübernahme (kein Ctrl+F5 mehr nötig) mit minimalem, versionssicherem Eingriff. Kein Eingriff am Resolver, an Consent, Locale, Reopen, Presets oder Frontend.
+
+**Folgen / offene Punkte:** Greift nur, wenn die Avada/Fusion-Cache-API existiert (sonst stille Degradation, Farbe ist gespeichert, ggf. weiterhin manueller Flush nötig). Verbindliche Referenz: `MASTER_HANDBUCH.md`.

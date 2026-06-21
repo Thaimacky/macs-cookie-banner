@@ -8,6 +8,16 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.5.9-test - 2026-06-21
+
+### Fixed
+
+- **Avada-Farbimport: Cache-Variable hielt die alte Farbe fest (Root Cause behoben).** Der Import schrieb die Markenfarbe nachweislich korrekt (`PRIMARY_COLOR_RESOLVED = #1e4884`, `AFTER_UPDATE = #1e4884`), aber Avada/Fusion lieferte das gecachte Inline-CSS mit der alten Variable `--lscc-primary:#e11d48` weiter aus → Banner blieb rot, bis Avada-/Browser-Cache manuell geleert wurde. Nicht Resolver, nicht DB, nicht Banner-Ausgabe.
+- Neu wird nach erfolgreichem „Avada-Farben übernehmen" der Avada/Fusion-Cache **automatisch über Avadas eigene API** geleert: `Macs_Cookie_Banner_Avada_Colors::reset_caches()` ruft defensiv `fusion_reset_all_caches()`, sonst `Fusion_Cache::reset_all_caches()` (erster vorhandener gewinnt; keiner → kein Fehler). Aufruf in `import_avada_colors()` direkt nach `update_option()`. Kein Ctrl+F5 mehr nötig.
+- Admin-Notice bei erfolgreichem Cache-Reset: „Avada-Farben übernommen. Fusion/Avada Cache wurde automatisch geleert." (ADR-29).
+- Keine eigene Cache-Lösung. Keine Änderungen am Import-Resolver, an Consent, Locale, Reopen, Presets oder Frontend.
+- Version 0.5.8 → 0.5.9 (Header + `MCB_VERSION`). `MCB_CONSENT_VERSION` unverändert.
+
 ## 0.5.8-test - 2026-06-21
 
 ### Fixed
