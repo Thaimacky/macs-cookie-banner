@@ -1,5 +1,14 @@
 # DEV LOG
 
+## 1.0.0 - 2026-06-22 (Release-Kandidat)
+
+- Umsetzung der drei beschlossenen 1.0-Restpunkte (keine neuen Features):
+  - `includes/consent-codes.php`: Routing-Hinweis (notice-info) auf der CCM-Seite — Tracking über CCM, YouTube/Maps über MCB-Komponenten/Shortcodes/Avada führen.
+  - `includes/privacy-check.php`: Disclaimer (notice-info) unter der Überschrift — „Risiko-Indikator, kein Compliance-Beweis"; JS/GTM/dynamisch nicht vollständig prüfbar.
+  - `macs-cookie-banner.php`: Version 0.5.13 → 1.0.0 (Header + `MCB_VERSION`).
+- Reine Hinweistexte, keine Logik-/Scanner-/Architekturänderung; `MCB_CONSENT_VERSION` unverändert.
+- Offen als reines QA (kein Code-Blocker): Avada-Auto-Sync-Live-Bestätigung; danach Pilot-Livegang.
+
 ## Phasenabschluss Avada/Auto-Sync - 2026-06-22 (Doku)
 
 - Abschluss der Avada-Farb-/Auto-Sync-/Debugging-Phase (v0.5.8 → v0.5.13). Debug-Residue-Scan: **keine** Reste (`mcb_primary_proof`, `mcb-fe-proof`, Runtime-Proof, MCB-AVADA-PROOF, TEMP DEBUG, debug.log/FTP/WP-CLI) im produktiven Code; verbleibende Treffer sind legitime Sync-Variablen (`$raw_primary`/`$brand`) und die gebündelte PUC-Library (Drittcode).

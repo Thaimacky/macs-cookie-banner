@@ -389,6 +389,11 @@ final class Macs_Cookie_Banner_Codes {
 
 			<p><?php echo esc_html__( 'Hier eingefügte Tracking-/Marketing-Snippets laden erst nach Zustimmung zur gewählten Kategorie. Vollständigen Vendor-Code einfügen (mit <script>-Tags); <noscript>-Teile werden entfernt.', 'macs-cookie-banner' ); ?></p>
 
+			<div class="notice notice-info inline" style="margin:12px 0;"><p>
+				<strong><?php echo esc_html__( 'Empfohlener Einbauweg:', 'macs-cookie-banner' ); ?></strong>
+				<?php echo esc_html__( 'Tracking-/Marketing-Snippets (z. B. GA4, GTM, Meta Pixel) über diesen Consent-Code-Manager einbinden und YouTube- bzw. Google-Maps-Einbindungen über die vorgesehenen MCB-Komponenten/Shortcodes ([lscc_youtube], [lscc_google_map]) bzw. die Avada-Integration führen. Nur so können sie zuverlässig vor der Einwilligung blockiert werden; direkt im Theme/Footer oder als rohes iframe eingebundene Dienste laden ggf. bereits vor dem Consent.', 'macs-cookie-banner' ); ?>
+			</p></div>
+
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 				<input type="hidden" name="action" value="<?php echo esc_attr( self::NONCE_ACTION ); ?>" />
 				<?php wp_nonce_field( self::NONCE_ACTION, 'mcb_codes_nonce' ); ?>

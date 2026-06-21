@@ -60,6 +60,11 @@ final class Macs_Cookie_Banner_Privacy_Check {
 		<div class="wrap">
 			<h1><?php echo esc_html__( 'Privacy Check', 'macs-cookie-banner' ); ?></h1>
 
+			<div class="notice notice-info inline" style="margin:12px 0;"><p>
+				<strong><?php echo esc_html__( 'Hinweis:', 'macs-cookie-banner' ); ?></strong>
+				<?php echo esc_html__( 'Diese Prüfung ist ein Risiko-Indikator, kein Compliance-Beweis. Sie betrachtet nur das serverseitig ausgelieferte HTML einer Seite. JavaScript-Runtime, Google-Tag-Manager-Inhalte und dynamisch nachgeladene Ressourcen können damit nicht vollständig geprüft werden.', 'macs-cookie-banner' ); ?>
+			</p></div>
+
 			<?php if ( 'host_mismatch' === $scan['notice'] ) : ?>
 				<div class="notice notice-warning"><p><?php echo esc_html__( 'Nur URLs dieser Website sind erlaubt. Es wurde die Startseite geprüft.', 'macs-cookie-banner' ); ?></p></div>
 			<?php endif; ?>

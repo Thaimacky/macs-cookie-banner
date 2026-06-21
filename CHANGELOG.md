@@ -8,6 +8,24 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 1.0.0 - 2026-06-22
+
+Erste offizielle Stable-Freigabe (Release-Kandidat) nach abgeschlossener Compliance-/Governance-/Freigabe-Bewertung. Kein neues Feature, keine Architekturänderung — nur die beschlossenen Restpunkte vor 1.0.
+
+### Added
+
+- **Routing-Hinweis im Consent-Code-Manager:** empfiehlt, Tracking-Snippets (GA4/GTM/Meta Pixel) über den CCM und YouTube/Maps über die MCB-Komponenten/Shortcodes (`[lscc_youtube]`, `[lscc_google_map]`) bzw. die Avada-Integration zu führen, damit sie zuverlässig vor Consent blockiert werden. Reiner Hinweistext, keine neue Logik.
+- **Disclaimer im Privacy-Check:** „Risiko-Indikator, kein Compliance-Beweis"; JS-Runtime, GTM-Inhalte und dynamisch nachgeladene Ressourcen sind nicht vollständig prüfbar. Reiner Hinweistext, keine neue Scanner-Logik.
+
+### Changed
+
+- Version 0.5.13 → **1.0.0** (Header + `MCB_VERSION`). `MCB_CONSENT_VERSION` unverändert.
+
+### Hinweise
+
+- Bekannte, dokumentierte Architekturgrenze: rohe `<iframe>`/oEmbed-Einbindungen sowie Avada-Vimeo/Background-Video/`fusion_code` werden nicht automatisch geblockt (über CCM/Shortcodes führen; Scanner macht ungated sichtbar).
+- Offen als Test (kein Code-Blocker): Avada-Auto-Sync-Live-Bestätigung auf einer echten Avada-Site.
+
 ## Dokumentation - 2026-06-22
 
 ### Documentation (kein Code)
