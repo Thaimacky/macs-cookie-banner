@@ -165,17 +165,16 @@ final class Macs_Cookie_Banner_Admin {
 				$brand = $client_hex;
 			}
 
-			// RUNTIME-PROOF (v0.5.10-debug): einmalige Admin-Notice mit den drei
-			// entscheidenden Laufzeitwerten, direkt vor map_to_banner(). Read-only.
+			// RUNTIME-PROOF (v0.5.10-debug2): Kette FINAL_BRAND -> BEFORE_UPDATE ->
+			// AFTER_UPDATE (-> FORM_VALUES auf der Zielseite). Read-only, einmalige
+			// Admin-Notice. Keine Logik-Änderung.
 			$proof_resolved = Macs_Cookie_Banner_Avada_Colors::resolve_primary( $raw_primary );
-			set_transient(
-				'mcb_primary_proof_' . get_current_user_id(),
-				array(
-					'RAW_PRIMARY'      => ( is_string( $raw_primary ) && '' !== $raw_primary ) ? $raw_primary : '(leer)',
-					'RESOLVED_PRIMARY' => '' !== $proof_resolved ? $proof_resolved : '(leer / nicht direkt aufloesbar)',
-					'FINAL_BRAND'      => '' !== $brand ? $brand : '(leer)',
-				),
-				120
+			$proof          = array(
+				'RAW_PRIMARY'      => ( is_string( $raw_primary ) && '' !== $raw_primary ) ? $raw_primary : '(leer)',
+				'RESOLVED_PRIMARY' => '' !== $proof_resolved ? $proof_resolved : '(leer / nicht direkt aufloesbar)',
+				'FINAL_BRAND'      => '' !== $brand ? $brand : '(leer)',
+				'BEFORE_UPDATE'    => '(nicht gespeichert — kein gueltiger Wert)',
+				'AFTER_UPDATE'     => '(nicht gespeichert — kein gueltiger Wert)',
 			);
 
 			$mapped = Macs_Cookie_Banner_Avada_Colors::map_to_banner( $brand );
@@ -184,7 +183,20 @@ final class Macs_Cookie_Banner_Admin {
 				$current = Macs_Cookie_Banner::get_options();
 				$merged  = Macs_Cookie_Banner::sanitize_options( array_merge( $current, $mapped ) );
 
+				$proof['BEFORE_UPDATE'] = array(
+					'primary_button_color' => isset( $merged['primary_button_color'] ) ? $merged['primary_button_color'] : '',
+					'border_color'         => isset( $merged['border_color'] ) ? $merged['border_color'] : '',
+					'primary_text_color'   => isset( $merged['primary_text_color'] ) ? $merged['primary_text_color'] : '',
+				);
+
 				update_option( Macs_Cookie_Banner::OPTION_NAME, $merged );
+
+				$stored                = get_option( Macs_Cookie_Banner::OPTION_NAME );
+				$proof['AFTER_UPDATE'] = array(
+					'primary_button_color' => ( is_array( $stored ) && isset( $stored['primary_button_color'] ) ) ? $stored['primary_button_color'] : '',
+					'border_color'         => ( is_array( $stored ) && isset( $stored['border_color'] ) ) ? $stored['border_color'] : '',
+					'primary_text_color'   => ( is_array( $stored ) && isset( $stored['primary_text_color'] ) ) ? $stored['primary_text_color'] : '',
+				);
 
 				// Avada/Fusion caches the generated inline CSS (the previous
 				// --lscc-primary value), so flush it via Avada's own API right
@@ -193,6 +205,8 @@ final class Macs_Cookie_Banner_Admin {
 
 				$result = 'imported';
 			}
+
+			set_transient( 'mcb_primary_proof_' . get_current_user_id(), $proof, 120 );
 		}
 
 		wp_safe_redirect(
@@ -248,17 +262,37 @@ final class Macs_Cookie_Banner_Admin {
 			<?php endif; ?>
 
 			<?php
-			// RUNTIME-PROOF (v0.5.10-debug): one-off notice with RAW/RESOLVED/FINAL.
+			// RUNTIME-PROOF (v0.5.10-debug2): one-off notice tracing the chain
+			// FINAL_BRAND -> BEFORE_UPDATE -> AFTER_UPDATE -> FORM_VALUES.
 			$mcb_proof_key = 'mcb_primary_proof_' . get_current_user_id();
 			$mcb_proof     = get_transient( $mcb_proof_key );
-			if ( is_array( $mcb_proof ) && isset( $mcb_proof['RAW_PRIMARY'], $mcb_proof['RESOLVED_PRIMARY'], $mcb_proof['FINAL_BRAND'] ) ) :
+			if ( is_array( $mcb_proof ) && isset( $mcb_proof['FINAL_BRAND'], $mcb_proof['BEFORE_UPDATE'], $mcb_proof['AFTER_UPDATE'] ) ) :
 				delete_transient( $mcb_proof_key );
-				$mcb_proof_text = 'RAW_PRIMARY:' . "\n  " . $mcb_proof['RAW_PRIMARY'] . "\n\n"
-					. 'RESOLVED_PRIMARY:' . "\n  " . $mcb_proof['RESOLVED_PRIMARY'] . "\n\n"
-					. 'FINAL_BRAND:' . "\n  " . $mcb_proof['FINAL_BRAND'];
+				$mcb_fmt_block = static function ( $value ) {
+					if ( is_array( $value ) ) {
+						$lines = array();
+						foreach ( $value as $k => $v ) {
+							$lines[] = '    ' . $k . ' = ' . ( '' === $v ? '(leer)' : $v );
+						}
+						return "\n" . implode( "\n", $lines );
+					}
+					return ' ' . $value;
+				};
+				$mcb_form_values = array(
+					'primary_button_color' => isset( $options['primary_button_color'] ) ? $options['primary_button_color'] : '',
+					'border_color'         => isset( $options['border_color'] ) ? $options['border_color'] : '',
+					'primary_text_color'   => isset( $options['primary_text_color'] ) ? $options['primary_text_color'] : '',
+				);
+				$mcb_proof_text = 'FINAL_BRAND:' . $mcb_fmt_block( $mcb_proof['FINAL_BRAND'] ) . "\n\n"
+					. 'BEFORE_UPDATE:' . $mcb_fmt_block( $mcb_proof['BEFORE_UPDATE'] ) . "\n\n"
+					. 'AFTER_UPDATE:' . $mcb_fmt_block( $mcb_proof['AFTER_UPDATE'] ) . "\n\n"
+					. 'FORM_VALUES (get_options() auf dieser Seite):' . $mcb_fmt_block( $mcb_form_values ) . "\n\n"
+					. '--- Kontext ---' . "\n"
+					. 'RAW_PRIMARY:' . $mcb_fmt_block( isset( $mcb_proof['RAW_PRIMARY'] ) ? $mcb_proof['RAW_PRIMARY'] : '(n/a)' ) . "\n"
+					. 'RESOLVED_PRIMARY:' . $mcb_fmt_block( isset( $mcb_proof['RESOLVED_PRIMARY'] ) ? $mcb_proof['RESOLVED_PRIMARY'] : '(n/a)' );
 				?>
 				<div class="notice notice-info">
-					<p><strong><?php echo esc_html__( 'Avada Primary — Runtime-Proof', 'macs-cookie-banner' ); ?></strong></p>
+					<p><strong><?php echo esc_html__( 'Banner-Speicherkette — Runtime-Proof', 'macs-cookie-banner' ); ?></strong></p>
 					<pre style="white-space:pre-wrap;background:#fff;border:1px solid #ccd0d4;padding:10px;max-width:900px;"><?php echo esc_html( $mcb_proof_text ); ?></pre>
 				</div>
 			<?php endif; ?>

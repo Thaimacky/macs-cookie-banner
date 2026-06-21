@@ -8,6 +8,13 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.5.10-debug2 - 2026-06-21
+
+### Debug (temporär — nicht für Produktion)
+
+- **Speicherkette als Runtime-Proof (Admin-Notice).** Avada ist bewiesen sauber (RAW/RESOLVED/FINAL = `#2ecc4e`); der Fehler liegt im Banner. Die einmalige Notice zeigt jetzt die Kette: `FINAL_BRAND` → `BEFORE_UPDATE` (Werte in `$merged` direkt vor `update_option()`) → `AFTER_UPDATE` (Re-Read via `get_option()` direkt danach) → `FORM_VALUES` (`get_options()` auf der Zielseite nach Redirect), je für `primary_button_color`, `border_color`, `primary_text_color`. Kontextzeilen RAW/RESOLVED bleiben.
+- **Keine** Code-/Logik-Änderung an Import, Resolver, `map_to_banner`, Cache oder Speicherung. `MCB_VERSION` bleibt 0.5.10. Wird nach der Diagnose entfernt.
+
 ## 0.5.10-debug - 2026-06-21
 
 ### Debug (temporär — nicht für Produktion)

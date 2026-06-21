@@ -1,5 +1,12 @@
 # DEV LOG
 
+## 0.5.10-debug2 - 2026-06-21
+
+- **Avada bewiesen sauber:** RAW_PRIMARY = RESOLVED_PRIMARY = FINAL_BRAND = `#2ecc4e`. Fehler liegt im Banner-Speicherpfad.
+- **Kette als Proof.** `includes/admin-page.php`: `$proof` sammelt jetzt zusätzlich `BEFORE_UPDATE` (drei Keys aus `$merged` direkt vor `update_option()`) und `AFTER_UPDATE` (Re-Read via `get_option()` direkt danach); `set_transient` am Ende des is_active-Blocks. `render_settings_page()` zeigt `FINAL_BRAND → BEFORE_UPDATE → AFTER_UPDATE → FORM_VALUES`, wobei FORM_VALUES = `$options` (`get_options()`) für `primary_button_color`/`border_color`/`primary_text_color`.
+- **Keine** Änderung an Import-Logik, Resolver, `map_to_banner`, Cache, Speicherung. `MCB_VERSION` unverändert 0.5.10. Temporär.
+- Ziel: an welcher Station `#2ecc4e` zu `#1e4884` wird (sanitize_options? update_option? get_options/Defaults?).
+
 ## 0.5.10-debug - 2026-06-21
 
 - **Neuer Beweis vom User:** v0.5.10 (primary-only) behebt es nicht — Avada Primary `#2ecc4e`, Banner nach Import weiter `#1e4884`. Damit ist die Brand-Key-/Fallback-Theorie nicht ausreichend. Erst echten Runtime-Wert sehen, dann fixen.
