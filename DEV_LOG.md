@@ -1,5 +1,12 @@
 # DEV LOG
 
+## 0.5.10-debug - 2026-06-21
+
+- **Neuer Beweis vom User:** v0.5.10 (primary-only) behebt es nicht — Avada Primary `#2ecc4e`, Banner nach Import weiter `#1e4884`. Damit ist die Brand-Key-/Fallback-Theorie nicht ausreichend. Erst echten Runtime-Wert sehen, dann fixen.
+- **Runtime-Proof, nur Admin-Notice.** `includes/admin-page.php`: direkt vor `map_to_banner()` `set_transient('mcb_primary_proof_<uid>', [RAW_PRIMARY, RESOLVED_PRIMARY, FINAL_BRAND], 120)`. `render_settings_page()` zeigt die drei Werte einmalig und löscht das Transient. Werte: `RAW_PRIMARY = read_raw('primary_color')`, `RESOLVED_PRIMARY = resolve_primary($raw_primary)`, `FINAL_BRAND = $brand`.
+- **Keine** Änderung an Import-Logik, Resolver, Cache, Speicherung, Consent, Locale, Frontend. `MCB_VERSION` unverändert 0.5.10. Temporär — Entfernung nach Diagnose.
+- Ziel: beweisen, was `read_raw('primary_color')` real liefert, was `resolve_primary()` daraus macht und welcher Wert in `$brand` landet.
+
 ## 0.5.10-test - 2026-06-21
 
 - **Root Cause bestätigt (ADR-30):** Import war nicht an `primary_color` gebunden. `get_brand_color()` lief `BRAND_KEYS` (primary→accent→link→gradient) und löste `var(--awb-colorN)` positionsbasiert über `get_palette()` auf. Direktes `primary_color = #2ecc4e` wurde übersprungen, sobald die Kette auf einen Sekundärschlüssel mit `var(--awb-color5)` (= Palette-Position 5 „Dark Blue" = `#1e4884`) zurückfiel; der Client-Fallback scannte dieselben Sekundärschlüssel und lieferte ebenfalls `#1e4884`.

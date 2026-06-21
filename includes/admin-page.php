@@ -165,6 +165,19 @@ final class Macs_Cookie_Banner_Admin {
 				$brand = $client_hex;
 			}
 
+			// RUNTIME-PROOF (v0.5.10-debug): einmalige Admin-Notice mit den drei
+			// entscheidenden Laufzeitwerten, direkt vor map_to_banner(). Read-only.
+			$proof_resolved = Macs_Cookie_Banner_Avada_Colors::resolve_primary( $raw_primary );
+			set_transient(
+				'mcb_primary_proof_' . get_current_user_id(),
+				array(
+					'RAW_PRIMARY'      => ( is_string( $raw_primary ) && '' !== $raw_primary ) ? $raw_primary : '(leer)',
+					'RESOLVED_PRIMARY' => '' !== $proof_resolved ? $proof_resolved : '(leer / nicht direkt aufloesbar)',
+					'FINAL_BRAND'      => '' !== $brand ? $brand : '(leer)',
+				),
+				120
+			);
+
 			$mapped = Macs_Cookie_Banner_Avada_Colors::map_to_banner( $brand );
 
 			if ( ! empty( $mapped ) ) {
@@ -232,6 +245,22 @@ final class Macs_Cookie_Banner_Admin {
 						<p><?php echo esc_html__( 'Keine Avada-Markenfarbe gefunden. Farben unverändert.', 'macs-cookie-banner' ); ?></p>
 					</div>
 				<?php endif; ?>
+			<?php endif; ?>
+
+			<?php
+			// RUNTIME-PROOF (v0.5.10-debug): one-off notice with RAW/RESOLVED/FINAL.
+			$mcb_proof_key = 'mcb_primary_proof_' . get_current_user_id();
+			$mcb_proof     = get_transient( $mcb_proof_key );
+			if ( is_array( $mcb_proof ) && isset( $mcb_proof['RAW_PRIMARY'], $mcb_proof['RESOLVED_PRIMARY'], $mcb_proof['FINAL_BRAND'] ) ) :
+				delete_transient( $mcb_proof_key );
+				$mcb_proof_text = 'RAW_PRIMARY:' . "\n  " . $mcb_proof['RAW_PRIMARY'] . "\n\n"
+					. 'RESOLVED_PRIMARY:' . "\n  " . $mcb_proof['RESOLVED_PRIMARY'] . "\n\n"
+					. 'FINAL_BRAND:' . "\n  " . $mcb_proof['FINAL_BRAND'];
+				?>
+				<div class="notice notice-info">
+					<p><strong><?php echo esc_html__( 'Avada Primary — Runtime-Proof', 'macs-cookie-banner' ); ?></strong></p>
+					<pre style="white-space:pre-wrap;background:#fff;border:1px solid #ccd0d4;padding:10px;max-width:900px;"><?php echo esc_html( $mcb_proof_text ); ?></pre>
+				</div>
 			<?php endif; ?>
 
 			<?php if ( Macs_Cookie_Banner_Avada_Colors::is_active() ) : ?>

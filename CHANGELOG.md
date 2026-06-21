@@ -8,6 +8,13 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.5.10-debug - 2026-06-21
+
+### Debug (temporär — nicht für Produktion)
+
+- **Runtime-Proof der Avada-Primärfarbe als einmalige Admin-Notice.** Direkt vor `map_to_banner()` in `import_avada_colors()` werden drei Laufzeitwerte erfasst und nach dem Redirect **einmal** als Admin-Notice angezeigt: `RAW_PRIMARY` (= `read_raw('primary_color')`), `RESOLVED_PRIMARY` (= `resolve_primary(read_raw('primary_color'))`), `FINAL_BRAND` (= tatsächlich verwendeter `$brand`). Kein `debug.log`, kein FTP/WP-CLI, keine Debug-Datei.
+- **Keine** Code-/Logik-Änderung am Import, Resolver, Cache oder an der Speicherung. `MCB_VERSION` bleibt 0.5.10. Wird nach der Diagnose wieder entfernt.
+
 ## 0.5.10-test - 2026-06-21
 
 ### Fixed
