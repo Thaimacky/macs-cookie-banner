@@ -25,6 +25,40 @@ final class Macs_Cookie_Banner_Admin {
 		add_action( 'admin_menu', array( __CLASS__, 'add_settings_page' ) );
 		add_action( 'admin_post_mcb_save_settings', array( __CLASS__, 'save_settings' ) );
 		add_action( 'admin_post_mcb_import_avada_colors', array( __CLASS__, 'import_avada_colors' ) );
+
+		// Avada Auto-Sync (ADR-32).
+		add_action( 'admin_post_mcb_avada_sync_decision', array( __CLASS__, 'save_avada_sync_decision' ) );
+		add_action( 'admin_post_mcb_save_avada_sync', array( __CLASS__, 'save_avada_sync' ) );
+		add_action( 'admin_init', array( __CLASS__, 'maybe_auto_sync' ) );
+		add_action( 'admin_notices', array( __CLASS__, 'maybe_render_sync_decision_notice' ) );
+	}
+
+	/**
+	 * Option name: Avada auto-sync toggle ('on' | 'off'). ADR-32.
+	 */
+	const OPTION_AVADA_AUTOSYNC = 'mcb_avada_autosync';
+
+	/**
+	 * Option name: whether the user has made the initial auto-sync decision. ADR-32.
+	 */
+	const OPTION_AVADA_SYNC_DECIDED = 'mcb_avada_sync_decided';
+
+	/**
+	 * Whether Avada auto-sync is enabled.
+	 *
+	 * @return bool
+	 */
+	public static function is_avada_autosync_enabled() {
+		return 'on' === get_option( self::OPTION_AVADA_AUTOSYNC, 'off' );
+	}
+
+	/**
+	 * Whether the user has already decided about auto-sync (so we stop prompting).
+	 *
+	 * @return bool
+	 */
+	public static function is_avada_sync_decided() {
+		return '1' === (string) get_option( self::OPTION_AVADA_SYNC_DECIDED, '' );
 	}
 
 	/**
@@ -196,6 +230,166 @@ final class Macs_Cookie_Banner_Admin {
 	}
 
 	/**
+	 * Apply the current Avada Primary Color to the banner (ADR-32 auto-sync core).
+	 *
+	 * Server-side only and read-only on the Avada side. Reuses the v0.5.10/0.5.11
+	 * primary binding: resolve_primary() (direct hex / rgb-rgba), map_to_banner(),
+	 * reset_caches() (ADR-29). The existing manual import (import_avada_colors())
+	 * is left untouched. A var(--awb-colorX) primary that only resolves in the
+	 * browser cannot be synced silently here → 'unresolved' (the manual button,
+	 * which has the client-side fallback, still covers it).
+	 *
+	 * @return string One of: 'synced', 'nochange', 'unresolved', 'inactive'.
+	 */
+	public static function run_avada_sync() {
+		if ( ! Macs_Cookie_Banner_Avada_Colors::is_active() ) {
+			return 'inactive';
+		}
+
+		$raw = Macs_Cookie_Banner_Avada_Colors::read_raw( 'primary_color' );
+		$hex = Macs_Cookie_Banner_Avada_Colors::resolve_primary( $raw );
+		if ( '' === $hex ) {
+			return 'unresolved';
+		}
+
+		$current = Macs_Cookie_Banner::get_options();
+		if ( isset( $current['primary_button_color'] ) && strtolower( (string) $current['primary_button_color'] ) === strtolower( $hex ) ) {
+			return 'nochange';
+		}
+
+		$mapped = Macs_Cookie_Banner_Avada_Colors::map_to_banner( $hex );
+		if ( empty( $mapped ) ) {
+			return 'unresolved';
+		}
+
+		$merged = Macs_Cookie_Banner::sanitize_options( array_merge( $current, $mapped ) );
+		update_option( Macs_Cookie_Banner::OPTION_NAME, $merged );
+
+		// Flush the Avada/Fusion cache so the new color shows immediately (ADR-29).
+		Macs_Cookie_Banner_Avada_Colors::reset_caches();
+
+		return 'synced';
+	}
+
+	/**
+	 * Auto-sync on admin load when enabled (ADR-32).
+	 *
+	 * Only runs when auto-sync is ON, so manual banner colors are NEVER changed
+	 * unless the user opted in. Silent: it only writes when the Avada Primary
+	 * Color actually differs from the stored banner color.
+	 *
+	 * @return void
+	 */
+	public static function maybe_auto_sync() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		if ( ! self::is_avada_autosync_enabled() ) {
+			return;
+		}
+
+		self::run_avada_sync();
+	}
+
+	/**
+	 * Handle the initial auto-sync decision (Ja/Nein) from the detection notice.
+	 *
+	 * @return void
+	 */
+	public static function save_avada_sync_decision() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Sie haben keine Berechtigung, diese Aktion auszuführen.', 'macs-cookie-banner' ) );
+		}
+
+		$nonce = isset( $_POST['mcb_avada_decision_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['mcb_avada_decision_nonce'] ) ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'mcb_avada_sync_decision' ) ) {
+			wp_die( esc_html__( 'Ungültige Sicherheitsprüfung.', 'macs-cookie-banner' ) );
+		}
+
+		$choice = isset( $_POST['mcb_sync_choice'] ) ? sanitize_text_field( wp_unslash( $_POST['mcb_sync_choice'] ) ) : 'off';
+		$choice = ( 'on' === $choice ) ? 'on' : 'off';
+
+		update_option( self::OPTION_AVADA_AUTOSYNC, $choice );
+		update_option( self::OPTION_AVADA_SYNC_DECIDED, '1' );
+
+		$sync = ( 'on' === $choice ) ? self::run_avada_sync() : 'off';
+
+		wp_safe_redirect(
+			add_query_arg(
+				array(
+					'page'     => 'macs-cookie-banner',
+					'mcb_sync' => $sync,
+				),
+				admin_url( 'admin.php' )
+			)
+		);
+		exit;
+	}
+
+	/**
+	 * Save the auto-sync checkbox from the Avada integration section.
+	 *
+	 * @return void
+	 */
+	public static function save_avada_sync() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Sie haben keine Berechtigung, diese Aktion auszuführen.', 'macs-cookie-banner' ) );
+		}
+
+		$nonce = isset( $_POST['mcb_avada_sync_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['mcb_avada_sync_nonce'] ) ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'mcb_save_avada_sync' ) ) {
+			wp_die( esc_html__( 'Ungültige Sicherheitsprüfung.', 'macs-cookie-banner' ) );
+		}
+
+		$choice = isset( $_POST['mcb_avada_autosync'] ) ? 'on' : 'off';
+
+		update_option( self::OPTION_AVADA_AUTOSYNC, $choice );
+		update_option( self::OPTION_AVADA_SYNC_DECIDED, '1' );
+
+		$sync = ( 'on' === $choice ) ? self::run_avada_sync() : 'off';
+
+		wp_safe_redirect(
+			add_query_arg(
+				array(
+					'page'     => 'macs-cookie-banner',
+					'mcb_sync' => $sync,
+				),
+				admin_url( 'admin.php' )
+			)
+		);
+		exit;
+	}
+
+	/**
+	 * Show the one-time "Avada detected — enable auto-sync?" decision notice.
+	 *
+	 * Shown to admins when Avada is active and the decision has never been made
+	 * (first detection or after an update without a prior decision). ADR-32.
+	 *
+	 * @return void
+	 */
+	public static function maybe_render_sync_decision_notice() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		if ( ! Macs_Cookie_Banner_Avada_Colors::is_active() || self::is_avada_sync_decided() ) {
+			return;
+		}
+		?>
+		<div class="notice notice-info">
+			<p><strong><?php echo esc_html__( 'Avada wurde erkannt.', 'macs-cookie-banner' ); ?></strong></p>
+			<p><?php echo esc_html__( 'Soll das Cookie-Banner künftig automatisch die Avada Primary Color übernehmen?', 'macs-cookie-banner' ); ?></p>
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:flex;gap:.5em;flex-wrap:wrap;margin:.5em 0;">
+				<input type="hidden" name="action" value="mcb_avada_sync_decision">
+				<?php wp_nonce_field( 'mcb_avada_sync_decision', 'mcb_avada_decision_nonce' ); ?>
+				<button type="submit" name="mcb_sync_choice" value="on" class="button button-primary"><?php echo esc_html__( 'Ja, automatisch synchronisieren', 'macs-cookie-banner' ); ?></button>
+				<button type="submit" name="mcb_sync_choice" value="off" class="button"><?php echo esc_html__( 'Nein, Banner-Farben manuell verwalten', 'macs-cookie-banner' ); ?></button>
+			</form>
+		</div>
+		<?php
+	}
+
+	/**
 	 * Render settings page.
 	 *
 	 * @return void
@@ -234,15 +428,49 @@ final class Macs_Cookie_Banner_Admin {
 				<?php endif; ?>
 			<?php endif; ?>
 
+			<?php if ( isset( $_GET['mcb_sync'] ) ) : ?>
+				<?php $mcb_sync_result = sanitize_text_field( wp_unslash( $_GET['mcb_sync'] ) ); ?>
+				<?php if ( 'synced' === $mcb_sync_result ) : ?>
+					<div class="notice notice-success is-dismissible">
+						<p><?php echo esc_html__( 'Auto-Sync gespeichert. Banner-Farben mit der Avada Primary Color synchronisiert (Cache geleert).', 'macs-cookie-banner' ); ?></p>
+					</div>
+				<?php elseif ( 'nochange' === $mcb_sync_result ) : ?>
+					<div class="notice notice-success is-dismissible">
+						<p><?php echo esc_html__( 'Auto-Sync gespeichert. Banner-Farben sind bereits aktuell.', 'macs-cookie-banner' ); ?></p>
+					</div>
+				<?php elseif ( 'off' === $mcb_sync_result ) : ?>
+					<div class="notice notice-success is-dismissible">
+						<p><?php echo esc_html__( 'Einstellung gespeichert. Banner-Farben werden manuell verwaltet.', 'macs-cookie-banner' ); ?></p>
+					</div>
+				<?php elseif ( 'unresolved' === $mcb_sync_result ) : ?>
+					<div class="notice notice-warning is-dismissible">
+						<p><?php echo esc_html__( 'Auto-Sync aktiviert, aber die Avada Primary Color konnte serverseitig nicht aufgelöst werden (Global Color). Bitte einmal „Jetzt synchronisieren" klicken — danach greift der Auto-Sync.', 'macs-cookie-banner' ); ?></p>
+					</div>
+				<?php endif; ?>
+			<?php endif; ?>
+
 			<?php if ( Macs_Cookie_Banner_Avada_Colors::is_active() ) : ?>
 				<?php $mcb_avada_vars = Macs_Cookie_Banner_Avada_Colors::get_brand_css_vars(); ?>
-				<h2><?php echo esc_html__( 'Avada-Farben', 'macs-cookie-banner' ); ?></h2>
+				<?php $mcb_autosync_on = self::is_avada_autosync_enabled(); ?>
+				<h2><?php echo esc_html__( 'Avada-Integration', 'macs-cookie-banner' ); ?></h2>
+
+				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-bottom:1em;">
+					<input type="hidden" name="action" value="mcb_save_avada_sync">
+					<?php wp_nonce_field( 'mcb_save_avada_sync', 'mcb_avada_sync_nonce' ); ?>
+					<label style="display:inline-flex;align-items:center;gap:.5em;font-weight:600;">
+						<input type="checkbox" name="mcb_avada_autosync" value="on" <?php checked( $mcb_autosync_on ); ?>>
+						<?php echo esc_html__( 'Banner-Farben automatisch mit Avada synchronisieren', 'macs-cookie-banner' ); ?>
+					</label>
+					<p class="description" style="margin:.4em 0 .6em;"><?php echo esc_html__( 'Aktiv: Änderungen der Avada Primary Color werden automatisch ins Banner übernommen (inkl. Cache-Reset). Inaktiv: Banner-Farben bleiben vollständig manuell — Updates überschreiben nichts.', 'macs-cookie-banner' ); ?></p>
+					<?php submit_button( esc_html__( 'Einstellung speichern', 'macs-cookie-banner' ), 'secondary', 'mcb_save_avada_sync_btn', false ); ?>
+				</form>
+
 				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-bottom:1em;" data-mcb-avada-form>
 					<input type="hidden" name="action" value="mcb_import_avada_colors">
 					<input type="hidden" name="mcb_avada_client_color" value="" data-mcb-avada-client>
 					<?php wp_nonce_field( 'mcb_import_avada_colors', 'mcb_avada_nonce' ); ?>
-					<p class="description" style="margin:0 0 .5em;"><?php echo esc_html__( 'Übernimmt die Markenfarbe aus Avada in Primärbutton und Rahmen (Button-Text wird automatisch lesbar kontrastiert). Bestehende Farben bleiben, bis Sie hier klicken.', 'macs-cookie-banner' ); ?></p>
-					<?php submit_button( esc_html__( 'Avada-Farben übernehmen', 'macs-cookie-banner' ), 'secondary', 'mcb_import_avada', false ); ?>
+					<p class="description" style="margin:0 0 .5em;"><?php echo esc_html__( 'Übernimmt die aktuelle Avada Primary Color sofort in Primärbutton und Rahmen (Button-Text wird automatisch lesbar kontrastiert). Bestehende Farben bleiben, bis Sie hier klicken.', 'macs-cookie-banner' ); ?></p>
+					<?php submit_button( esc_html__( 'Jetzt synchronisieren', 'macs-cookie-banner' ), 'secondary', 'mcb_import_avada', false ); ?>
 				</form>
 				<?php if ( ! empty( $mcb_avada_vars ) ) : ?>
 				<script>

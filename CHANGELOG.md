@@ -8,6 +8,19 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 0.5.12-test - 2026-06-21
+
+### Added
+
+- **Avada Auto-Sync (ADR-32) — opt-in, der Betreiber entscheidet.** Neue Wahl, ob das Banner dauerhaft der Avada Primary Color folgt oder die Farben manuell verwaltet werden.
+  - **Erstabfrage:** Bei aktiver Avada-Erkennung ohne bisherige Entscheidung (erste Erkennung oder nach Update) erscheint eine Admin-Notice „Avada wurde erkannt … automatisch synchronisieren?" mit „Ja"/„Nein".
+  - **Einstellung** im Bereich *Avada-Integration*: Checkbox „Banner-Farben automatisch mit Avada synchronisieren" + Button „Jetzt synchronisieren".
+  - **Auto-Sync EIN:** Abgleich bei jedem Admin-Load (`admin_init`); Abweichungen der Primary Color werden automatisch übernommen (inkl. Cache-Reset, ADR-29).
+  - **Auto-Sync AUS:** keine automatische Änderung; Farben bleiben manuell.
+- **Wichtige Regel:** Updates überschreiben **niemals ungefragt** manuelle Bannerfarben — automatische Übernahme nur bei aktivem Auto-Sync.
+- Persistenz in eigenständigen Optionen `mcb_avada_autosync` / `mcb_avada_sync_decided` (außerhalb von `lscc_options`). Neue Methoden in `Macs_Cookie_Banner_Admin`: `run_avada_sync()`, `maybe_auto_sync()`, `save_avada_sync_decision()`, `save_avada_sync()`, `maybe_render_sync_decision_notice()`. Wiederverwendung von `resolve_primary()`/`map_to_banner()`/`reset_caches()`; **bestehende** `import_avada_colors()` unverändert.
+- Version 0.5.11 → 0.5.12 (Header + `MCB_VERSION`). Keine Änderung an Consent, Locale, Scanner, CCM, Updater, Presets, Importlogik.
+
 ## 0.5.11-test - 2026-06-21
 
 ### Fixed

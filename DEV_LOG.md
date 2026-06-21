@@ -1,5 +1,17 @@
 # DEV LOG
 
+## 0.5.12-test - 2026-06-21
+
+- **Feature Avada Auto-Sync (ADR-32).** Opt-in-Entscheidung des Betreibers; nie ungefragtes Überschreiben manueller Farben.
+- `includes/admin-page.php`:
+  - Optionen `mcb_avada_autosync` (`on`/`off`, Default off) + `mcb_avada_sync_decided` (`1`); Helfer `is_avada_autosync_enabled()`, `is_avada_sync_decided()`.
+  - `run_avada_sync()`: server-seitig `resolve_primary(read_raw('primary_color'))`; bei Abweichung zu `primary_button_color` → `map_to_banner()` + `update_option()` + `reset_caches()`. Status synced/nochange/unresolved/inactive. **Nutzt** die bestehenden Helfer, ändert `import_avada_colors()` nicht.
+  - `maybe_auto_sync()` auf `admin_init` (nur `manage_options`, nur wenn autosync on) → garantiert: AUS = nie automatische Änderung.
+  - Erstabfrage `maybe_render_sync_decision_notice()` (`admin_notices`, wenn aktiv & nicht entschieden) mit Ja/Nein-Form; Handler `save_avada_sync_decision()` + Checkbox-Handler `save_avada_sync()` (admin-post), beide setzen `decided=1`, bei „on" sofort `run_avada_sync()`.
+  - UI im Abschnitt „Avada-Integration": Checkbox + „Einstellung speichern" + „Jetzt synchronisieren" (= bestehender Import, Label geändert). Ergebnis-Notices über `?mcb_sync=`.
+- Version 0.5.11 → 0.5.12 (Header + `MCB_VERSION`).
+- Scope: nur Admin-Avada-Integration. Consent, Locale, Scanner, CCM, Updater, Presets, Frontend, Importlogik, `map_to_banner`, Speicherung unberührt.
+
 ## 0.5.11-test - 2026-06-21
 
 - **Root Cause bestätigt (ADR-31):** Classic-Preset band die sichtbare Button-Füllung nicht an `--lscc-primary`. `.lscc-reopen` = `var(--lscc-bg)`, `.lscc-settings-button` = `var(--lscc-secondary)`; nur Modern/Premium = `var(--lscc-primary)`. Import schreibt `primary_button_color` → im Default unsichtbar.

@@ -8,6 +8,25 @@
 - [ ] Top-Level-Ordner im ZIP: `macs-cookie-banner/` (WordPress-installierbar).
 - [ ] Kein automatisches Ausweichen auf andere Orte; Ablageort nur per ausdrücklicher Auftraggeber-Anweisung änderbar. Details siehe `MASTER_HANDBUCH.md`, Sektion „Release-Artefakte / Ablageort für Test-ZIPs".
 
+## Avada Auto-Sync (ab v0.5.12, ADR-32)
+
+**Erstabfrage:**
+- [ ] Frische Site mit aktivem Avada, noch keine Entscheidung → Admin-Notice „Avada wurde erkannt … automatisch synchronisieren?" mit Ja/Nein erscheint.
+- [ ] „Ja" → Auto-Sync EIN, Banner-Farben sofort = Avada Primary Color; Notice verschwindet dauerhaft.
+- [ ] „Nein" → Auto-Sync AUS, keine Farbänderung; Notice verschwindet dauerhaft.
+- [ ] Nach Entscheidung erscheint die Erstabfrage nicht erneut (auch nach Reload/Update).
+
+**Einstellung (Avada-Integration):**
+- [ ] Checkbox „Banner-Farben automatisch mit Avada synchronisieren" spiegelt den gespeicherten Zustand; „Einstellung speichern" persistiert.
+- [ ] „Jetzt synchronisieren" übernimmt die aktuelle Primary Color sofort (manuell, unabhängig vom Schalter).
+
+**Verhalten:**
+- [ ] Auto-Sync EIN: Avada Primary Color ändern → nächster Admin-Seitenaufruf übernimmt die neue Farbe automatisch (Cache-Reset greift).
+- [ ] Auto-Sync AUS: Avada Primary Color ändern → Banner-Farben bleiben unverändert.
+- [ ] **Regel:** Bei AUS überschreibt nichts (auch kein Update) die manuell gesetzten Bannerfarben.
+- [ ] Primary als Global Color `var(--awb-colorX)` + Auto-Sync EIN: Status-Hinweis „… einmal Jetzt synchronisieren" (Server kann var nicht auflösen); manueller Button übernimmt sie.
+- [ ] Keine Änderung an Consent/Locale/Scanner/CCM/Updater/Presets/Importlogik.
+
 ## Sichtbarer Button folgt Primary Color in allen Presets (ab v0.5.11, ADR-31)
 
 - [ ] **Classic** (Default): nach „Avada-Farben übernehmen" trägt der **Reopen-Button** sichtbar die Primary Color (Füllung + Rahmen), Text lesbar (Auto-Kontrast).

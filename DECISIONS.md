@@ -480,3 +480,22 @@ Die bestehende **WPML-/Polylang-String-Translation-Registrierung bleibt als Over
 **Begründung:** Erfüllt die Erwartung „Button trägt die Markenfarbe" unabhängig vom Preset. Rein CSS-seitig, keine Render-/Datenänderung.
 
 **Folgen / offene Punkte:** Reine Darstellung; Consent, Locale, Scanner, CCM, Updater, Avada-Import, Cache-Reset unberührt. Mit v0.5.11 wurden zudem die temporären Runtime-Proofs `0.5.10-debug2` (Admin-Speicherkette) und `0.5.10-debug3` (Frontend-Box) wieder entfernt. Verbindliche Referenz: `MASTER_HANDBUCH.md`.
+
+## ADR-32: Avada Auto-Sync — opt-in, der User entscheidet (umgesetzt in v0.5.12)
+
+**Status:** Aktiv ab v0.5.12 (2026-06-21). Baut auf ADR-27 (Opt-in, „bestehende Einstellungen beibehalten"), ADR-29 (Cache-Reset), ADR-30 (nur `primary_color`) und ADR-31 (sichtbarer Button) auf.
+
+**Kontext:** Bisher war die Avada-Farbübernahme rein manuell (Klick). Gewünscht ist, dass der Betreiber **selbst entscheidet**, ob das Banner dauerhaft der Avada Primary Color folgt (Auto-Sync) oder die Farben manuell verwaltet werden — ohne dass Updates jemals ungefragt manuelle Farben überschreiben.
+
+**Entscheidung:**
+- **Persistente Entscheidung** in zwei eigenständigen Optionen (außerhalb von `lscc_options`, damit die Farb-/Sanitize-Logik unberührt bleibt): `mcb_avada_autosync` (`on`/`off`, Default `off`) und `mcb_avada_sync_decided` (`1`, sobald entschieden).
+- **Erstabfrage:** Solange Avada aktiv ist und noch keine Entscheidung getroffen wurde (erste Erkennung **oder** nach Update ohne frühere Entscheidung), erscheint eine Admin-Notice mit „Ja, automatisch synchronisieren" / „Nein, manuell verwalten". Antwort setzt beide Optionen; bei „Ja" wird sofort synchronisiert.
+- **Einstellung** im Bereich *Avada-Integration*: Checkbox „Banner-Farben automatisch mit Avada synchronisieren" + Button „Jetzt synchronisieren" (= bestehender manueller Import, inkl. Client-Resolver-Fallback).
+- **Auto-Sync EIN:** Bei jedem Admin-Load (`admin_init`, `manage_options`) gleicht `run_avada_sync()` die Avada Primary Color mit der Banner-Farbe ab und übernimmt Abweichungen automatisch (mit Cache-Reset, ADR-29). Server-seitig, read-only auf Avada.
+- **Auto-Sync AUS:** Keine automatische Änderung — Farben bleiben vollständig manuell.
+
+**Wichtige Regel:** `maybe_auto_sync()` läuft **ausschließlich**, wenn Auto-Sync aktiv ist. Bei AUS wird **nie** automatisch überschrieben — Updates lassen manuelle Bannerfarben unangetastet.
+
+**Begründung:** Klares Opt-in, ein Schalter, keine fragilen Avada-Save-Hooks (Abgleich beim Admin-Besuch statt Event-Hook). Wiederverwendung der bestehenden Bausteine (`resolve_primary()`, `map_to_banner()`, `reset_caches()`); die manuelle Importfunktion `import_avada_colors()` bleibt **unverändert**.
+
+**Folgen / offene Punkte:** `run_avada_sync()` ist serverseitig — eine Primary Color als `var(--awb-colorX)`, die nur im Browser auflöst, kann der Auto-Sync nicht still übernehmen (Status `unresolved`); der manuelle „Jetzt synchronisieren"-Button (mit Client-Fallback) deckt diesen Fall ab. Keine Änderung an Consent, Locale, Scanner, CCM, Updater, Presets oder der bestehenden Importlogik. Verbindliche Referenz: `MASTER_HANDBUCH.md`.
