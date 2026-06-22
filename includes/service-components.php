@@ -22,6 +22,128 @@ final class Macs_Cookie_Banner_Service_Components {
 		add_shortcode( 'lscc_youtube', array( __CLASS__, 'render_youtube' ) );
 		add_shortcode( 'lscc_vimeo', array( __CLASS__, 'render_vimeo' ) );
 		add_shortcode( 'lscc_google_map', array( __CLASS__, 'render_google_map' ) );
+		add_shortcode( 'lscc_facebook', array( __CLASS__, 'render_facebook' ) );
+		add_shortcode( 'lscc_instagram', array( __CLASS__, 'render_instagram' ) );
+	}
+
+	/**
+	 * Render a controlled Facebook social embed component (v1.0.4).
+	 *
+	 * Accepts a facebook.com embed URL (e.g. a plugins/page.php|post.php|video.php
+	 * iframe src). Reuses the existing external_media placeholder; the iframe is
+	 * built only after consent. Optional width/height preserve geometry (1.0.3).
+	 *
+	 * @param array $atts Shortcode attributes.
+	 * @return string
+	 */
+	public static function render_facebook( $atts ) {
+		$atts = shortcode_atts(
+			array(
+				'url'    => '',
+				'width'  => '',
+				'height' => '',
+				'title'  => '',
+			),
+			$atts,
+			'lscc_facebook'
+		);
+
+		$url = self::sanitize_facebook_url( $atts['url'] );
+
+		if ( '' === $url ) {
+			return '';
+		}
+
+		$title = '' !== trim( (string) $atts['title'] )
+			? sanitize_text_field( $atts['title'] )
+			: __( 'Facebook', 'macs-cookie-banner' );
+
+		return self::render_component(
+			'facebook',
+			$url,
+			$title,
+			__( 'Dieser Facebook-Inhalt wird erst nach Zustimmung zu externen Medien geladen.', 'macs-cookie-banner' ),
+			'',
+			array(
+				'width'  => $atts['width'],
+				'height' => $atts['height'],
+			)
+		);
+	}
+
+	/**
+	 * Render a controlled Instagram social embed component (v1.0.4).
+	 *
+	 * @param array $atts Shortcode attributes.
+	 * @return string
+	 */
+	public static function render_instagram( $atts ) {
+		$atts = shortcode_atts(
+			array(
+				'url'    => '',
+				'width'  => '',
+				'height' => '',
+				'title'  => '',
+			),
+			$atts,
+			'lscc_instagram'
+		);
+
+		$url = self::sanitize_instagram_url( $atts['url'] );
+
+		if ( '' === $url ) {
+			return '';
+		}
+
+		$title = '' !== trim( (string) $atts['title'] )
+			? sanitize_text_field( $atts['title'] )
+			: __( 'Instagram', 'macs-cookie-banner' );
+
+		return self::render_component(
+			'instagram',
+			$url,
+			$title,
+			__( 'Dieser Instagram-Inhalt wird erst nach Zustimmung zu externen Medien geladen.', 'macs-cookie-banner' ),
+			'',
+			array(
+				'width'  => $atts['width'],
+				'height' => $atts['height'],
+			)
+		);
+	}
+
+	/**
+	 * Sanitize a Facebook embed URL (host must be facebook.com).
+	 *
+	 * @param string $url Raw URL.
+	 * @return string Validated URL or ''.
+	 */
+	private static function sanitize_facebook_url( $url ) {
+		$url  = esc_url_raw( trim( (string) $url ) );
+		$host = strtolower( (string) wp_parse_url( $url, PHP_URL_HOST ) );
+
+		if ( '' === $host || ! preg_match( '/(^|\.)facebook\.com$/', $host ) ) {
+			return '';
+		}
+
+		return $url;
+	}
+
+	/**
+	 * Sanitize an Instagram embed URL (host must be instagram.com).
+	 *
+	 * @param string $url Raw URL.
+	 * @return string Validated URL or ''.
+	 */
+	private static function sanitize_instagram_url( $url ) {
+		$url  = esc_url_raw( trim( (string) $url ) );
+		$host = strtolower( (string) wp_parse_url( $url, PHP_URL_HOST ) );
+
+		if ( '' === $host || ! preg_match( '/(^|\.)instagram\.com$/', $host ) ) {
+			return '';
+		}
+
+		return $url;
 	}
 
 	/**

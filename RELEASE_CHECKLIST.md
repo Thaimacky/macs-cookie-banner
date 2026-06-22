@@ -1,5 +1,34 @@
 # Release Checklist
 
+## Meta Social Embeds: Facebook / Instagram (ab v1.0.4, ADR-37)
+
+**Vendor-Trennung (Scanner / CCM-Badge):**
+- [ ] Facebook-SDK-Snippet (`connect.facebook.net/…/sdk.js` + `fb-page`) → Vendor **Facebook (Social Embed)**, **nicht** Meta Pixel.
+- [ ] Reines Meta Pixel (`fbevents.js` / `fbq`) → weiterhin **Meta / Facebook Pixel**, Kategorie **marketing**.
+- [ ] Facebook-Post/-Video/-Livestream (`plugins/post.php|video.php`) → Facebook (Social Embed).
+- [ ] Instagram-Post/-Reel (`instagram.com/p|reel/…/embed`, `instagram-media`, `embeds.js`) → **Instagram**.
+
+**Privacy Check:**
+- [ ] Surface-Scan zeigt Zeilen „Facebook (Social Embed)" und „Instagram".
+- [ ] Content Scan meldet FB/IG-Embeds; Social-Feed-Plugins (Smash Balloon/Spotlight/EmbedSocial/Elfsight) erscheinen als **Info/report-only** (nicht blockiert).
+
+**SDK-Gating (`meta_social_block` AN):**
+- [ ] Vor Consent / „Nur notwendige" (Netzwerk-Monitor): **kein** Request an `connect.facebook.net`, `facebook.com`, `instagram.com`, `cdninstagram.com`; `sdk.js`/`embed(s).js` tragen `type="text/plain" data-cookie-category="external_media"`.
+- [ ] **`fbevents.js` (Pixel) wird NICHT** von diesem Schalter blockiert.
+- [ ] Nach „Alle akzeptieren": SDK reaktiviert, XFBML-Widgets / Instagram-Blockquotes rendern; Reload behält Consent.
+- [ ] Nach Widerruf „Nur notwendige" + Reload: keine FB/IG-Last.
+
+**Safe-by-Default:**
+- [ ] **Fresh Install:** `meta_social_block` ist **EIN** (geseedet) — Social-Embeds ab Werk geschützt.
+- [ ] **Bestand/Update:** `meta_social_block` wird **nicht** still aktiviert (bleibt wie zuvor / AUS).
+- [ ] **Restore-Button** setzt `meta_social_block` auf EIN (Teil des recommended-Sets).
+
+**Shortcodes:**
+- [ ] `[lscc_facebook url="…/plugins/page.php?href=…"]` / `[lscc_instagram url="…/p/<id>/embed"]`: Platzhalter vor Consent, Embed nach Consent; Geometrie (width/height) erhalten.
+
+**Regression:**
+- [ ] Banner/Consent/Widerruf, GA4/Google Ads/GTM/Meta Pixel/Mailchimp, Maps/YouTube/Avada-Module, Safe-by-Default-1.0.3 unverändert; keine PHP-Warnungen; keine JS-Fehler.
+
 ## Safe by Default + Restore + Maps-Geometrie (ab v1.0.3, ADR-36)
 
 **Fresh Install (neue Site):**

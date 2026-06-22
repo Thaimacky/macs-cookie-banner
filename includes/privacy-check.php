@@ -534,6 +534,8 @@ final class Macs_Cookie_Banner_Privacy_Check {
 			array( 'key' => 'google_ads', 'label' => 'Google Ads', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => __( 'Conversion Tracking / Remarketing (AW-…).', 'macs-cookie-banner' ), 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Marketing) laden.', 'macs-cookie-banner' ) ),
 			array( 'key' => 'meta_pixel', 'label' => 'Meta / Facebook Pixel', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Marketing) laden.', 'macs-cookie-banner' ) ),
 			array( 'key' => 'mailchimp', 'label' => 'Mailchimp', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Marketing) laden.', 'macs-cookie-banner' ) ),
+			array( 'key' => 'facebook_embed', 'label' => 'Facebook (Social Embed)', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => __( 'XFBML/Plugins rendern clientseitig; rohe plugins/*.php-iframes erscheinen im Content Scan.', 'macs-cookie-banner' ), 'recommend' => __( '„Facebook-/Instagram-Social-Embeds blockieren" aktivieren oder [lscc_facebook] verwenden (Kategorie Externe Medien). Nicht mit dem Meta Pixel verwechseln.', 'macs-cookie-banner' ) ),
+			array( 'key' => 'instagram_embed', 'label' => 'Instagram', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( '„Facebook-/Instagram-Social-Embeds blockieren" aktivieren oder [lscc_instagram] verwenden (Kategorie Externe Medien).', 'macs-cookie-banner' ) ),
 			array( 'key' => 'hotjar', 'label' => 'Hotjar', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Statistik) laden.', 'macs-cookie-banner' ) ),
 			array( 'key' => 'recaptcha', 'label' => 'Google reCAPTCHA', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => __( 'Rechtliche Einordnung im Einzelfall prüfen.', 'macs-cookie-banner' ), 'recommend' => __( 'Vor Consent blockieren bzw. v2-on-submit prüfen.', 'macs-cookie-banner' ) ),
 			array( 'key' => 'calendly', 'label' => 'Calendly', 'kind' => 'script', 'server_visible' => false, 'opaque' => false, 'note' => __( 'Wird teils erst nach Interaktion geladen.', 'macs-cookie-banner' ), 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Externe Medien) bzw. als gegatetes Embed lösen.', 'macs-cookie-banner' ) ),
@@ -844,6 +846,24 @@ final class Macs_Cookie_Banner_Privacy_Check {
 				'risk'           => 'kritisch',
 				'needles'        => array( 'connect.facebook.net', 'facebook.net' ),
 				'recommendation' => __( 'Vor Consent blockieren oder über kontrollierte Script-Kategorie einbinden.', 'macs-cookie-banner' ),
+			),
+			array(
+				'service'        => __( 'Facebook (Social Embed)', 'macs-cookie-banner' ),
+				'risk'           => 'wichtig',
+				'needles'        => array( 'facebook.com/plugins/', 'fb-page', 'fb-post', 'fb-video', 'fbasyncinit' ),
+				'recommendation' => __( 'Facebook-Plugin/SDK-Einbettung. „Facebook-/Instagram-Social-Embeds blockieren" aktivieren oder [lscc_facebook] verwenden.', 'macs-cookie-banner' ),
+			),
+			array(
+				'service'        => __( 'Instagram (Embed)', 'macs-cookie-banner' ),
+				'risk'           => 'wichtig',
+				'needles'        => array( 'instagram.com/embed', 'instagram-media', 'platform.instagram.com' ),
+				'recommendation' => __( 'Instagram-Embed. „Facebook-/Instagram-Social-Embeds blockieren" aktivieren oder [lscc_instagram] verwenden.', 'macs-cookie-banner' ),
+			),
+			array(
+				'service'        => __( 'Social-Media-Feed-Plugin', 'macs-cookie-banner' ),
+				'risk'           => 'info',
+				'needles'        => array( 'custom-facebook-feed', 'instagram-feed', 'sb_instagram', 'spotlight-instagram', 'embedsocial', 'elfsight-app', 'apps.elfsight.com' ),
+				'recommendation' => __( 'Nur Hinweis: Feed-Plugin erkannt (Smash Balloon / Spotlight / EmbedSocial / Elfsight). Wird von MCB NICHT automatisch blockiert — eigene Consent-Funktion des Plugins prüfen oder [lscc_facebook]/[lscc_instagram] verwenden.', 'macs-cookie-banner' ),
 			),
 		);
 	}

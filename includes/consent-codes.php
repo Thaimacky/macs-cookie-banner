@@ -73,8 +73,10 @@ final class Macs_Cookie_Banner_Codes {
 		return array(
 			'ga4'         => 'Google Analytics 4',
 			'gtm'         => 'Google Tag Manager',
-			'google_ads'  => 'Google Ads',
-			'meta_pixel'  => 'Meta / Facebook Pixel',
+			'google_ads'     => 'Google Ads',
+			'meta_pixel'     => 'Meta / Facebook Pixel',
+			'facebook_embed' => 'Facebook (Social Embed)',
+			'instagram_embed' => 'Instagram',
 			'mailchimp'   => 'Mailchimp',
 			'hotjar'      => 'Hotjar',
 			'recaptcha'   => 'Google reCAPTCHA',
@@ -94,11 +96,13 @@ final class Macs_Cookie_Banner_Codes {
 	 */
 	public static function vendor_default_category( $vendor ) {
 		$map = array(
-			'ga4'        => 'statistics',
-			'gtm'        => 'statistics',
-			'meta_pixel' => 'marketing',
-			'google_ads' => 'marketing',
-			'mailchimp'  => 'marketing',
+			'ga4'            => 'statistics',
+			'gtm'            => 'statistics',
+			'meta_pixel'     => 'marketing',
+			'google_ads'     => 'marketing',
+			'mailchimp'      => 'marketing',
+			'facebook_embed' => 'external_media',
+			'instagram_embed' => 'external_media',
 		);
 
 		return isset( $map[ $vendor ] ) ? $map[ $vendor ] : 'statistics';
@@ -232,6 +236,27 @@ final class Macs_Cookie_Banner_Codes {
 		}
 		if ( false !== strpos( $lc, 'googletagmanager.com/gtag/js' ) || false !== strpos( $lc, 'gtag(' ) || preg_match( '/\bg-[a-z0-9]{6,}\b/i', $text ) ) {
 			return 'ga4';
+		}
+		// Facebook social embeds (SDK / XFBML / page-post-video plugins) MUST be
+		// checked before meta_pixel: both live on connect.facebook.net, but the
+		// social SDK is sdk.js / XFBML while the Pixel is fbevents.js / fbq(. Keep
+		// them strictly separate so a social embed is never tagged as Meta Pixel.
+		if (
+			false !== strpos( $lc, 'facebook.com/plugins/' )
+			|| ( false !== strpos( $lc, 'connect.facebook.net' ) && false !== strpos( $lc, 'sdk.js' ) )
+			|| false !== strpos( $lc, 'fbasyncinit' )
+			|| false !== strpos( $lc, 'fb.init' )
+			|| preg_match( '/\bfb-(?:page|post|video)\b/i', $text )
+		) {
+			return 'facebook_embed';
+		}
+		if (
+			false !== strpos( $lc, 'instagram.com/embed' )
+			|| false !== strpos( $lc, 'platform.instagram.com' )
+			|| false !== strpos( $lc, 'instagram-media' )
+			|| false !== strpos( $lc, 'instgrm' )
+		) {
+			return 'instagram_embed';
 		}
 		if ( false !== strpos( $lc, 'connect.facebook.net' ) || false !== strpos( $lc, 'fbq(' ) ) {
 			return 'meta_pixel';

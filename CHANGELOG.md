@@ -8,6 +8,30 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 1.0.4 - 2026-06-23
+
+Facebook- und Instagram-**Social-Embeds** in die bestehende `external_media`-Architektur integriert (ADR-37). Strikte Trennung von Meta Pixel. Safe-by-Default (ADR-36): Neuinstallation gatet ab Werk, Bestand bleibt unverändert.
+
+### Added
+
+- **Neue Vendoren** `facebook_embed` („Facebook (Social Embed)") und `instagram_embed` („Instagram") in `match_vendor()` — **vor** `meta_pixel` geprüft. Default-Kategorie (Auto-Vorschlag) = **external_media**.
+  - **Strikte Pixel/Social-Trennung:** Social = `facebook.com/plugins/`, `connect.facebook.net`+`sdk.js`, `fbAsyncInit`, `FB.init`, Klassen `fb-page/-post/-video`, `instagram.com/embed`, `platform.instagram.com`, `instagram-media`, `instgrm`. Meta Pixel (`fbevents.js`/`fbq`) bleibt **unverändert** `meta_pixel` / Kategorie marketing.
+- **SDK-Gating-Modul `includes/meta-social-compat.php`** (opt-in `meta_social_block`): SRC-basiertes `script_loader_tag`-Gating für `connect.facebook.net …/sdk.js`, `instagram.com/embed.js`, `platform.instagram.com …/embeds.js` → `type="text/plain" data-cookie-category="external_media"`. Nach `external_media`-Consent reaktiviert die bestehende `banner.js`-Mechanik die SDKs (XFBML/Blockquotes rendern nach). **`fbevents.js`/`fbq` werden nie angefasst.**
+- **Neue Shortcodes** `[lscc_facebook]` / `[lscc_instagram]` (Reuse `render_component`, Kategorie `external_media`, Host-Allowlist `facebook.com`/`instagram.com`, Geometrie-Verhalten wie 1.0.3). Facebook-Livestreams (`plugins/video.php`) laufen automatisch mit.
+- **Privacy Check** erweitert: Surface-Scan-Zeilen „Facebook (Social Embed)" + „Instagram"; Content-Scan meldet FB/IG-Embeds **und** Social-Feed-Plugins (Smash Balloon / Spotlight / EmbedSocial / Elfsight) **report-only**.
+
+### Changed
+
+- **Safe-by-Default (ADR-36/37):** `meta_social_block` ist im recommended-Set → Neuinstallation **EIN**; Bestandsinstallation **nie** still aktiviert (Baseline AUS); der Restore-Button übernimmt es. Version 1.0.3 → **1.0.4**. `MCB_CONSENT_VERSION` unverändert.
+
+### Bewusst NICHT umgesetzt
+
+- **Kein** iframe-Rewrite / Roh-iframe-Gating für Facebook/Instagram (nur Erkennung/Meldung). **Kein** Gating der Feed-Plugins (Smash Balloon/Spotlight/EmbedSocial/Elfsight) — nur Scanner-Report. Keine neue Consent-Kategorie. Banner/Consent-Modell/GA4/Ads/GTM/Meta Pixel/Mailchimp/Maps/YouTube/Avada-Module/Safe-by-Default-1.0.3 unverändert.
+
+### Bekannte Grenze
+
+- SDK-Gating greift bei korrekt registrierten (enqueued) SDK-Scripts. Hartcodierte SDKs bzw. rohe `plugins/*.php`-iframes werden erkannt/gemeldet, aber nicht auto-geblockt → über CCM bzw. `[lscc_facebook]`/`[lscc_instagram]` führen.
+
 ## 1.0.3 - 2026-06-23
 
 Produktprinzip **Safe by Default** (ADR-36): Neuinstallationen starten datenschutzsicher; Bestandsinstallationen werden **nie** still verändert; ein zentraler Restore-Button bringt bestehende Seiten bewusst auf die empfohlenen Werte. Zusätzlich behält der Maps-Code-Block-Fix jetzt die Original-Geometrie.

@@ -567,3 +567,21 @@ Die bestehende **WPML-/Polylang-String-Translation-Registrierung bleibt als Over
 **Begründung:** Entkoppelt „neu = sicher" von „Bestand = unverändert" sauber über eine Quelle; Restore deckt neue Versionen automatisch ab (zieht aus `get_recommended_defaults()`), ohne dass der Betreiber Optionen einzeln suchen muss. ADR-27-konform (kein stiller Flip; Übernahme nur per Aktivierung-auf-Neuinstall oder bewusstem Klick).
 
 **Folgen / offene Punkte:** Künftige sicherheitsrelevante Defaults werden in `get_recommended_defaults()` ergänzt (greifen automatisch für Fresh-Install + Restore); für Bestand optional zusätzlich eine Post-Update-Notice mit sicherer Vorauswahl (Variante B, später). Keine DB-Migration, `MCB_CONSENT_VERSION` unverändert. Verbindliche Referenz: `MASTER_HANDBUCH.md`.
+
+## ADR-37: Meta Social Embeds (Facebook/Instagram) — external_media, strikte Pixel-Trennung, Safe-by-Default (umgesetzt in v1.0.4)
+
+**Status:** Aktiv ab v1.0.4 (2026-06-23). Baut auf ADR-25 (Render-/Script-Gating), ADR-35 (Roh-iframe-Lücke), ADR-36 (Safe-by-Default) auf.
+
+**Kontext (bewiesen):** Facebook-/Instagram-Social-Embeds (XFBML `fb-page/-post/-video` + `connect.facebook.net/sdk.js`, `instagram-media` + `embed.js`/`platform.instagram.com`, `facebook.com/plugins/*`) sind ungegated und kontaktieren Facebook/Instagram vor Consent. Zudem matchte `match_vendor()` **jedes** `connect.facebook.net` → `meta_pixel`, wodurch das Facebook-SDK fälschlich als Meta Pixel klassifiziert wurde.
+
+**Entscheidung:**
+- **Neue Vendoren** `facebook_embed` / `instagram_embed`, geprüft **vor** `meta_pixel`. Social-Marker: `facebook.com/plugins/`, `connect.facebook.net`+`sdk.js`, `fbAsyncInit`, `FB.init`, `fb-page/-post/-video`; `instagram.com/embed`, `platform.instagram.com`, `instagram-media`, `instgrm`. **Meta Pixel** (`fbevents.js`/`fbq`) bleibt `meta_pixel` / Kategorie marketing — strikt getrennt.
+- **Kategorie** beider Social-Vendoren = `external_media` (keine neue Consent-Kategorie).
+- **SDK-Gating** (`includes/meta-social-compat.php`, opt-in `meta_social_block`): SRC-basiertes `script_loader_tag`-Gating von `sdk.js`/`embed.js`/`embeds.js` → `external_media`; `fbevents.js` wird **nie** angefasst. Reaktivierung nach Consent über die bestehende `activateBlockedScripts()`-Mechanik (kein neuer Frontend-Code).
+- **Kontrollierte Shortcodes** `[lscc_facebook]`/`[lscc_instagram]` (Reuse `render_component`, Host-Allowlist, Geometrie wie 1.0.3).
+- **Scanner**: Surface-Scan-Zeilen + Content-Scan-Muster; Feed-Plugins (Smash Balloon/Spotlight/EmbedSocial/Elfsight) **report-only** (kein Gating/Hook/Rewrite).
+- **Safe-by-Default (ADR-36):** `meta_social_block` ist im recommended-Set → Fresh-Install **EIN**; Bestand wird **nie** still aktiviert (Baseline AUS); Restore-Button übernimmt es.
+
+**Bewusst NICHT:** kein iframe-Rewrite / Roh-iframe-Gating (nur Erkennung/Meldung), kein Feed-Plugin-Gating, keine Änderung an banner.js/Consent-Modell/Kategorien/GA4/Ads/GTM/Meta Pixel/Mailchimp/Maps/YouTube/Avada-Modulen/Safe-by-Default-1.0.3.
+
+**Folgen / offene Punkte:** SDK-Gating greift bei enqueued Scripts; hartcodierte SDKs / rohe `plugins/*.php`-iframes werden erkannt/gemeldet, aber nicht auto-geblockt (über CCM bzw. Shortcodes führen) — Kandidat für eine spätere iframe-Interception-Phase. Keine DB-Migration, `MCB_CONSENT_VERSION` unverändert. Verbindliche Referenz: `MASTER_HANDBUCH.md`.

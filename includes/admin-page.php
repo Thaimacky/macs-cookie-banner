@@ -549,7 +549,7 @@ final class Macs_Cookie_Banner_Admin {
 
 			<div class="notice notice-info inline" style="margin:12px 0;padding:10px 12px;">
 				<p style="margin:0 0 .5em;"><strong><?php echo esc_html__( 'Sichere Standardwerte', 'macs-cookie-banner' ); ?></strong> &mdash;
-					<?php echo esc_html__( 'Setzt die empfohlenen Datenschutz- und Blockier-Einstellungen (Avada-YouTube-/Code-Block-Maps-Blockierung EIN, Remote-Thumbnails AUS, Rechtslinks EIN, Consent-Gültigkeit 180 Tage). Texte, Farben, Design, URLs, Tracking-Snippets, Reopen-Position und die Avada-Sync-Entscheidung bleiben unverändert.', 'macs-cookie-banner' ); ?>
+					<?php echo esc_html__( 'Setzt die empfohlenen Datenschutz- und Blockier-Einstellungen (Avada-YouTube-/Code-Block-Maps-Blockierung EIN, Facebook-/Instagram-Social-Embeds EIN, Remote-Thumbnails AUS, Rechtslinks EIN, Consent-Gültigkeit 180 Tage). Texte, Farben, Design, URLs, Tracking-Snippets, Reopen-Position und die Avada-Sync-Entscheidung bleiben unverändert.', 'macs-cookie-banner' ); ?>
 				</p>
 				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin:0;">
 					<input type="hidden" name="action" value="mcb_restore_recommended">
@@ -852,6 +852,19 @@ final class Macs_Cookie_Banner_Admin {
 						<td>
 							<p class="description"><?php echo esc_html__( 'Ersetzt Google-Maps-iframes in Avada Code Blocks durch den bestehenden MCB-Platzhalter. Empfohlen, wenn Google Maps per Embed-Code eingefügt wurde.', 'macs-cookie-banner' ); ?></p>
 							<p class="description"><?php echo esc_html__( 'Greift nur, wenn ein Code Block ausschliesslich ein einzelnes Google-Maps-Embed-iframe (google.com/maps/embed) enthält. Andere Inhalte, Scripts, weitere iframes, YouTube/Vimeo werden NICHT verändert. Vor Zustimmung zu „Externe Medien" entsteht kein Google-Kontakt; nach Widerruf auf „Nur notwendige" verschwindet die Karte beim Reload wieder. Reversibel (Schalter aus).', 'macs-cookie-banner' ); ?></p>
+						</td>
+					</tr>
+				</table>
+
+				<h2><?php echo esc_html__( 'Social-Media-Embeds (Facebook / Instagram)', 'macs-cookie-banner' ); ?></h2>
+				<table class="form-table" role="presentation">
+					<?php self::render_checkbox_field( 'meta_social_block', esc_html__( 'Facebook-/Instagram-Social-Embeds (SDK) vor Consent blockieren', 'macs-cookie-banner' ), $options['meta_social_block'] ); ?>
+					<tr>
+						<th scope="row"></th>
+						<td>
+							<p class="description"><?php echo esc_html__( 'Blockiert die Facebook-/Instagram-Embed-SDKs (connect.facebook.net/sdk.js, instagram.com/embed.js, platform.instagram.com/embeds.js) bis zur Zustimmung zu „Externe Medien". XFBML-Widgets (fb-page/-post/-video), Facebook-Livestreams und Instagram-Posts/-Reels rendern erst nach Consent. Kategorie: Externe Medien.', 'macs-cookie-banner' ); ?></p>
+							<p class="description"><strong><?php echo esc_html__( 'Meta Pixel (fbevents.js / fbq) ist davon NICHT betroffen', 'macs-cookie-banner' ); ?></strong> <?php echo esc_html__( '— das Pixel wird weiterhin separat über den Consent-Code-Manager (Kategorie Marketing) verwaltet.', 'macs-cookie-banner' ); ?></p>
+							<p class="description"><?php echo esc_html__( 'Hinweis: greift bei korrekt registrierten (enqueued) SDK-Scripts. Direkt im Theme hartcodierte SDKs bzw. rohe plugins/*.php-iframes über den Consent-Code-Manager bzw. [lscc_facebook]/[lscc_instagram] führen. Social-Feed-Plugins (Smash Balloon, Spotlight, EmbedSocial, Elfsight) werden nur im Privacy Check gemeldet, nicht automatisch blockiert.', 'macs-cookie-banner' ); ?></p>
 						</td>
 					</tr>
 				</table>

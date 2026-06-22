@@ -1,5 +1,16 @@
 # DEV LOG
 
+## 1.0.4 - 2026-06-23 (Meta Social Embeds: Facebook/Instagram, ADR-37)
+
+- **Vendor-Trennung, `includes/consent-codes.php`:** `match_vendor()` → `facebook_embed` + `instagram_embed` **vor** `meta_pixel`. Social-Marker: `facebook.com/plugins/`, `connect.facebook.net`+`sdk.js`, `fbasyncinit`, `fb.init`, `\bfb-(page|post|video)\b`; `instagram.com/embed`, `platform.instagram.com`, `instagram-media`, `instgrm`. Pixel-Pfad (`fbevents.js`/`fbq`) unverändert → kein Doppelgriff. `vendor_labels()` + `vendor_default_category()` (beide → external_media) ergänzt.
+- **SDK-Gating, `includes/meta-social-compat.php` (neu):** `script_loader_tag` SRC-basiert; `is_social_sdk()` = `connect.facebook.net`+`sdk.js` / `instagram.com/embed.js` / `platform.instagram.com`+`embed`. Früher Guard: `fbevents.js` wird **nie** angefasst. Rewrite auf `text/plain` + `external_media`. Reaktivierung via bestehender `activateBlockedScripts()` (kein banner.js-Eingriff). Opt-in `meta_social_block`.
+- **Shortcodes, `includes/service-components.php`:** `[lscc_facebook]`/`[lscc_instagram]` (Reuse `render_component`, Geometrie-Params 1.0.3); `sanitize_facebook_url()`/`sanitize_instagram_url()` (Host-Allowlist `*.facebook.com`/`*.instagram.com`).
+- **Scanner, `includes/privacy-check.php`:** `get_surface_services()` Zeilen `facebook_embed`/`instagram_embed` (kind script, SDK-Gating-Status); `get_content_scan_patterns()` FB-Social / Instagram / **Social-Feed-Plugins report-only** (Smash Balloon/Spotlight/EmbedSocial/Elfsight, risk info).
+- **Safe-by-Default, `macs-cookie-banner.php`:** Option `meta_social_block` in Defaults (false=Baseline) + `get_bool_option_keys()` + **`get_recommended_defaults()`=true** + `get_restore_recommended_keys()`. `require_once`+`init()` des Moduls. Version 1.0.3 → 1.0.4. `MCB_CONSENT_VERSION` unverändert.
+- **Admin, `includes/admin-page.php`:** Abschnitt „Social-Media-Embeds (Facebook / Instagram)" mit Checkbox + Hinweis (Pixel nicht betroffen; enqueued-Grenze; Feed-Plugins report-only). Restore-Beschreibung um Social-Embeds ergänzt.
+- **Nicht angefasst:** banner.js, Consent-Modell, Kategorien, GA4/Ads/GTM/Meta Pixel/Mailchimp/Maps/YouTube/Avada-Module/Safe-by-Default-1.0.3. Kein iframe-Rewrite, kein Feed-Plugin-Gating.
+- **Validierung (Logik-Trace, kein lokaler PHP-Runtime):** FB-SDK → facebook_embed (nicht meta_pixel); fbevents.js/fbq → meta_pixel; instagram embed/embeds.js/instagram-media → instagram_embed; SDK-Gating rewritet sdk.js/embed(s).js, nicht fbevents.js; Fresh-Install seedet meta_social_block=true, Bestand bleibt AUS.
+
 ## 1.0.3 - 2026-06-23 (Safe by Default + Restore-Button + Maps-Geometrie, ADR-36)
 
 - **Safe-by-Default-Mechanismus (A+B), `macs-cookie-banner.php`:**
