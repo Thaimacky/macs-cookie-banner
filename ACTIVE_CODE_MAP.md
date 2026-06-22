@@ -122,7 +122,7 @@ Diese Karte beschreibt die aktiven Dateien, ihre Zustaendigkeiten und die wichti
 - `resolve_scan_url()` (ab 0.3.1) — liefert die zu prüfende URL: eigene **gleicher-Host**-URL (POST + Nonce) oder Startseite. SSRF-Schutz: Fremd-Hosts → Fallback Startseite + `host_mismatch`-Notice.
 - `fetch_html( $url )` (ab 0.3.1) — ein `wp_remote_get` (Timeout 5 s, max. 500 KB, eigener UA); liefert `{ ok, body, error_problem, error_reco }`. Ersetzt das frühere `run_check()`.
 - `detect_services( $body )` — sucht im Lowercase-HTML nach statischen Mustern (Muster-Schnellprüfung)
-- **Surface-Scan (ab 0.3.1):** `detect_surface( $body )` baut pro Dienst eine Zeile; `classify_scripts()` (Vendor via `Consent_Codes::match_vendor()`, gegated via `tag_is_gated()` = `type="text/plain"`+`data-cookie-category`), `classify_embeds()` (rohes `<iframe>`=ungegatet, `data-lscc-service`-Platzhalter=gegated), `detect_fonts()`, `registered_vendors()` (Cross-Ref aus `lscc_consent_codes`), `get_surface_services()` (Dienst-Katalog), `surface_status()` (5-Status-Modell: nicht_gefunden/verwaltet/teilweise/ungegatet/nicht_pruefbar), `get_surface_status_label()`, `render_surface_section()`. Google Fonts als Sonderzeile („lokal hosten; Consent ersetzt kein Local Hosting").
+- **Surface-Scan (ab 0.3.1; ab 1.0.1 zusätzlich Google Ads + Mailchimp im Dienst-Katalog):** `detect_surface( $body )` baut pro Dienst eine Zeile; `classify_scripts()` (Vendor via `Consent_Codes::match_vendor()`, gegated via `tag_is_gated()` = `type="text/plain"`+`data-cookie-category`), `classify_embeds()` (rohes `<iframe>`=ungegatet, `data-lscc-service`-Platzhalter=gegated), `detect_fonts()`, `registered_vendors()` (Cross-Ref aus `lscc_consent_codes`), `get_surface_services()` (Dienst-Katalog), `surface_status()` (5-Status-Modell: nicht_gefunden/verwaltet/teilweise/ungegatet/nicht_pruefbar), `get_surface_status_label()`, `render_surface_section()`. Google Fonts als Sonderzeile („lokal hosten; Consent ersetzt kein Local Hosting").
 - `get_checks()` — Mustertabelle der Muster-Schnellprüfung (siehe unten)
 - `get_status_label()` — uebersetzte Status-Labels (`Kritisch`, `Wichtig`, `Info`)
 - `render_content_scan_section( $results )` — rendert Hinweistext, Trigger-Form (`lscc_content_scan` Nonce, `lscc_run_content_scan` Submit) und ggf. die Ergebnis-Tabelle
@@ -150,7 +150,9 @@ Diese Karte beschreibt die aktiven Dateien, ihre Zustaendigkeiten und die wichti
 |---|---|---|
 | Kritisch | `fonts.googleapis.com`, `fonts.gstatic.com` | Externe Google Fonts |
 | Kritisch | `google-analytics.com`, `googletagmanager.com` | GA / GTM |
+| Kritisch | `googleadservices.com`, `googleads.g.doubleclick.net`, `google_conversion_id` | Google Ads (Conversion / Remarketing) — ab 1.0.1 |
 | Kritisch | `facebook.net`, `connect.facebook.net` | Facebook / Meta |
+| Kritisch | `chimpstatic.com`, `list-manage.com` | Mailchimp — ab 1.0.1 |
 | Wichtig | `youtube.com`, `youtu.be` | YouTube-Inhalte |
 | Wichtig | `vimeo.com` | Vimeo-Inhalte |
 
@@ -212,9 +214,10 @@ Reine Server-Interception + Script-Gating; **kein** Avada-Reinit, kein DOM-Hijac
 
 - Konstanten: `OPTION_NAME = 'lscc_consent_codes'`, `NONCE_ACTION = 'lscc_save_consent_codes'`, `PAGE_SLUG`, `EXPORT_VERSION = 1`.
 - `init()` — im Admin: `admin_post_lscc_save_consent_codes` → `save()`, `admin_post_lscc_export_consent_codes` → `export()`, `admin_enqueue_scripts` → `enqueue_admin()` (lädt `assets/js/admin-consent-codes.js` nur auf der Manager-Seite). Im Frontend: `wp_head` (99), `wp_body_open`, `wp_footer` (5) → `render_location()`.
-- **Datenmodell (scannerfähig):** Option = Array von Einträgen `{ id, label, vendor, source, category, location, enabled, order, code }`. `category` ∈ {necessary, statistics, marketing, external_media}; `location` ∈ {head, body_open, footer}; `vendor` wird beim Speichern via `detect_vendor()` automatisch gesetzt (ga4/gtm/meta_pixel/hotjar/recaptcha/custom); `source` = Provenienz (manual/import).
+- **Datenmodell (scannerfähig):** Option = Array von Einträgen `{ id, label, vendor, source, category, location, enabled, order, code }`. `category` ∈ {necessary, statistics, marketing, external_media}; `location` ∈ {head, body_open, footer}; `vendor` wird beim Speichern via `detect_vendor()` automatisch gesetzt (ga4/gtm/google_ads/meta_pixel/mailchimp/hotjar/recaptcha/calendly/custom — ab 1.0.1 google_ads + mailchimp); `source` = Provenienz (manual/import).
 - `get_codes()` / `normalize_entry()` / `sanitize_enum()` — gelesene, validierte Einträge.
-- `detect_vendor( $code )` — Mustererkennung des Drittanbieters (für Scanner/Badge).
+- `detect_vendor( $code )` / `match_vendor( $text )` — Mustererkennung des Drittanbieters (für Scanner/Badge). **Ab 1.0.1:** `google_ads` (AW-…/`google_conversion_id`/`googleadservices.com`/`googleads.g.doubleclick.net`) wird **vor** GA4 geprüft (Ads nutzt ebenfalls `gtag()`; sonst GA4-Fehlklassifikation); `mailchimp` (`chimpstatic.com`/`list-manage.com`/`mailchimp`).
+- `vendor_default_category( $vendor )` (ab 1.0.1) — Auto-Vorschlag der Consent-Kategorie pro Vendor (ga4/gtm→statistics, meta_pixel/google_ads/mailchimp→marketing). Wird in `build_entries()` **nur** für neu hinzugefügte Rows (leere `id`) eines erkannten Vendors angewandt, solange der generische Default `statistics` gesetzt ist; bestehende Snippets bleiben unverändert.
 - `render_location( $loc )` — gibt aktive Snippets der Position in `order`-Reihenfolge aus (roh = bereits geblockt).
 - `transform_snippet( $code, $category )` — entfernt `<noscript>…</noscript>` und schreibt jeden `<script …>` auf `type="text/plain" data-cookie-category=<cat> data-cookie-type=<orig>` um (verallgemeinert `yotu-compat::convert_tag_to_blocked`).
 - `render_page()` / `render_row()` / `render_template_row()` — Admin-Repeater-UI; `category_labels()`/`location_labels()`.

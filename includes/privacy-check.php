@@ -260,11 +260,30 @@ final class Macs_Cookie_Banner_Privacy_Check {
 			array(
 				'status'         => 'kritisch',
 				'patterns'       => array(
+					'googleadservices.com',
+					'googleads.g.doubleclick.net',
+					'google_conversion_id',
+				),
+				'problem'        => __( 'Google Ads (Conversion Tracking / Remarketing) erkannt.', 'macs-cookie-banner' ),
+				'recommendation' => __( 'Nur nach Zustimmung laden und der Kategorie Marketing zuordnen.', 'macs-cookie-banner' ),
+			),
+			array(
+				'status'         => 'kritisch',
+				'patterns'       => array(
 					'facebook.net',
 					'connect.facebook.net',
 				),
 				'problem'        => __( 'Facebook-Script oder Meta-Dienst erkannt.', 'macs-cookie-banner' ),
 				'recommendation' => __( 'Nur nach Zustimmung laden und Marketing-Scripts bewusst blockieren.', 'macs-cookie-banner' ),
+			),
+			array(
+				'status'         => 'kritisch',
+				'patterns'       => array(
+					'chimpstatic.com',
+					'list-manage.com',
+				),
+				'problem'        => __( 'Mailchimp erkannt.', 'macs-cookie-banner' ),
+				'recommendation' => __( 'Nur nach Zustimmung laden und der Kategorie Marketing zuordnen.', 'macs-cookie-banner' ),
 			),
 			array(
 				'status'         => 'wichtig',
@@ -512,7 +531,9 @@ final class Macs_Cookie_Banner_Privacy_Check {
 		return array(
 			array( 'key' => 'ga4', 'label' => 'Google Analytics 4', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Statistik) laden.', 'macs-cookie-banner' ) ),
 			array( 'key' => 'gtm', 'label' => 'Google Tag Manager', 'kind' => 'script', 'server_visible' => true, 'opaque' => true, 'note' => __( 'Container erkannt; die von GTM gefeuerten Tags sind serverseitig nicht prüfbar.', 'macs-cookie-banner' ), 'recommend' => __( 'Über den Consent-Code-Manager laden und in GTM gefeuerte Tags separat prüfen.', 'macs-cookie-banner' ) ),
+			array( 'key' => 'google_ads', 'label' => 'Google Ads', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => __( 'Conversion Tracking / Remarketing (AW-…).', 'macs-cookie-banner' ), 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Marketing) laden.', 'macs-cookie-banner' ) ),
 			array( 'key' => 'meta_pixel', 'label' => 'Meta / Facebook Pixel', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Marketing) laden.', 'macs-cookie-banner' ) ),
+			array( 'key' => 'mailchimp', 'label' => 'Mailchimp', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Marketing) laden.', 'macs-cookie-banner' ) ),
 			array( 'key' => 'hotjar', 'label' => 'Hotjar', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Statistik) laden.', 'macs-cookie-banner' ) ),
 			array( 'key' => 'recaptcha', 'label' => 'Google reCAPTCHA', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => __( 'Rechtliche Einordnung im Einzelfall prüfen.', 'macs-cookie-banner' ), 'recommend' => __( 'Vor Consent blockieren bzw. v2-on-submit prüfen.', 'macs-cookie-banner' ) ),
 			array( 'key' => 'calendly', 'label' => 'Calendly', 'kind' => 'script', 'server_visible' => false, 'opaque' => false, 'note' => __( 'Wird teils erst nach Interaktion geladen.', 'macs-cookie-banner' ), 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Externe Medien) bzw. als gegatetes Embed lösen.', 'macs-cookie-banner' ) ),

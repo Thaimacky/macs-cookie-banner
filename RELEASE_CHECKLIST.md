@@ -1,5 +1,26 @@
 # Release Checklist
 
+## Vendor-Erkennung Google Ads + Mailchimp (ab v1.0.1)
+
+**Google Ads (Conversion Tracking / Remarketing):**
+- [ ] Conversion-Snippet (gtag `id=AW-…` + `gtag('event','conversion',{'send_to':'AW-…'})`) → Vendor-Badge „Erkannt: Google Ads" (**nicht** GA4).
+- [ ] Remarketing-Tag (`google_conversion_id` / `googleadservices.com` / `googleads.g.doubleclick.net`) → „Erkannt: Google Ads".
+- [ ] Privacy-Check „Drittanbieter-Oberfläche": Zeile **Google Ads** mit Status/Empfehlung „Kategorie Marketing".
+- [ ] Privacy-Check „Muster-Schnellprüfung": kritische Zeile „Google Ads (Conversion Tracking / Remarketing) erkannt."
+- [ ] Neu hinzugefügtes Google-Ads-Snippet → Default-Kategorie-Vorschlag **Marketing**.
+
+**GA4-Regression (darf nicht brechen):**
+- [ ] Reines GA4-Snippet (gtag `id=G-…`) → weiterhin „Erkannt: Google Analytics 4"; Default-Vorschlag Statistik.
+
+**Mailchimp:**
+- [ ] Snippet mit `chimpstatic.com` / `list-manage.com` → Vendor-Badge „Erkannt: Mailchimp".
+- [ ] Privacy-Check-Oberfläche + Muster-Schnellprüfung zeigen Mailchimp.
+- [ ] Neu hinzugefügtes Mailchimp-Snippet → Default-Kategorie-Vorschlag **Marketing**.
+
+**Bestandsschutz:**
+- [ ] Bestehendes Snippet (mit gespeicherter `id`) behält seine Kategorie auch nach erneutem Speichern (keine Auto-Umkategorisierung).
+- [ ] Meta Pixel / GTM unverändert korrekt erkannt.
+
 ## Compliance vor DE/CH-Livegang (nächstes Arbeitspaket, ab 2026-06-22)
 
 Vor dem Livegang müssen alle Tracking-/Consent-Integrationen erkannt, klassifiziert und consent-gesteuert sein (Scanner / Blockierung / Consent Mode / echte Live-Site-Validierung).

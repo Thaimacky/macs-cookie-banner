@@ -73,12 +73,35 @@ final class Macs_Cookie_Banner_Codes {
 		return array(
 			'ga4'         => 'Google Analytics 4',
 			'gtm'         => 'Google Tag Manager',
+			'google_ads'  => 'Google Ads',
 			'meta_pixel'  => 'Meta / Facebook Pixel',
+			'mailchimp'   => 'Mailchimp',
 			'hotjar'      => 'Hotjar',
 			'recaptcha'   => 'Google reCAPTCHA',
 			'calendly'    => 'Calendly',
 			'custom'      => __( 'Eigenes Snippet', 'macs-cookie-banner' ),
 		);
+	}
+
+	/**
+	 * Suggested default consent category for a detected vendor.
+	 *
+	 * Used only as an auto-suggestion for *newly added* snippets of a recognized
+	 * vendor (see build_entries()); existing snippets keep their stored category.
+	 *
+	 * @param string $vendor Vendor key.
+	 * @return string Consent category.
+	 */
+	public static function vendor_default_category( $vendor ) {
+		$map = array(
+			'ga4'        => 'statistics',
+			'gtm'        => 'statistics',
+			'meta_pixel' => 'marketing',
+			'google_ads' => 'marketing',
+			'mailchimp'  => 'marketing',
+		);
+
+		return isset( $map[ $vendor ] ) ? $map[ $vendor ] : 'statistics';
 	}
 
 	/**
@@ -195,11 +218,26 @@ final class Macs_Cookie_Banner_Codes {
 		if ( false !== strpos( $lc, 'googletagmanager.com/gtm.js' ) || false !== strpos( $lc, "'gtm.start'" ) || preg_match( '/\bgtm-[a-z0-9]+\b/i', $text ) ) {
 			return 'gtm';
 		}
+		// Google Ads (Conversion Tracking / Remarketing) MUST be checked before GA4:
+		// Ads tags also use gtag()/googletagmanager gtag.js, but with an AW-… account id,
+		// and would otherwise be misclassified as GA4. The AW- id is present in both the
+		// conversion event snippet and the remarketing tag.
+		if (
+			preg_match( '/\baw-[0-9]{6,}\b/i', $text )                 // gtag/js?id=AW-… + send_to: 'AW-…' (Conversion + Remarketing)
+			|| false !== strpos( $lc, 'google_conversion_id' )        // legacy Conversion Tracking
+			|| false !== strpos( $lc, 'googleadservices.com' )        // conversion.js / /pagead/conversion
+			|| false !== strpos( $lc, 'googleads.g.doubleclick.net' ) // Remarketing-Pixel
+		) {
+			return 'google_ads';
+		}
 		if ( false !== strpos( $lc, 'googletagmanager.com/gtag/js' ) || false !== strpos( $lc, 'gtag(' ) || preg_match( '/\bg-[a-z0-9]{6,}\b/i', $text ) ) {
 			return 'ga4';
 		}
 		if ( false !== strpos( $lc, 'connect.facebook.net' ) || false !== strpos( $lc, 'fbq(' ) ) {
 			return 'meta_pixel';
+		}
+		if ( false !== strpos( $lc, 'chimpstatic.com' ) || false !== strpos( $lc, 'list-manage.com' ) || false !== strpos( $lc, 'mailchimp' ) ) {
+			return 'mailchimp';
 		}
 		if ( false !== strpos( $lc, 'static.hotjar.com' ) || false !== strpos( $lc, '_hjsettings' ) || false !== strpos( $lc, 'hotjar' ) ) {
 			return 'hotjar';
@@ -614,12 +652,23 @@ final class Macs_Cookie_Banner_Codes {
 
 			$source = isset( $raw['source'] ) && '' !== $raw['source'] ? sanitize_key( $raw['source'] ) : $default_source;
 
+			$has_id   = isset( $raw['id'] ) && '' !== $raw['id'];
+			$vendor   = self::detect_vendor( $code );
+			$category = self::sanitize_enum( isset( $raw['category'] ) ? $raw['category'] : '', self::categories(), 'statistics' );
+
+			// Auto-suggest the category only for *newly added* rows (no stored id) of a
+			// recognized vendor, and only when the form still carries the generic
+			// 'statistics' default. Existing snippets are never re-categorized.
+			if ( ! $has_id && 'statistics' === $category && '' !== $vendor && 'custom' !== $vendor ) {
+				$category = self::vendor_default_category( $vendor );
+			}
+
 			$entries[] = array(
-				'id'       => isset( $raw['id'] ) && '' !== $raw['id'] ? sanitize_key( $raw['id'] ) : self::new_id(),
+				'id'       => $has_id ? sanitize_key( $raw['id'] ) : self::new_id(),
 				'label'    => $label,
-				'vendor'   => self::detect_vendor( $code ),
+				'vendor'   => $vendor,
 				'source'   => $source,
-				'category' => self::sanitize_enum( isset( $raw['category'] ) ? $raw['category'] : '', self::categories(), 'statistics' ),
+				'category' => $category,
 				'location' => self::sanitize_enum( isset( $raw['location'] ) ? $raw['location'] : '', self::locations(), 'head' ),
 				'enabled'  => ! empty( $raw['enabled'] ),
 				'order'    => $order,

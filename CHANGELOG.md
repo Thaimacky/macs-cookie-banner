@@ -8,6 +8,25 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 1.0.1 - 2026-06-22
+
+Vendor-Abdeckung erweitert (DE/CH-Livegang, Priorität 1/3). 1.0.0 RC2 bleibt eingefroren; reine additive Erkennung, keine Änderung an Consent, Banner, Avada, Scanner-Architektur oder bestehenden Snippets.
+
+### Added
+
+- **Google Ads erkannt (Conversion Tracking / Remarketing).** Neuer Vendor `google_ads` in `Macs_Cookie_Banner_Codes::match_vendor()`. Erkennung über `AW-` (gtag `id=AW-…` + `send_to: 'AW-…'`), `google_conversion_id`, `googleadservices.com`, `googleads.g.doubleclick.net`. Vendor-Label „Google Ads", eigene Zeile in der Privacy-Check-Oberfläche und in der Muster-Schnellprüfung. Default-Kategorie (Auto-Vorschlag) = **marketing**.
+  - **Wichtig:** Die Google-Ads-Prüfung läuft **vor** der GA4-Erkennung. Google-Ads-Tags nutzen ebenfalls `gtag()`/`gtag/js`, wurden bisher aber als GA4 klassifiziert. Mit `AW-…`-Konto-ID werden sie jetzt korrekt als Google Ads erkannt; reine GA4-Tags (`G-…`) bleiben GA4.
+- **Mailchimp erkannt.** Neuer Vendor `mailchimp` (`chimpstatic.com`, `list-manage.com`, `mailchimp`). Vendor-Label „Mailchimp", eigene Zeile in Privacy-Check-Oberfläche und Muster-Schnellprüfung. Default-Kategorie (Auto-Vorschlag) = **marketing**.
+
+### Changed
+
+- **Default-Kategorie nicht mehr pauschal `statistics`.** Neuer Auto-Vorschlag pro neu erkanntem Vendor (`vendor_default_category()`): GA4 → statistics, GTM → statistics, Meta Pixel → marketing, Google Ads → marketing, Mailchimp → marketing. Greift **nur** für **neu hinzugefügte** Snippets (ohne gespeicherte `id`) eines erkannten Vendors, solange das Formular noch den generischen Default `statistics` trägt. **Bestehende Snippets werden nie umkategorisiert.**
+- Version 1.0.0 → **1.0.1** (Header + `MCB_VERSION`). `MCB_CONSENT_VERSION` unverändert.
+
+### Bewusst unverändert
+
+- Keine Änderung an Consent-Mode v2, Governance, GTM-Granularität, LinkedIn, TikTok, Clarity, HubSpot, Brevo, YouTube/Maps-oEmbed, Banner, Consent-Logik, Avada, Scanner-Architektur. Keine DB-Migration; `lscc_consent`/`lscc_options`/`lscc_consent_codes`-Struktur unangetastet.
+
 ## 1.0.0 - 2026-06-22
 
 Erste offizielle Stable-Freigabe (Release-Kandidat) nach abgeschlossener Compliance-/Governance-/Freigabe-Bewertung. Kein neues Feature, keine Architekturänderung — nur die beschlossenen Restpunkte vor 1.0.

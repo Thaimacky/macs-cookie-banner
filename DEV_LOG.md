@@ -1,5 +1,20 @@
 # DEV LOG
 
+## 1.0.1 - 2026-06-22 (Vendor-Abdeckung: Google Ads + Mailchimp)
+
+- **Scope:** drei beschlossene Punkte — Google Ads, Mailchimp, Vendor-/Scanner-Abdeckung. Additiv, RC2 (1.0.0) bleibt eingefroren.
+- `includes/consent-codes.php`:
+  - `match_vendor()`: neuer `google_ads`-Zweig **vor** dem GA4-Zweig (sonst Fehlklassifikation als GA4, da Ads ebenfalls `gtag()`/`gtag/js` nutzt). Erkennung: `\baw-[0-9]{6,}\b`, `google_conversion_id`, `googleadservices.com`, `googleads.g.doubleclick.net`. Plus neuer `mailchimp`-Zweig (`chimpstatic.com`/`list-manage.com`/`mailchimp`) nach Meta Pixel.
+  - `vendor_labels()`: „Google Ads" + „Mailchimp" ergänzt.
+  - Neuer Helfer `vendor_default_category()` (ga4/gtm→statistics, meta_pixel/google_ads/mailchimp→marketing).
+  - `build_entries()`: Auto-Vorschlag der Kategorie **nur** für neu hinzugefügte Rows (leere `id`) eines erkannten Vendors, solange noch der generische Default `statistics` gesetzt ist. Bestehende Snippets (mit `id`) werden nie umkategorisiert.
+- `includes/privacy-check.php`:
+  - `get_surface_services()`: Zeilen `google_ads` + `mailchimp` (kind `script`, Empfehlung Kategorie Marketing). Counts laufen über das bestehende `classify_scripts()`/`match_vendor()` — keine Scanner-Architektur-Änderung.
+  - `get_checks()` (Muster-Schnellprüfung): kritische Zeilen Google Ads (`googleadservices.com`/`googleads.g.doubleclick.net`/`google_conversion_id`) und Mailchimp (`chimpstatic.com`/`list-manage.com`).
+- `macs-cookie-banner.php`: Version 1.0.0 → 1.0.1 (Header + `MCB_VERSION`). `MCB_CONSENT_VERSION` unverändert.
+- **Nicht angefasst:** Consent Mode v2, Governance, GTM-Granularität, LinkedIn, TikTok, Clarity, HubSpot, Brevo, YouTube/Maps-oEmbed, Banner, Consent-Logik, Avada, Scanner-Architektur.
+- **Validierung (Logik-Trace, kein lokaler PHP-Runtime):** Google-Ads-Conversion-/Remarketing-Snippets → `google_ads` (nicht GA4); reines GA4 (`G-…`) → `ga4`; GTM-Container → `gtm`; Meta-Pixel-Snippet → `meta_pixel`; Mailchimp-Embed/`mcjs` → `mailchimp`. `\baw-`-Wortgrenze verhindert Treffer in `raw-`/`saw-`.
+
 ## 1.0.0-rc2 - 2026-06-22 (UX-Fix Speicherweg)
 
 - **Bug:** Auto-Sync-Checkbox nicht über „Einstellungen speichern" deaktivierbar — sie lag in eigenem Formular (`mcb_save_avada_sync`); der Haupt-Button (`mcb_save_settings`) ignorierte `mcb_avada_autosync` → Wert blieb auf altem `'on'`.
