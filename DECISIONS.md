@@ -549,3 +549,21 @@ Die bestehende **WPML-/Polylang-String-Translation-Registrierung bleibt als Over
 **Begründung:** Schliesst die reale Consent-Lücke an der **Quelle**, nicht über eine (verbotene) Widerruf-Teardown-/DOM-Manipulation. Maximale Wiederverwendung, minimaler, reversibler Eingriff, ADR-27-konform (Default AUS).
 
 **Folgen / offene Punkte:** Bekannte Grenze: gemischte Code Blocks (Karte **plus** weiterer Inhalt/zweites iframe/Script) bleiben bewusst ungegated (kein Inhaltsverlust) → Workaround `[lscc_google_map]`. base64-/Format-Annahme ist defensiv (strikt dekodiert, sonst Passthrough). Keine Änderung an `banner.js`, Consent/Widerruf, Vendor-Erkennung, Color Sync, `fusion_map`-Logik; `MCB_CONSENT_VERSION` unverändert. Verbindliche Referenz: `MASTER_HANDBUCH.md`.
+
+## ADR-36: Safe by Default — Fresh-Install-Seeding, Default-Entkopplung, Restore-Aktion (umgesetzt in v1.0.3)
+
+**Status:** Aktiv ab v1.0.3 (2026-06-23). Baut auf ADR-27 (Opt-in / „bestehende Einstellungen beibehalten") auf.
+
+**Kontext (bewiesen):** `on_activate()` seedete `lscc_options` nicht; `get_options()`→`sanitize_options()` nutzte für **fehlende** Bool-Keys denselben `get_default_options()`-Wert wie der Fresh-Install. Fresh-Install-Default und Read-Time-Fallback waren damit **gekoppelt** → ein Default-Flip `false→true` hätte auch Bestandsinstallationen (nicht-persistierte Keys) beim Update still verändert. Gleichzeitig fehlte den vielen Bestandsseiten ein einfacher Weg, neue empfohlene Datenschutz-Defaults bewusst zu übernehmen.
+
+**Entscheidung (Produktprinzip):** „Neuinstallation = maximal sicher; Bestand = nie ungefragt verändern."
+- **`get_recommended_defaults()`** — sichere Werte (Schutz EIN, Lockerung AUS). **Single Source of Truth** für Fresh-Install-Seeding **und** Restore-Aktion. Aktuelles Set: `avada_youtube_block`, `avada_code_maps_block`, `show_legal_links` = true; `youtube_remote_thumbnails` = false; `consent_lifetime_days` = 180.
+- **`get_baseline_fallback()`** — konservative Struktur-Defaults; **Read-Time-Fallback** für fehlende Keys auf Bestandsinstallationen. `sanitize_options()` nutzt diesen → ein Update aktiviert eine neu eingeführte Schutzoption **nie still**.
+- **Fresh-Install-Seeding (A):** `on_activate()` schreibt `get_recommended_defaults()` via `add_option()` **nur**, wenn `lscc_options` nicht existiert. Bestand (Eintrag vorhanden) wird nicht überschrieben; ein reines Plugin-Update feuert die Aktivierung nicht → Bestand bleibt auf Baseline.
+- **Restore-Aktion (B-komplementär):** Button „Empfohlene Datenschutzeinstellungen wiederherstellen" (oben auf der Einstellungsseite, eigener admin-post-Handler `mcb_restore_recommended`, Nonce, `manage_options`, JS-`confirm()`). Überschreibt **nur** `get_restore_recommended_keys()` (`avada_youtube_block`, `avada_code_maps_block`, `youtube_remote_thumbnails`, `show_legal_links`, `consent_lifetime_days`).
+
+**Bewusst nicht im Safe-Set / nicht angefasst:** `avada_maps_block` (Konflikt „eine Consent-Schicht" mit Avada-Privacy-Maps) und `yotu_consent_gating` (noch nicht feldgetestet) bleiben Default AUS, manuell aktivierbar. Restore lässt Texte, Farben, Design-Preset, Avada-Farbimport, Datenschutz-/Impressum-URLs, Reopen-Position/Offsets, Consent-Code-Snippets (`lscc_consent_codes`), Besucher-Consents (`lscc_consent`) und die Avada-Auto-Sync-Entscheidung unverändert.
+
+**Begründung:** Entkoppelt „neu = sicher" von „Bestand = unverändert" sauber über eine Quelle; Restore deckt neue Versionen automatisch ab (zieht aus `get_recommended_defaults()`), ohne dass der Betreiber Optionen einzeln suchen muss. ADR-27-konform (kein stiller Flip; Übernahme nur per Aktivierung-auf-Neuinstall oder bewusstem Klick).
+
+**Folgen / offene Punkte:** Künftige sicherheitsrelevante Defaults werden in `get_recommended_defaults()` ergänzt (greifen automatisch für Fresh-Install + Restore); für Bestand optional zusätzlich eine Post-Update-Notice mit sicherer Vorauswahl (Variante B, später). Keine DB-Migration, `MCB_CONSENT_VERSION` unverändert. Verbindliche Referenz: `MASTER_HANDBUCH.md`.

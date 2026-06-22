@@ -203,6 +203,9 @@ final class Macs_Cookie_Banner_Service_Components {
 			array(
 				'url'     => '',
 				'address' => '',
+				'width'   => '',
+				'height'  => '',
+				'title'   => '',
 			),
 			$atts,
 			'lscc_google_map'
@@ -219,12 +222,89 @@ final class Macs_Cookie_Banner_Service_Components {
 			return '';
 		}
 
+		$title = '' !== trim( (string) $atts['title'] )
+			? sanitize_text_field( $atts['title'] )
+			: __( 'Google Maps', 'macs-cookie-banner' );
+
+		// Optional geometry: preserve the original embed dimensions (e.g. a raw
+		// iframe from an Avada Code Block). Empty width/height => standard 16:9 box,
+		// so existing [lscc_google_map] usages without dimensions are unchanged.
+		$dimensions = array(
+			'width'  => $atts['width'],
+			'height' => $atts['height'],
+		);
+
 		return self::render_component(
 			'google-map',
 			$url,
-			__( 'Google Maps', 'macs-cookie-banner' ),
-			__( 'Diese Google-Maps-Karte wird erst nach Zustimmung zu externen Medien geladen.', 'macs-cookie-banner' )
+			$title,
+			__( 'Diese Google-Maps-Karte wird erst nach Zustimmung zu externen Medien geladen.', 'macs-cookie-banner' ),
+			'',
+			$dimensions
 		);
+	}
+
+	/**
+	 * Turn a raw width/height value into a safe CSS length, or '' when unusable.
+	 *
+	 * Accepts plain numbers (treated as px), explicit px and percentages. Anything
+	 * else (calc(), expressions, units we do not allow) is rejected.
+	 *
+	 * @param string $raw Raw attribute value.
+	 * @return string CSS length (e.g. "450px", "100%") or ''.
+	 */
+	private static function sanitize_css_dimension( $raw ) {
+		$raw = strtolower( trim( (string) $raw ) );
+
+		if ( '' === $raw ) {
+			return '';
+		}
+
+		if ( preg_match( '/^(\d{1,5})(?:px)?$/', $raw, $m ) ) {
+			$n = (int) $m[1];
+
+			if ( $n < 1 ) {
+				return '';
+			}
+
+			return min( $n, 4000 ) . 'px';
+		}
+
+		if ( preg_match( '/^(\d{1,3})%$/', $raw, $m ) ) {
+			$n = (int) $m[1];
+
+			return ( $n >= 1 && $n <= 100 ) ? $n . '%' : '';
+		}
+
+		return '';
+	}
+
+	/**
+	 * Build the optional inline geometry style for a media container.
+	 *
+	 * @param array $dimensions { width: string, height: string }.
+	 * @return string CSS declarations (may be '') to append to the container style.
+	 */
+	private static function build_geometry_style( $dimensions ) {
+		if ( ! is_array( $dimensions ) ) {
+			return '';
+		}
+
+		$style  = '';
+		$width  = isset( $dimensions['width'] ) ? self::sanitize_css_dimension( $dimensions['width'] ) : '';
+		$height = isset( $dimensions['height'] ) ? self::sanitize_css_dimension( $dimensions['height'] ) : '';
+
+		if ( '' !== $width ) {
+			$style .= 'width:' . $width . ';max-width:100%;';
+		}
+
+		if ( '' !== $height ) {
+			// Honor the author's exact height: drop the 16:9 ratio and the min-height
+			// floor so placeholder AND post-consent iframe keep the original height.
+			$style .= 'height:' . $height . ';min-height:0;aspect-ratio:auto;';
+		}
+
+		return $style;
 	}
 
 	/**
@@ -299,11 +379,13 @@ final class Macs_Cookie_Banner_Service_Components {
 	 * @param string $notice         Placeholder notice.
 	 * @param string $thumbnail_html Optional pre-escaped local <img> markup. When non-empty,
 	 *                               a thumbnail layer and a centered play button are rendered.
+	 * @param array  $dimensions     Optional { width, height } to preserve original geometry.
+	 *                               Empty => standard 16:9 box (existing behavior unchanged).
 	 * @return string
 	 */
-	private static function render_component( $service, $src, $title, $notice, $thumbnail_html = '' ) {
+	private static function render_component( $service, $src, $title, $notice, $thumbnail_html = '', $dimensions = array() ) {
 		$options      = Macs_Cookie_Banner::get_options();
-		$style        = Macs_Cookie_Banner::get_css_variables( $options );
+		$style        = Macs_Cookie_Banner::get_css_variables( $options ) . self::build_geometry_style( $dimensions );
 		$button_label = __( 'Externe Medien akzeptieren', 'macs-cookie-banner' );
 		$notice_id    = wp_unique_id( 'lscc-media-notice-' );
 		$has_thumb    = '' !== $thumbnail_html;

@@ -1,5 +1,31 @@
 # Release Checklist
 
+## Safe by Default + Restore + Maps-Geometrie (ab v1.0.3, ADR-36)
+
+**Fresh Install (neue Site):**
+- [ ] Plugin auf frischer Site (ohne `lscc_options`) aktivieren → `lscc_options` existiert danach mit recommended Defaults.
+- [ ] `avada_code_maps_block` ist **EIN**; Google Maps in einem Avada Code Block wird sofort geschützt (Platzhalter vor Consent), ohne dass etwas eingeschaltet werden musste.
+- [ ] `avada_youtube_block` EIN, `youtube_remote_thumbnails` AUS, `show_legal_links` EIN, `consent_lifetime_days` 180.
+
+**Update / Bestand (nie ungefragt):**
+- [ ] Bestandsseite mit gespeicherten `lscc_options` auf 1.0.3 updaten → gespeicherte Werte **unverändert**; `avada_code_maps_block` wird **nicht** still aktiviert (bleibt wie zuvor / AUS).
+- [ ] Re-Aktivierung einer Bestandsseite überschreibt nichts (Werte bleiben).
+
+**Restore-Button:**
+- [ ] Oben auf der Einstellungsseite sichtbar: „Empfohlene Datenschutzeinstellungen wiederherstellen", mit Bestätigungsdialog.
+- [ ] Klick setzt **nur** `avada_youtube_block`, `avada_code_maps_block`, `youtube_remote_thumbnails`, `show_legal_links`, `consent_lifetime_days`.
+- [ ] **Unverändert** nach Restore: Texte, Farben, Design-Preset, Avada-Farbimport, Datenschutz-/Impressum-URLs, Reopen-Position/Offsets, Consent-Code-Snippets, Besucher-Consents, Avada-Auto-Sync-Entscheidung, `avada_maps_block`, `yotu_consent_gating`.
+- [ ] Erfolg-Notice erscheint; ohne Klick passiert nichts (kein Auto-Run).
+
+**Maps-Geometrie:**
+- [ ] Code-Block-Karte `width="100%" height="450"`, Option AN: Platzhalter vor Consent ist ~450px hoch (nicht fullscreen/zu hoch).
+- [ ] Nach „Alle akzeptieren": geladene Karte ebenfalls ~450px.
+- [ ] Nach Widerruf „Nur notwendige" + Reload: Platzhalter wieder ~450px.
+- [ ] `[lscc_google_map]` **ohne** width/height → unverändert 16:9 (keine Regression); `fusion_map`-Platzhalter unverändert 16:9.
+
+**Regression:**
+- [ ] Banner / Alle akzeptieren / Nur notwendige / Widerruf funktionieren; GA4/Google Ads/Mailchimp unverändert; keine PHP-Warnungen; keine JS-Fehler.
+
 ## Google Maps in Avada Code Blocks gaten (ab v1.0.2, ADR-35)
 
 Voraussetzung: Avada-Seite mit einem **Code Block**, der ein rohes Google-Maps-Embed-iframe (`<iframe src="https://www.google.com/maps/embed?…">`) enthält.

@@ -8,6 +8,27 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 1.0.3 - 2026-06-23
+
+Produktprinzip **Safe by Default** (ADR-36): Neuinstallationen starten datenschutzsicher; Bestandsinstallationen werden **nie** still verändert; ein zentraler Restore-Button bringt bestehende Seiten bewusst auf die empfohlenen Werte. Zusätzlich behält der Maps-Code-Block-Fix jetzt die Original-Geometrie.
+
+### Added
+
+- **Fresh-Install-Seeding (A).** `on_activate()` schreibt die empfohlenen sicheren Defaults **einmalig** in `lscc_options` — **nur**, wenn noch kein Options-Eintrag existiert (`add_option`). Bestehende Installationen werden nicht überschrieben.
+- **Default-Entkopplung.** Neue `get_recommended_defaults()` (sichere Werte, Quelle für Seeding + Restore) und `get_baseline_fallback()` (konservativer Read-Time-Fallback für fehlende Keys). `sanitize_options()` nutzt für fehlende Keys den **Baseline**-Fallback → ein Update aktiviert eine neu eingeführte Schutzoption **nicht** still.
+- **Button „Empfohlene Datenschutzeinstellungen wiederherstellen".** Oben auf der Einstellungsseite (eigener admin-post-Handler `mcb_restore_recommended`, Nonce, `manage_options`, JS-Bestätigung). Setzt **nur** `avada_youtube_block`, `avada_code_maps_block`, `youtube_remote_thumbnails`, `show_legal_links`, `consent_lifetime_days` auf die empfohlenen Werte.
+- **Empfohlener Neuinstallations-Default:** `avada_code_maps_block = true` (Google-Maps-Code-Block-Gating ab Werk aktiv). `avada_youtube_block = true`, `youtube_remote_thumbnails = false`, `show_legal_links = true`, `consent_lifetime_days = 180`.
+
+### Changed
+
+- **Maps-Code-Block-Fix erhält die Original-Geometrie.** Beim Ersetzen werden `width`/`height`/`title` des Original-iframes übernommen und als Inline-Style auf den `.lscc-media`-Container gelegt (Platzhalter **und** Karte nach Consent behalten z. B. `height="450"`). `[lscc_google_map]` nimmt jetzt optional `width`/`height`/`title`. Ohne Dimensionen unverändert 16:9 (kein banner.js-Eingriff, keine globale CSS-Änderung).
+- Version 1.0.2 → **1.0.3** (Header + `MCB_VERSION`). `MCB_CONSENT_VERSION` unverändert.
+
+### Bewusst NICHT im Safe-Set / nicht zurückgesetzt
+
+- `avada_maps_block` und `yotu_consent_gating` bleiben Default **AUS** (Konflikt „eine Consent-Schicht" bzw. noch nicht feldgetestet) — manuell aktivierbar, nicht Teil von Seeding/Restore.
+- Restore lässt Texte, Farben, Design-Preset, Avada-Farbimport, Datenschutz-/Impressum-URLs, Reopen-Position/Offsets, Consent-Code-Snippets, Besucher-Consents und die Avada-Auto-Sync-Entscheidung unverändert.
+
 ## 1.0.2 - 2026-06-23
 
 Schliesst die bestätigte Google-Maps-Consent-Lücke „rohes iframe im Avada Code Block". Opt-in, Default AUS, reversibel, ADR-27-konform. Kein Eingriff in Banner/Consent/Widerruf/Vendor-Erkennung/`fusion_map`.

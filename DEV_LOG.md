@@ -1,5 +1,19 @@
 # DEV LOG
 
+## 1.0.3 - 2026-06-23 (Safe by Default + Restore-Button + Maps-Geometrie, ADR-36)
+
+- **Safe-by-Default-Mechanismus (A+B), `macs-cookie-banner.php`:**
+  - `get_recommended_defaults()` (sichere Werte: avada_youtube_block/avada_code_maps_block/show_legal_links=true, youtube_remote_thumbnails=false, consent_lifetime_days=180; avada_maps_block/yotu_consent_gating bewusst nicht im Set).
+  - `get_baseline_fallback()` (= konservative Struktur-Defaults) → `sanitize_options()` nutzt **diesen** für fehlende Keys statt der recommended-Werte ⇒ Update kippt nichts still.
+  - `on_activate()`: `add_option('lscc_options', get_recommended_defaults())` **nur** wenn Eintrag fehlt (Fresh-Install). Bestand unberührt. Aktivierung feuert nicht bei reinem Update → Bestand bleibt baseline.
+  - `get_restore_recommended_keys()` (die 5 Datenschutz-/Blockier-Keys).
+- **Restore-Button, `includes/admin-page.php`:** admin-post `mcb_restore_recommended` → `restore_recommended()` (manage_options + Nonce; überschreibt nur die 5 Keys mit recommended, `sanitize_options`+`update_option`, Redirect `mcb_restored=1`). Button oben auf der Seite (notice-info-Box) mit `confirm()`; Erfolg-Notice. Verändert keine Texte/Farben/URLs/Snippets/Avada-Sync.
+- **Maps-Geometrie, `includes/service-components.php` + `includes/avada-code-compat.php`:**
+  - Modul: `extract_single_maps_embed_src()` → `extract_maps_embed()` liefert {src,width,height,title} (+ `tag_attr()`); `intercept()` reicht width/height/title an `render_google_map()`; `content_has_code_block_map()` auf null-Check umgestellt.
+  - `render_google_map()`: optionale atts `width`/`height`/`title`; `render_component()` 6. Param `$dimensions`; `build_geometry_style()`+`sanitize_css_dimension()` legen `width/max-width/height/min-height:0/aspect-ratio:auto` als Inline-Style auf `.lscc-media`. Ohne Dimensionen unverändert 16:9. Post-Consent-iframe (CSS `inset:0`) füllt Container ⇒ Originalhöhe erhalten, **kein** banner.js-Eingriff.
+- `macs-cookie-banner.php`: Version 1.0.2 → 1.0.3. `MCB_CONSENT_VERSION` unverändert.
+- **Validierung (Logik-Trace, kein lokaler PHP-Runtime):** Fresh → seeded recommended (code-maps EIN); Update/Bestand → baseline, kein stiller Flip; Restore → nur 5 Keys; `height="450"` → Container 450px (Platzhalter + Karte). Regression: ohne Dimensionen 16:9 unverändert; banner.js/Consent/Widerruf/Vendoren unberührt.
+
 ## 1.0.2 - 2026-06-23 (Raw-Maps-iframe im Avada Code Block gaten, ADR-35)
 
 - **Lücke (bewiesen):** rohes `<iframe …maps/embed…>` im Avada Code Block (`fusion_code`) ist serverseitig consent-unabhängig, trägt keine MCB-Marker → `banner.js` gatet es nie (lädt bei „Nur notwendige" und nach Widerruf). Kein `banner.js`-/Consent-/Widerruf-Defekt.

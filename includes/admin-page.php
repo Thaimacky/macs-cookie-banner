@@ -24,6 +24,7 @@ final class Macs_Cookie_Banner_Admin {
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'add_settings_page' ) );
 		add_action( 'admin_post_mcb_save_settings', array( __CLASS__, 'save_settings' ) );
+		add_action( 'admin_post_mcb_restore_recommended', array( __CLASS__, 'restore_recommended' ) );
 		add_action( 'admin_post_mcb_import_avada_colors', array( __CLASS__, 'import_avada_colors' ) );
 
 		// Avada Auto-Sync (ADR-32 / forced decision ADR-33).
@@ -233,6 +234,51 @@ final class Macs_Cookie_Banner_Admin {
 				array(
 					'page'    => 'macs-cookie-banner',
 					'updated' => 'true',
+				),
+				admin_url( 'admin.php' )
+			)
+		);
+		exit;
+	}
+
+	/**
+	 * Restore the recommended privacy/blocking defaults (ADR-36).
+	 *
+	 * Operator-driven, explicit click only. Overrides ONLY the privacy/blocking +
+	 * consent-lifetime keys with the recommended safe values; every other option
+	 * (texts, colors, design preset, legal URLs, reopen position/offsets) keeps its
+	 * stored value, and separate options (consent-code snippets, Avada auto-sync
+	 * decision, visitor consents) are not touched at all.
+	 *
+	 * @return void
+	 */
+	public static function restore_recommended() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Sie haben keine Berechtigung, diese Aktion auszuführen.', 'macs-cookie-banner' ) );
+		}
+
+		$nonce = isset( $_POST['mcb_restore_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['mcb_restore_nonce'] ) ) : '';
+
+		if ( ! wp_verify_nonce( $nonce, 'mcb_restore_recommended' ) ) {
+			wp_die( esc_html__( 'Ungültige Sicherheitsprüfung.', 'macs-cookie-banner' ) );
+		}
+
+		$options     = Macs_Cookie_Banner::get_options();
+		$recommended = Macs_Cookie_Banner::get_recommended_defaults();
+
+		foreach ( Macs_Cookie_Banner::get_restore_recommended_keys() as $key ) {
+			if ( array_key_exists( $key, $recommended ) ) {
+				$options[ $key ] = $recommended[ $key ];
+			}
+		}
+
+		update_option( Macs_Cookie_Banner::OPTION_NAME, Macs_Cookie_Banner::sanitize_options( $options ) );
+
+		wp_safe_redirect(
+			add_query_arg(
+				array(
+					'page'         => 'macs-cookie-banner',
+					'mcb_restored' => '1',
 				),
 				admin_url( 'admin.php' )
 			)
@@ -494,6 +540,25 @@ final class Macs_Cookie_Banner_Admin {
 					<p><?php echo esc_html__( 'Einstellungen gespeichert.', 'macs-cookie-banner' ); ?></p>
 				</div>
 			<?php endif; ?>
+
+			<?php if ( isset( $_GET['mcb_restored'] ) && '1' === sanitize_text_field( wp_unslash( $_GET['mcb_restored'] ) ) ) : ?>
+				<div class="notice notice-success is-dismissible">
+					<p><?php echo esc_html__( 'Empfohlene Datenschutzeinstellungen wiederhergestellt. Texte, Farben, URLs, Tracking-Snippets und die Avada-Sync-Entscheidung blieben unverändert.', 'macs-cookie-banner' ); ?></p>
+				</div>
+			<?php endif; ?>
+
+			<div class="notice notice-info inline" style="margin:12px 0;padding:10px 12px;">
+				<p style="margin:0 0 .5em;"><strong><?php echo esc_html__( 'Sichere Standardwerte', 'macs-cookie-banner' ); ?></strong> &mdash;
+					<?php echo esc_html__( 'Setzt die empfohlenen Datenschutz- und Blockier-Einstellungen (Avada-YouTube-/Code-Block-Maps-Blockierung EIN, Remote-Thumbnails AUS, Rechtslinks EIN, Consent-Gültigkeit 180 Tage). Texte, Farben, Design, URLs, Tracking-Snippets, Reopen-Position und die Avada-Sync-Entscheidung bleiben unverändert.', 'macs-cookie-banner' ); ?>
+				</p>
+				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin:0;">
+					<input type="hidden" name="action" value="mcb_restore_recommended">
+					<?php wp_nonce_field( 'mcb_restore_recommended', 'mcb_restore_nonce' ); ?>
+					<button type="submit" class="button button-secondary" onclick="return confirm('<?php echo esc_js( __( 'Alle Datenschutz- und Blockier-Einstellungen werden auf die empfohlenen sicheren Standardwerte zurückgesetzt. Texte, Farben, URLs und Tracking-Snippets bleiben unverändert. Fortfahren?', 'macs-cookie-banner' ) ); ?>');">
+						<?php echo esc_html__( 'Empfohlene Datenschutzeinstellungen wiederherstellen', 'macs-cookie-banner' ); ?>
+					</button>
+				</form>
+			</div>
 
 			<?php if ( isset( $_GET['mcb_avada'] ) ) : ?>
 				<?php $mcb_avada_result = sanitize_text_field( wp_unslash( $_GET['mcb_avada'] ) ); ?>

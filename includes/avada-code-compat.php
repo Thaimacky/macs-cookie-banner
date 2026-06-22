@@ -87,16 +87,24 @@ final class Macs_Cookie_Banner_Avada_Code_Compat {
 			return $output;
 		}
 
-		$src = self::extract_single_maps_embed_src( $decoded );
+		$map = self::extract_maps_embed( $decoded );
 
 		// Not a clean single Maps embed: let Avada render unchanged (no destruction).
-		if ( '' === $src ) {
+		if ( null === $map ) {
 			return $output;
 		}
 
 		// Reuse the existing placeholder component; it re-validates the URL via its
-		// own host/path allowlist and returns '' on anything unexpected.
-		$markup = Macs_Cookie_Banner_Service_Components::render_google_map( array( 'url' => $src ) );
+		// own host/path allowlist and returns '' on anything unexpected. The original
+		// width/height/title are carried over so the visible geometry is preserved.
+		$markup = Macs_Cookie_Banner_Service_Components::render_google_map(
+			array(
+				'url'    => $map['src'],
+				'width'  => $map['width'],
+				'height' => $map['height'],
+				'title'  => $map['title'],
+			)
+		);
 
 		return '' !== $markup ? $markup : $output;
 	}
@@ -138,36 +146,38 @@ final class Macs_Cookie_Banner_Avada_Code_Compat {
 	}
 
 	/**
-	 * Return the embed src ONLY when the decoded HTML is exactly one Google Maps
-	 * embed iframe and nothing else of substance. Conservative by design: any
-	 * extra iframe, a <script>, or leftover visible content yields ''.
+	 * Return the Maps embed details ONLY when the decoded HTML is exactly one
+	 * Google Maps embed iframe and nothing else of substance. Conservative by
+	 * design: any extra iframe, a <script>, or leftover visible content yields null.
 	 *
 	 * @param string $html Decoded Code Block HTML.
-	 * @return string Google Maps embed src, or '' when not a clean single Maps embed.
+	 * @return array|null { src, width, height, title } or null when not a clean single Maps embed.
 	 */
-	public static function extract_single_maps_embed_src( $html ) {
+	public static function extract_maps_embed( $html ) {
 		$html = (string) $html;
 
 		// Never touch blocks that also ship script (avoid breaking custom JS embeds).
 		if ( false !== stripos( $html, '<script' ) ) {
-			return '';
+			return null;
 		}
 
-		if ( ! preg_match_all( '#<iframe\b[^>]*\bsrc=("|\')([^"\']+)\1#i', $html, $matches, PREG_SET_ORDER ) ) {
-			return '';
+		// Exactly one iframe opening tag.
+		if ( ! preg_match_all( '#<iframe\b[^>]*>#i', $html, $tags ) || 1 !== count( $tags[0] ) ) {
+			return null;
 		}
 
-		// Exactly one iframe.
-		if ( 1 !== count( $matches ) ) {
-			return '';
+		$tag = $tags[0][0];
+		$src = self::tag_attr( $tag, 'src' );
+
+		if ( '' === $src ) {
+			return null;
 		}
 
-		$src = trim( $matches[0][2] );
-		$lc  = strtolower( $src );
+		$lc = strtolower( $src );
 
 		// Must be a Google Maps EMBED iframe specifically.
 		if ( false === strpos( $lc, '/maps/embed' ) || false === strpos( $lc, 'google.' ) ) {
-			return '';
+			return null;
 		}
 
 		// Remove the whole iframe element; if anything of substance remains
@@ -177,10 +187,30 @@ final class Macs_Cookie_Banner_Avada_Code_Compat {
 		$remainder = trim( wp_strip_all_tags( (string) $remainder ) );
 
 		if ( '' !== $remainder ) {
-			return '';
+			return null;
 		}
 
-		return $src;
+		return array(
+			'src'    => $src,
+			'width'  => self::tag_attr( $tag, 'width' ),
+			'height' => self::tag_attr( $tag, 'height' ),
+			'title'  => self::tag_attr( $tag, 'title' ),
+		);
+	}
+
+	/**
+	 * Read a single attribute value from an iframe opening tag.
+	 *
+	 * @param string $tag  The <iframe ...> opening tag.
+	 * @param string $name Attribute name.
+	 * @return string Attribute value or ''.
+	 */
+	private static function tag_attr( $tag, $name ) {
+		if ( preg_match( '/\b' . preg_quote( $name, '/' ) . '\s*=\s*("|\')(.*?)\1/i', (string) $tag, $m ) ) {
+			return trim( $m[2] );
+		}
+
+		return '';
 	}
 
 	/**
@@ -204,7 +234,7 @@ final class Macs_Cookie_Banner_Avada_Code_Compat {
 		foreach ( $blocks as $block ) {
 			$decoded = self::decode_fusion_code( $block[1] );
 
-			if ( '' !== $decoded && '' !== self::extract_single_maps_embed_src( $decoded ) ) {
+			if ( '' !== $decoded && null !== self::extract_maps_embed( $decoded ) ) {
 				return true;
 			}
 		}

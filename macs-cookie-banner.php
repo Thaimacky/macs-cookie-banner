@@ -3,7 +3,7 @@
  * Plugin Name: Mac's Cookie Banner
  * Plugin URI:  https://github.com/Thaimacky/macs-cookie-banner
  * Description: Lightweight cookie consent banner with script blocking for WordPress.
- * Version:     1.0.2
+ * Version:     1.0.3
  * Author:      Mac's Cookie Banner
  * Text Domain: macs-cookie-banner
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MCB_VERSION', '1.0.2' );
+define( 'MCB_VERSION', '1.0.3' );
 
 /**
  * Consent schema version. Bump this whenever the stored consent shape
@@ -140,6 +140,69 @@ final class Macs_Cookie_Banner {
 			'avada_maps_block'           => false,
 			'avada_code_maps_block'      => false,
 			'design_preset'              => 'classic',
+		);
+	}
+
+	/**
+	 * Recommended ("safe by default") option values (ADR-36).
+	 *
+	 * Single source of truth for the SAFE values: used for fresh-install seeding
+	 * (on_activate) and for the explicit "restore recommended defaults" action.
+	 * Privacy/blocking protections are ON, looseners are OFF. Deliberately NOT
+	 * applied as the read-time fallback for existing installs — see
+	 * get_baseline_fallback() — so an update never silently flips a site.
+	 *
+	 * @return array
+	 */
+	public static function get_recommended_defaults() {
+		$recommended = array(
+			// Protections ON.
+			'avada_youtube_block'       => true,
+			'avada_code_maps_block'     => true,
+			'show_legal_links'          => true,
+			// Looseners OFF.
+			'youtube_remote_thumbnails' => false,
+			// Consent lifetime baseline.
+			'consent_lifetime_days'     => 180,
+		);
+
+		// avada_maps_block / yotu_consent_gating are intentionally NOT part of the
+		// safe set yet (one-consent-layer conflict / not field-tested); they stay
+		// at their structural default (off) and remain manually enable-able.
+		return array_merge( self::get_default_options(), $recommended );
+	}
+
+	/**
+	 * Conservative read-time fallback for option keys missing from an existing
+	 * install's stored options (ADR-36).
+	 *
+	 * Equals the structural defaults, so a freshly introduced protection that an
+	 * upgraded site never persisted does NOT silently turn on. The recommended
+	 * (safe) values are applied ONLY at fresh-install seeding and via the explicit
+	 * restore action — never as a silent read-time flip.
+	 *
+	 * @return array
+	 */
+	public static function get_baseline_fallback() {
+		return self::get_default_options();
+	}
+
+	/**
+	 * Option keys reset by the "restore recommended privacy defaults" action.
+	 *
+	 * Intentionally limited to privacy/blocking + consent lifetime. Texts, colors,
+	 * design preset, legal URLs, reopen position/offsets, consent-code snippets and
+	 * the Avada auto-sync decision are NOT touched.
+	 *
+	 * @return array
+	 */
+	public static function get_restore_recommended_keys() {
+		return array(
+			'avada_youtube_block',
+			'avada_code_maps_block',
+			'youtube_remote_thumbnails',
+			'show_legal_links',
+			'consent_lifetime_days',
 		);
 	}
 
@@ -411,7 +474,11 @@ final class Macs_Cookie_Banner {
 	 * @return array
 	 */
 	public static function sanitize_options( $options ) {
-		$defaults  = self::get_default_options();
+		// Read-time fallback for missing keys uses the conservative baseline, NOT
+		// the recommended (safe) set, so an update never silently flips a site.
+		// Recommended values reach an install only via fresh-install seeding
+		// (on_activate) or the explicit restore action. (ADR-36)
+		$defaults  = self::get_baseline_fallback();
 		$sanitized = array();
 
 		if ( ! is_array( $options ) ) {
@@ -926,6 +993,14 @@ final class Macs_Cookie_Banner {
 	 * @return void
 	 */
 	public static function on_activate() {
+		// Fresh-Install-Seeding (ADR-36): a brand-new install (no options row yet)
+		// receives the recommended SAFE defaults once. add_option() only creates the
+		// row when it does not exist, so an existing install is never overwritten —
+		// its stored values stay exactly as they are.
+		if ( false === get_option( self::OPTION_NAME, false ) ) {
+			add_option( self::OPTION_NAME, self::get_recommended_defaults() );
+		}
+
 		if ( '1' !== (string) get_option( 'mcb_avada_sync_decided', '' ) ) {
 			update_option( 'mcb_avada_decision_pending', '1' );
 		}
