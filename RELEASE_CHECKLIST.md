@@ -1,5 +1,20 @@
 # Release Checklist
 
+## Brevo-Erkennung + reCAPTCHA-Feinschliff (ab v1.0.5, ADR-38)
+
+**Brevo (Detektion only):**
+- [ ] Brevo-/Sendinblue-Snippet im CCM (`sib-form`, `sibforms.com`, `cdn.brevo.com`, `window.sib`, `[sibwp_form]`) → Vendor-Badge **Brevo (Sendinblue)**; Default-Kategorie-Vorschlag **Marketing**.
+- [ ] Privacy Check Surface-Scan zeigt Zeile **Brevo (Sendinblue)**; Content Scan meldet Brevo-Muster.
+- [ ] **Kein** automatisches Blocking, **keine** Formular-/Script-Manipulation (Brevo lädt unverändert, bis es operator-seitig via CCM gegated wird).
+
+**reCAPTCHA (nur Erkennung/Beratung):**
+- [ ] v2/v3/Enterprise-Snippet (`recaptcha/api.js`, `recaptcha/enterprise.js`, `gstatic.com/recaptcha`, `grecaptcha`, `?render=`) → Vendor **Google reCAPTCHA**.
+- [ ] Privacy Check Surface- **und** Content-Scan melden reCAPTCHA mit geschärftem Hinweis (Formular-Bruch-Warnung, „MCB blockiert nicht automatisch").
+- [ ] **Kein** Script wird automatisch blockiert; **kein** Formular wird manipuliert; betroffene Form-Plugins (CF7/WPForms/Fluent/Gravity/Elementor/Avada) funktionieren unverändert.
+
+**Regression:**
+- [ ] GA4/Google Ads/GTM/Meta Pixel/Mailchimp/Facebook/Instagram/Maps/YouTube unverändert; Safe-by-Default/Restore (1.0.3) unverändert; keine PHP-Warnungen; keine JS-Fehler.
+
 ## Meta Social Embeds: Facebook / Instagram (ab v1.0.4, ADR-37)
 
 **Vendor-Trennung (Scanner / CCM-Badge):**

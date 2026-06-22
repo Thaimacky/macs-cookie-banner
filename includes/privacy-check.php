@@ -536,8 +536,9 @@ final class Macs_Cookie_Banner_Privacy_Check {
 			array( 'key' => 'mailchimp', 'label' => 'Mailchimp', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Marketing) laden.', 'macs-cookie-banner' ) ),
 			array( 'key' => 'facebook_embed', 'label' => 'Facebook (Social Embed)', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => __( 'XFBML/Plugins rendern clientseitig; rohe plugins/*.php-iframes erscheinen im Content Scan.', 'macs-cookie-banner' ), 'recommend' => __( '„Facebook-/Instagram-Social-Embeds blockieren" aktivieren oder [lscc_facebook] verwenden (Kategorie Externe Medien). Nicht mit dem Meta Pixel verwechseln.', 'macs-cookie-banner' ) ),
 			array( 'key' => 'instagram_embed', 'label' => 'Instagram', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( '„Facebook-/Instagram-Social-Embeds blockieren" aktivieren oder [lscc_instagram] verwenden (Kategorie Externe Medien).', 'macs-cookie-banner' ) ),
+			array( 'key' => 'brevo', 'label' => 'Brevo (Sendinblue)', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Marketing) laden.', 'macs-cookie-banner' ) ),
 			array( 'key' => 'hotjar', 'label' => 'Hotjar', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Statistik) laden.', 'macs-cookie-banner' ) ),
-			array( 'key' => 'recaptcha', 'label' => 'Google reCAPTCHA', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => __( 'Rechtliche Einordnung im Einzelfall prüfen.', 'macs-cookie-banner' ), 'recommend' => __( 'Vor Consent blockieren bzw. v2-on-submit prüfen.', 'macs-cookie-banner' ) ),
+			array( 'key' => 'recaptcha', 'label' => 'Google reCAPTCHA', 'kind' => 'script', 'server_visible' => true, 'opaque' => false, 'note' => __( 'Sicherheits-/Formular-Funktion mit Datentransfer an Google — consent-pflichtig, aber Vor-Consent-Blockade kann Formulare beschädigen.', 'macs-cookie-banner' ), 'recommend' => __( 'Nicht hart vor Consent blockieren (Formular-Bruch). Formular-/Plugin-eigene Consent-Lösung bzw. v2-on-submit prüfen; spätere MCB-Option: Consent-on-Interaction.', 'macs-cookie-banner' ) ),
 			array( 'key' => 'calendly', 'label' => 'Calendly', 'kind' => 'script', 'server_visible' => false, 'opaque' => false, 'note' => __( 'Wird teils erst nach Interaktion geladen.', 'macs-cookie-banner' ), 'recommend' => __( 'Über den Consent-Code-Manager (Kategorie Externe Medien) bzw. als gegatetes Embed lösen.', 'macs-cookie-banner' ) ),
 			array( 'key' => 'youtube', 'label' => 'YouTube', 'kind' => 'embed', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( '[lscc_youtube] verwenden oder Avada-/YOTU-Gating aktivieren.', 'macs-cookie-banner' ) ),
 			array( 'key' => 'vimeo', 'label' => 'Vimeo', 'kind' => 'embed', 'server_visible' => true, 'opaque' => false, 'note' => '', 'recommend' => __( '[lscc_vimeo] verwenden.', 'macs-cookie-banner' ) ),
@@ -864,6 +865,18 @@ final class Macs_Cookie_Banner_Privacy_Check {
 				'risk'           => 'info',
 				'needles'        => array( 'custom-facebook-feed', 'instagram-feed', 'sb_instagram', 'spotlight-instagram', 'embedsocial', 'elfsight-app', 'apps.elfsight.com' ),
 				'recommendation' => __( 'Nur Hinweis: Feed-Plugin erkannt (Smash Balloon / Spotlight / EmbedSocial / Elfsight). Wird von MCB NICHT automatisch blockiert — eigene Consent-Funktion des Plugins prüfen oder [lscc_facebook]/[lscc_instagram] verwenden.', 'macs-cookie-banner' ),
+			),
+			array(
+				'service'        => __( 'Brevo (Sendinblue)', 'macs-cookie-banner' ),
+				'risk'           => 'wichtig',
+				'needles'        => array( 'sibforms.com', 'sib-form', 'sibwp_form', 'sibautomation.com', 'brevo.com', 'sendinblue' ),
+				'recommendation' => __( 'Brevo/Sendinblue (Marketing) erkannt. Über den Consent-Code-Manager (Kategorie Marketing) bzw. nur nach Zustimmung laden.', 'macs-cookie-banner' ),
+			),
+			array(
+				'service'        => __( 'Google reCAPTCHA', 'macs-cookie-banner' ),
+				'risk'           => 'wichtig',
+				'needles'        => array( 'google.com/recaptcha', 'gstatic.com/recaptcha', 'recaptcha/api.js', 'recaptcha/enterprise.js', 'grecaptcha' ),
+				'recommendation' => __( 'reCAPTCHA erkannt. Achtung: hartes Blockieren vor Consent kann Formulare beschädigen (Absenden schlägt fehl). MCB blockiert reCAPTCHA NICHT automatisch — Formular-/Plugin-eigene Consent-Lösung prüfen; spätere Option: Consent-on-Interaction.', 'macs-cookie-banner' ),
 			),
 		);
 	}

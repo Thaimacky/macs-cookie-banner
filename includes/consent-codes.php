@@ -78,6 +78,7 @@ final class Macs_Cookie_Banner_Codes {
 			'facebook_embed' => 'Facebook (Social Embed)',
 			'instagram_embed' => 'Instagram',
 			'mailchimp'   => 'Mailchimp',
+			'brevo'       => 'Brevo (Sendinblue)',
 			'hotjar'      => 'Hotjar',
 			'recaptcha'   => 'Google reCAPTCHA',
 			'calendly'    => 'Calendly',
@@ -101,6 +102,7 @@ final class Macs_Cookie_Banner_Codes {
 			'meta_pixel'     => 'marketing',
 			'google_ads'     => 'marketing',
 			'mailchimp'      => 'marketing',
+			'brevo'          => 'marketing',
 			'facebook_embed' => 'external_media',
 			'instagram_embed' => 'external_media',
 		);
@@ -264,10 +266,32 @@ final class Macs_Cookie_Banner_Codes {
 		if ( false !== strpos( $lc, 'chimpstatic.com' ) || false !== strpos( $lc, 'list-manage.com' ) || false !== strpos( $lc, 'mailchimp' ) ) {
 			return 'mailchimp';
 		}
+		if (
+			false !== strpos( $lc, 'brevo.com' )
+			|| false !== strpos( $lc, 'sendinblue' )
+			|| false !== strpos( $lc, 'sibautomation.com' )
+			|| false !== strpos( $lc, 'sibforms.com' )
+			|| false !== strpos( $lc, 'window.brevo' )
+			|| false !== strpos( $lc, 'window.sib' )
+			|| false !== strpos( $lc, 'sib-tracker' )
+			|| false !== strpos( $lc, 'sib-form' )
+			|| false !== strpos( $lc, 'sib-container' )
+			|| false !== strpos( $lc, 'sibwp_form' )
+		) {
+			return 'brevo';
+		}
 		if ( false !== strpos( $lc, 'static.hotjar.com' ) || false !== strpos( $lc, '_hjsettings' ) || false !== strpos( $lc, 'hotjar' ) ) {
 			return 'hotjar';
 		}
-		if ( false !== strpos( $lc, 'google.com/recaptcha' ) || false !== strpos( $lc, 'grecaptcha' ) ) {
+		// reCAPTCHA (v2/v3/Enterprise). ?render=<sitekey> is appended to api.js and
+		// is therefore covered by the recaptcha/api.js needle.
+		if (
+			false !== strpos( $lc, 'google.com/recaptcha' )
+			|| false !== strpos( $lc, 'gstatic.com/recaptcha' )
+			|| false !== strpos( $lc, 'recaptcha/api.js' )
+			|| false !== strpos( $lc, 'recaptcha/enterprise.js' )
+			|| false !== strpos( $lc, 'grecaptcha' )
+		) {
 			return 'recaptcha';
 		}
 		if ( false !== strpos( $lc, 'assets.calendly.com' ) || false !== strpos( $lc, 'calendly.com' ) ) {

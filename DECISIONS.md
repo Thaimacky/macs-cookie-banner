@@ -585,3 +585,20 @@ Die bestehende **WPML-/Polylang-String-Translation-Registrierung bleibt als Over
 **Bewusst NICHT:** kein iframe-Rewrite / Roh-iframe-Gating (nur Erkennung/Meldung), kein Feed-Plugin-Gating, keine Änderung an banner.js/Consent-Modell/Kategorien/GA4/Ads/GTM/Meta Pixel/Mailchimp/Maps/YouTube/Avada-Modulen/Safe-by-Default-1.0.3.
 
 **Folgen / offene Punkte:** SDK-Gating greift bei enqueued Scripts; hartcodierte SDKs / rohe `plugins/*.php`-iframes werden erkannt/gemeldet, aber nicht auto-geblockt (über CCM bzw. Shortcodes führen) — Kandidat für eine spätere iframe-Interception-Phase. Keine DB-Migration, `MCB_CONSENT_VERSION` unverändert. Verbindliche Referenz: `MASTER_HANDBUCH.md`.
+
+## ADR-38: Brevo-Erkennung jetzt, reCAPTCHA bewusst ohne aktives Gating — Consent-on-Interaction als Roadmap (umgesetzt/geplant in v1.0.5)
+
+**Status:** Aktiv ab v1.0.5 (2026-06-23). Detektion umgesetzt; aktives reCAPTCHA-Gating **bewusst zurückgestellt** (Roadmap).
+
+**Kontext (bewiesen):** Brevo (Sendinblue) wurde von `match_vendor()` nicht erkannt (fiel auf `custom`), war im Scanner unsichtbar. Google reCAPTCHA war bereits Vendor (`recaptcha`) und im Surface-Scan sichtbar, aber die Erkennung war schmal (`google.com/recaptcha`/`grecaptcha`) und der Content-Scan fehlte. Technische Analyse reCAPTCHA: es ist **Bestandteil der Formular-Funktion** und meist ein harter serverseitiger Gate — ein hartes Vor-Consent-Blockieren bricht das Absenden über CF7/WPForms/Fluent Forms/Gravity Forms/Elementor Forms/Avada Forms (Validierungsfehler bzw. `grecaptcha is not defined`).
+
+**Entscheidung:**
+- **Brevo (umgesetzt):** Vendor `brevo` (Label „Brevo (Sendinblue)"), Default-Kategorie `marketing`; Erkennung in `match_vendor()`; Sichtbarkeit im Privacy-Check (Surface + Content Scan). **Kein** aktives Gating, **keine** Formular-/Script-Manipulation (Blockade nur operator-seitig via CCM).
+- **reCAPTCHA (umgesetzt, nur Feinschliff):** Erkennung erweitert (`gstatic.com/recaptcha`, `recaptcha/api.js`, `recaptcha/enterprise.js`; `?render=` via api.js); Content-Scan-Eintrag; Empfehlungstext geschärft („consent-pflichtig, aber nicht hart vor-blockieren — Formular-Bruch; Plugin-eigene Consent-Lösung / v2-on-submit"). Vendor/Label unverändert. **Kein** automatisches Gating in v1.0.5.
+- **Einordnung reCAPTCHA:** consent-pflichtig (Datentransfer an Google), **nicht** „necessary"; am ehesten `external_media` — aber wegen Formular-Bruch **nicht** Medien-artig hart blockieren.
+
+**Roadmap (geplant, eigenes späteres Paket):** **reCAPTCHA Consent-on-Interaction** — `api.js` erst bei Formular-Interaktion (Fokus/Klick) laden, sodass vor Interaktion kein Google-Kontakt entsteht, das Formular aber funktioniert. Pro Form-Plugin testen, opt-in, kein generischer Schnellschuss. Eigene ADR bei Umsetzung.
+
+**Bewusst NICHT:** reCAPTCHA-Gating/-Placeholder, Formular-Hooking, Form-Plugin-Spezialmodule, Brevo-SRC-Gating, Brevo-Formular-Manipulation, neue Consent-Kategorie.
+
+**Folgen:** Keine DB-/Architektur-Änderung; rein additive Erkennung. `MCB_CONSENT_VERSION` unverändert. Verbindliche Referenz: `MASTER_HANDBUCH.md`.

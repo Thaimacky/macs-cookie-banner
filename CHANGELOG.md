@@ -8,6 +8,28 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 1.0.5 - 2026-06-23
+
+Brevo (Sendinblue) als Vendor erkannt/klassifiziert; Google-reCAPTCHA-Erkennung verbessert und klar eingeordnet. **Reine Erkennung/Scanner — kein aktives Gating, keine Formular-Manipulation, keine neue Option/Kategorie** (ADR-38).
+
+### Added
+
+- **Brevo (Sendinblue) erkannt.** Neuer Vendor `brevo` in `match_vendor()` (`brevo.com`, `sendinblue`, `sibautomation.com`, `sibforms.com`, `window.sib`, `window.Brevo`, `sib-tracker`, `sib-form`, `sib-container`, `sibwp_form`). Label „Brevo (Sendinblue)", Default-Kategorie (Auto-Vorschlag) = **marketing**. Privacy-Check Surface-Scan-Zeile + Content-Scan-Muster.
+- **Google reCAPTCHA — Erkennung verbessert.** `match_vendor()` zusätzlich `gstatic.com/recaptcha`, `recaptcha/api.js`, `recaptcha/enterprise.js` (deckt v2/v3/Enterprise; `?render=<sitekey>` via `api.js`); bestehend `google.com/recaptcha`, `grecaptcha`. Neuer Content-Scan-Eintrag. Vendor/Label unverändert (`recaptcha` / „Google reCAPTCHA").
+
+### Changed
+
+- **reCAPTCHA-Empfehlung geschärft (Surface + Content Scan):** „Sicherheits-/Formular-Funktion mit Datentransfer an Google — consent-pflichtig, **aber** hartes Vor-Consent-Blockieren kann Formulare beschädigen (Absenden schlägt fehl). MCB blockiert reCAPTCHA **nicht** automatisch. Formular-/Plugin-eigene Consent-Lösung bzw. v2-on-submit prüfen; spätere Option: Consent-on-Interaction."
+- Version 1.0.4 → **1.0.5** (Header + `MCB_VERSION`). `MCB_CONSENT_VERSION` unverändert.
+
+### Bewusst NICHT umgesetzt
+
+- Kein reCAPTCHA-Gating/-Placeholder, kein Formular-Hooking, keine Form-Plugin-Spezialmodule (CF7/WPForms/Fluent/Gravity/Elementor/Avada). Kein Brevo-SRC-Gating, keine Brevo-Formular-Manipulation. Keine neue Consent-Kategorie. GA4/Ads/GTM/Meta Pixel/Facebook/Instagram/Maps/YouTube/Safe-by-Default-1.0.3 unverändert.
+
+### Roadmap (ADR-38)
+
+- **reCAPTCHA Consent-on-Interaction** dokumentiert: `api.js` erst bei Formular-Interaktion laden, per Form-Plugin getestet, opt-in — eigenes späteres Paket, kein generischer Schnellschuss.
+
 ## 1.0.4 - 2026-06-23
 
 Facebook- und Instagram-**Social-Embeds** in die bestehende `external_media`-Architektur integriert (ADR-37). Strikte Trennung von Meta Pixel. Safe-by-Default (ADR-36): Neuinstallation gatet ab Werk, Bestand bleibt unverändert.

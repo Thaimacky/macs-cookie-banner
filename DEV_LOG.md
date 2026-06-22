@@ -1,5 +1,15 @@
 # DEV LOG
 
+## 1.0.5 - 2026-06-23 (Brevo-Erkennung + reCAPTCHA-Feinschliff, ADR-38)
+
+- **Reine Detektion/Scanner — kein Gating, keine neue Option/Kategorie.**
+- `includes/consent-codes.php`: `match_vendor()` neuer `brevo`-Zweig (brevo.com/sendinblue/sibautomation.com/sibforms.com/window.sib/window.brevo/sib-tracker/sib-form/sib-container/sibwp_form); `recaptcha`-Zweig erweitert (gstatic.com/recaptcha, recaptcha/api.js, recaptcha/enterprise.js; `?render=` via api.js). `vendor_labels()` „Brevo (Sendinblue)"; `vendor_default_category()` brevo→marketing.
+- `includes/privacy-check.php`: Surface-Scan-Zeile `brevo` (kind script, marketing); reCAPTCHA-Surface-Note/Recommend geschärft (Formular-Bruch-Warnung, kein Auto-Block). Content-Scan-Einträge Brevo + reCAPTCHA.
+- `macs-cookie-banner.php`: Version 1.0.4 → 1.0.5. `MCB_CONSENT_VERSION` unverändert. **Keine** Modul-/Option-/Hook-Änderung.
+- **Nicht angefasst:** banner.js, Consent/Widerruf, Gating-Module, Form-Plugins, GA4/Ads/GTM/Meta Pixel/FB/IG/Maps/YouTube/Safe-by-Default-1.0.3.
+- **Roadmap ADR-38:** reCAPTCHA Consent-on-Interaction (api.js bei Formular-Interaktion, per-Plugin, opt-in) — geplant, nicht umgesetzt.
+- **Validierung (Logik-Trace, kein lokaler PHP-Runtime):** Brevo-Snippet → brevo/marketing; reCAPTCHA-Varianten (api.js/enterprise.js/gstatic/grecaptcha) → recaptcha; Content-Scan meldet beide; kein Script wird automatisch geblockt, kein Formular angefasst.
+
 ## 1.0.4 - 2026-06-23 (Meta Social Embeds: Facebook/Instagram, ADR-37)
 
 - **Vendor-Trennung, `includes/consent-codes.php`:** `match_vendor()` → `facebook_embed` + `instagram_embed` **vor** `meta_pixel`. Social-Marker: `facebook.com/plugins/`, `connect.facebook.net`+`sdk.js`, `fbasyncinit`, `fb.init`, `\bfb-(page|post|video)\b`; `instagram.com/embed`, `platform.instagram.com`, `instagram-media`, `instgrm`. Pixel-Pfad (`fbevents.js`/`fbq`) unverändert → kein Doppelgriff. `vendor_labels()` + `vendor_default_category()` (beide → external_media) ergänzt.
