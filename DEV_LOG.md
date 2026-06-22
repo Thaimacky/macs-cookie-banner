@@ -1,5 +1,18 @@
 # DEV LOG
 
+## 1.0.2 - 2026-06-23 (Raw-Maps-iframe im Avada Code Block gaten, ADR-35)
+
+- **Lücke (bewiesen):** rohes `<iframe …maps/embed…>` im Avada Code Block (`fusion_code`) ist serverseitig consent-unabhängig, trägt keine MCB-Marker → `banner.js` gatet es nie (lädt bei „Nur notwendige" und nach Widerruf). Kein `banner.js`-/Consent-/Widerruf-Defekt.
+- **Fix (opt-in, Default AUS, reversibel):** neues Modul `includes/avada-code-compat.php`.
+  - `init()` (nur Frontend, nur bei `avada_code_maps_block`): Filter `pre_do_shortcode_tag`.
+  - `intercept()` reagiert nur auf `fusion_code`; `decode_fusion_code()` (base64 oder raw HTML → nur wenn iframe enthalten); `extract_single_maps_embed_src()` gibt src **nur** zurück bei **genau einem** iframe, `google.`+`/maps/embed`, **kein** `<script>`, **kein** Rest-Inhalt (sonst ''). Ersatz via bestehender `Service_Components::render_google_map(['url'=>$src])` (re-sanitisiert URL über vorhandene Allowlist). In jedem Zweifelsfall → `$output` (Avada rendert, kein Inhaltsverlust).
+  - `content_has_code_block_map()` = base64-aware Detektion für den Scanner.
+- `macs-cookie-banner.php`: `require_once` + `init()` nach `avada-maps-compat`; Option `avada_code_maps_block` (Default false) in `get_default_options()` + `get_bool_option_keys()`. Version 1.0.1 → 1.0.2.
+- `includes/admin-page.php`: Checkbox „Google Maps in Avada Code Blocks blockieren" + Beschreibung im Avada-Google-Maps-Block (bestehender Single-Save-Pfad über `lscc_options`/bool-keys, keine neue Save-Logik).
+- `includes/privacy-check.php`: `run_content_scan()` ergänzt eigene Trefferzeile „Google Maps (Avada Code Block)" via `Avada_Code_Compat::content_has_code_block_map()` (base64-aware); Risiko/Empfehlung abhängig vom Schalter.
+- **Reuse, unverändert:** `service-components.php` (`render_google_map`/`sanitize_google_maps_url`). **Nicht angefasst:** `banner.js`, Consent/Widerruf, GA4/Ads/Mailchimp/Meta/GTM, Color Sync, `fusion_map`-Logik, generische iframe-Blockade.
+- **Validierung (Logik-Trace, kein lokaler PHP-Runtime):** base64-Code-Block mit Maps-iframe → Platzhalter (kein Maps-iframe im Vor-Consent-HTML); gemischter Block/Script/zweites iframe → Passthrough; Option AUS → Verhalten unverändert; verwaltete Pipeline ⇒ Widerruf+Reload entfernt Karte automatisch.
+
 ## 1.0.1 - 2026-06-22 (Vendor-Abdeckung: Google Ads + Mailchimp)
 
 - **Scope:** drei beschlossene Punkte — Google Ads, Mailchimp, Vendor-/Scanner-Abdeckung. Additiv, RC2 (1.0.0) bleibt eingefroren.

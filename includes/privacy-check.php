@@ -707,8 +707,11 @@ final class Macs_Cookie_Banner_Privacy_Check {
 		$patterns = self::get_content_scan_patterns();
 		$findings = array();
 
+		$code_map_active = ! empty( Macs_Cookie_Banner::get_options()['avada_code_maps_block'] );
+
 		foreach ( $query->posts as $post ) {
-			$content_lc = strtolower( (string) $post->post_content );
+			$content    = (string) $post->post_content;
+			$content_lc = strtolower( $content );
 			$type_label = self::get_post_type_label( $post->post_type );
 
 			foreach ( $patterns as $pattern ) {
@@ -726,6 +729,26 @@ final class Macs_Cookie_Banner_Privacy_Check {
 						break;
 					}
 				}
+			}
+
+			// Avada Code Block with a raw Google Maps embed iframe: base64-decoded,
+			// so the plain needle scan above cannot see it. Report it clearly and let
+			// the recommendation reflect whether the gating option is active.
+			if (
+				class_exists( 'Macs_Cookie_Banner_Avada_Code_Compat' )
+				&& Macs_Cookie_Banner_Avada_Code_Compat::content_has_code_block_map( $content )
+			) {
+				$findings[] = array(
+					'risk'           => $code_map_active ? 'info' : 'kritisch',
+					'service'        => __( 'Google Maps (Avada Code Block)', 'macs-cookie-banner' ),
+					'post_type'      => $type_label,
+					'title'          => get_the_title( $post->ID ),
+					'edit_url'       => get_edit_post_link( $post->ID, 'raw' ),
+					'domain'         => 'google.com/maps/embed',
+					'recommendation' => $code_map_active
+						? __( 'Wird durch die aktive Option „Google Maps in Avada Code Blocks blockieren" vor Consent geblockt (Platzhalter, Kategorie Externe Medien).', 'macs-cookie-banner' )
+						: __( 'Rohes Google-Maps-iframe in einem Avada Code Block lädt vor Consent. Option „Google Maps in Avada Code Blocks blockieren" aktivieren oder [lscc_google_map] verwenden.', 'macs-cookie-banner' ),
+				);
 			}
 		}
 

@@ -531,3 +531,21 @@ Die bestehende **WPML-/Polylang-String-Translation-Registrierung bleibt als Over
 **Begründung:** Verhindert Spekulations-Schleifen, hält die Debug-Last beim Agenten, liefert abnahmefähige Ergebnisse.
 
 **Folgen / offene Punkte:** Gilt für alle künftigen Arbeitspakete. Verbindliche Referenz: `MASTER_HANDBUCH.md` (Abschnitt „Verbindliche Learnings & Arbeitsregeln").
+
+## ADR-35: Raw-Google-Maps-iframe im Avada Code Block gaten — opt-in (umgesetzt in v1.0.2)
+
+**Status:** Aktiv ab v1.0.2 (2026-06-23). Baut auf ADR-25 (Avada-Maps-Gating via Render-Interception) und ADR-27 (Opt-in, Default AUS, „bestehende Einstellungen beibehalten") auf.
+
+**Kontext (bewiesen):** Ein rohes `<iframe src="https://www.google.com/maps/embed?…">`, das per Avada **Code Block** (`fusion_code`) eingefügt wurde, wird serverseitig **consent-unabhängig** ausgegeben und trägt **keine** MCB-Marker (`data-lscc-media`, `data-cookie-category`). `banner.js` gatet ausschließlich markierte Scripts und `[data-lscc-media]`-Platzhalter → das rohe iframe wird nie blockiert und lädt bei „Nur notwendige" wie auch nach einem Widerruf (Reload). Kein Defekt der Consent-/Widerruf-/`banner.js`-Logik — diese arbeiten beweisbar korrekt; das iframe stand nie unter Consent-Kontrolle. Avada speichert Code-Block-Inhalt base64-codiert, weshalb der textbasierte Content-Scan den Fall bisher nicht im Klartext sah.
+
+**Entscheidung:** Neues, eng gescoptes opt-in-Modul `includes/avada-code-compat.php` (Option `avada_code_maps_block`, Default **false**):
+- Filter `pre_do_shortcode_tag` **nur** auf `fusion_code`, **nur** im Frontend, **nur** bei aktiver Option.
+- Eingriff **ausschließlich**, wenn der (ggf. base64-dekodierte) Inhalt **genau ein** Google-Maps-Embed-iframe (`google.`+`/maps/embed`) ist, **kein** `<script>` enthält und **kein** sonstiger sichtbarer Inhalt übrig bleibt. In **jedem** anderen Fall → Passthrough (Avada rendert unverändert, kein Inhaltsverlust).
+- Ersatz durch die **bestehende** Platzhalterkomponente `Service_Components::render_google_map(['url'=>$src])` (Kategorie `external_media`; URL wird über die vorhandene Host/Pfad-Allowlist re-validiert). Danach durchläuft die Karte denselben Gate + Widerruf-Pfad wie verwaltete Komponenten.
+- Privacy-Check-Content-Scan meldet den Fall base64-aware (`content_has_code_block_map()`); Risiko `kritisch` bei Option AUS, `info` (geblockt) bei Option AN.
+
+**Abgrenzung (No-Go-konform):** **Kein** globaler iframe-Filter, **kein** MutationObserver, **kein** `the_content`-Rewrite, **kein** `post_content`-Umschreiben, **kein** neuer Frontend-Code/Placeholder. Reine Render-Interception von Avadas eigenem Shortcode, transient und reversibel (Schalter aus → Original). Ausschließlich Google Maps — nicht YouTube/Vimeo/andere iframes, nicht `fusion_code` allgemein.
+
+**Begründung:** Schliesst die reale Consent-Lücke an der **Quelle**, nicht über eine (verbotene) Widerruf-Teardown-/DOM-Manipulation. Maximale Wiederverwendung, minimaler, reversibler Eingriff, ADR-27-konform (Default AUS).
+
+**Folgen / offene Punkte:** Bekannte Grenze: gemischte Code Blocks (Karte **plus** weiterer Inhalt/zweites iframe/Script) bleiben bewusst ungegated (kein Inhaltsverlust) → Workaround `[lscc_google_map]`. base64-/Format-Annahme ist defensiv (strikt dekodiert, sonst Passthrough). Keine Änderung an `banner.js`, Consent/Widerruf, Vendor-Erkennung, Color Sync, `fusion_map`-Logik; `MCB_CONSENT_VERSION` unverändert. Verbindliche Referenz: `MASTER_HANDBUCH.md`.

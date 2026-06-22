@@ -1,5 +1,28 @@
 # Release Checklist
 
+## Google Maps in Avada Code Blocks gaten (ab v1.0.2, ADR-35)
+
+Voraussetzung: Avada-Seite mit einem **Code Block**, der ein rohes Google-Maps-Embed-iframe (`<iframe src="https://www.google.com/maps/embed?…">`) enthält.
+
+**Option AUS (Default):**
+- [ ] Verhalten unverändert: das rohe Maps-iframe bleibt im Quelltext, Karte lädt wie bisher; keine Bestands-/Inhaltsänderung.
+
+**Option AN („Google Maps in Avada Code Blocks blockieren"):**
+- [ ] **Vor Consent / „Nur notwendige" (Quelltext + Netzwerk, Hard-Reload):** **kein** `google.com/maps/embed`-iframe im HTML; stattdessen MCB-Platzhalter mit „Externe Medien akzeptieren".
+- [ ] **„Alle akzeptieren":** Karte wird geladen.
+- [ ] **Widerruf auf „Nur notwendige" + Reload:** Karte wird **nicht** mehr geladen, Platzhalter erscheint.
+
+**Eng gescopt / kein Schaden:**
+- [ ] Code Block mit Karte **plus** weiterem Inhalt (Text/zweites iframe/Script) → **unverändert** (Avada rendert; kein Inhaltsverlust).
+- [ ] YouTube-/Vimeo-/Nicht-Maps-iframes in Code Blocks → **unverändert**.
+
+**Scanner:**
+- [ ] Privacy Check → Content Scan: Trefferzeile „Google Maps (Avada Code Block)" erscheint; Risiko **kritisch** bei Option AUS, **info/blockiert** bei Option AN; Edit-Link funktioniert.
+
+**Regression:**
+- [ ] `[lscc_google_map]` funktioniert weiterhin; `fusion_map`-Gating (`avada_maps_block`) funktioniert weiterhin.
+- [ ] GA4 / Google Ads / Mailchimp / Meta / GTM unverändert; keine PHP-Warnungen; keine JS-Fehler in der Konsole.
+
 ## Vendor-Erkennung Google Ads + Mailchimp (ab v1.0.1)
 
 **Google Ads (Conversion Tracking / Remarketing):**

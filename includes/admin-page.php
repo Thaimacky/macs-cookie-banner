@@ -781,6 +781,14 @@ final class Macs_Cookie_Banner_Admin {
 							<p class="description"><strong><?php echo esc_html__( 'Wichtig: Nur eine Consent-Schicht verwenden. Avada Privacy Maps und LSCC Maps nicht parallel aktivieren.', 'macs-cookie-banner' ); ?></strong></p>
 						</td>
 					</tr>
+					<?php self::render_checkbox_field( 'avada_code_maps_block', esc_html__( 'Google Maps in Avada Code Blocks blockieren', 'macs-cookie-banner' ), $options['avada_code_maps_block'] ); ?>
+					<tr>
+						<th scope="row"></th>
+						<td>
+							<p class="description"><?php echo esc_html__( 'Ersetzt Google-Maps-iframes in Avada Code Blocks durch den bestehenden MCB-Platzhalter. Empfohlen, wenn Google Maps per Embed-Code eingefügt wurde.', 'macs-cookie-banner' ); ?></p>
+							<p class="description"><?php echo esc_html__( 'Greift nur, wenn ein Code Block ausschliesslich ein einzelnes Google-Maps-Embed-iframe (google.com/maps/embed) enthält. Andere Inhalte, Scripts, weitere iframes, YouTube/Vimeo werden NICHT verändert. Vor Zustimmung zu „Externe Medien" entsteht kein Google-Kontakt; nach Widerruf auf „Nur notwendige" verschwindet die Karte beim Reload wieder. Reversibel (Schalter aus).', 'macs-cookie-banner' ); ?></p>
+						</td>
+					</tr>
 				</table>
 
 				<?php submit_button( esc_html__( 'Einstellungen speichern', 'macs-cookie-banner' ) ); ?>

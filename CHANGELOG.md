@@ -8,6 +8,30 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 1.0.2 - 2026-06-23
+
+Schliesst die bestätigte Google-Maps-Consent-Lücke „rohes iframe im Avada Code Block". Opt-in, Default AUS, reversibel, ADR-27-konform. Kein Eingriff in Banner/Consent/Widerruf/Vendor-Erkennung/`fusion_map`.
+
+### Added
+
+- **Neues opt-in-Modul `includes/avada-code-compat.php` (ADR-35).** Fängt **ausschliesslich** den Avada Code Block (`fusion_code`) ab, der **genau ein** Google-Maps-Embed-iframe (`google.com/maps/embed`) enthält, und ersetzt ihn serverseitig durch den **bestehenden** MCB-Platzhalter (`Service_Components::render_google_map()`, Kategorie `external_media`). Vor Consent kein rohes Maps-iframe im HTML; nach „Alle akzeptieren" lädt die Karte; nach Widerruf auf „Nur notwendige" + Reload verschwindet sie wieder (gleicher Pfad wie verwaltete Komponenten).
+  - **Eng gescopt:** nur `fusion_code`, nur der reine Maps-Fall. Andere Inhalte, `<script>`, weitere/andere iframes, YouTube/Vimeo, gemischte Blöcke → **unverändert** (Avada rendert normal, kein Inhaltsverlust). Avada speichert Code-Block-Inhalt base64-codiert → wird sicher dekodiert, sonst Passthrough.
+  - **Kein** globaler iframe-Filter, **kein** MutationObserver, **kein** `the_content`-Rewrite, **kein** neuer Frontend-Code/Placeholder.
+- **Admin-Option** „Google Maps in Avada Code Blocks blockieren" (`avada_code_maps_block`, Default **false**) im Bereich Avada-Integration/Avada-Google-Maps, inkl. Kurztext und Scope-Hinweis.
+- **Privacy Check / Content Scan** meldet den Fall jetzt **eindeutig**: eigene Trefferzeile „Google Maps (Avada Code Block)" (base64-aware via Modul-Helfer). Empfehlung/Risiko abhängig vom Schalter — `kritisch`, wenn AUS; `info` („wird geblockt"), wenn AN.
+
+### Changed
+
+- Version 1.0.1 → **1.0.2** (Header + `MCB_VERSION`). `MCB_CONSENT_VERSION` unverändert.
+
+### Bewusst unverändert
+
+- `banner.js`, Consent-Speicherung, Widerruf-Logik, GA4/Google Ads/Mailchimp/Meta Pixel/GTM, Avada Color Sync, bestehende `fusion_map`-Logik (`avada-maps-compat.php`). Keine generische iframe-Blockade, keine DB-Migration.
+
+### Bekannte Grenze
+
+- Enthält ein Code Block **neben** der Karte weiteren Inhalt (Text/zweites iframe/Script), bleibt er bewusst unangetastet (kein Inhaltsverlust) → diese Karte bleibt ungegated. Workaround: `[lscc_google_map]` verwenden.
+
 ## 1.0.1 - 2026-06-22
 
 Vendor-Abdeckung erweitert (DE/CH-Livegang, Priorität 1/3). 1.0.0 RC2 bleibt eingefroren; reine additive Erkennung, keine Änderung an Consent, Banner, Avada, Scanner-Architektur oder bestehenden Snippets.
