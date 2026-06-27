@@ -602,3 +602,21 @@ Die bestehende **WPML-/Polylang-String-Translation-Registrierung bleibt als Over
 **Bewusst NICHT:** reCAPTCHA-Gating/-Placeholder, Formular-Hooking, Form-Plugin-Spezialmodule, Brevo-SRC-Gating, Brevo-Formular-Manipulation, neue Consent-Kategorie.
 
 **Folgen:** Keine DB-/Architektur-Änderung; rein additive Erkennung. `MCB_CONSENT_VERSION` unverändert. Verbindliche Referenz: `MASTER_HANDBUCH.md`.
+
+## ADR-39: Sprachabhängige Privacy-/Imprint-Links — Auflösung beim Rendern, keine Speicherung (umgesetzt in v1.0.6)
+
+**Status:** Aktiv ab v1.0.6 (2026-06-28). Baut auf der bestehenden WPML/Polylang-Text-Übersetzung (`get_translated_option`, `register_wpml_strings`, `pll__`) auf.
+
+**Kontext (bewiesen):** Auf mehrsprachigen Websites wurden die **Linktexte** der Rechtslinks korrekt übersetzt (WPML String Translation / Polylang), die **Ziel-URLs** zeigten jedoch konstant auf die deutsche Datenschutz-/Impressumsseite (DE→DE ✅, EN/FR/IT→DE ❌). Ursache: `get_privacy_url()` lieferte `privacy_url_override` bzw. `get_privacy_policy_url()` unverändert; `get_imprint_url()` lieferte `imprint_url_override` bzw. die Detektions-Transient-URL unverändert — alle ohne Bezug zur aktiven Sprache. Damit war die Internationalisierung unvollständig.
+
+**Entscheidung:**
+- **Auflösung statt Speicherung:** Die gespeicherte Seite wird **beim Rendern** in die aktuelle Sprache aufgelöst — kein zweites URL-Set, keine sprachabhängigen Optionen, keine Datenmodell-Änderung.
+- **Keine URL-String-Manipulation:** Die URL wird über `url_to_postid()` auf eine Post-ID gemappt, die ID via Multilingual-API übersetzt und mit `get_permalink()` zur kanonischen Ziel-URL aufgelöst — kein Einsetzen von Sprach-Präfixen, kein Pfad-Rewrite.
+- **WPML:** `apply_filters( 'wpml_object_id', $id, get_post_type($id), true )` (3. Param `true` = Original-Fallback). **Polylang:** `pll_get_post( $id )` (falsy → Original). **Ohne Plugin:** Original-ID.
+- **Fallback:** Existiert keine Übersetzung, bleibt die Originalseite (kein 404). Externe/nicht auflösbare Override-URLs (`url_to_postid()` = 0) bleiben unverändert.
+- **Core-Privacy-Seite:** Auf mehrsprachigen Sites direkt über `get_option('wp_page_for_privacy_policy')` → `translate_post_id()` → `get_permalink()` (robuster als URL-Round-Trip). Einsprachig bleibt der unveränderte `get_privacy_policy_url()`-Pfad (inkl. `the_privacy_policy_url`-Filter + Publish-Check).
+- **Einsprachig = exakt unverändert:** `is_multilingual()`-Guard kurzschließt sämtliche neue Logik; `localize_url()` ist ein No-op.
+
+**Bewusst NICHT:** keine URL-Manipulation/Präfix-Einsetzung, keine neue Option, kein sprachabhängiges Speichern, keine Änderung an Linktexten, Banner-Layout, Consent-Modell, Datenmodell oder Detektions-Transient-Format.
+
+**Folgen:** Keine DB-/Architektur-Änderung; rein render-seitige Auflösung. `MCB_CONSENT_VERSION` unverändert. Verbindliche Referenz: `MASTER_HANDBUCH.md`.

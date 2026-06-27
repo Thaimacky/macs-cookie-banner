@@ -8,6 +8,23 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 1.0.6 - 2026-06-28
+
+Datenschutz- und Impressumslink im Banner zeigen auf mehrsprachigen Websites (WPML/Polylang) jetzt auf die Seite der **aktuell aktiven Sprache**. Reine Ziel-URL-Auflösung beim Rendern — **keine** URL-Manipulation, **keine** neuen Optionen, **keine** sprachabhängige Speicherung, Linktexte unverändert (ADR-39).
+
+### Fixed
+
+- **Sprachabhängige Rechtslinks.** Bisher wurden die Linktexte korrekt übersetzt, die Ziel-URLs zeigten jedoch immer auf die deutsche Datenschutz-/Impressumsseite. Ursache: `get_privacy_url()`/`get_imprint_url()` lieferten die gespeicherte Original-URL bzw. die Core-Privacy-URL (`get_privacy_policy_url()`) unverändert aus, ohne Bezug zur aktiven WPML-/Polylang-Sprache. Jetzt wird die **gespeicherte Seite** beim Rendern in die aktuelle Sprache aufgelöst (WPML `wpml_object_id` mit Original-Fallback, Polylang `pll_get_post`); existiert keine Übersetzung, fällt die Auflösung sauber auf die Originalseite zurück.
+
+### Changed
+
+- **Auflösung statt Speicherung.** Neue private Helfer in `macs-cookie-banner.php`: `localize_url()` (URL → Post-ID via `url_to_postid()` → übersetzte ID → `get_permalink()`), `translate_post_id()` (WPML/Polylang-Übersetzung mit Original-Fallback), `is_multilingual()` (Aktiv-Erkennung). Die WordPress-Core-Privacy-Seite wird auf mehrsprachigen Sites direkt über ihre Post-ID (`wp_page_for_privacy_policy`) aufgelöst.
+- Version 1.0.5 → **1.0.6** (Header + `MCB_VERSION`). `MCB_CONSENT_VERSION` unverändert.
+
+### Bewusst NICHT umgesetzt
+
+- **Keine** URL-String-Manipulation (kein `/en/`-Präfix-Einsetzen), **keine** neue Option, **keine** sprachabhängige Speicherung, **keine** Änderung am Datenmodell, am Consent, am Banner-Layout oder an den Linktexten. Auf einsprachigen Websites bleibt das Verhalten exakt unverändert (kein Code-Pfad aktiv).
+
 ## 1.0.5 - 2026-06-23
 
 Brevo (Sendinblue) als Vendor erkannt/klassifiziert; Google-reCAPTCHA-Erkennung verbessert und klar eingeordnet. **Reine Erkennung/Scanner — kein aktives Gating, keine Formular-Manipulation, keine neue Option/Kategorie** (ADR-38).

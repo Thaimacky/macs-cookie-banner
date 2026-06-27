@@ -3,7 +3,7 @@
  * Plugin Name: Mac's Cookie Banner
  * Plugin URI:  https://github.com/Thaimacky/macs-cookie-banner
  * Description: Lightweight cookie consent banner with script blocking for WordPress.
- * Version:     1.0.5
+ * Version:     1.0.6
  * Author:      Mac's Cookie Banner
  * Text Domain: macs-cookie-banner
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MCB_VERSION', '1.0.5' );
+define( 'MCB_VERSION', '1.0.6' );
 
 /**
  * Consent schema version. Bump this whenever the stored consent shape
@@ -740,13 +740,28 @@ final class Macs_Cookie_Banner {
 	 * Get the privacy URL for the banner.
 	 *
 	 * Order: manual override -> WordPress core privacy page -> empty.
+	 * On WPML/Polylang sites the resulting page is resolved to the currently
+	 * active language at render time (see localize_url/translate_post_id).
 	 *
 	 * @param array $options Resolved options array.
 	 * @return string
 	 */
 	public static function get_privacy_url( $options ) {
 		if ( ! empty( $options['privacy_url_override'] ) ) {
-			return (string) $options['privacy_url_override'];
+			return self::localize_url( (string) $options['privacy_url_override'] );
+		}
+		// On multilingual sites resolve the WordPress core privacy page by its
+		// post ID directly (robust, no URL round-trip). Single-language sites keep
+		// the unchanged get_privacy_policy_url() path below (filter + publish check).
+		if ( self::is_multilingual() ) {
+			$privacy_page_id = (int) get_option( 'wp_page_for_privacy_policy' );
+			if ( $privacy_page_id > 0 ) {
+				$translated_id = self::translate_post_id( $privacy_page_id );
+				$url           = get_permalink( $translated_id );
+				if ( $url ) {
+					return (string) $url;
+				}
+			}
 		}
 		if ( function_exists( 'get_privacy_policy_url' ) ) {
 			$url = get_privacy_policy_url();
@@ -762,16 +777,111 @@ final class Macs_Cookie_Banner {
 	 *
 	 * Order: manual override -> cached detection (transient) -> empty.
 	 * The detection itself runs only in the admin (see maybe_refresh_imprint_detection).
+	 * On WPML/Polylang sites the resulting page is resolved to the currently
+	 * active language at render time (see localize_url/translate_post_id).
 	 *
 	 * @param array $options Resolved options array.
 	 * @return string
 	 */
 	public static function get_imprint_url( $options ) {
 		if ( ! empty( $options['imprint_url_override'] ) ) {
-			return (string) $options['imprint_url_override'];
+			return self::localize_url( (string) $options['imprint_url_override'] );
 		}
 		$cached = get_transient( 'lscc_detected_imprint_url' );
-		return is_string( $cached ) ? $cached : '';
+		if ( is_string( $cached ) && '' !== $cached ) {
+			return self::localize_url( $cached );
+		}
+		return '';
+	}
+
+	/**
+	 * Resolve an internal page URL to the equivalent page in the active language.
+	 *
+	 * This performs no string manipulation on the URL: it maps the URL back to a
+	 * WordPress post ID, asks the active multilingual plugin (WPML or Polylang)
+	 * for the translation of that page in the current language, and returns that
+	 * page's canonical permalink. External or unresolvable URLs are returned
+	 * unchanged, and when no translation exists the original URL is preserved.
+	 *
+	 * No options are stored and the data model is untouched — the lookup happens
+	 * entirely at render time and is a no-op on single-language sites.
+	 *
+	 * @param string $url Stored (default-language) page URL.
+	 * @return string Localized URL, or the original URL when nothing maps.
+	 */
+	private static function localize_url( $url ) {
+		$url = (string) $url;
+		if ( '' === $url ) {
+			return $url;
+		}
+
+		// No multilingual plugin active -> nothing to resolve, keep URL as-is.
+		if ( ! self::is_multilingual() ) {
+			return $url;
+		}
+
+		$post_id = (int) url_to_postid( $url );
+		if ( $post_id <= 0 ) {
+			// External link or not a resolvable internal page -> clean fallback.
+			return $url;
+		}
+
+		$translated_id = self::translate_post_id( $post_id );
+		if ( $translated_id === $post_id ) {
+			// Already the current language (or no translation) -> keep original URL.
+			return $url;
+		}
+
+		$permalink = get_permalink( $translated_id );
+		return $permalink ? (string) $permalink : $url;
+	}
+
+	/**
+	 * Resolve a post ID to its translation in the currently active language.
+	 *
+	 * WPML uses the `wpml_object_id` filter with the "return original" flag set,
+	 * so an untranslated page falls back to itself. Polylang uses `pll_get_post`,
+	 * which returns a falsy value when no translation exists; we then fall back
+	 * to the original ID. Without a multilingual plugin the ID is returned as-is.
+	 *
+	 * @param int $post_id Original page ID.
+	 * @return int Translated page ID, or the original ID when none exists.
+	 */
+	private static function translate_post_id( $post_id ) {
+		$post_id = (int) $post_id;
+		if ( $post_id <= 0 ) {
+			return $post_id;
+		}
+
+		// WPML.
+		if ( has_filter( 'wpml_object_id' ) ) {
+			$post_type = get_post_type( $post_id );
+			if ( $post_type ) {
+				$translated = apply_filters( 'wpml_object_id', $post_id, $post_type, true );
+				if ( $translated ) {
+					return (int) $translated;
+				}
+			}
+		}
+
+		// Polylang.
+		if ( function_exists( 'pll_get_post' ) ) {
+			$translated = pll_get_post( $post_id );
+			if ( $translated ) {
+				return (int) $translated;
+			}
+		}
+
+		return $post_id;
+	}
+
+	/**
+	 * Whether a supported multilingual plugin (WPML or Polylang) is active.
+	 *
+	 * @return bool
+	 */
+	private static function is_multilingual() {
+		return has_filter( 'wpml_object_id' ) || function_exists( 'pll_get_post' );
 	}
 
 	/**

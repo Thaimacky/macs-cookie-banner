@@ -1,5 +1,22 @@
 # Release Checklist
 
+## WPML/Polylang: sprachabhängige Privacy-/Imprint-Links (ab v1.0.6, ADR-39)
+
+**Mehrsprachig — Ziel-URL folgt der aktiven Sprache:**
+- [ ] WPML aktiv, DE/EN/FR/IT angelegt + Datenschutz-/Impressumsseiten übersetzt und verknüpft: Banner zeigt je Sprache den **übersetzten Text** UND den **Link zur Seite derselben Sprache** (EN→EN, FR→FR, IT→IT).
+- [ ] Gleicher Test mit **Polylang**.
+- [ ] Test mit **`privacy_url_override`/`imprint_url_override`** gesetzt (auf die DE-Seite): Override wird ebenfalls in die aktive Sprache aufgelöst.
+- [ ] Test mit **WordPress-Core-Privacy-Seite** (kein Override, `wp_page_for_privacy_policy` gesetzt): folgt der aktiven Sprache.
+- [ ] Test über **Auto-Detektion** des Impressums (kein Override): folgt der aktiven Sprache.
+
+**Fallback / Robustheit:**
+- [ ] Sprache **ohne** Übersetzung der Seite: Link fällt sauber auf die Originalseite zurück (kein 404, kein leerer Link).
+- [ ] Override mit **externer/nicht auflösbarer URL**: Link bleibt unverändert.
+- [ ] Linktexte unverändert (Übersetzung wie bisher); Banner-Layout, Consent, Widerruf unverändert.
+
+**Einsprachig — keine Regression:**
+- [ ] Site ohne WPML/Polylang: Privacy-/Imprint-Link exakt wie in 1.0.5 (Override / Core-Privacy / Detektion); keine PHP-Warnungen.
+
 ## Brevo-Erkennung + reCAPTCHA-Feinschliff (ab v1.0.5, ADR-38)
 
 **Brevo (Detektion only):**

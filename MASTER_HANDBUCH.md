@@ -283,6 +283,8 @@ Das ursprüngliche Problem mit Real Cookie Banner war:
 
 Dieses Projekt darf NIEMALS dieselben Fehler machen.
 
+**Rechtslinks sprachabhängig (ab v1.0.6, ADR-39):** Datenschutz- und Impressumslink werden beim Rendern in die aktive Sprache aufgelöst (WPML `wpml_object_id` / Polylang `pll_get_post`, jeweils mit Original-Fallback) — über `url_to_postid()` → übersetzte Post-ID → `get_permalink()`. **Keine** URL-String-Manipulation, **keine** sprachabhängigen Optionen, **keine** Datenmodell-Änderung. Einsprachige Sites: No-op (unverändert). Linktexte werden wie bisher über die String-Übersetzung gepflegt.
+
 ---
 
 # Sprachstrategie

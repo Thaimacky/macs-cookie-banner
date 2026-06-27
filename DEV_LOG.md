@@ -1,5 +1,24 @@
 # DEV LOG
 
+## 1.0.6 - 2026-06-28 (WPML/Polylang: sprachabhängige Privacy-/Imprint-Links, ADR-39)
+
+- **Bug (bewiesen):** Auf mehrsprachigen Sites wurden die Linktexte übersetzt (WPML String Translation / `pll__`), die **Ziel-URLs** blieben aber die deutsche Datenschutz-/Impressumsseite. Root Cause: `get_privacy_url()` gab den gespeicherten `privacy_url_override` bzw. `get_privacy_policy_url()` 1:1 aus; `get_imprint_url()` gab den `imprint_url_override` bzw. die Detektions-Transient-URL 1:1 aus — beide ohne Bezug zur aktiven Sprache. Kein Consent-/Banner-/Layout-Defekt.
+- **Fix-Architektur (Auflösung beim Rendern, keine Speicherung), `macs-cookie-banner.php`:**
+  - `localize_url( $url )` (privat): no-op wenn nicht mehrsprachig; sonst `url_to_postid()` → Post-ID; ID ≤ 0 (extern/nicht auflösbar) → URL unverändert; `translate_post_id()`; wenn ID unverändert → Original-URL behalten; sonst `get_permalink( $translated_id )` (Fallback Original-URL). **Keine** String-Manipulation der URL.
+  - `translate_post_id( $post_id )` (privat): WPML via `apply_filters( 'wpml_object_id', $id, get_post_type($id), true )` (3. Param `true` = Original-Fallback); Polylang via `pll_get_post( $id )` (falsy → Original); ohne Plugin → Original-ID.
+  - `is_multilingual()` (privat): `has_filter('wpml_object_id') || function_exists('pll_get_post')`.
+  - `get_privacy_url()`: Override → `localize_url()`. **Nur wenn mehrsprachig**: Core-Privacy-Seite direkt über `get_option('wp_page_for_privacy_policy')` → `translate_post_id()` → `get_permalink()`. Einsprachig: unveränderter `get_privacy_policy_url()`-Pfad (Filter `the_privacy_policy_url` + Publish-Check bleiben erhalten).
+  - `get_imprint_url()`: Override → `localize_url()`; sonst Detektions-Transient (nicht leer) → `localize_url()`.
+- **Datenmodell unverändert:** keine neue Option, kein sprachabhängiges Speichern; Detektion (`lscc_detected_imprint_url`) speichert weiterhin die Original-URL, Übersetzung passiert erst beim Rendern (Frontend, `wp_footer` — Sprache zu diesem Zeitpunkt gesetzt).
+- `macs-cookie-banner.php`: Version 1.0.5 → 1.0.6. `MCB_CONSENT_VERSION` unverändert. **Keine** Modul-/Hook-/Option-Änderung; Banner-Markup (Zeilen ~970–977) und Linktexte unberührt.
+- **Nicht angefasst:** banner.js, Consent/Widerruf, Vendoren/Scanner, Gating-Module, Avada/GA4/Ads/GTM/Meta Pixel/FB/IG/Maps/YouTube/Safe-by-Default-1.0.3.
+- **Validierung (Logik-Trace, kein lokaler PHP-Runtime):**
+  - Einsprachig (`is_multilingual()` = false): `localize_url()` gibt Eingabe sofort zurück; `get_privacy_url()` nimmt unveränderten Core-Pfad → **keine Regression**.
+  - WPML, EN aktiv, Override = DE-Datenschutzseite: `url_to_postid()` → DE-ID → `wpml_object_id` → EN-ID → `get_permalink()` = EN-URL. Text bleibt „Privacy Policy".
+  - Polylang, FR aktiv, Core-Privacy-Seite gesetzt: `wp_page_for_privacy_policy` → `pll_get_post()` → FR-ID → FR-URL.
+  - Keine Übersetzung vorhanden (z. B. IT fehlt): WPML-Filter/`pll_get_post` → Original-ID → Original-URL (sauberer Fallback, kein 404).
+  - Externe/abweichende Override-URL (nicht auflösbar): `url_to_postid()` = 0 → URL unverändert.
+
 ## 1.0.5 - 2026-06-23 (Brevo-Erkennung + reCAPTCHA-Feinschliff, ADR-38)
 
 - **Reine Detektion/Scanner — kein Gating, keine neue Option/Kategorie.**
