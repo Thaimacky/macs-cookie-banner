@@ -32,7 +32,7 @@
 - 2026-06-21 — v0.5.11 / ADR-31: Der sichtbare Reopen-/Settings-Button folgt der importierten **Primary Color in allen Presets**. Root Cause (CSS): im Default-Preset *Classic* füllte `.lscc-reopen` mit `var(--lscc-bg)` und `.lscc-settings-button` mit `var(--lscc-secondary)` — nur Modern/Premium nutzten `var(--lscc-primary)`; der Import schreibt aber `primary_button_color`, daher im Default unsichtbar. Fix: Basisregeln in `banner.css` auf `var(--lscc-primary)`/`var(--lscc-primary-text)`. Temporäre Runtime-Proofs 0.5.10-debug2/-debug3 wieder entfernt. Rein Darstellung; Consent/Locale/Scanner/CCM/Updater/Avada-Import/Cache-Reset unberührt.
 - 2026-06-21 — v0.5.10 / ADR-30: Avada-Farbimport bindet **ausschließlich** an die aktuell aktive **Primary Color**. Bewiesener Root Cause: die bisherige Brand-Key-Prioritätskette (`primary_color → accent_color → link_color → button_gradient_top_color`) mit positionsbasiertem Palette-Matching übernahm nach Wechsel der Primary Color auf direktes `#2ecc4e` weiterhin den alten `var(--awb-color5)`-Wert `#1e4884` (5. Palette-Eintrag) aus den Sekundärschlüsseln. Neu: `resolve_primary(read_raw('primary_color'))`, kein accent/link/gradient, kein Palette-/`awb-colorN`-Matching; Client-Fallback nur für `primary_color`. Temporäre `0.5.9-debug`-Notice entfernt. Keine Änderung an Consent/Locale/Reopen/Presets/Frontend/Cache-Reset/Speicherung/Scanner/CCM/Updater.
 
-- 2026-06-28 — Additive Erweiterung (Workflow-Regeln, keine Plugin-Änderung): Sektion „PFLICHT: KOPIERMARKIERUNG FÜR PROMPTS (für Claude Code)" ergänzt (zum Kopieren bestimmte Prompts immer mit `🚨🚨🚨 KOPIEREN AB HIER FÜR CLAUDE CODE 🚨🚨🚨` / `🚨🚨🚨 HIER ENDET DER PROMPT 🚨🚨🚨` umschließen). Sektion „PFLICHT: GIT-REMOTE NIEMALS HARTCODIEREN" ergänzt (vor jedem Push/Pull/Tag erst `git remote -v`, nie `origin`/`macs` annehmen). Sektion „PFLICHT: RELEASE-VERIFIKATION (verbindlicher Workflow)" ergänzt (Release erst abgeschlossen, wenn öffentlich veröffentlicht + genau ein Produktions-ZIP-Asset + API liefert es als `latest`; Tag ≠ Release; Draft = für PUC nicht existent; Pflichtprüfung vor jeder Rollout-Freigabe). Sektion „PFLICHT: ZWEIPHASIGER RELEASE-WORKFLOW" ergänzt (Phase 1 = Implementierung→Commit→Push→Produktions-ZIP zum Test, **kein** Tag/Release/Asset; endet mit „Produktions-ZIP bereit zum Test"; Phase 2 = Tag/Release/Asset/Verifikation **erst nach ausdrücklicher User-Freigabe**; Test-ZIP muss byte-identisch mit Release-ZIP sein, sonst Phase 1 neu). Sektion „PFLICHT: VOLLROLLOUT ERST NACH ERFOLGREICHEM UPDATE-TEST" ergänzt (nach Veröffentlichung immer zuerst Auto-Update-Test auf Testseite: Update gefunden, fehlerfrei, Plugin aktiv, Einstellungen erhalten, keine PHP-/JS-Fehler; „bereit für 40 Websites" niemals vor bestandenem Update-Test). Sektion „PFLICHT: KOPIERMARKIERUNG FÜR PROMPTS" verschärft (höchste Priorität; Auslöser-Begriffe „Prompt"/„für Claude/Codex/ChatGPT"; verboten: keine Marker, Markdown-Codeblock statt Marker, „Hier ist der Prompt"/„Prompt:", Mischformen, Erklärung innerhalb der Marker). Sektion „PFLICHT: DOKU-ÄNDERUNGEN STANDARDMÄSSIG ABSCHLIESSEN" ergänzt (reine Doku-Änderungen = regulärer Auftrag: Validierung→Commit→`git remote -v`→Push; „nicht committet, da nicht angefragt" unzulässig; Ausnahme nur bei ausdrücklichem „nicht committen"/„nicht pushen"). Inhalt sonst unverändert.
+- 2026-06-28 — Additive Erweiterung (Workflow-Regeln, keine Plugin-Änderung): Sektion „PFLICHT: KOPIERMARKIERUNG FÜR PROMPTS (für Claude Code)" ergänzt (zum Kopieren bestimmte Prompts immer mit `🚨🚨🚨 KOPIEREN AB HIER FÜR CLAUDE CODE 🚨🚨🚨` / `🚨🚨🚨 HIER ENDET DER PROMPT 🚨🚨🚨` umschließen). Sektion „PFLICHT: GIT-REMOTE NIEMALS HARTCODIEREN" ergänzt (vor jedem Push/Pull/Tag erst `git remote -v`, nie `origin`/`macs` annehmen). Sektion „PFLICHT: RELEASE-VERIFIKATION (verbindlicher Workflow)" ergänzt (Release erst abgeschlossen, wenn öffentlich veröffentlicht + genau ein Produktions-ZIP-Asset + API liefert es als `latest`; Tag ≠ Release; Draft = für PUC nicht existent; Pflichtprüfung vor jeder Rollout-Freigabe). Sektion „PFLICHT: ZWEIPHASIGER RELEASE-WORKFLOW" ergänzt (Phase 1 = Implementierung→Commit→Push→Produktions-ZIP zum Test, **kein** Tag/Release/Asset; endet mit „Produktions-ZIP bereit zum Test"; Phase 2 = Tag/Release/Asset/Verifikation **erst nach ausdrücklicher User-Freigabe**; Test-ZIP muss byte-identisch mit Release-ZIP sein, sonst Phase 1 neu). Sektion „PFLICHT: VOLLROLLOUT ERST NACH ERFOLGREICHEM UPDATE-TEST" ergänzt (nach Veröffentlichung immer zuerst Auto-Update-Test auf Testseite: Update gefunden, fehlerfrei, Plugin aktiv, Einstellungen erhalten, keine PHP-/JS-Fehler; „bereit für 40 Websites" niemals vor bestandenem Update-Test). Sektion „PFLICHT: KOPIERMARKIERUNG FÜR PROMPTS" verschärft (höchste Priorität; Auslöser-Begriffe „Prompt"/„für Claude/Codex/ChatGPT"; verboten: keine Marker, Markdown-Codeblock statt Marker, „Hier ist der Prompt"/„Prompt:", Mischformen, Erklärung innerhalb der Marker). Sektion „PFLICHT: DOKU-ÄNDERUNGEN STANDARDMÄSSIG ABSCHLIESSEN" ergänzt (reine Doku-Änderungen = regulärer Auftrag: Validierung→Commit→`git remote -v`→Push; „nicht committet, da nicht angefragt" unzulässig; Ausnahme nur bei ausdrücklichem „nicht committen"/„nicht pushen"). Sektion „PFLICHT: KOPIERMARKIERUNG FÜR BERICHTE" verschärft (gilt für Abschluss-/Release-/Analyse-/Root-Cause-/Rollout-/Übergabe-/Status-/Dokumentationsberichte; neues End-Format `🚨🚨🚨 HIER ENDET DER BERICHT 🚨🚨🚨`; nur Bericht innerhalb der Marker; Verstoß = Workflowfehler). Inhalt sonst unverändert.
 
 ## Verbindliche Learnings & Arbeitsregeln (Stand v0.5.13, 2026-06-22)
 
@@ -433,37 +433,28 @@ Ein Bericht ist erst fertig, wenn der User sofort erkennt, was er kopieren oder 
 
 # PFLICHT: KOPIERMARKIERUNG FÜR BERICHTE (HARTE PFLICHTREGEL)
 
-VERBINDLICH (ab 2026-06-12, verschärft 2026-06-16):
+VERBINDLICH (ab 2026-06-12, verschärft 2026-06-16, erneut verschärft 2026-06-28):
 
 Die Kopiermarkierung ist **kein UX-Wunsch, sondern Bestandteil des Lieferformats.**
 
-Jeder Bericht MUSS direkt vor dem kopierbaren Bereich mit dem Start-Block beginnen und mit dem End-Block abschliessen. Exakter, unveränderlicher Wortlaut:
+**Auslöser:** Sobald ein Bericht entsteht, den der User ganz oder teilweise in einen anderen Chat oder in eine Dokumentation kopieren könnte, MUSS er **vollständig** von den offiziellen Kopiermarkierungen umschlossen werden. Das gilt insbesondere für: **Abschlussberichte, Releaseberichte, Analyseberichte, Root-Cause-Berichte, Rollout-Berichte, Übergabeberichte, Statusberichte, Dokumentationsberichte** (sowie Patches, Inventuren, Roadmaps, ADR-Berichte, Debug-/Validierungsberichte).
+
+Pflichtformat (exakter, unveränderlicher Wortlaut):
 
 ```
-================================================================================
 🚨🚨🚨 KOPIEREN AB HIER FÜR CHATGPT 🚨🚨🚨
-================================================================================
 
-... vollständiger, in sich verständlicher Bericht (inkl. etwaigem AKTION-USER-Block) ...
+<gesamter Bericht (inkl. etwaigem AKTION-USER-Block)>
 
-================================================================================
-🚨🚨🚨 KOPIEREN BIS HIER FÜR CHATGPT 🚨🚨🚨
-================================================================================
+🚨🚨🚨 HIER ENDET DER BERICHT 🚨🚨🚨
 ```
-
-Fehlt einer der beiden Blöcke, gilt:
-
-* Bericht = unvollständig
-* Bericht = nicht abnahmefähig
-* Bericht = nicht freigegeben
-* Bericht = erneut erstellen
-
-Geltungsbereich (zwingend in allen): Analysen, Abschlussberichten, Patches, Releases, Inventuren, Roadmaps, ADR-Berichten, Debug-Reports, Validierungsberichten.
 
 Regeln:
-* Die Markierung beginnt direkt vor dem kopierbaren Bereich — der User darf nie suchen müssen, wo der Kopierbereich startet.
-* Keine Einleitung innerhalb des Kopierbereichs vor dem Start-Block; nach dem End-Block folgt KEIN weiterer Berichtsinhalt.
-* Prozess-/Meta-Hinweise dürfen ausserhalb (vor dem Start- bzw. nach dem End-Block) stehen.
+* **Innerhalb** der Markierungen darf **ausschließlich** der Bericht stehen.
+* **Außerhalb** der Markierungen dürfen kurze Hinweise/Erklärungen stehen (vor dem Start- bzw. nach dem End-Marker).
+* Die Markierung beginnt direkt vor dem kopierbaren Bereich — der User darf nie suchen müssen, wo der Kopierbereich startet; nach dem End-Marker folgt KEIN weiterer Berichtsinhalt.
+
+Es ist **nicht zulässig**, Abschlussberichte ohne diese Markierungen auszugeben. Fehlt einer der beiden Marker, gilt der Bericht als unvollständig / nicht abnahmefähig / nicht freigegeben und ist erneut zu erstellen. **Ein Verstoß gilt als Workflowfehler.**
 
 Diese Regel gilt zusätzlich zur Regel „PFLICHT: AKTION USER / PROMPT-BLÖCKE".
 
