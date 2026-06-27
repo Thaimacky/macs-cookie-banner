@@ -32,6 +32,8 @@
 - 2026-06-21 — v0.5.11 / ADR-31: Der sichtbare Reopen-/Settings-Button folgt der importierten **Primary Color in allen Presets**. Root Cause (CSS): im Default-Preset *Classic* füllte `.lscc-reopen` mit `var(--lscc-bg)` und `.lscc-settings-button` mit `var(--lscc-secondary)` — nur Modern/Premium nutzten `var(--lscc-primary)`; der Import schreibt aber `primary_button_color`, daher im Default unsichtbar. Fix: Basisregeln in `banner.css` auf `var(--lscc-primary)`/`var(--lscc-primary-text)`. Temporäre Runtime-Proofs 0.5.10-debug2/-debug3 wieder entfernt. Rein Darstellung; Consent/Locale/Scanner/CCM/Updater/Avada-Import/Cache-Reset unberührt.
 - 2026-06-21 — v0.5.10 / ADR-30: Avada-Farbimport bindet **ausschließlich** an die aktuell aktive **Primary Color**. Bewiesener Root Cause: die bisherige Brand-Key-Prioritätskette (`primary_color → accent_color → link_color → button_gradient_top_color`) mit positionsbasiertem Palette-Matching übernahm nach Wechsel der Primary Color auf direktes `#2ecc4e` weiterhin den alten `var(--awb-color5)`-Wert `#1e4884` (5. Palette-Eintrag) aus den Sekundärschlüsseln. Neu: `resolve_primary(read_raw('primary_color'))`, kein accent/link/gradient, kein Palette-/`awb-colorN`-Matching; Client-Fallback nur für `primary_color`. Temporäre `0.5.9-debug`-Notice entfernt. Keine Änderung an Consent/Locale/Reopen/Presets/Frontend/Cache-Reset/Speicherung/Scanner/CCM/Updater.
 
+- 2026-06-28 — Additive Erweiterung (Workflow-Regeln, keine Plugin-Änderung): Sektion „PFLICHT: KOPIERMARKIERUNG FÜR PROMPTS (für Claude Code)" ergänzt (zum Kopieren bestimmte Prompts immer mit `🚨🚨🚨 KOPIEREN AB HIER FÜR CLAUDE CODE 🚨🚨🚨` / `🚨🚨🚨 HIER ENDET DER PROMPT 🚨🚨🚨` umschließen). Sektion „PFLICHT: GIT-REMOTE NIEMALS HARTCODIEREN" ergänzt (vor jedem Push/Pull/Tag erst `git remote -v`, nie `origin`/`macs` annehmen). Sektion „PFLICHT: RELEASE-VERIFIKATION (verbindlicher Workflow)" ergänzt (Release erst abgeschlossen, wenn öffentlich veröffentlicht + genau ein Produktions-ZIP-Asset + API liefert es als `latest`; Tag ≠ Release; Draft = für PUC nicht existent; Pflichtprüfung vor jeder Rollout-Freigabe). Sektion „PFLICHT: ZWEIPHASIGER RELEASE-WORKFLOW" ergänzt (Phase 1 = Implementierung→Commit→Push→Produktions-ZIP zum Test, **kein** Tag/Release/Asset; endet mit „Produktions-ZIP bereit zum Test"; Phase 2 = Tag/Release/Asset/Verifikation **erst nach ausdrücklicher User-Freigabe**; Test-ZIP muss byte-identisch mit Release-ZIP sein, sonst Phase 1 neu). Sektion „PFLICHT: VOLLROLLOUT ERST NACH ERFOLGREICHEM UPDATE-TEST" ergänzt (nach Veröffentlichung immer zuerst Auto-Update-Test auf Testseite: Update gefunden, fehlerfrei, Plugin aktiv, Einstellungen erhalten, keine PHP-/JS-Fehler; „bereit für 40 Websites" niemals vor bestandenem Update-Test). Sektion „PFLICHT: KOPIERMARKIERUNG FÜR PROMPTS" verschärft (höchste Priorität; Auslöser-Begriffe „Prompt"/„für Claude/Codex/ChatGPT"; verboten: keine Marker, Markdown-Codeblock statt Marker, „Hier ist der Prompt"/„Prompt:", Mischformen, Erklärung innerhalb der Marker). Sektion „PFLICHT: DOKU-ÄNDERUNGEN STANDARDMÄSSIG ABSCHLIESSEN" ergänzt (reine Doku-Änderungen = regulärer Auftrag: Validierung→Commit→`git remote -v`→Push; „nicht committet, da nicht angefragt" unzulässig; Ausnahme nur bei ausdrücklichem „nicht committen"/„nicht pushen"). Inhalt sonst unverändert.
+
 ## Verbindliche Learnings & Arbeitsregeln (Stand v0.5.13, 2026-06-22)
 
 Konsolidierter, verbindlicher Stand aus der Avada-/Auto-Sync-/Debugging-Phase. Details in den jeweiligen ADRs (DECISIONS.md).
@@ -467,6 +469,44 @@ Diese Regel gilt zusätzlich zur Regel „PFLICHT: AKTION USER / PROMPT-BLÖCKE"
 
 ---
 
+# PFLICHT: KOPIERMARKIERUNG FÜR PROMPTS (für Claude Code, HARTE PFLICHTREGEL — HÖCHSTE PRIORITÄT)
+
+VERBINDLICH (ab 2026-06-28, verschärft 2026-06-28). **Diese Regel hat höchste Priorität.**
+
+**Auslöser:** Sobald der User einen Prompt verlangt — z. B. „Prompt", „prompt bitte", „Prompt erstellen", „für Claude", „für Codex", „für ChatGPT" oder sinngemäß — MUSS der Prompt **immer** mit den offiziellen Kopiermarkierungen ausgegeben werden. **Ohne Ausnahme.**
+
+Pflichtformat (exakter, unveränderlicher Wortlaut):
+
+```
+🚨🚨🚨 KOPIEREN AB HIER FÜR CLAUDE CODE 🚨🚨🚨
+
+<Prompt>
+
+🚨🚨🚨 HIER ENDET DER PROMPT 🚨🚨🚨
+```
+
+**Verboten** (insbesondere):
+
+* Prompt **ohne** Kopiermarkierungen.
+* **Markdown-Codeblöcke** (``` ``` ```) anstelle der Kopiermarkierungen.
+* Einleitungen wie „Hier ist der Prompt", „Prompt:" o. ä.
+* Mischformen (Marker teilweise, Codeblock + Marker gemischt usw.).
+* Jegliche Erklärung **innerhalb** der Kopiermarkierungen.
+
+Regeln:
+
+* Erklärungen, Analysen, Meta-Hinweise dürfen **nur außerhalb** der Kopiermarkierungen stehen (vor dem Start- bzw. nach dem End-Marker).
+* **Innerhalb** der Marker steht **ausschließlich** der eigentliche Prompt.
+* Der Start-Marker steht direkt vor dem Prompt, der End-Marker direkt danach — der User darf nie nach Anfang oder Ende suchen müssen.
+
+Fehlt einer der Marker oder wird das Format verletzt, gilt dies als **Workflowfehler**; der Prompt ist nicht abnahmefähig und muss erneut korrekt ausgegeben werden.
+
+Grund: Der User arbeitet häufig mit sehr langen Chats und muss einen Prompt sofort vollständig markieren können, ohne Anfang oder Ende suchen zu müssen.
+
+Diese Regel gilt zusätzlich zu „PFLICHT: AKTION USER / PROMPT-BLÖCKE" und „PFLICHT: KOPIERMARKIERUNG FÜR BERICHTE".
+
+---
+
 # PFLICHT: DEBUGGING / RUNTIME-PROOFS — KEINE ARBEITSVERLAGERUNG AUF DEN USER
 
 VERBINDLICH (ab 2026-06-21). Priorität HOCH. Gilt für ChatGPT, Claude, Codex, Claude Code und alle zukünftigen Entwickler-Agenten.
@@ -506,6 +546,171 @@ Bevorzugt:
 * UI separat
 
 Saubere Git-Historie ist wichtig.
+
+---
+
+# PFLICHT: DOKU-ÄNDERUNGEN STANDARDMÄSSIG ABSCHLIESSEN (HARTE PFLICHTREGEL)
+
+VERBINDLICH (ab 2026-06-28).
+
+Werden **ausschließlich** Dokumentationen geändert (MASTER_HANDBUCH, RELEASE_GUIDE, CHANGELOG, DEV_LOG, ACTIVE_CODE_MAP, DECISIONS/ADRs, README oder andere Projektdokumente), gelten **dieselben Abschlussregeln wie für Code**.
+
+Standardmäßig nach jeder Doku-Änderung auszuführen:
+
+1. Validierung der Änderungen.
+2. Commit.
+3. `git remote -v`.
+4. Push auf den **tatsächlichen** Remote (siehe „PFLICHT: GIT-REMOTE NIEMALS HARTCODIEREN").
+
+**Nicht zulässig** sind Abschlussformulierungen wie „Nicht committet, da nicht angefragt." oder „Sag Bescheid, dann committe ich."
+
+Commit/Push entfallen **nur**, wenn der User ausdrücklich „nicht committen" oder „nicht pushen" schreibt.
+
+Doku-Änderungen gelten ansonsten als regulärer Entwicklungsauftrag und sind **vollständig abzuschließen**.
+
+---
+
+# PFLICHT: GIT-REMOTE NIEMALS HARTCODIEREN (HARTE PFLICHTREGEL)
+
+VERBINDLICH (ab 2026-06-28). Gilt für alle Prompts, Anleitungen, Release-Guides und Git-Befehle.
+
+Es darf **niemals** angenommen werden, dass der Remote `origin` oder `macs` heißt. Der Remote-Name ist projekt-/rechnerspezifisch und wird **nie** hartcodiert.
+
+Pflichtablauf vor **jedem** Push, Pull, Fetch oder Tag-Push:
+
+1. Tatsächlichen Remote ermitteln:
+
+```
+git remote -v
+```
+
+2. Alle Git-Befehle mit dem **tatsächlich vorhandenen** Remote-Namen ausführen, z. B.:
+
+```
+git push origin main
+```
+
+oder
+
+```
+git push macs main
+```
+
+— je nachdem, wie das Repository eingerichtet ist.
+
+Grund: Der User arbeitet auf mehreren Rechnern, klont Repositories unterschiedlich und verwendet je nach Projekt unterschiedliche Remote-Namen. Falsch angenommene Remote-Namen führen zu unnötigen Fehlern und Rückfragen.
+
+---
+
+# PFLICHT: RELEASE-VERIFIKATION (verbindlicher Workflow, HARTE PFLICHTREGEL)
+
+VERBINDLICH (ab 2026-06-28). Gilt für alle Abschluss-, Release- und Freigabeberichte.
+
+## Ein Release ist erst abgeschlossen, wenn die öffentliche Kette verifiziert ist
+
+Push und Tag erfolgreich = **nicht** ausreichend. Nach **jedem** GitHub-Release sind zwingend zu prüfen:
+
+1. Tag existiert auf GitHub.
+2. Das GitHub-Release ist **veröffentlicht** (nicht Draft).
+3. **Genau ein** ZIP-Asset ist angehängt.
+4. Das Asset ist das **Produktions-ZIP** (kein Test-/Source-ZIP).
+5. Die GitHub-API liefert das neue Release bereits als **`latest`**.
+6. Erst danach gilt das Release als abgeschlossen.
+
+Prüfbar z. B. über die öffentliche API (read-only, ohne Token):
+`GET /repos/<owner>/<repo>/releases/tags/<version>` (muss das Release liefern, `draft=false`) und
+`GET /repos/<owner>/<repo>/releases/latest` (muss `<version>` liefern).
+
+## Niemals annehmen, dass ein Release veröffentlicht ist
+
+Ein vorhandener Git-Tag bedeutet **nicht**, dass ein veröffentlichtes GitHub-Release existiert. Ein **Draft** verhält sich aus Sicht des Plugin Update Checkers (PUC) wie ein **nicht existierendes** Release. Deshalb darf aufgrund eines Tags **niemals** angenommen werden, dass Auto-Updates funktionieren.
+
+## Pflichtprüfung vor jeder Rollout-Freigabe
+
+Vor jeder Rollout-Freigabe ist explizit zu prüfen:
+
+* Ist das Release öffentlich?
+* Ist das ZIP sichtbar?
+* Liefert GitHub das neue Release als `latest`?
+
+Erst danach dürfen Aussagen wie „Auto-Update bereit", „Rollout bereit" oder „Produktionsfreigabe" getroffen werden.
+
+## Regel für Abschlussberichte
+
+Kein Abschlussbericht darf ein Release als abgeschlossen bezeichnen, solange die öffentliche Veröffentlichung nicht verifiziert wurde. Push, Tag und ZIP sind notwendige Voraussetzungen, ersetzen jedoch **niemals** die Release-Verifikation.
+
+---
+
+# PFLICHT: ZWEIPHASIGER RELEASE-WORKFLOW (HARTE PFLICHTREGEL)
+
+VERBINDLICH (ab 2026-06-28). Gilt für **alle** Plugin-Releases. Der Release-Prozess ist in zwei **strikt getrennte** Phasen geteilt.
+
+## PHASE 1 — Entwicklung & Testpaket
+
+Nach Abschluss einer neuen Version IMMER in dieser Reihenfolge:
+
+1. Implementierung
+2. Validierung
+3. Dokumentation aktualisieren
+4. Commit erstellen
+5. **Vor jedem Push: `git remote -v`** und den tatsächlichen Remote-Namen verwenden (siehe „PFLICHT: GIT-REMOTE NIEMALS HARTCODIEREN").
+6. Push auf GitHub
+7. Git-Status prüfen (Working Tree clean, Branch synchron)
+8. Produktions-ZIP erstellen
+9. ZIP vollständig verifizieren
+10. ZIP dem User zum Download/Test bereitstellen
+
+**In Phase 1 wird NICHTS veröffentlicht:** KEIN GitHub-Release, KEIN Tag, KEIN Release, KEIN Asset-Upload.
+
+Der Auftrag endet ausdrücklich mit: **„Produktions-ZIP bereit zum Test."**
+
+Der User testet anschließend **genau dieses ZIP** auf einer Testinstallation.
+
+## PHASE 2 — Veröffentlichung
+
+Beginnt **erst** nach ausdrücklicher Freigabe des Users — z. B. „Release freigegeben", „GitHub Release erstellen", „Jetzt veröffentlichen" oder sinngemäß. **Ohne diese Freigabe niemals starten.**
+
+Erst dann:
+
+1. Produktions-ZIP erneut verifizieren.
+2. Git-Status kontrollieren.
+3. Tag erstellen (falls noch nicht vorhanden).
+4. Tag pushen (Remote vorher mit `git remote -v` ermitteln).
+5. GitHub-Release veröffentlichen.
+6. Genau **EIN** Produktions-ZIP als Asset hochladen.
+7. Release über die GitHub-API verifizieren (siehe „PFLICHT: RELEASE-VERIFIKATION").
+8. Erst danach gilt das Release als abgeschlossen.
+
+## GRUNDSATZ (Identität von Test- und Release-ZIP)
+
+Das ZIP, das der User **testet**, MUSS **identisch** mit dem ZIP sein, das später als GitHub-Release veröffentlicht wird (Byte-/Hash-Identität).
+
+Zwischen Test und Veröffentlichung dürfen **keinerlei** Codeänderungen mehr erfolgen. Wird nach dem Test auch nur **eine einzige Datei** geändert, beginnt **Phase 1 erneut** mit einem **neuen** Produktions-ZIP.
+
+---
+
+# PFLICHT: VOLLROLLOUT ERST NACH ERFOLGREICHEM UPDATE-TEST (HARTE PFLICHTREGEL)
+
+VERBINDLICH (ab 2026-06-28). Gilt für **alle** Plugin-Releases.
+
+Ein veröffentlichtes GitHub-Release gilt **NICHT** automatisch als produktionsreif. Nach der Veröffentlichung ist **IMMER zuerst** ein Auto-Update-Test auf einer Testseite durchzuführen.
+
+## Ablauf
+
+1. Release veröffentlichen (Phase 2, siehe „PFLICHT: ZWEIPHASIGER RELEASE-WORKFLOW" + „PFLICHT: RELEASE-VERIFIKATION").
+2. Testseite mit der **Vorversion** aktualisieren.
+3. Prüfen:
+   - Update wird gefunden.
+   - Update läuft fehlerfrei.
+   - Plugin bleibt aktiv.
+   - Einstellungen bleiben erhalten.
+   - Keine PHP-/JS-Fehler.
+
+## Regel für Rollout-Aussagen
+
+Erst **nach erfolgreichem Update-Test** darf ein Vollrollout empfohlen werden.
+
+Vorher **niemals** Formulierungen wie „bereit für 40 Websites", „Vollrollout bereit" oder „produktionsreif für alle" verwenden — auch dann nicht, wenn Release-Verifikation und ZIP-Prüfung grün sind. Verifiziertes Release + verifiziertes ZIP sind **notwendige, aber nicht hinreichende** Bedingungen; der bestandene Update-Test ist die zusätzliche Pflichtbedingung.
 
 ---
 
