@@ -2,7 +2,9 @@
 
 ## Google Tracking Shield — kritischer Hotfix (ab v1.0.7, ADR-40)
 
-**Status: Runtime-Proof durch Marcel am 2026-08-06 durchgeführt und freigegeben; Release v1.0.7 veröffentlicht.** Nachfolgend der ehrliche Stand — nur explizit bestätigte Punkte sind abgehakt, alle anderen bleiben als offene Nachtest-Punkte dokumentiert (kein automatisches Abhaken ohne tatsächliche Bestätigung).
+**Status: Runtime-Proof durch Marcel am 2026-08-06 erfolgreich abgeschlossen; Release v1.0.7 veröffentlicht. v1.0.7 ist für den produktiven Rollout freigegeben. Auto-Updates über GitHub Release sind aktiv.**
+
+Nachfolgend der ehrliche Stand — nur explizit bestätigte Punkte sind abgehakt, alle anderen bleiben als offene Nachtest-Punkte dokumentiert (kein automatisches Abhaken ohne tatsächliche Bestätigung).
 
 **Primärer Regressionstest — realer gemeldeter Fall:**
 - [x] Update auf v1.0.7 auf der Testseite erfolgreich (bestätigt 2026-08-06).

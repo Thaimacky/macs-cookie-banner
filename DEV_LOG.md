@@ -7,6 +7,7 @@
 - **Phase 2 durchgeführt:** Tag `1.0.7` erstellt und auf `macs` gepusht. GitHub-Release `1.0.7` veröffentlicht (nicht Draft) mit genau einem Asset `macs-cookie-banner.zip` (458'858 Bytes, SHA-256 `dbfb83507e8baa643c912480c76da0397bb59413cf79bfa07241459285498c2d`), byte-identisch mit dem in Phase 1 bereitgestellten Test-ZIP.
 - **Release-Verifikation (API, PFLICHT):** `GET /releases/tags/1.0.7` → `draft: false`, `prerelease: false`, genau 1 Asset. `GET /releases/latest` → `1.0.7`. Beide Prüfungen bestanden.
 - **Release-URL:** https://github.com/Thaimacky/macs-cookie-banner/releases/tag/1.0.7
+- **Rollout-Freigabe durch Marcel (2026-08-06):** Runtime-Proof erfolgreich abgeschlossen. **v1.0.7 ist für den produktiven Rollout freigegeben.** **Auto-Updates über GitHub Release sind aktiv.**
 
 ## 1.0.7 - 2026-08-06 (Google Tracking Shield — kritischer Hotfix, ADR-40)
 
