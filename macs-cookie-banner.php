@@ -3,7 +3,7 @@
  * Plugin Name: Mac's Cookie Banner
  * Plugin URI:  https://github.com/Thaimacky/macs-cookie-banner
  * Description: Lightweight cookie consent banner with script blocking for WordPress.
- * Version:     1.0.6
+ * Version:     1.0.7
  * Author:      Mac's Cookie Banner
  * Text Domain: macs-cookie-banner
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MCB_VERSION', '1.0.6' );
+define( 'MCB_VERSION', '1.0.7' );
 
 /**
  * Consent schema version. Bump this whenever the stored consent shape
@@ -32,6 +32,17 @@ define( 'MCB_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 if ( ! defined( 'MCB_DEBUG' ) ) {
 	define( 'MCB_DEBUG', false );
+}
+
+/**
+ * Emergency kill switch for the Google Tracking Shield (v1.0.7, ADR-40),
+ * independent of the admin settings checkbox. Not required for normal
+ * operation - wp-admin is never buffered by the shield, so the settings
+ * checkbox alone is always reachable. Set in wp-config.php only if needed:
+ * define( 'MCB_DISABLE_GOOGLE_SHIELD', true );
+ */
+if ( ! defined( 'MCB_DISABLE_GOOGLE_SHIELD' ) ) {
+	define( 'MCB_DISABLE_GOOGLE_SHIELD', false );
 }
 
 /**
@@ -54,6 +65,8 @@ final class Macs_Cookie_Banner {
 	 * @return void
 	 */
 	public static function init() {
+		self::maybe_migrate_google_shield();
+
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_textdomain' ) );
 		add_action( 'init', array( __CLASS__, 'register_wpml_strings' ) );
 		add_action( 'admin_init', array( __CLASS__, 'maybe_refresh_imprint_detection' ) );
@@ -81,6 +94,10 @@ final class Macs_Cookie_Banner {
 
 		require_once MCB_PLUGIN_DIR . 'includes/consent-codes.php';
 		Macs_Cookie_Banner_Codes::init();
+
+		// Requires Consent_Codes (match_vendor/transform_snippet/vendor_default_category).
+		require_once MCB_PLUGIN_DIR . 'includes/google-tracking-shield.php';
+		Macs_Cookie_Banner_Google_Tracking_Shield::init();
 
 		require_once MCB_PLUGIN_DIR . 'includes/updater.php';
 		Macs_Cookie_Banner_Updater::init();
@@ -143,6 +160,7 @@ final class Macs_Cookie_Banner {
 			'avada_maps_block'           => false,
 			'avada_code_maps_block'      => false,
 			'meta_social_block'          => false,
+			'google_tracking_shield'     => false,
 			'design_preset'              => 'classic',
 		);
 	}
@@ -164,6 +182,7 @@ final class Macs_Cookie_Banner {
 			'avada_youtube_block'       => true,
 			'avada_code_maps_block'     => true,
 			'meta_social_block'         => true,
+			'google_tracking_shield'    => true,
 			'show_legal_links'          => true,
 			// Looseners OFF.
 			'youtube_remote_thumbnails' => false,
@@ -206,10 +225,64 @@ final class Macs_Cookie_Banner {
 			'avada_youtube_block',
 			'avada_code_maps_block',
 			'meta_social_block',
+			'google_tracking_shield',
 			'youtube_remote_thumbnails',
 			'show_legal_links',
 			'consent_lifetime_days',
 		);
+	}
+
+	/**
+	 * One-time, version-stamped migration EXCEPTION to the ADR-36 rule
+	 * ("existing installs are never silently changed") - ADR-40.
+	 *
+	 * The Google Tracking Shield closes a PROVEN active compliance gap
+	 * (GA4/GTM/Ads script loading before consent, independent of the
+	 * injecting plugin/theme/Site Kit/header field). Leaving it OFF on
+	 * every one of the existing production installs until an operator
+	 * happens to notice and opt in would leave that exact gap open
+	 * indefinitely - unacceptable for a compliance-critical hotfix.
+	 *
+	 * This is therefore, deliberately and explicitly, the ONE feature in
+	 * this plugin that force-enables itself once for EXISTING installs on
+	 * upgrade, not only for fresh installs. Every other Safe-by-Default
+	 * protection (ADR-36) keeps the "never touch existing installs"
+	 * guarantee unchanged.
+	 *
+	 * Runs on every request (frontend AND admin) so an existing site is
+	 * protected starting with the very next page load after the code
+	 * update lands - not only after the operator's next wp-admin visit.
+	 * Guarded by a dedicated version-stamp option so it executes AT MOST
+	 * ONCE, ever: an operator who later switches the shield off manually
+	 * (normal settings save) is never overridden again - the stamp alone
+	 * gates this method, permanently, regardless of future updates.
+	 *
+	 * Cheap by design: a single autoloaded-option read short-circuits the
+	 * method on every request after the one-time migration has run.
+	 *
+	 * @return void
+	 */
+	private static function maybe_migrate_google_shield() {
+		if ( '' !== (string) get_option( 'mcb_google_shield_migrated', '' ) ) {
+			return;
+		}
+
+		$stored = get_option( self::OPTION_NAME, false );
+
+		if ( false === $stored ) {
+			// No options row yet: brand-new install. on_activate() already
+			// seeds get_recommended_defaults() (shield = true) via the
+			// normal Safe-by-Default path (ADR-36). Just stamp so this
+			// migration path never runs again for this site.
+			update_option( 'mcb_google_shield_migrated', MCB_VERSION );
+			return;
+		}
+
+		$options                           = self::sanitize_options( $stored );
+		$options['google_tracking_shield'] = true;
+
+		update_option( self::OPTION_NAME, self::sanitize_options( $options ) );
+		update_option( 'mcb_google_shield_migrated', MCB_VERSION );
 	}
 
 	/**
@@ -397,6 +470,7 @@ final class Macs_Cookie_Banner {
 			'avada_maps_block',
 			'avada_code_maps_block',
 			'meta_social_block',
+			'google_tracking_shield',
 		);
 	}
 

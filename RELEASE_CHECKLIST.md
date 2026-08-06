@@ -1,5 +1,50 @@
 # Release Checklist
 
+## Google Tracking Shield — kritischer Hotfix (ab v1.0.7, ADR-40)
+
+**Hinweis:** In der Entwicklungsumgebung stand kein lokales PHP/WordPress/Browser zur Verfügung. Code-seitig geprüft wurden Klammerbalance und ein 1:1-Logik-Trace der Erkennungs-/Rewrite-Regeln (7 Fixtures, siehe DEV_LOG 1.0.7). Alle folgenden Punkte sind **echte Runtime-Proofs auf einer WordPress-Installation** und noch offen.
+
+**Primärer Regressionstest — realer gemeldeter Fall:**
+- [ ] Testseite mit `<script async src="https://www.googletagmanager.com/gtag/js?id=G-R6B7G1Z3Q9"></script>` + `gtag('config', 'G-R6B7G1Z3Q9');` (z. B. per Theme-Header-Feld oder Code-Snippet-Plugin eingefügt, NICHT über den Consent-Code-Manager) einrichten.
+- [ ] `google_tracking_shield` AN. Seitenquelltext vor Consent prüfen: kein aktives `src` auf `googletagmanager.com`, Script trägt `type="text/plain"` + `data-cookie-category="statistics"`, zugehöriger Inline-Code ebenfalls inert.
+- [ ] Netzwerk-Tab (Browser DevTools) vor Consent / bei „Nur notwendige": **kein** Request an `googletagmanager.com`, `google-analytics.com`, `region1.google-analytics.com`, keine `/g/collect`- oder `/collect`-Aufrufe.
+- [ ] Nach „Alle akzeptieren" (Statistik zugestimmt): `gtag.js` lädt, Inline-Code läuft in korrekter Reihenfolge danach, GA4 wird genau einmal initialisiert (Netzwerk-Tab: genau ein `gtag/js`-Request).
+- [ ] Nach „Nur notwendige" + Reload: weiterhin kein Google-Analytics-Netzwerkverkehr.
+- [ ] Zusätzlich mit GTM-Container-Snippet (`gtm.js`-Bootstrap-IIFE) testen: gleiches Verhalten (Container lädt nicht vor Consent, Layer B gated den gesamten Inline-Block inkl. der darin enthaltenen Nachlade-Logik).
+- [ ] Zusätzlich mit Google-Ads-Conversion-Snippet (`AW-…`): Kategorie ist **marketing**, nicht statistics.
+
+**False-Positive-Schutz:**
+- [ ] Seite mit Rank-Math- oder anderem `<script type="application/ld+json">`-Strukturdatenblock (der z. B. eine google.com-URL enthält): Block bleibt **unverändert** im Quelltext, wird nicht gegated.
+- [ ] Seite mit eigenem, nicht-Google-Tracking, das `dataLayer` oder das Wort „analytics" im Variablennamen verwendet: bleibt unverändert.
+
+**Migration / Safe-by-Default-Ausnahme (ADR-36-Ausnahme):**
+- [ ] **Fresh Install:** `google_tracking_shield` ist nach Aktivierung EIN (Teil der recommended Defaults).
+- [ ] **Bestandsseite, Update von 1.0.6 auf 1.0.7** (mit bereits vorhandenen `lscc_options`): nach dem ersten Seitenaufruf (Frontend ODER Admin) nach dem Update ist `google_tracking_shield` automatisch EIN — Option `mcb_google_shield_migrated` ist gesetzt.
+- [ ] Schalter danach manuell auf der Einstellungsseite deaktivieren + speichern, Seite neu laden/erneut ein Update simulieren: Schalter bleibt AUS (wird nicht erneut automatisch aktiviert).
+- [ ] `MCB_DISABLE_GOOGLE_SHIELD` in `wp-config.php` auf `true` setzen: Shield greift nicht, unabhängig vom Options-Wert.
+
+**Page-Cache-Kompatibilität:**
+- [ ] Mit aktivem Full-Page-Cache-Plugin (z. B. WP Super Cache/W3TC/LiteSpeed, falls verfügbar) testen: gecachte Seite liefert bereits gegatetes HTML aus (kein Google-Request vor Consent trotz Cache-Hit).
+
+**Performance (dokumentieren, Vorher/Nachher):**
+- [ ] Ladezeit eines ungecachten Frontend-Requests mit `google_tracking_shield` AUS vs. AN.
+- [ ] Peak Memory (`memory_get_peak_usage()` oder Server-Tool) AUS vs. AN.
+- [ ] Kein Output-Buffer-Start bei einem Admin-Seitenaufruf, einem REST-API-Call und einem AJAX-Request prüfen (z. B. via Debug-Log-Zeile oder Xdebug — kein Performance-Einbruch bei irrelevanten Requests).
+
+**Regression (bestehende Funktionen unverändert):**
+- [ ] Normales Kontaktformular (Absenden funktioniert).
+- [ ] Brevo-Formular funktioniert unverändert.
+- [ ] reCAPTCHA funktioniert unverändert (nicht gegated).
+- [ ] YouTube-/Vimeo-Komponenten funktionieren unverändert.
+- [ ] Google-Maps-Komponenten (Avada `fusion_map`, Code-Block, Shortcode) funktionieren unverändert.
+- [ ] Facebook-/Instagram-Embeds funktionieren unverändert.
+- [ ] Banner: Akzeptieren/Widerrufen/Einstellungen speichern funktionieren unverändert.
+- [ ] Privacy Check (Surface- + Content-Scan) läuft ohne Fehler.
+- [ ] Über den Consent-Code-Manager manuell eingebundenes GA4/GTM funktioniert unverändert (eigene, unveränderte Gating-Logik dort).
+- [ ] Keine PHP-Warnings/-Notices im Log.
+- [ ] Keine JavaScript-Fehler in der Browser-Konsole.
+- [ ] Kein Eingriff ins WordPress-Backend feststellbar (wp-admin lädt normal, kein Output-Buffer-Overhead spürbar).
+
 ## WPML/Polylang: sprachabhängige Privacy-/Imprint-Links (ab v1.0.6, ADR-39)
 
 **Mehrsprachig — Ziel-URL folgt der aktiven Sprache:**

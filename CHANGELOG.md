@@ -8,6 +8,32 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 1.0.7 - 2026-08-06
+
+**Kritischer Sicherheits-Hotfix.** Google Analytics 4 / Universal Analytics / Google Tag Manager / Google Ads werden jetzt **unabhängig von der Einbindungsquelle** vor Consent blockiert — auch wenn sie nicht als LSCC-Snippet, sondern direkt von Avada, Google Site Kit, Rank Math, einem Theme-Header-Feld oder Custom Code eingebunden werden (ADR-40).
+
+### Added
+
+- **Neues Modul `includes/google-tracking-shield.php`** (opt-in `google_tracking_shield`): serverseitiger Output-Buffer auf dem finalen Frontend-HTML, ausschliesslich echte HTML-Seiten (kein Eingriff in wp-admin, REST, AJAX, Cron, Feeds, robots.txt, Trackbacks). Zwei Ebenen:
+  - **Externe `<script src="...">`-Tags** (z. B. `googletagmanager.com/gtag/js`, `gtm.js`, legacy `google-analytics.com/analytics.js`/`ga.js`): über `WP_HTML_Tag_Processor` (WordPress Core seit 6.2) erkannt und in das bestehende LSCC-Blockierformat umgeschrieben.
+  - **Zugehöriger Inline-Code** (`gtag('config', ...)`, GTM-Bootstrap): nur blockiert, wenn der **gesamte** Script-Block eindeutig als Google-Tracking-Code erkennbar ist — keine breite Blockade allein wegen Wörtern wie „google"/„dataLayer".
+  - Reaktivierung nach Zustimmung über die bestehende `banner.js`-Mechanik — keine neue Consent-Logik.
+- **Erkennung erweitert:** `match_vendor()` erkennt jetzt zusätzlich Legacy Universal Analytics (`google-analytics.com/analytics.js`, `.../ga.js`).
+- **Not-Aus:** Admin-Checkbox „Google Analytics / GTM / Google Ads unabhängig von der Einbindungsquelle vor Consent blockieren" + unabhängige `wp-config.php`-Konstante `MCB_DISABLE_GOOGLE_SHIELD`.
+
+### Changed — Ausnahme von der Safe-by-Default-Regel (ADR-36-Ausnahme, ADR-40)
+
+- Anders als jede andere Schutzoption in diesem Plugin wird `google_tracking_shield` bei **bestehenden** Installationen beim Update auf 1.0.7 **einmalig automatisch aktiviert** — sonst gilt strikt „Bestand wird nie ungefragt verändert". Grund: eine nachweislich aktive Compliance-Lücke (Tracking vor Einwilligung), die andernfalls auf allen Bestandsseiten unbegrenzt offen bliebe. Nach dieser einmaligen Aktivierung wird die Einstellung **nie wieder** automatisch überschrieben — eine spätere manuelle Deaktivierung bleibt dauerhaft bestehen. Fresh-Installs erhalten den Schutz wie gewohnt über den Safe-by-Default-Mechanismus.
+- Version 1.0.6 → **1.0.7** (Header + `MCB_VERSION`). `MCB_CONSENT_VERSION` unverändert.
+
+### Bewusst NICHT umgesetzt
+
+- **Keine** vollständige „Universal Tracking Protection" (separate Architekturstudie, nicht Teil dieses Hotfixes). Keine generische Vendor-Liste über GA4/GTM/Ads hinaus, kein browserseitiger Netzwerk-Guard, keine CSP. Bestehende Compat-Module (Avada YouTube/Maps/Code-Block, Meta Social, YOTU) **unverändert**, nicht entfernt, nicht umgebaut.
+
+### Bekannte Grenze
+
+- Tracking, das ausschliesslich zur Laufzeit dynamisch nachgeladen wird, ohne dass der auslösende Code selbst als `<script>`-Block im Server-Response steht, sowie serverseitig/edge-seitig injiziertes Tracking ausserhalb von WordPress, bleiben unerfasst. Erfasst wird jeder Fall, in dem der GA4-/GTM-/Ads-Ladecode literal in der ausgelieferten HTML-Antwort steht — der ganz überwiegende Teil realer Integrationen, einschliesslich Google Site Kit und des GTM-Container-Snippets samt eigener Laufzeit-Nachladelogik.
+
 ## 1.0.6 - 2026-06-28
 
 Datenschutz- und Impressumslink im Banner zeigen auf mehrsprachigen Websites (WPML/Polylang) jetzt auf die Seite der **aktuell aktiven Sprache**. Reine Ziel-URL-Auflösung beim Rendern — **keine** URL-Manipulation, **keine** neuen Optionen, **keine** sprachabhängige Speicherung, Linktexte unverändert (ADR-39).
@@ -19,7 +45,6 @@ Datenschutz- und Impressumslink im Banner zeigen auf mehrsprachigen Websites (WP
 ### Changed
 
 - **Auflösung statt Speicherung.** Neue private Helfer in `macs-cookie-banner.php`: `localize_url()` (URL → Post-ID via `url_to_postid()` → übersetzte ID → `get_permalink()`), `translate_post_id()` (WPML/Polylang-Übersetzung mit Original-Fallback), `is_multilingual()` (Aktiv-Erkennung). Die WordPress-Core-Privacy-Seite wird auf mehrsprachigen Sites direkt über ihre Post-ID (`wp_page_for_privacy_policy`) aufgelöst.
-- Version 1.0.5 → **1.0.6** (Header + `MCB_VERSION`). `MCB_CONSENT_VERSION` unverändert.
 
 ### Bewusst NICHT umgesetzt
 

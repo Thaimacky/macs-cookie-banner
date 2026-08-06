@@ -236,7 +236,17 @@ final class Macs_Cookie_Banner_Codes {
 		) {
 			return 'google_ads';
 		}
-		if ( false !== strpos( $lc, 'googletagmanager.com/gtag/js' ) || false !== strpos( $lc, 'gtag(' ) || preg_match( '/\bg-[a-z0-9]{6,}\b/i', $text ) ) {
+		if (
+			false !== strpos( $lc, 'googletagmanager.com/gtag/js' )
+			|| false !== strpos( $lc, 'gtag(' )
+			|| preg_match( '/\bg-[a-z0-9]{6,}\b/i', $text )
+			// Legacy Universal Analytics loader (google-analytics.com/analytics.js,
+			// google-analytics.com/ga.js). Same product family as GA4, same
+			// category (statistics) — kept under the 'ga4' vendor key rather than
+			// introducing a separate vendor for a discontinued loader.
+			|| false !== strpos( $lc, 'google-analytics.com/analytics.js' )
+			|| false !== strpos( $lc, 'google-analytics.com/ga.js' )
+		) {
 			return 'ga4';
 		}
 		// Facebook social embeds (SDK / XFBML / page-post-video plugins) MUST be

@@ -543,13 +543,13 @@ final class Macs_Cookie_Banner_Admin {
 
 			<?php if ( isset( $_GET['mcb_restored'] ) && '1' === sanitize_text_field( wp_unslash( $_GET['mcb_restored'] ) ) ) : ?>
 				<div class="notice notice-success is-dismissible">
-					<p><?php echo esc_html__( 'Empfohlene Datenschutzeinstellungen wiederhergestellt. Texte, Farben, URLs, Tracking-Snippets und die Avada-Sync-Entscheidung blieben unverändert.', 'macs-cookie-banner' ); ?></p>
+					<p><?php echo esc_html__( 'Empfohlene Datenschutzeinstellungen wiederhergestellt (inkl. Google-Tracking-Schutz). Texte, Farben, URLs, Tracking-Snippets und die Avada-Sync-Entscheidung blieben unverändert.', 'macs-cookie-banner' ); ?></p>
 				</div>
 			<?php endif; ?>
 
 			<div class="notice notice-info inline" style="margin:12px 0;padding:10px 12px;">
 				<p style="margin:0 0 .5em;"><strong><?php echo esc_html__( 'Sichere Standardwerte', 'macs-cookie-banner' ); ?></strong> &mdash;
-					<?php echo esc_html__( 'Setzt die empfohlenen Datenschutz- und Blockier-Einstellungen (Avada-YouTube-/Code-Block-Maps-Blockierung EIN, Facebook-/Instagram-Social-Embeds EIN, Remote-Thumbnails AUS, Rechtslinks EIN, Consent-Gültigkeit 180 Tage). Texte, Farben, Design, URLs, Tracking-Snippets, Reopen-Position und die Avada-Sync-Entscheidung bleiben unverändert.', 'macs-cookie-banner' ); ?>
+					<?php echo esc_html__( 'Setzt die empfohlenen Datenschutz- und Blockier-Einstellungen (Avada-YouTube-/Code-Block-Maps-Blockierung EIN, Facebook-/Instagram-Social-Embeds EIN, Google-Tracking-Schutz EIN, Remote-Thumbnails AUS, Rechtslinks EIN, Consent-Gültigkeit 180 Tage). Texte, Farben, Design, URLs, Tracking-Snippets, Reopen-Position und die Avada-Sync-Entscheidung bleiben unverändert.', 'macs-cookie-banner' ); ?>
 				</p>
 				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin:0;">
 					<input type="hidden" name="action" value="mcb_restore_recommended">
@@ -852,6 +852,19 @@ final class Macs_Cookie_Banner_Admin {
 						<td>
 							<p class="description"><?php echo esc_html__( 'Ersetzt Google-Maps-iframes in Avada Code Blocks durch den bestehenden MCB-Platzhalter. Empfohlen, wenn Google Maps per Embed-Code eingefügt wurde.', 'macs-cookie-banner' ); ?></p>
 							<p class="description"><?php echo esc_html__( 'Greift nur, wenn ein Code Block ausschliesslich ein einzelnes Google-Maps-Embed-iframe (google.com/maps/embed) enthält. Andere Inhalte, Scripts, weitere iframes, YouTube/Vimeo werden NICHT verändert. Vor Zustimmung zu „Externe Medien" entsteht kein Google-Kontakt; nach Widerruf auf „Nur notwendige" verschwindet die Karte beim Reload wieder. Reversibel (Schalter aus).', 'macs-cookie-banner' ); ?></p>
+						</td>
+					</tr>
+				</table>
+
+				<h2><?php echo esc_html__( 'Google-Tracking-Schutz (GA4 / GTM / Google Ads)', 'macs-cookie-banner' ); ?></h2>
+				<table class="form-table" role="presentation">
+					<?php self::render_checkbox_field( 'google_tracking_shield', esc_html__( 'Google Analytics / GTM / Google Ads unabhängig von der Einbindungsquelle vor Consent blockieren', 'macs-cookie-banner' ), $options['google_tracking_shield'] ); ?>
+					<tr>
+						<th scope="row"></th>
+						<td>
+							<p class="description"><?php echo esc_html__( 'Prüft die ausgelieferte Seite serverseitig auf bekannte Google-Analytics-/GTM-/Google-Ads-Skripte (gtag/js, gtm.js, legacy analytics.js/ga.js sowie den zugehörigen gtag(\'config\', …)-/gtm.start-Inline-Code) und blockiert sie im bestehenden LSCC-Format – unabhängig davon, ob sie von Avada, Google Site Kit, Rank Math, einem Theme-Header-Feld oder eigenem Code eingebunden wurden. GA4/GTM = Statistik, Google Ads = Marketing. Erkennung ist bewusst eng gefasst (keine Blockade allein wegen des Wortes „google" o. ä.).', 'macs-cookie-banner' ); ?></p>
+							<p class="description"><strong><?php echo esc_html__( 'Wichtiger Hinweis (ADR-40, Ausnahme von der sonstigen Regel):', 'macs-cookie-banner' ); ?></strong> <?php echo esc_html__( 'Dieser Schalter wurde beim Update auf 1.0.7 auf bestehenden Installationen einmalig automatisch aktiviert – anders als sonst im Plugin üblich, wo Bestandseinstellungen nie ungefragt verändert werden. Grund: eine nachweislich aktive Compliance-Lücke (Tracking vor Einwilligung). Wird dieser Schalter hier deaktiviert und gespeichert, bleibt er dauerhaft deaktiviert; er wird durch künftige Updates nicht erneut automatisch eingeschaltet.', 'macs-cookie-banner' ); ?></p>
+							<p class="description"><?php echo esc_html__( 'Über den Consent-Code-Manager manuell eingebundenes GA4/GTM/Google Ads ist von diesem Schalter nicht betroffen (läuft bereits über die eigene Gating-Logik dort).', 'macs-cookie-banner' ); ?></p>
 						</td>
 					</tr>
 				</table>
