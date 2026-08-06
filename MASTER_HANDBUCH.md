@@ -635,6 +635,38 @@ Kein Abschlussbericht darf ein Release als abgeschlossen bezeichnen, solange die
 
 ---
 
+# PFLICHT: VOLLSTÄNDIGER ZIP-DATEIPFAD IN BERICHTEN (HARTE PFLICHTREGEL)
+
+VERBINDLICH (ab 2026-08-06). Gilt für ChatGPT, Claude, Codex, Claude Code und alle zukünftigen Entwickler-Agenten.
+
+Jedes Mal, wenn ein Test- oder Release-ZIP erzeugt wird, MUSS der zugehörige Abschluss-/Statusbericht einen eigenen Abschnitt in exakt diesem Format enthalten:
+
+```
+================================================================================
+ZIP-DATEI
+================================================================================
+
+Vollständiger Dateipfad:
+...
+
+Dateiname:
+...
+
+Größe:
+...
+
+SHA-256:
+...
+```
+
+**Der vollständige, absolute Dateipfad ist zwingend** (z. B. `G:\Cookie Banner Plugin\macs-cookie-banner.zip`). **Nicht zulässig** sind relative oder gekürzte Angaben wie `...\scratchpad\...` oder „im Überordner". Marcel muss die Datei sofort öffnen können, ohne suchen zu müssen.
+
+Grund: Marcel arbeitet mit mehreren Laufwerken/Rechnern; ein gekürzter oder relativer Pfad zwingt ihn zur Suche — das widerspricht dem Grundsatz „Marcel ist Entscheider/Tester, nicht Debug-Operator" (siehe Abschnitt „PFLICHT: DEBUGGING / RUNTIME-PROOFS").
+
+Der Ablageort selbst bleibt unverändert geregelt (Abschnitt „Release-Artefakte / Ablageort für Test-ZIPs" — Überordner des Repositories).
+
+---
+
 # PFLICHT: ZWEIPHASIGER RELEASE-WORKFLOW (HARTE PFLICHTREGEL)
 
 VERBINDLICH (ab 2026-06-28). Gilt für **alle** Plugin-Releases. Der Release-Prozess ist in zwei **strikt getrennte** Phasen geteilt.
