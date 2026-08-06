@@ -623,7 +623,7 @@ Die bestehende **WPML-/Polylang-String-Translation-Registrierung bleibt als Over
 
 ## ADR-40: Google Tracking Shield — quellenunabhängiges Gating für GA4/GTM/Google Ads + einmalige Bestands-Migration als bewusste ADR-36-Ausnahme (umgesetzt in v1.0.7)
 
-**Status:** Aktiv ab v1.0.7 (2026-08-06). Eng begrenzter Sicherheits-Hotfix, kein Teil der vollständigen „Universal Tracking Protection"-Architektur (separate Studie, nicht umgesetzt).
+**Status:** Aktiv ab v1.0.7 (2026-08-06), Runtime-Proof durch Marcel bestätigt, GitHub-Release veröffentlicht und API-verifiziert (siehe DEV_LOG „1.0.7 - Release-Status"). Eng begrenzter Sicherheits-Hotfix, kein Teil der vollständigen „Universal Tracking Protection"-Architektur (separate Studie, nicht umgesetzt).
 
 **Kontext (bewiesen):** Root-Cause-Analyse und Architekturstudie (dokumentiert, derselbe Tag) zeigten: `<script async src="…googletagmanager.com/gtag/js?id=…">` kann im ausgelieferten HTML erscheinen, unabhängig davon, ob Avada, Google Site Kit, Rank Math, ein Theme-Header-Feld oder Custom Code den Code einbindet. Ursache: alle bisherigen Gating-Module (`yotu-compat`, `avada-maps-compat`, `meta-social-compat`) hängen an `script_loader_tag`, das ausschliesslich über `wp_enqueue_script()` registrierte Assets sieht — roh geechote `<script>`-Tags (der typische Site-Kit-/Header-Feld-Weg) erreichen diesen Filter strukturell nie. Zusätzlich fehlte `Consent_Codes::match_vendor()` bislang die Erkennung des Legacy-Universal-Analytics-Loaders (`google-analytics.com/analytics.js`/`ga.js`).
 

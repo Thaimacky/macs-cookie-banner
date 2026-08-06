@@ -1,5 +1,13 @@
 # DEV LOG
 
+## 1.0.7 - Release-Status (2026-08-06)
+
+- **Runtime-Proof durch Marcel:** Update auf 1.0.7 erfolgreich; HTML-Quelltext bestätigt Google-Tracking-Scripts vor Consent als `type="text/plain"`; Netzwerk-Test (Inkognito) bestätigt keine Google-Requests vor Consent und nach „Nur notwendige"; nach „Alle akzeptieren" laden gtag.js/GA korrekt. Der ursprünglich gemeldete Compliance-Fall gilt damit als reproduziert und behoben.
+- **Nicht separat rückgemeldet** (siehe `RELEASE_CHECKLIST.md` für den ehrlichen Einzelstand): GTM-Container-Test, Google-Ads-Kategorisierung, JSON-LD-False-Positive-Test, Page-Cache-Test, Performance-Zahlen, vollständige Regressionsliste (Formulare/Brevo/reCAPTCHA/YouTube/Maps/FB-IG/Privacy Check), PHP-/JS-Fehlerfreiheit. Kein Blocker für den Hotfix laut ausdrücklicher Freigabe durch Marcel; vor Vollrollout auf alle ~40 Websites nachzuholen.
+- **Phase 2 durchgeführt:** Tag `1.0.7` erstellt und auf `macs` gepusht. GitHub-Release `1.0.7` veröffentlicht (nicht Draft) mit genau einem Asset `macs-cookie-banner.zip` (458'858 Bytes, SHA-256 `dbfb83507e8baa643c912480c76da0397bb59413cf79bfa07241459285498c2d`), byte-identisch mit dem in Phase 1 bereitgestellten Test-ZIP.
+- **Release-Verifikation (API, PFLICHT):** `GET /releases/tags/1.0.7` → `draft: false`, `prerelease: false`, genau 1 Asset. `GET /releases/latest` → `1.0.7`. Beide Prüfungen bestanden.
+- **Release-URL:** https://github.com/Thaimacky/macs-cookie-banner/releases/tag/1.0.7
+
 ## 1.0.7 - 2026-08-06 (Google Tracking Shield — kritischer Hotfix, ADR-40)
 
 - **Ausgangslage (bewiesen, gleicher Tag dokumentiert):** Root-Cause-Analyse + Architekturstudie „Universal Tracking Protection" zeigten: `<script async src="…googletagmanager.com/gtag/js?id=…">` kann im ausgelieferten HTML erscheinen, unabhängig davon, ob Avada, Google Site Kit, Rank Math, ein Theme-Header-Feld oder Custom Code den Code einbindet. Ursache: alle bisherigen Gating-Module (`yotu-compat`, `avada-maps-compat`, `meta-social-compat`) hängen an `script_loader_tag`, das ausschliesslich über `wp_enqueue_script()` registrierte Assets sieht.
