@@ -111,10 +111,23 @@ try {
             $source = Join-Path $repo $f
             if (-not (Test-Path -LiteralPath $source)) { continue }
             $entryName = 'macs-cookie-banner/' + $f.Replace([char]92, '/')
-            $entry = [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
-                $archive, $source, $entryName,
-                [System.IO.Compression.CompressionLevel]::Optimal)
+            # Eintrag manuell anlegen: der Zeitstempel MUSS gesetzt werden, BEVOR der
+            # Entry-Stream geoeffnet wird (im Create-Mode ist er danach schreibgeschuetzt).
+            # Deshalb hier kein CreateEntryFromFile.
+            $entry = $archive.CreateEntry($entryName, [System.IO.Compression.CompressionLevel]::Optimal)
             $entry.LastWriteTime = $entryStamp
+
+            $entryStream = $entry.Open()
+            try {
+                $sourceStream = [System.IO.File]::OpenRead($source)
+                try {
+                    $sourceStream.CopyTo($entryStream)
+                } finally {
+                    $sourceStream.Dispose()
+                }
+            } finally {
+                $entryStream.Dispose()
+            }
             $added++
         }
     } finally {
