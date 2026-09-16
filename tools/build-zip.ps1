@@ -73,8 +73,20 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'git ls-files fehlgeschlagen - ist dies ein Git-Repository?' }
 
     $dirty = & git status --porcelain
+
+    # Commit-Zeitstempel von HEAD - macht das ZIP reproduzierbar: derselbe Commit
+    # ergibt auf jedem Rechner dasselbe ZIP. Ohne dies wuerden die Mtimes der
+    # Arbeitskopie einfliessen und Desktop-/Laptop-ZIPs waeren nie byte-identisch.
+    $commitIso = & git log -1 --format=%cI
 } finally {
     Pop-Location
+}
+
+if ($commitIso) {
+    $entryStamp = [DateTimeOffset]::Parse($commitIso)
+} else {
+    # Kein Commit vorhanden (frisches Repo): fester Ersatzwert statt Arbeitskopie-Mtime.
+    $entryStamp = [DateTimeOffset]::new(2020, 1, 1, 0, 0, 0, [TimeSpan]::Zero)
 }
 
 if ($dirty) {
@@ -99,9 +111,10 @@ try {
             $source = Join-Path $repo $f
             if (-not (Test-Path -LiteralPath $source)) { continue }
             $entryName = 'macs-cookie-banner/' + $f.Replace([char]92, '/')
-            [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
+            $entry = [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
                 $archive, $source, $entryName,
-                [System.IO.Compression.CompressionLevel]::Optimal) | Out-Null
+                [System.IO.Compression.CompressionLevel]::Optimal)
+            $entry.LastWriteTime = $entryStamp
             $added++
         }
     } finally {
@@ -135,4 +148,5 @@ Write-Output $hash
 Write-Output ''
 Write-Output '================================================================================'
 Write-Output ("Version: $version | Dateien im ZIP: $added | Typ: $Kind")
+Write-Output ("Reproduzierbar: alle Eintraege auf Commit-Zeit " + $entryStamp.ToString('u'))
 Write-Output '================================================================================'
