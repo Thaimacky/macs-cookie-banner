@@ -9,7 +9,16 @@ Thumbs.db
 .idea/
 .vscode/
 
+# Claude Code: rechnerlokale Permission-Caches / Session-Settings.
+# Dauerhafte Projektregeln gehoeren NICHT hierhin, sondern in CLAUDE.md
+# (siehe MULTI_PC_SETUP.md).
+.claude/
+
 *.zip
+
+# Build-Ausgabe (tools/build-zip.ps1) — bleibt bewusst lokal.
+# Kein Test-/Release-ZIP wird je versioniert.
+/_BUILD_OUTPUT/
 
 tmp/
 logs/
