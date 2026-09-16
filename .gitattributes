@@ -1,0 +1,22 @@
+# Zeilenenden rechnerunabhaengig festnageln.
+#
+# Grund (2026-09-16): Ohne diese Datei haengt das ausgecheckte Zeilenende von der
+# lokalen core.autocrlf-Einstellung ab. Auf dem Desktop lag der Arbeitsbaum in LF,
+# ein frischer Clone mit core.autocrlf=true erhielt jedoch CRLF. Ein auf dem Laptop
+# gebautes ZIP waere dadurch NICHT byte-identisch mit dem Desktop-ZIP gewesen —
+# das verletzt die Pflichtregel "getestetes ZIP muss byte-identisch mit dem
+# Release-ZIP sein" (MASTER_HANDBUCH, "PFLICHT: ZWEIPHASIGER RELEASE-WORKFLOW").
+#
+# LF entspricht dem bisher ausgelieferten Zustand und ist fuer PHP/WordPress korrekt.
+* text=auto eol=lf
+
+# Kompilierte Uebersetzungen und Archive nie anfassen.
+*.mo binary
+*.zip binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
