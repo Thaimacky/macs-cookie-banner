@@ -34,6 +34,7 @@
 - 2026-06-21 — v0.5.10 / ADR-30: Avada-Farbimport bindet **ausschließlich** an die aktuell aktive **Primary Color**. Bewiesener Root Cause: die bisherige Brand-Key-Prioritätskette (`primary_color → accent_color → link_color → button_gradient_top_color`) mit positionsbasiertem Palette-Matching übernahm nach Wechsel der Primary Color auf direktes `#2ecc4e` weiterhin den alten `var(--awb-color5)`-Wert `#1e4884` (5. Palette-Eintrag) aus den Sekundärschlüsseln. Neu: `resolve_primary(read_raw('primary_color'))`, kein accent/link/gradient, kein Palette-/`awb-colorN`-Matching; Client-Fallback nur für `primary_color`. Temporäre `0.5.9-debug`-Notice entfernt. Keine Änderung an Consent/Locale/Reopen/Presets/Frontend/Cache-Reset/Speicherung/Scanner/CCM/Updater.
 
 - 2026-06-28 — Additive Erweiterung (Workflow-Regeln, keine Plugin-Änderung): Sektion „PFLICHT: KOPIERMARKIERUNG FÜR PROMPTS (für Claude Code)" ergänzt (zum Kopieren bestimmte Prompts immer mit `🚨🚨🚨 KOPIEREN AB HIER FÜR CLAUDE CODE 🚨🚨🚨` / `🚨🚨🚨 HIER ENDET DER PROMPT 🚨🚨🚨` umschließen). Sektion „PFLICHT: GIT-REMOTE NIEMALS HARTCODIEREN" ergänzt (vor jedem Push/Pull/Tag erst `git remote -v`, nie `origin`/`macs` annehmen). Sektion „PFLICHT: RELEASE-VERIFIKATION (verbindlicher Workflow)" ergänzt (Release erst abgeschlossen, wenn öffentlich veröffentlicht + genau ein Produktions-ZIP-Asset + API liefert es als `latest`; Tag ≠ Release; Draft = für PUC nicht existent; Pflichtprüfung vor jeder Rollout-Freigabe). Sektion „PFLICHT: ZWEIPHASIGER RELEASE-WORKFLOW" ergänzt (Phase 1 = Implementierung→Commit→Push→Produktions-ZIP zum Test, **kein** Tag/Release/Asset; endet mit „Produktions-ZIP bereit zum Test"; Phase 2 = Tag/Release/Asset/Verifikation **erst nach ausdrücklicher User-Freigabe**; Test-ZIP muss byte-identisch mit Release-ZIP sein, sonst Phase 1 neu). Sektion „PFLICHT: VOLLROLLOUT ERST NACH ERFOLGREICHEM UPDATE-TEST" ergänzt (nach Veröffentlichung immer zuerst Auto-Update-Test auf Testseite: Update gefunden, fehlerfrei, Plugin aktiv, Einstellungen erhalten, keine PHP-/JS-Fehler; „bereit für 40 Websites" niemals vor bestandenem Update-Test). Sektion „PFLICHT: KOPIERMARKIERUNG FÜR PROMPTS" verschärft (höchste Priorität; Auslöser-Begriffe „Prompt"/„für Claude/Codex/ChatGPT"; verboten: keine Marker, Markdown-Codeblock statt Marker, „Hier ist der Prompt"/„Prompt:", Mischformen, Erklärung innerhalb der Marker). Sektion „PFLICHT: DOKU-ÄNDERUNGEN STANDARDMÄSSIG ABSCHLIESSEN" ergänzt (reine Doku-Änderungen = regulärer Auftrag: Validierung→Commit→`git remote -v`→Push; „nicht committet, da nicht angefragt" unzulässig; Ausnahme nur bei ausdrücklichem „nicht committen"/„nicht pushen"). Sektion „PFLICHT: KOPIERMARKIERUNG FÜR BERICHTE" verschärft (gilt für Abschluss-/Release-/Analyse-/Root-Cause-/Rollout-/Übergabe-/Status-/Dokumentationsberichte; neues End-Format `🚨🚨🚨 HIER ENDET DER BERICHT 🚨🚨🚨`; nur Bericht innerhalb der Marker; Verstoß = Workflowfehler). Inhalt sonst unverändert.
+- 2026-09-16 — Additive Erweiterung (Entwicklungsinfrastruktur, keine Plugin-Aenderung): Sektion „PFLICHT: MULTI-PC-ENTWICKLUNG (DESKTOP <-> LAPTOP)" ergaenzt (GitHub ist einzige Uebertragungsstrecke; keine manuelle Kopie von Code/Regeln/Doku/Werkzeugen; kanonisches Repo ist `macs-cookie-banner.git`, `light-swiss-cookie-consent.git` ist veralteter Altstand; Wechsel erst freigegeben bei sauberem Arbeitsbaum und ahead/behind 0/0). Sektion „PFLICHT: BUILD-AUSGABE `_BUILD_OUTPUT\`" ergaenzt (ZIPs ausschliesslich via `tools/build-zip.ps1`; Ausgabeordner immer `_BUILD_OUTPUT\` relativ zum Repository, gitignored; Test-ZIPs immer mit Version im Dateinamen; keine festen Laufwerkspfade `G:`/`D:`/`F:` in Skripten oder Anleitungen) — **ersetzt fuer Neubauten die Ablageregel der Sektion „Release-Artefakte / Ablageort fuer Test-ZIPs" (2026-06-03) auf ausdrueckliche Anweisung des Auftraggebers**; die historische Sektion bleibt zur Nachvollziehbarkeit unveraendert bestehen. Neue versionierte Dateien: `CLAUDE.md` (dauerhafte Claude-Projektregeln, vormals nur lokales Desktop-Memory), `MULTI_PC_SETUP.md`, `tools/build-zip.ps1`, `INVENTUR_VORLAGE.md`. Inhalt sonst unveraendert.
 
 ## Verbindliche Learnings & Arbeitsregeln (Stand v0.5.13, 2026-06-22)
 
@@ -856,7 +857,124 @@ Regeln für den Agent:
 * nicht interpretieren
 * keine alternativen Orte wählen
 
+> **UEBERHOLT ab 2026-09-16 (nur fuer neu erzeugte ZIPs):** Der Ablageort ist auf ausdrueckliche
+> Anweisung des Auftraggebers auf `_BUILD_OUTPUT\` **relativ zum Repository** geaendert worden —
+> siehe Sektion „PFLICHT: BUILD-AUSGABE `_BUILD_OUTPUT\`". Die nachstehende Regel bleibt als
+> historische Dokumentation des Zustands bis v1.0.7 erhalten. Die bereits im Parent-Verzeichnis
+> liegenden Alt-ZIPs werden nicht verschoben.
+
 Standard-Ziel ist IMMER das Parent-Verzeichnis des Repositories. Liegen dort bereits ältere ZIPs, wird jede neue ZIP ebenfalls dort erstellt. Eine Änderung des Ablageorts ist nur mit ausdrücklicher Anweisung des Auftraggebers zulässig. Bestehende Projektpraxis hat Vorrang vor Annahmen des Agents.
+
+---
+
+# PFLICHT: BUILD-AUSGABE `_BUILD_OUTPUT\` (HARTE PFLICHTREGEL)
+
+VERBINDLICH (ab 2026-09-16). Ersetzt fuer **neu erzeugte** ZIPs die Ablageregel der Sektion
+„Release-Artefakte / Ablageort fuer Test-ZIPs" (2026-06-03). Aenderung erfolgt auf
+**ausdrueckliche Anweisung des Auftraggebers** (dort ausdruecklich vorgesehen).
+
+## Ablageort
+
+Jedes Test-, Debug- und Release-ZIP wird **ausschliesslich** hier erzeugt:
+
+```
+<Repository-Root>\_BUILD_OUTPUT```
+
+* **Relativ zum Repository** — nie im Parent-Verzeichnis, nie auf dem Desktop, nie in `tmp`.
+* Der Ordner ist **gitignored** und wird nie versioniert.
+* Der Ordner wird vom Build-Skript automatisch angelegt.
+
+Grund: Der Auftraggeber arbeitet auf mehreren Rechnern mit **unterschiedlichen
+Laufwerksbuchstaben**. Ein repo-relativer Ausgabeordner ist auf jedem Rechner identisch,
+ein fester Parent-Pfad nicht. ZIPs muessen nie mehr gesucht werden.
+
+## Erzeugung
+
+ZIPs werden **ausschliesslich** mit dem versionierten Skript erzeugt — nie von Hand,
+nie mit `Compress-Archive` (verletzt die Forward-Slash-Pflicht):
+
+```
+powershell -ExecutionPolicy Bypass -File toolsuild-zip.ps1                 # Test
+powershell -ExecutionPolicy Bypass -File toolsuild-zip.ps1 -Kind release   # Release
+```
+
+## Dateinamen
+
+| Typ | Pflicht-Dateiname |
+|---|---|
+| Test | `macs-cookie-banner-vX.Y.Z-test.zip` |
+| Debug | `macs-cookie-banner-vX.Y.Z-debug.zip` |
+| Release-Asset | `macs-cookie-banner.zip` |
+
+**Test-ZIPs muessen IMMER die Version im Dateinamen tragen.** Lose abgelegte,
+versionslose Test-ZIPs sind **unzulaessig**.
+
+## Keine festen Laufwerkspfade
+
+In Build-Skripten, Release-Anleitungen, Prompts und Berichten duerfen **keine festen
+Projektpfade** wie `G:\...`, `D:\...` oder `F:\...` als Arbeitsgrundlage stehen.
+Skripte ermitteln den Repository-Pfad selbst.
+
+**Davon unberuehrt** bleibt die Sektion „PFLICHT: VOLLSTAENDIGER ZIP-DATEIPFAD IN BERICHTEN":
+im **Bericht** ist der vollstaendige absolute Pfad der erzeugten Datei weiterhin zwingend —
+zusammen mit Dateiname, Groesse und SHA-256. Das Build-Skript gibt diesen Block fertig aus.
+
+---
+
+# PFLICHT: MULTI-PC-ENTWICKLUNG (DESKTOP <-> LAPTOP) (HARTE PFLICHTREGEL)
+
+VERBINDLICH (ab 2026-09-16). Gilt fuer ChatGPT, Claude, Codex, Claude Code und alle
+zukuenftigen Entwickler-Agenten. Details und Rechner-Einrichtung: `MULTI_PC_SETUP.md`.
+
+## Grundsatz
+
+**GitHub ist die einzige Uebertragungsstrecke zwischen Rechnern.**
+
+Es wird **niemals** manuell kopiert: Sourcecode, Claude-Projektregeln, Dokumentation,
+Tests/Validierungsvorlagen, Build-/Release-Werkzeuge.
+
+Entsteht ein dauerhafter, nicht geheimer Entwicklungsbestandteil, gehoert er nach
+Sicherheitspruefung **in Git**. **Dauerhafte Claude-Projektregeln duerfen niemals
+ausschliesslich im lokalen Claude-Memory eines einzelnen Rechners liegen** — sie
+gehoeren in die versionierte `CLAUDE.md`.
+
+Nicht committet werden: Secrets, Tokens, Passwoerter, personenbezogene Kundendaten.
+Solche Dateien gehoeren — falls sie je entstehen — in den Dropbox-Ordner, nie in Git.
+
+## Kanonisches Repository
+
+| Repository | Status |
+|---|---|
+| `Thaimacky/macs-cookie-banner.git` | **AKTUELL — einzige gueltige Quelle** |
+| `Thaimacky/light-swiss-cookie-consent.git` | **VERALTET** (alter Produktname, eingefrorener Altstand) |
+
+Die Regel „PFLICHT: GIT-REMOTE NIEMALS HARTCODIEREN" gilt unveraendert weiter: vor jedem
+Push/Pull/Fetch/Tag zuerst `git remote -v`. Entscheidend ist nicht der Remote-**Name**,
+sondern die Remote-**URL** — sie muss auf `macs-cookie-banner.git` zeigen.
+
+## Ablauf beim Rechnerwechsel
+
+**Abgebender Rechner** — der Wechsel ist erst freigegeben, wenn *alle* Punkte erfuellt sind:
+
+1. Arbeit abschliessen, `git status` sauber
+2. Secret-Check
+3. Commit
+4. `git remote -v` — tatsaechlichen Remote ermitteln
+5. Push auf den tatsaechlichen Remote
+6. `git fetch`
+7. `git rev-list --left-right --count <REMOTE>/main...HEAD` muss **`0   0`** liefern
+
+**Uebernehmender Rechner:**
+
+1. Repository klonen bzw. synchronisieren
+2. `git remote -v` — tatsaechlichen Remote und **URL** pruefen
+3. richtigen Branch pruefen
+4. `git fetch` / `git pull`
+5. lokale Voraussetzungen einmalig einrichten (Git-Auth, PHP-CLI)
+6. Claude Code oeffnen — `CLAUDE.md` wird automatisch geladen
+7. weiterarbeiten
+
+Der Ablauf gilt **in beide Richtungen**: Desktop -> Laptop und Laptop -> Desktop.
 
 ---
 

@@ -10,7 +10,8 @@ WordPress-Sites). Reproduzierbar auf jedem Windows-Laptop mit Git + PowerShell.
 
 Voraussetzungen (einmalig am Laptop):
 - Git installiert, Git-Auth für GitHub eingerichtet (PAT oder SSH) — `git push` muss funktionieren.
-- Repo geklont: `git clone https://github.com/Thaimacky/macs-cookie-banner.git`
+- Repo geklont (Ordnername bewusst festlegen, siehe `MULTI_PC_SETUP.md`):
+  `git clone https://github.com/Thaimacky/macs-cookie-banner.git light-swiss-cookie-consent`
   (Repo ist **public** → kein Token zum Lesen/Updaten der Sites nötig.)
 - **Remote-Name NIEMALS annehmen** (verbindlich, MASTER_HANDBUCH „PFLICHT: GIT-REMOTE NIEMALS HARTCODIEREN"). Vor jedem Push/Tag zuerst ermitteln und in den folgenden Befehlen `<REMOTE>` durch den echten Namen ersetzen:
   ```
@@ -35,25 +36,47 @@ git push <REMOTE> 1.0.6
 ```
 Falls der Tag schon existiert: NICHT blind ueberschreiben — Zustand pruefen.
 
-## 4. Release-ZIP bauen (NICHT Compress-Archive — Forward-Slash-Pflicht)
+## 4. Release-ZIP bauen (Skript — keine festen Laufwerkspfade)
+
+ZIPs werden **ausschliesslich** mit dem versionierten Build-Skript erzeugt. Es ermittelt
+den Repository-Pfad selbst, laeuft dadurch auf **jedem** Rechner unveraendert (Desktop wie
+Laptop) und benoetigt **keine** Pfadanpassung mehr.
+
+Im Repository-Ordner ausfuehren:
+
 ```
-$repo = "G:\Cookie Banner Plugin\light-swiss-cookie-consent"   # ggf. Laptop-Pfad anpassen
-$zip  = "G:\Cookie Banner Plugin\macs-cookie-banner.zip"
-Push-Location $repo; $files = git ls-files; Pop-Location
-Add-Type -AssemblyName System.IO.Compression, System.IO.Compression.FileSystem
-$fs = [System.IO.File]::Open($zip, [System.IO.FileMode]::Create)
-$a  = New-Object System.IO.Compression.ZipArchive($fs, [System.IO.Compression.ZipArchiveMode]::Create)
-foreach ($f in $files) {
-  $s = Join-Path $repo $f
-  if (Test-Path -LiteralPath $s) {
-    [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($a, $s, 'macs-cookie-banner/' + ($f -replace '\\','/'), [System.IO.Compression.CompressionLevel]::Optimal) | Out-Null
-  }
-}
-$a.Dispose(); $fs.Dispose()
+powershell -ExecutionPolicy Bypass -File toolsuild-zip.ps1                 # Test-ZIP  (Phase 1)
+powershell -ExecutionPolicy Bypass -File toolsuild-zip.ps1 -Kind release   # Release-ZIP (Phase 2)
 ```
-ZIP-Anforderung: Asset-Name `macs-cookie-banner.zip`, Top-Level-Ordner `macs-cookie-banner/`,
-Hauptdatei `macs-cookie-banner/macs-cookie-banner.php`, ausschliesslich Forward-Slash-Pfade,
-nur `git ls-files` (kein `.git/`, kein `.claude/`).
+
+Ausgabeordner ist **immer** `_BUILD_OUTPUT\` **relativ zum Repository** (gitignored) —
+nie der Projekt-Root, nie ein fester Pfad wie `G:\...`, `D:\...` oder `F:\...`.
+
+Dateinamen (vom Skript gesetzt, nicht von Hand):
+
+| Aufruf | Dateiname |
+|---|---|
+| `-Kind test` (Standard) | `macs-cookie-banner-vX.Y.Z-test.zip` |
+| `-Kind debug` | `macs-cookie-banner-vX.Y.Z-debug.zip` |
+| `-Kind release` | `macs-cookie-banner.zip` (Pflichtname des Release-Assets) |
+
+**Test-ZIPs tragen immer die Version im Dateinamen.** Versionslose Test-ZIPs sind unzulaessig.
+
+Das Skript erledigt automatisch:
+
+- Version aus `define( 'MCB_VERSION', ... )` lesen und **gegen den Plugin-Header pruefen**
+  (Abbruch bei Mismatch — verhindert falsch versionierte Releases),
+- Dateiliste strikt aus `git ls-files` (kein `.git/`, kein `.claude/`, kein `_BUILD_OUTPUT/`),
+- Top-Level-Ordner `macs-cookie-banner/` und ausschliesslich Forward-Slash-Pfade
+  (deshalb **kein** `Compress-Archive`),
+- Warnung, wenn der Arbeitsbaum nicht sauber ist,
+- Ausgabe von **vollstaendigem absolutem Pfad, Dateiname, Groesse und SHA-256** im
+  Pflichtformat des MASTER_HANDBUCH (Sektion „PFLICHT: VOLLSTAENDIGER ZIP-DATEIPFAD IN
+  BERICHTEN") — diese Angaben gehoeren unveraendert in den Abschlussbericht.
+
+ZIP-Anforderung (vom Skript garantiert): Asset-Name `macs-cookie-banner.zip`,
+Top-Level-Ordner `macs-cookie-banner/`, Hauptdatei
+`macs-cookie-banner/macs-cookie-banner.php`, ausschliesslich Forward-Slash-Pfade.
 
 ## 5. GitHub-Release erstellen (Web-UI)
 GitHub -> Repo -> Releases -> "Draft a new release":

@@ -1,5 +1,64 @@
 # DEV LOG
 
+## Entwicklungsinfrastruktur — Multi-PC-Faehigkeit (2026-09-16)
+
+**Kein Plugin-Release, keine Fachlogik-Aenderung, keine Versionsanhebung.** Plugin-Version
+bleibt unveraendert 1.0.7 (Header + `MCB_VERSION`). Kein Tag, kein GitHub-Release.
+Betroffen ist ausschliesslich die Entwicklungsinfrastruktur.
+
+**Ausgangslage (Audit auf dem Desktop):**
+
+- Der Branch `main` war **39 Commits ahead** gegenueber seinem Upstream `origin/main` —
+  `origin` zeigt jedoch auf das **veraltete** Repo `light-swiss-cookie-consent.git`.
+  Gegenueber dem tatsaechlich aktuellen Remote `macs`
+  (`macs-cookie-banner.git`) war der Stand bereits synchron (`0 0`).
+  Der Tracking-Branch wurde deshalb auf den tatsaechlich gueltigen Remote umgestellt;
+  das veraltete Repo wird nicht mehr beliefert. **Kein Code ging verloren.**
+- Es existierte **kein** Build-/ZIP-Skript. ZIPs wurden ad hoc aus einem Snippet mit
+  **fest verdrahteten `G:\`-Pfaden** im `RELEASE_GUIDE.md` erzeugt — auf einem zweiten
+  Rechner nicht lauffaehig.
+- Dauerhafte Claude-Projektregeln existierten **ausschliesslich** im lokalen
+  Claude-Memory dieses Desktops und waeren auf einem frischen Clone komplett gefehlt.
+- Die Validierungs-Erfassungsvorlage lag nur im Projekt-Root **ausserhalb** des Repositorys.
+
+**Umgesetzt:**
+
+- **`CLAUDE.md` (neu, versioniert):** dauerhafte Claude-Projektregeln — Vorrangs-Quelle
+  und Pflicht-Lese-Reihenfolge, die fuenf bewussten Architekturregeln, Projektlayout,
+  Arbeits-/Lieferregeln, Build-Regeln. Inhaltlich aus den bisherigen lokalen Memories
+  uebernommen und dabei **gegen den echten v1.0.7-Code korrigiert**: Architekturregel 1
+  ("keine Auto-Rewrites") benennt jetzt die bewusste, option-gesteuerte ADR-40-Ausnahme
+  `google-tracking-shield.php`; die Memory-Aussage "PROJECT_BRIEF/ACTIVE_CODE_MAP/
+  DECISIONS fehlen" war seit Monaten veraltet und entfaellt.
+- **`MULTI_PC_SETUP.md` (neu):** verbindlicher Desktop-<->-Laptop-Ablauf, kanonisches
+  Repository, Einrichtung eines neuen Rechners, Dropbox-Entscheid, Liste der bewusst
+  lokal bleibenden Pfade.
+- **`tools/build-zip.ps1` (neu):** rechnerunabhaengiges Verpackungsskript. Ermittelt den
+  Repo-Pfad selbst (**keine** festen Laufwerksbuchstaben), liest die Version aus
+  `MCB_VERSION` und **bricht bei Mismatch zum Plugin-Header ab**, nimmt strikt
+  `git ls-files`, erzwingt Top-Level `macs-cookie-banner/` und Forward-Slash-Pfade
+  (kein `Compress-Archive`), warnt bei unsauberem Arbeitsbaum und gibt den
+  Pflichtblock **ZIP-DATEI** (absoluter Pfad, Name, Groesse, SHA-256) aus.
+  Bewusst rein ASCII: Windows PowerShell 5.1 liest BOM-lose Dateien als ANSI.
+  Verifiziert: 161 Dateien, 0 Backslash-Pfade, 0 Fremd-Top-Level, kein `.git/`, kein `.claude/`.
+- **`INVENTUR_VORLAGE.md` (neu im Repo):** bisher nur lokal. Auf Kundendaten geprueft —
+  **leere Vorlage ohne Site-Namen/URLs**, daher unbedenklich. Warnhinweis ergaenzt, dass
+  **ausgefuellte** Inventuren nie ins Repository gehoeren.
+- **`RELEASE_GUIDE.md`:** Schritt 4 auf das Skript umgestellt, **alle `G:\`-Pfade entfernt**;
+  Klon-Befehl auf den bewusst abweichenden Zielordnernamen praezisiert.
+- **`MASTER_HANDBUCH.md`:** rein additiv erweitert (Sektionen „PFLICHT: BUILD-AUSGABE
+  `_BUILD_OUTPUT\`" und „PFLICHT: MULTI-PC-ENTWICKLUNG") plus Eintrag in der
+  Aenderungshistorie. Die Sektion „Release-Artefakte / Ablageort fuer Test-ZIPs" (2026-06-03)
+  bleibt **unveraendert** erhalten und ist lediglich als ueberholt markiert — die dortige
+  Klausel erlaubt eine Aenderung des Ablageorts ausdruecklich bei Anweisung des Auftraggebers.
+- **`.gitignore`:** `_BUILD_OUTPUT/` und `.claude/` ergaenzt (beide bewusst lokal).
+
+**Secret-Check:** Tracked Files gegen PAT-/OAuth-/AWS-/Slack-/OpenAI-Muster und
+Private-Key-Header geprueft — keine Treffer. Keine `.env`, keine Credentials im Projekt.
+
+**Dropbox:** nicht erforderlich — Begruendung in `MULTI_PC_SETUP.md`, Abschnitt 5.
+
+
 ## 1.0.7 - Release-Status (2026-08-06)
 
 - **Runtime-Proof durch Marcel:** Update auf 1.0.7 erfolgreich; HTML-Quelltext bestätigt Google-Tracking-Scripts vor Consent als `type="text/plain"`; Netzwerk-Test (Inkognito) bestätigt keine Google-Requests vor Consent und nach „Nur notwendige"; nach „Alle akzeptieren" laden gtag.js/GA korrekt. Der ursprünglich gemeldete Compliance-Fall gilt damit als reproduziert und behoben.
