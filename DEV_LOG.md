@@ -53,6 +53,35 @@ Betroffen ist ausschliesslich die Entwicklungsinfrastruktur.
   Klausel erlaubt eine Aenderung des Ablageorts ausdruecklich bei Anweisung des Auftraggebers.
 - **`.gitignore`:** `_BUILD_OUTPUT/` und `.claude/` ergaenzt (beide bewusst lokal).
 
+**Beim Gegentest mit einem frischen Clone gefunden und behoben (zwei echte Multi-PC-Blocker):**
+
+1. **Zeilenenden.** Der Desktop-Arbeitsbaum lag in LF, ein frischer Clone erhielt wegen
+   `core.autocrlf=true` jedoch CRLF — jede Textdatei war im Clone groesser. Ein auf dem
+   Laptop gebautes ZIP waere damit nie byte-identisch mit dem Desktop-ZIP gewesen.
+   Behoben mit neuer **`.gitattributes`** (`* text=auto eol=lf`, `.mo`/Binaerformate
+   explizit `binary`). Keine Renormalisierung noetig — der Index speicherte bereits LF,
+   es aendert sich ausschliesslich das Checkout-Verhalten. Der Desktop-Arbeitsbaum
+   enthielt zusaetzlich 14 Dateien mit CRLF und wurde einmalig neu ausgecheckt.
+2. **ZIP-Zeitstempel.** Auch nach (1) unterschieden sich die ZIPs weiterhin im SHA-256:
+   `CreateEntryFromFile` uebernimmt die Mtime der Arbeitskopie in jeden Eintrag, und die
+   ist auf jedem Rechner anders. `tools/build-zip.ps1` setzt jetzt fuer **alle** Eintraege
+   den **Commit-Zeitstempel von HEAD**. Derselbe Commit ergibt dadurch auf jedem Rechner
+   dasselbe ZIP.
+
+Ohne diese beiden Korrekturen waere die Pflichtregel „getestetes ZIP muss byte-identisch
+mit dem Release-ZIP sein" (MASTER_HANDBUCH, „PFLICHT: ZWEIPHASIGER RELEASE-WORKFLOW")
+ueber zwei Rechner hinweg grundsaetzlich nicht erfuellbar gewesen — und der Unterschied
+waere auf dem Laptop praktisch nicht aufgefallen.
+
+**Verifikation (durchgefuehrt, nicht angenommen):** Frischer Clone von
+`macs-cookie-banner.git` in einen komplett anderen Pfad auf Laufwerk `C:`.
+Ergebnis: alle Pflichtdateien vorhanden; alle 166 versionierten Dateien byte-identisch
+zum Desktop; `toolsuild-zip.ps1` laeuft dort ohne Pfadanpassung; die ZIPs beider
+Rechner haben denselben SHA-256 (`95CDD719A711ECC52A8C11F23BC04B61F06500800054F84E2C122D01579EFD95`).
+ZIP-Struktur geprueft: 166 Eintraege, 0 Backslash-Pfade, Top-Level durchgaengig
+`macs-cookie-banner/`, Hauptdatei vorhanden, kein `.git/`, kein `.claude/`,
+kein `_BUILD_OUTPUT/`.
+
 **Secret-Check:** Tracked Files gegen PAT-/OAuth-/AWS-/Slack-/OpenAI-Muster und
 Private-Key-Header geprueft — keine Treffer. Keine `.env`, keine Credentials im Projekt.
 
