@@ -1,5 +1,11 @@
 # DEV LOG
 
+## 1.0.8 - Release-Status (2026-11-09)
+
+**Phase 2 auf ausdrückliche Freigabe von Marcel durchgeführt.** Tag `1.0.8` (annotiert, Objekt `08f45d1`) auf Commit `4716da1`, gepusht auf den Remote mit URL `macs-cookie-banner.git`. GitHub-Release `1.0.8` veröffentlicht (kein Draft, kein Pre-Release, 2026-11-08T21:07:59Z), genau ein Asset `macs-cookie-banner.zip`, 506’847 Bytes, SHA-256 `72DD1F589396D81745BFDFF4A454A15E0FC29BFBFCCDEB9CB173F36B21CC91A3` — byte-identisch zum freigegebenen Testartefakt `macs-cookie-banner-v1.0.8-test.zip` (das reproduzierbare `-Kind release`-Build ergab denselben Hash; zusätzlich das öffentlich heruntergeladene Asset geprüft). ZIP-Inhalt byte-identisch zu `git archive 4716da1`, 170 Einträge, Top-Level `macs-cookie-banner/`, keine Secrets. Öffentliche API: `/releases/tags/1.0.8` draft=false, `/releases/latest` = `1.0.8`. PUC: kein Asset-Namensfilter, Drafts/Pre-Releases werden übersprungen, Version aus `tag_name` → Update 1.0.7 → 1.0.8 wird angeboten.
+
+**Offen (Pflicht-Gate vor Vollrollout):** Auto-Update-Test auf den ersten Sites und Live-Runtime-Test gemäss `TESTPLAN_CONSENT_RUNTIME.md` (wird von einem separaten Agenten nach den Updates durchgeführt). Kein Vollrollout vor bestandenem Test.
+
 ## 1.0.8 (Fortsetzung) - 2026-11-09 (Mailchimp, Widerruf-Härtung, `#cookie-settings`, ADR-42)
 
 **Auslöser:** Prüfung des ersten 1.0.8-Stands durch Marcel/ChatGPT: v1.0.8 erst freigeben, wenn auch Mailchimp blockiert ist, der Widerruf zuverlässig wirkt und `#cookie-settings` im Plugin unterstützt wird (statt seitenspezifischer JS-Brücke). Architekturfragen gemäss CLAUDE.md zurückgefragt; Entscheidung Marcel: Mailchimp **quellenunabhängig**, Cookie-Löschung mit **fester kleiner Liste**.

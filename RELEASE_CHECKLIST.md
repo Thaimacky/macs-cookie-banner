@@ -14,7 +14,7 @@
 - [ ] Widerruf über „Cookie-Einstellungen": Seite lädt neu, Tracking-Cookies im Browser weg.
 - [ ] Bestehende Links „Cookie Einstellungen" (`#cookie-settings`) öffnen den neuen Banner.
 
-**Status: Phase 1 — Produktions-ZIP bereit zum Test. Kein Tag, kein Release.** Lokal validiert (PHP-Lint, Pipeline-Harness mit echter WP-Rocket-Delay-JS-Klasse, 18 PYS-Modulprüfungen, Headless-Chrome-E2E auf Fixture). Live-Runtime-Proof gemäss `TESTPLAN_CONSENT_RUNTIME.md` steht aus.
+**Status: Release 1.0.8 veröffentlicht und API-verifiziert (2026-11-09, Asset SHA-256 `72DD1F58…91A3`, byte-identisch zum Testartefakt). Auto-Update-Test und Live-Runtime-Test stehen aus — kein Vollrollout vor bestandenem Test.** (Ursprünglicher Phase-1-Stand:) Lokal validiert (PHP-Lint, Pipeline-Harness mit echter WP-Rocket-Delay-JS-Klasse, 18 PYS-Modulprüfungen, Headless-Chrome-E2E auf Fixture). Live-Runtime-Proof gemäss `TESTPLAN_CONSENT_RUNTIME.md` steht aus.
 
 **Lokal bereits verifiziert (Agent, 2026-11-09):**
 - [x] PHP-Lint aller PHP-Dateien (PHP 8.3) fehlerfrei.
