@@ -103,6 +103,11 @@ final class Macs_Cookie_Banner {
 		require_once MCB_PLUGIN_DIR . 'includes/wp-rocket-compat.php';
 		Macs_Cookie_Banner_Wp_Rocket_Compat::init();
 
+		// v1.0.8 (ADR-41): PixelYourSite only after Marketing consent (opt-in).
+		// Requires Consent_Codes (transform_snippet).
+		require_once MCB_PLUGIN_DIR . 'includes/pixelyoursite-compat.php';
+		Macs_Cookie_Banner_Pixelyoursite_Compat::init();
+
 		require_once MCB_PLUGIN_DIR . 'includes/updater.php';
 		Macs_Cookie_Banner_Updater::init();
 
@@ -165,6 +170,7 @@ final class Macs_Cookie_Banner {
 			'avada_code_maps_block'      => false,
 			'meta_social_block'          => false,
 			'google_tracking_shield'     => false,
+			'pys_consent_gating'         => false,
 			'design_preset'              => 'classic',
 		);
 	}
@@ -187,6 +193,7 @@ final class Macs_Cookie_Banner {
 			'avada_code_maps_block'     => true,
 			'meta_social_block'         => true,
 			'google_tracking_shield'    => true,
+			'pys_consent_gating'        => true,
 			'show_legal_links'          => true,
 			// Looseners OFF.
 			'youtube_remote_thumbnails' => false,
@@ -230,6 +237,7 @@ final class Macs_Cookie_Banner {
 			'avada_code_maps_block',
 			'meta_social_block',
 			'google_tracking_shield',
+			'pys_consent_gating',
 			'youtube_remote_thumbnails',
 			'show_legal_links',
 			'consent_lifetime_days',
@@ -475,6 +483,7 @@ final class Macs_Cookie_Banner {
 			'avada_code_maps_block',
 			'meta_social_block',
 			'google_tracking_shield',
+			'pys_consent_gating',
 		);
 	}
 

@@ -549,7 +549,7 @@ final class Macs_Cookie_Banner_Admin {
 
 			<div class="notice notice-info inline" style="margin:12px 0;padding:10px 12px;">
 				<p style="margin:0 0 .5em;"><strong><?php echo esc_html__( 'Sichere Standardwerte', 'macs-cookie-banner' ); ?></strong> &mdash;
-					<?php echo esc_html__( 'Setzt die empfohlenen Datenschutz- und Blockier-Einstellungen (Avada-YouTube-/Code-Block-Maps-Blockierung EIN, Facebook-/Instagram-Social-Embeds EIN, Google-Tracking-Schutz EIN, Remote-Thumbnails AUS, Rechtslinks EIN, Consent-Gültigkeit 180 Tage). Texte, Farben, Design, URLs, Tracking-Snippets, Reopen-Position und die Avada-Sync-Entscheidung bleiben unverändert.', 'macs-cookie-banner' ); ?>
+					<?php echo esc_html__( 'Setzt die empfohlenen Datenschutz- und Blockier-Einstellungen (Avada-YouTube-/Code-Block-Maps-Blockierung EIN, Facebook-/Instagram-Social-Embeds EIN, Google-Tracking-Schutz EIN, PixelYourSite-Gating EIN, Remote-Thumbnails AUS, Rechtslinks EIN, Consent-Gültigkeit 180 Tage). Texte, Farben, Design, URLs, Tracking-Snippets, Reopen-Position und die Avada-Sync-Entscheidung bleiben unverändert.', 'macs-cookie-banner' ); ?>
 				</p>
 				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin:0;">
 					<input type="hidden" name="action" value="mcb_restore_recommended">
@@ -865,6 +865,18 @@ final class Macs_Cookie_Banner_Admin {
 							<p class="description"><?php echo esc_html__( 'Prüft die ausgelieferte Seite serverseitig auf bekannte Google-Analytics-/GTM-/Google-Ads-Skripte (gtag/js, gtm.js, legacy analytics.js/ga.js sowie den zugehörigen gtag(\'config\', …)-/gtm.start-Inline-Code) und blockiert sie im bestehenden LSCC-Format – unabhängig davon, ob sie von Avada, Google Site Kit, Rank Math, einem Theme-Header-Feld oder eigenem Code eingebunden wurden. GA4/GTM = Statistik, Google Ads = Marketing. Erkennung ist bewusst eng gefasst (keine Blockade allein wegen des Wortes „google" o. ä.).', 'macs-cookie-banner' ); ?></p>
 							<p class="description"><strong><?php echo esc_html__( 'Wichtiger Hinweis (ADR-40, Ausnahme von der sonstigen Regel):', 'macs-cookie-banner' ); ?></strong> <?php echo esc_html__( 'Dieser Schalter wurde beim Update auf 1.0.7 auf bestehenden Installationen einmalig automatisch aktiviert – anders als sonst im Plugin üblich, wo Bestandseinstellungen nie ungefragt verändert werden. Grund: eine nachweislich aktive Compliance-Lücke (Tracking vor Einwilligung). Wird dieser Schalter hier deaktiviert und gespeichert, bleibt er dauerhaft deaktiviert; er wird durch künftige Updates nicht erneut automatisch eingeschaltet.', 'macs-cookie-banner' ); ?></p>
 							<p class="description"><?php echo esc_html__( 'Über den Consent-Code-Manager manuell eingebundenes GA4/GTM/Google Ads ist von diesem Schalter nicht betroffen (läuft bereits über die eigene Gating-Logik dort).', 'macs-cookie-banner' ); ?></p>
+						</td>
+					</tr>
+				</table>
+
+				<h2><?php echo esc_html__( 'PixelYourSite (Meta Pixel u. a.)', 'macs-cookie-banner' ); ?></h2>
+				<table class="form-table" role="presentation">
+					<?php self::render_checkbox_field( 'pys_consent_gating', esc_html__( 'PixelYourSite erst nach Zustimmung zu „Marketing" ausführen', 'macs-cookie-banner' ), $options['pys_consent_gating'] ); ?>
+					<tr>
+						<th scope="row"></th>
+						<td>
+							<p class="description"><?php echo esc_html__( 'Blockiert das Frontend-Skript von PixelYourSite bis zur Zustimmung zu „Marketing". Vorher lädt kein Meta Pixel (fbevents.js), es gehen keine Events an facebook.com und es werden keine _fbp-/pys_*-/pbid-Cookies gesetzt. Zusätzlich werden der pbid-Vorabruf im <head> und die <noscript>-Pixelbilder von PixelYourSite abgeschaltet. Serverseitige Conversions-API-Events aus AJAX-/REST-Anfragen werden nur gesendet, wenn die Zustimmung vorliegt.', 'macs-cookie-banner' ); ?></p>
+							<p class="description"><?php echo esc_html__( 'Alle von PixelYourSite verwalteten Pixel (auch ein über PixelYourSite eingebundenes Google Analytics) laufen damit unter „Marketing". Ohne aktives PixelYourSite hat dieser Schalter keine Wirkung. Reversibel (Schalter aus).', 'macs-cookie-banner' ); ?></p>
 						</td>
 					</tr>
 				</table>
