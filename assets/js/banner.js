@@ -18,6 +18,19 @@
 		categories.unshift('necessary');
 	}
 
+	// v1.0.8 (ADR-42): links/hash that open the consent settings (compatible
+	// with the "#cookie-settings" convention of older site-level banners).
+	var settingsHash = '#cookie-settings';
+
+	// v1.0.8 (ADR-42): first-party cookies of the services this plugin itself
+	// gates, removed when the visitor withdraws the matching category.
+	// Deliberately a small, fixed list - not a vendor database. Third-party
+	// cookies (e.g. "fr" on facebook.com) cannot be removed by any page script.
+	var revokeCookiePatterns = {
+		statistics: [/^_ga$/, /^_ga_/, /^_gid$/, /^_gat/],
+		marketing: [/^_gcl_/, /^_fbp$/, /^_fbc$/, /^pys/, /^last_pys/, /^pbid$/, /^mailchimp/, /^_mcid$/]
+	};
+
 	function isAllowedCategory(category) {
 		return allowedCategories.indexOf(category) !== -1;
 	}
@@ -221,6 +234,188 @@
 		}
 
 		return hasOwn(consent.categories, category) && Boolean(consent.categories[category]);
+	}
+
+	function revokedCategories(previous, next) {
+		return categories.filter(function (category) {
+			return category !== 'necessary' && Boolean(previous.categories[category]) && !next.categories[category];
+		});
+	}
+
+	function deniedCategories(consent) {
+		return Object.keys(revokeCookiePatterns).filter(function (category) {
+			return !consent.categories[category];
+		});
+	}
+
+	function cookieDomainVariants() {
+		// A cookie can only be removed with the same Domain attribute it was set
+		// with (_ga lives on ".example.ch", others on the exact host). Try "no
+		// domain" plus every parent domain down to the registrable level.
+		var parts = window.location.hostname.split('.');
+		var variants = [''];
+
+		for (var i = 0; i < parts.length - 1; i++) {
+			variants.push('.' + parts.slice(i).join('.'));
+		}
+
+		return variants;
+	}
+
+	function deleteCookie(name) {
+		cookieDomainVariants().forEach(function (domain) {
+			document.cookie = name + '=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/' + (domain ? '; Domain=' + domain : '');
+		});
+	}
+
+	function cleanupCategoryCookies(categoryList) {
+		if (!categoryList.length || !document.cookie) {
+			return;
+		}
+
+		var names = document.cookie.split(';').map(function (cookie) {
+			return cookie.split('=')[0].trim();
+		});
+		var removed = [];
+
+		categoryList.forEach(function (category) {
+			var patterns = revokeCookiePatterns[category] || [];
+
+			names.forEach(function (name) {
+				if (!name || name === cookieName || removed.indexOf(name) !== -1) {
+					return;
+				}
+
+				var matches = patterns.some(function (pattern) {
+					return pattern.test(name);
+				});
+
+				if (matches) {
+					deleteCookie(name);
+					removed.push(name);
+				}
+			});
+		});
+
+		debugLog('LSCC removed cookies', removed);
+	}
+
+	function collectGoogleTagIds() {
+		var ids = [];
+
+		function add(id) {
+			if (typeof id === 'string' && /^(G|UA|AW|GT|DC)-[A-Z0-9-]+$/i.test(id) && ids.indexOf(id) === -1) {
+				ids.push(id);
+			}
+		}
+
+		if (Array.isArray(window.dataLayer)) {
+			window.dataLayer.forEach(function (entry) {
+				if (entry && entry[0] === 'config') {
+					add(entry[1]);
+				}
+			});
+		}
+
+		if (window.google_tag_manager && typeof window.google_tag_manager === 'object') {
+			Object.keys(window.google_tag_manager).forEach(add);
+		}
+
+		return ids;
+	}
+
+	function stopRunningTrackers(revoked) {
+		// Scripts that were already started on this page keep running until the
+		// page is left. Stop what the vendors' own opt-out switches allow, so no
+		// further hit (incl. the pagehide beacon GA sends on reload) goes out.
+		var statistics = revoked.indexOf('statistics') !== -1;
+		var marketing = revoked.indexOf('marketing') !== -1;
+
+		if (statistics || marketing) {
+			collectGoogleTagIds().forEach(function (id) {
+				var isAdvertising = /^(AW|DC)-/i.test(id);
+
+				if ((isAdvertising && marketing) || (!isAdvertising && statistics)) {
+					window['ga-disable-' + id] = true;
+				}
+			});
+
+			if (typeof window.gtag === 'function') {
+				var update = {};
+
+				if (statistics) {
+					update.analytics_storage = 'denied';
+				}
+
+				if (marketing) {
+					update.ad_storage = 'denied';
+					update.ad_user_data = 'denied';
+					update.ad_personalization = 'denied';
+				}
+
+				try {
+					window.gtag('consent', 'update', update);
+				} catch (error) {
+					/* ignore */
+				}
+			}
+		}
+
+		if (marketing && typeof window.fbq === 'function') {
+			try {
+				window.fbq('consent', 'revoke');
+			} catch (error) {
+				/* ignore */
+			}
+		}
+	}
+
+	function isSettingsHash() {
+		return window.location.hash === settingsHash;
+	}
+
+	function clearSettingsHash() {
+		if (!isSettingsHash() || !window.history || typeof window.history.replaceState !== 'function') {
+			return;
+		}
+
+		try {
+			window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
+		} catch (error) {
+			/* ignore */
+		}
+	}
+
+	function bindSettingsHash(root, reopenButton) {
+		// Any same-host link ending in #cookie-settings opens the settings on the
+		// current page (delegated, so menu/footer links rendered later work too).
+		document.addEventListener('click', function (event) {
+			var target = event.target;
+			var link = target && typeof target.closest === 'function' ? target.closest('a[href]') : null;
+
+			if (!link) {
+				return;
+			}
+
+			var href = link.getAttribute('href') || '';
+
+			if (href.slice(-settingsHash.length) !== settingsHash) {
+				return;
+			}
+
+			if (link.host && link.host !== window.location.host) {
+				return;
+			}
+
+			event.preventDefault();
+			setBannerVisible(root, reopenButton, true, true);
+		});
+
+		window.addEventListener('hashchange', function () {
+			if (isSettingsHash()) {
+				setBannerVisible(root, reopenButton, true, true);
+			}
+		});
 	}
 
 	function normalizeScriptType(type) {
@@ -540,6 +735,12 @@
 
 		root.hidden = !visible;
 		root.setAttribute('aria-hidden', visible ? 'false' : 'true');
+
+		if (!visible) {
+			// Closing must not leave #cookie-settings behind, otherwise a reload
+			// (or the same link clicked again) would not behave as expected.
+			clearSettingsHash();
+		}
 		// Position "hidden": the reopen button is never shown. The element stays in
 		// the DOM (init requires it) but is kept hidden permanently; consent can
 		// still be re-opened via the [simple_cookie_settings] shortcut.
@@ -654,7 +855,9 @@
 	}
 
 	function saveAndClose(root, reopenButton, consent) {
-		writeConsent(consent);
+		var previous = hasStoredConsent() ? getStoredConsent() : null;
+		var saved = writeConsent(consent);
+		var revoked = previous ? revokedCategories(previous, saved) : [];
 		// Mark the current locale as "seen" so the banner is shown at most once
 		// per language. Separate light key; lscc_consent is untouched.
 		addSeenLocale(currentLocale);
@@ -663,6 +866,20 @@
 		// panel never drift apart.
 		updateInputs(root, consent);
 		updateQuickButtons(root);
+
+		if (revoked.length) {
+			// v1.0.8 (ADR-42): withdrawal must take effect immediately. Stop the
+			// already running trackers, remove their cookies and reload, so no
+			// script started under the old consent keeps running on this page.
+			// After the reload every gated script stays type="text/plain".
+			stopRunningTrackers(revoked);
+			cleanupCategoryCookies(revoked);
+			setBannerVisible(root, reopenButton, false, false);
+			debugLog('LSCC consent withdrawn, reloading', revoked);
+			window.location.reload();
+			return;
+		}
+
 		activateBlockedScripts();
 		syncMediaComponents();
 		setBannerVisible(root, reopenButton, false, false);
@@ -697,6 +914,7 @@
 		});
 
 		bindSettingsTriggers(root, reopenButton);
+		bindSettingsHash(root, reopenButton);
 		bindMediaComponents(root, reopenButton);
 
 		var reopenDismiss = reopenButton.querySelector('[data-lscc-reopen-dismiss]');
@@ -716,6 +934,22 @@
 		// load — independent of any browser form-state restoration after a reload.
 		updateInputs(root, getStoredConsent());
 		updateQuickButtons(root);
+
+		if (hasStoredConsent()) {
+			// v1.0.8 (ADR-42): follow-up cleanup after a withdrawal - a script may
+			// have re-set a cookie while the previous page was unloading.
+			cleanupCategoryCookies(deniedCategories(getStoredConsent()));
+		}
+
+		if (isSettingsHash()) {
+			// Opened via a #cookie-settings link from another page.
+			if (hasStoredConsent()) {
+				activateBlockedScripts();
+			}
+			syncMediaComponents();
+			setBannerVisible(root, reopenButton, true, true);
+			return;
+		}
 
 		if (hasStoredConsent()) {
 			activateBlockedScripts();
