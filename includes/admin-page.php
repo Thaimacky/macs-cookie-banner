@@ -856,13 +856,14 @@ final class Macs_Cookie_Banner_Admin {
 					</tr>
 				</table>
 
-				<h2><?php echo esc_html__( 'Google-Tracking-Schutz (GA4 / GTM / Google Ads)', 'macs-cookie-banner' ); ?></h2>
+				<h2><?php echo esc_html__( 'Tracking-Schutz (GA4 / GTM / Google Ads / Mailchimp)', 'macs-cookie-banner' ); ?></h2>
 				<table class="form-table" role="presentation">
-					<?php self::render_checkbox_field( 'google_tracking_shield', esc_html__( 'Google Analytics / GTM / Google Ads unabhängig von der Einbindungsquelle vor Consent blockieren', 'macs-cookie-banner' ), $options['google_tracking_shield'] ); ?>
+					<?php self::render_checkbox_field( 'google_tracking_shield', esc_html__( 'Google Analytics / GTM / Google Ads / Mailchimp unabhängig von der Einbindungsquelle vor Consent blockieren', 'macs-cookie-banner' ), $options['google_tracking_shield'] ); ?>
 					<tr>
 						<th scope="row"></th>
 						<td>
 							<p class="description"><?php echo esc_html__( 'Prüft die ausgelieferte Seite serverseitig auf bekannte Google-Analytics-/GTM-/Google-Ads-Skripte (gtag/js, gtm.js, legacy analytics.js/ga.js sowie den zugehörigen gtag(\'config\', …)-/gtm.start-Inline-Code) und blockiert sie im bestehenden LSCC-Format – unabhängig davon, ob sie von Avada, Google Site Kit, Rank Math, einem Theme-Header-Feld oder eigenem Code eingebunden wurden. GA4/GTM = Statistik, Google Ads = Marketing. Erkennung ist bewusst eng gefasst (keine Blockade allein wegen des Wortes „google" o. ä.).', 'macs-cookie-banner' ); ?></p>
+							<p class="description"><?php echo esc_html__( 'Ab 1.0.8 zusätzlich: das Mailchimp-Site-Tracking-Skript (chimpstatic.com/mcjs-connected, z. B. von „Mailchimp for WooCommerce" oder von Hand in ein Theme-Codefeld eingefügt) wird bis zur Zustimmung zu „Marketing" blockiert. Mailchimp-Popups und das Mailchimp-Pixel erscheinen erst danach. Normale Mailchimp-Anmeldeformulare (eingebettete Formulare, MC4WP) sind nicht betroffen.', 'macs-cookie-banner' ); ?></p>
 							<p class="description"><strong><?php echo esc_html__( 'Wichtiger Hinweis (ADR-40, Ausnahme von der sonstigen Regel):', 'macs-cookie-banner' ); ?></strong> <?php echo esc_html__( 'Dieser Schalter wurde beim Update auf 1.0.7 auf bestehenden Installationen einmalig automatisch aktiviert – anders als sonst im Plugin üblich, wo Bestandseinstellungen nie ungefragt verändert werden. Grund: eine nachweislich aktive Compliance-Lücke (Tracking vor Einwilligung). Wird dieser Schalter hier deaktiviert und gespeichert, bleibt er dauerhaft deaktiviert; er wird durch künftige Updates nicht erneut automatisch eingeschaltet.', 'macs-cookie-banner' ); ?></p>
 							<p class="description"><?php echo esc_html__( 'Über den Consent-Code-Manager manuell eingebundenes GA4/GTM/Google Ads ist von diesem Schalter nicht betroffen (läuft bereits über die eigene Gating-Logik dort).', 'macs-cookie-banner' ); ?></p>
 						</td>

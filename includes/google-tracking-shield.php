@@ -45,6 +45,11 @@
  * out (a page-wide, tag-unaware string replace); it is the same narrow,
  * tag-scoped transform class already used and accepted in this codebase.
  *
+ * Mailchimp Site Tracking (v1.0.8, ADR-42): the same two layers additionally
+ * gate Mailchimp's connected-site loader (chimpstatic.com/mcjs-connected),
+ * matched by ONE narrow needle only - a second, explicitly approved exception,
+ * not a general vendor list. See MAILCHIMP_NEEDLE / classify().
+ *
  * Attribute order (v1.0.8, ADR-41): the gated external tag never carries
  * data-cookie-type="text/javascript" ahead of type="text/plain", because
  * page optimisers such as WP Rocket Delay JS read the first "type=" substring
@@ -89,6 +94,21 @@ final class Macs_Cookie_Banner_Google_Tracking_Shield {
 	 * any other vendor, or no match at all) is left completely untouched.
 	 */
 	const GATED_VENDORS = array( 'ga4', 'gtm', 'google_ads' );
+
+	/**
+	 * Mailchimp Site Tracking loader (v1.0.8, ADR-42 - second, explicitly
+	 * approved exception to architecture rule 1). Mailchimp's "connected
+	 * site" script (MC.js: popups, site/pixel tracking, mailchimp_* and
+	 * _mcid cookies) is echoed raw - by "Mailchimp for WooCommerce" or pasted
+	 * by hand into theme code fields - so no enqueue-based module can see it.
+	 *
+	 * Deliberately ONE narrow needle, matched only on the loader URL path.
+	 * NOT match_vendor()'s 'mailchimp' classification, which also accepts the
+	 * loose word "mailchimp" and would gate unrelated inline data such as
+	 * Mailchimp for WooCommerce's localized checkout/newsletter settings.
+	 * Category: marketing.
+	 */
+	const MAILCHIMP_NEEDLE = 'chimpstatic.com/mcjs-connected';
 
 	/**
 	 * Script `type` values considered executable JavaScript. A <script> tag
@@ -247,9 +267,9 @@ final class Macs_Cookie_Banner_Google_Tracking_Shield {
 				continue; // Non-JS script type (e.g. JSON-LD) - never touch.
 			}
 
-			$vendor = Macs_Cookie_Banner_Codes::match_vendor( $src );
+			$vendor = self::classify( $src );
 
-			if ( ! in_array( $vendor, self::GATED_VENDORS, true ) ) {
+			if ( '' === $vendor ) {
 				continue;
 			}
 
@@ -327,9 +347,9 @@ final class Macs_Cookie_Banner_Google_Tracking_Shield {
 			return $m[0];
 		}
 
-		$vendor = Macs_Cookie_Banner_Codes::match_vendor( $body );
+		$vendor = self::classify( $body );
 
-		if ( ! in_array( $vendor, self::GATED_VENDORS, true ) ) {
+		if ( '' === $vendor ) {
 			return $m[0];
 		}
 
@@ -339,5 +359,29 @@ final class Macs_Cookie_Banner_Google_Tracking_Shield {
 		// shape to every Consent-Code-Manager snippet, so the unmodified
 		// banner.js reactivation mechanic applies unchanged.
 		return Macs_Cookie_Banner_Codes::transform_snippet( $m[0], $category );
+	}
+
+	/**
+	 * Classify a script src or inline body for this module.
+	 *
+	 * GA4/GTM/Google Ads: the existing match_vendor() engine (unchanged,
+	 * ADR-40). Mailchimp Site Tracking: only the narrow loader needle
+	 * (ADR-42). Anything else: '' (left untouched).
+	 *
+	 * @param string $text Script src or inline body.
+	 * @return string Vendor key or ''.
+	 */
+	private static function classify( $text ) {
+		$vendor = Macs_Cookie_Banner_Codes::match_vendor( $text );
+
+		if ( in_array( $vendor, self::GATED_VENDORS, true ) ) {
+			return $vendor;
+		}
+
+		if ( false !== stripos( (string) $text, self::MAILCHIMP_NEEDLE ) ) {
+			return 'mailchimp';
+		}
+
+		return '';
 	}
 }
