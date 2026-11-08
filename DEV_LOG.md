@@ -1,5 +1,27 @@
 # DEV LOG
 
+## 1.0.9 - 2026-11-09 (Meta Pixel, PYS-Einmalmigration, Cache-Purge, ADR-43)
+
+**Auslöser:** Live-Test eines separaten Agenten nach dem Update auf 1.0.8: zwei Sites in Ordnung, die WooCommerce-Site nicht (Meta Pixel `fbevents.js`, `signals/config` für zwei Pixel-IDs, `_fbp` vor Consent). Auftrag u. a.: PYS zuverlässig blockieren, `nowprocket` + `data-cfasync="false"` auf gegateten Skripten und Banner, Cache-Leeren bei Aktivierung/Update, Desktop- + Mobil-Test.
+
+**Root Cause (Live-HTML + eigene Live-Messung, Desktop + Mobil):**
+1. PYS-Schalter auf der Bestandsinstallation AUS (planmässig nach ADR-41) → `pys-js` ungegated, pbid-Prefetch ausgeliefert.
+2. Zweites Meta Pixel als von Hand eingefügter Block „Meta Pixel Code" im `<head>` (eigene ID, eigener Basiscode + `<noscript>`-Bild) — von PYS unabhängig.
+3. Zwei Sites lieferten nach dem Update ein minifiziertes `banner.js` von vor 1.0.8 aus `wp-content/cache/min/` aus (Widerruf ohne Reload/Cookie-Löschung gemessen); `rocket_clean_domain()` leert Minify-Dateien nicht.
+4. Geprüft und verworfen: `nowprocket` (in WP Rocket nur URL-Parameter), `data-cfasync` auf gegateten Tags (Rocket Loader lässt `text/plain` nachweislich unberührt), Ausnahme von `banner.js` aus Delay JS/Rocket Loader (Reihenfolgerisiko jQuery → Entscheidung Marcel: nicht ausnehmen). `pys-version-script` = nur `console.log`.
+
+**Live-Vorher-Messung 1.0.8 (Desktop und Mobil identisch):**
+
+| Site | 1 Erstbesuch / 2 „Nur notwendige" | 3 „Alle akzeptieren" | 4 Widerruf |
+|---|---|---|---|
+| WooCommerce-Site | `fbevents.js`, `signals/config` ×2, `facebook.com/tr`, admin-ajax pbid; Cookies `_fbp`, `fr`, `pbid`, 8× `pys_*` — **Fehler** | + `gtag/js`, `g/collect`, `_ga`, `_ga_<ID>` | kein Reload, Cookies bleiben (alter minifizierter `banner.js`) — **Fehler** |
+| Site A (frisch installiert) | 0 Requests, 0 Cookies ✔ | `gtag/js`, `g/collect`, `_ga`, `_ga_<ID>` ✔ | Reload, Cookies weg, 0 Requests ✔ |
+| Site C | 0 Requests, 0 Cookies ✔ | `gtag/js`, `g/collect`, `_ga`, `_ga_<ID>` ✔ | kein Reload, `_ga` bleibt (alter minifizierter `banner.js`) — **Fehler** |
+
+**Umgesetzt:** siehe ADR-43 (Shield Meta Pixel + Layer C, `maybe_migrate_pys_gating()`, `includes/cache-purge.php` inkl. `rocket_clean_minify()`, Admin-Texte, Testwerkzeug Mobil-Modus). Version 1.0.9. Doku: ADR-43, CLAUDE.md (dritte Ausnahme Regel 1, neue Regel 7), CODE_MAP, CHANGELOG, RELEASE_CHECKLIST, RELEASE_GUIDE (Abschnitt 7 Cache), TESTPLAN, MASTER_HANDBUCH (additiv).
+
+**Validierung (lokal):** siehe ADR-43 — PHP 23/23, Regression grün, E2E Desktop + Mobil grün, Widerruf/Hash 21/21.
+
 ## 1.0.8 - Release-Status (2026-11-09)
 
 **Phase 2 auf ausdrückliche Freigabe von Marcel durchgeführt.** Tag `1.0.8` (annotiert, Objekt `08f45d1`) auf Commit `4716da1`, gepusht auf den Remote mit URL `macs-cookie-banner.git`. GitHub-Release `1.0.8` veröffentlicht (kein Draft, kein Pre-Release, 2026-11-08T21:07:59Z), genau ein Asset `macs-cookie-banner.zip`, 506’847 Bytes, SHA-256 `72DD1F589396D81745BFDFF4A454A15E0FC29BFBFCCDEB9CB173F36B21CC91A3` — byte-identisch zum freigegebenen Testartefakt `macs-cookie-banner-v1.0.8-test.zip` (das reproduzierbare `-Kind release`-Build ergab denselben Hash; zusätzlich das öffentlich heruntergeladene Asset geprüft). ZIP-Inhalt byte-identisch zu `git archive 4716da1`, 170 Einträge, Top-Level `macs-cookie-banner/`, keine Secrets. Öffentliche API: `/releases/tags/1.0.8` draft=false, `/releases/latest` = `1.0.8`. PUC: kein Asset-Namensfilter, Drafts/Pre-Releases werden übersprungen, Version aus `tag_name` → Update 1.0.7 → 1.0.8 wird angeboten.

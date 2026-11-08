@@ -8,6 +8,30 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 1.0.9 - 2026-11-09
+
+**Meta Pixel quellenunabhängig blockiert, PixelYourSite-Schutz automatisch aktiv, Seiten-Cache wird nach Updates geleert (ADR-43).** Behebt, dass auf einer Live-Site das Meta Pixel trotz 1.0.8 ohne Zustimmung lud und zwei Sites nach dem Update noch ein veraltetes `banner.js` aus dem WP-Rocket-Cache auslieferten.
+
+### Fixed
+
+- **Meta Pixel ohne Zustimmung:** Der Meta-Pixel-Basiscode (`connect.facebook.net/…/fbevents.js`), z. B. von Hand in ein Header-Feld oder WPCode eingefügt, wird jetzt vom Tracking-Schutz bis zur Zustimmung zu „Marketing" blockiert; das zugehörige `<noscript>`-Pixelbild wird entfernt. Facebook-/Instagram-Embeds bleiben davon getrennt.
+- **PixelYourSite lief auf Bestandsseiten weiter**, weil der Schalter seit 1.0.8 auf AUS stand: er wird beim Update auf 1.0.9 **einmalig automatisch eingeschaltet** (ein späteres manuelles Ausschalten bleibt bestehen).
+- **Veralteter Cache nach Updates:** neues Modul `includes/cache-purge.php` leert nach jedem Plugin-Update/-Aktivieren und nach jeder Einstellungsänderung den Seiten-Cache — bei WP Rocket inkl. der minifizierten JS/CSS-Dateien (`rocket_clean_minify()`), zusätzlich LiteSpeed, W3 Total Cache, WP Super Cache, SiteGround Optimizer, Autoptimize (jeweils nur, wenn installiert).
+
+### Added
+
+- Testwerkzeug: Mobil-Modus (`MOBILE=1`) und zusätzliche Chrome-Argumente (`CHROME_ARGS`).
+
+### Unverändert
+
+- Banner-Skript wird bewusst **nicht** von WP Rocket Delay JS / Cloudflare Rocket Loader ausgenommen (sonst Reihenfolgeprobleme mit jQuery-abhängigen Skripten). Kein `nowprocket`-Attribut (wirkt in WP Rocket nicht).
+- `MCB_CONSENT_VERSION`, Consent-Speicherung, Widerruf, `#cookie-settings`.
+- Version 1.0.8 → **1.0.9**.
+
+### Rückweg
+
+- Release-ZIP 1.0.8 installieren (Plugins → Installieren → Hochladen, „Ersetzen") und Cache leeren. Einstellungen bleiben erhalten.
+
 ## 1.0.8 - 2026-11-09
 
 **Sicherheits-Bugfix, PixelYourSite, Mailchimp, Widerruf (ADR-41, ADR-42).** Seitenoptimierer wie WP Rocket „Delay JavaScript execution" können blockierte Tracking-Skripte nicht mehr reaktivieren. PixelYourSite (Meta Pixel u. a.) läuft auf Wunsch erst nach Zustimmung zu „Marketing". Mailchimp Site Tracking wird quellenunabhängig blockiert. Ein Widerruf wirkt sofort.

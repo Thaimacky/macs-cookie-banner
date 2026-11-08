@@ -35,6 +35,9 @@ Jeder Schritt startet mit leerem Browserprofil, sofern nicht anders angegeben.
 
 ## Pro Site zusätzlich prüfen
 
+- **Desktop und Mobil:** jeden Durchgang zweimal ausführen (`MOBILE=1` für 390×844, Touch, mobilen User-Agent).
+- **Aktueller Code ausgeliefert?** Die (ggf. von WP Rocket minifizierte) `banner.js` muss `stopRunningTrackers` enthalten. Sonst liefert ein Cache noch eine alte Kopie aus und das Ergebnis ist nicht aussagekräftig (ab v1.0.9 wird der Cache automatisch geleert).
+
 - **Seitenoptimierer:** WP Rocket (Delay JS / Defer), Cloudflare Rocket Loader, LiteSpeed, Perfmatters, Autoptimize — im HTML nachsehen, dass gegatete Tags `type="text/plain"` als **erstes** `type`-Attribut tragen und kein `data-rocket-src` haben.
 - **Page-Cache:** Test einmal mit warmem Cache (zweiter Aufruf) wiederholen.
 - **Quellen ausserhalb des Plugins:** WPCode/„Insert Headers and Footers", Theme-Header-Felder, Google Site Kit, PixelYourSite, Mailchimp for WooCommerce, GTM-Plugins.

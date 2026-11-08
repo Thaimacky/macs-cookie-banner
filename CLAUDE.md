@@ -61,6 +61,11 @@ Dieses Plugin folgt einer konservativen Architektur. Die folgenden „Lücken" s
    enge Nadel (`chimpstatic.com/mcjs-connected`, Kategorie Marketing). Auch das ist
    kein Präzedenzfall: jede weitere quellenunabhängige Erweiterung braucht eine
    eigene Rückfrage und eine eigene ADR.
+
+   *Dritte, ausdrücklich von Marcel freigegebene Ausnahme (v1.0.9, ADR-43):*
+   Meta-Pixel-Ladecode (nur wenn `connect.facebook.net` **und** `fbevents.js`
+   vorkommen) → Marketing, plus Entfernen der `<noscript>`-Pixelbilder
+   (`facebook.com/tr`). Ebenfalls kein Präzedenzfall.
 2. **Bestehende iframes werden NICHT automatisch erkannt oder ersetzt.**
    Service-Komponenten (`[lscc_youtube]`, `[lscc_vimeo]`, `[lscc_google_map]`) wirken
    ausschliesslich auf bewusst eingebundene Shortcodes.
@@ -79,6 +84,9 @@ Dieses Plugin folgt einer konservativen Architektur. Die folgenden „Lücken" s
    Tracker, löscht die Cookies der vom Plugin selbst gegateten Dienste (feste, kleine
    Liste in `banner.js` — kein Vendor-System) und lädt die Seite neu. Erweiterungen
    der Liste nur zusammen mit einem neu gegateten Dienst.
+7. **Nach Update und Einstellungsänderung wird der Seiten-Cache geleert (ab v1.0.9,
+   ADR-43)** — inkl. WP-Rocket-Minify-Dateien. Ein Fix gilt erst als ausgeliefert,
+   wenn HTML **und** minifizierte Assets neu erzeugt sind (im Live-Test prüfen).
 
 **Warum:** Diese Regeln sind die zentrale Differenzierung gegenüber Real Cookie Banner
 und vergleichbaren Suiten. Verstösse zerstören den Projektzweck.

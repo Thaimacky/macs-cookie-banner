@@ -107,6 +107,12 @@ Checkliste: (1) Tag auf GitHub vorhanden, (2) Release **veröffentlicht** (nicht
 
 **Erst nach bestandenem Test** darf „bereit für 40 Websites" / Vollrollout empfohlen werden — vorher niemals.
 
+## 7. Seiten-Cache nach dem Update (ab v1.0.9 automatisch)
+- Ab v1.0.9 leert das Plugin beim ersten Seitenaufruf nach einem Update (und nach jeder Einstellungsänderung) den Seiten-Cache selbst: WP Rocket inkl. minifizierter JS/CSS-Dateien, LiteSpeed, W3 Total Cache, WP Super Cache, SiteGround, Autoptimize.
+- **Update von einer Version vor 1.0.9** (der alte Code läuft beim Update): nach dem Update einmal eine beliebige Seite aufrufen — der neue Code leert dann den Cache. Im Zweifel in WP Rocket „Cache leeren" **und** unter „Dateioptimierung" die minifizierten Dateien leeren.
+- **Nicht automatisch:** Edge-Caches ausserhalb von WordPress (Cloudflare APO oder Page Rule „Cache Everything"). Wenn aktiv, im Cloudflare-Dashboard „Purge Everything".
+- **Prüfung:** im Seitenquelltext die (minifizierte) `banner.js`-URL öffnen und nach `stopRunningTrackers` suchen; fehlt der Begriff, ist noch eine alte Kopie im Cache.
+
 ## Hinweise
 - Updates werden aus dem **Release-Asset-ZIP** gezogen (`enableReleaseAssets`), nicht aus dem Source-Archiv.
 - Plugin-Slug/Ordner `macs-cookie-banner` muss stabil bleiben (Auto-Update in-place).

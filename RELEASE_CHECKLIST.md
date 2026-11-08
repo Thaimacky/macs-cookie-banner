@@ -1,5 +1,22 @@
 # Release Checklist
 
+## Meta Pixel, PYS-Einmalmigration, Cache-Purge (ab v1.0.9, ADR-43)
+
+**Status: Phase 1 — Produktions-ZIP bereit zum Test. Kein Tag, kein Release.**
+
+**Lokal verifiziert (Agent, 2026-11-09):**
+- [x] PHP-Lint aller Dateien; PHP-Prüfungen 23/23 (Meta Pixel inkl. echtem Live-Basiscode, 6 False Positives, GA/Mailchimp-Regression, PYS-Migration, Cache-Purge zwei Fälle); Regression ADR-41/42 grün.
+- [x] Browser-E2E mit rohem Meta Pixel, WP-Rocket-Runtime, PixelYourSite — **Desktop und Mobil**: Schritte 1–2 ohne Requests an facebook.net/facebook.com/googletagmanager/google-analytics, ohne `_fbp`/`_ga`/`_gid`; 3 lädt alles; 4 Widerruf → 0 Cookies/Requests.
+- [x] Widerruf/`#cookie-settings` 21/21.
+
+**Live (nach Installation des Test-ZIPs, pro Site, Desktop + Mobil):**
+- [ ] Update 1.0.8 → 1.0.9 fehlerfrei, Plugin aktiv, Einstellungen erhalten.
+- [ ] Danach im Quelltext: `banner.js` (auch die minifizierte Kopie unter `wp-content/cache/min/`) enthält `stopRunningTrackers` → Cache wurde geleert.
+- [ ] Bestandssite mit PixelYourSite: Schalter steht nach dem Update auf EIN.
+- [ ] Schritte 1/2: keine Requests an facebook.net, facebook.com, googletagmanager.com, google-analytics.com; keine Cookies `_fbp`, `_ga`, `_gid`.
+- [ ] Schritt 3: GA, Meta Pixel (beide IDs), Mailchimp laden.
+- [ ] Schritt 4: Widerruf über „Cookie Einstellungen" → Reload, Tracking-Cookies weg.
+
 ## WP-Rocket-Delay-JS-Fix + PixelYourSite-Gating (ab v1.0.8, ADR-41) + Mailchimp/Widerruf/`#cookie-settings` (ADR-42)
 
 **ADR-42 lokal verifiziert (Agent, 2026-11-09):**
