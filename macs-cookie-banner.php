@@ -3,7 +3,7 @@
  * Plugin Name: Mac's Cookie Banner
  * Plugin URI:  https://github.com/Thaimacky/macs-cookie-banner
  * Description: Lightweight cookie consent banner with script blocking for WordPress.
- * Version:     1.0.8
+ * Version:     1.0.9
  * Author:      Mac's Cookie Banner
  * Text Domain: macs-cookie-banner
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MCB_VERSION', '1.0.8' );
+define( 'MCB_VERSION', '1.0.9' );
 
 /**
  * Consent schema version. Bump this whenever the stored consent shape
@@ -66,6 +66,11 @@ final class Macs_Cookie_Banner {
 	 */
 	public static function init() {
 		self::maybe_migrate_google_shield();
+		self::maybe_migrate_pys_gating();
+
+		// v1.0.9 (ADR-43): purge page caches after updates/settings changes.
+		require_once MCB_PLUGIN_DIR . 'includes/cache-purge.php';
+		Macs_Cookie_Banner_Cache_Purge::init();
 
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_textdomain' ) );
 		add_action( 'init', array( __CLASS__, 'register_wpml_strings' ) );
@@ -295,6 +300,40 @@ final class Macs_Cookie_Banner {
 
 		update_option( self::OPTION_NAME, self::sanitize_options( $options ) );
 		update_option( 'mcb_google_shield_migrated', MCB_VERSION );
+	}
+
+	/**
+	 * One-time migration for the PixelYourSite gating (v1.0.9, ADR-43) -
+	 * second, explicitly approved exception to ADR-36, same mechanics as
+	 * maybe_migrate_google_shield().
+	 *
+	 * Proven: on an existing 1.0.8 install the opt-in switch stayed OFF, so
+	 * PixelYourSite kept firing the Meta Pixel before consent although the
+	 * module was installed. Existing installs get the switch ON exactly once on
+	 * upgrade; a later manual OFF is never overridden again (version stamp
+	 * mcb_pys_gating_migrated). Without PixelYourSite the switch has no effect.
+	 *
+	 * @return void
+	 */
+	private static function maybe_migrate_pys_gating() {
+		if ( '' !== (string) get_option( 'mcb_pys_gating_migrated', '' ) ) {
+			return;
+		}
+
+		$stored = get_option( self::OPTION_NAME, false );
+
+		if ( false === $stored ) {
+			// Brand-new install: on_activate() seeds the recommended defaults
+			// (pys_consent_gating = true). Only stamp.
+			update_option( 'mcb_pys_gating_migrated', MCB_VERSION );
+			return;
+		}
+
+		$options                       = self::sanitize_options( $stored );
+		$options['pys_consent_gating'] = true;
+
+		update_option( self::OPTION_NAME, self::sanitize_options( $options ) );
+		update_option( 'mcb_pys_gating_migrated', MCB_VERSION );
 	}
 
 	/**
@@ -1207,6 +1246,11 @@ final class Macs_Cookie_Banner {
 
 		if ( '1' !== (string) get_option( 'mcb_avada_sync_decided', '' ) ) {
 			update_option( 'mcb_avada_decision_pending', '1' );
+		}
+
+		// v1.0.9 (ADR-43): (re)activation changes the delivered HTML.
+		if ( class_exists( 'Macs_Cookie_Banner_Cache_Purge' ) ) {
+			Macs_Cookie_Banner_Cache_Purge::on_activate();
 		}
 	}
 }
