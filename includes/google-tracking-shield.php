@@ -45,6 +45,11 @@
  * out (a page-wide, tag-unaware string replace); it is the same narrow,
  * tag-scoped transform class already used and accepted in this codebase.
  *
+ * Meta Pixel (v1.0.9, ADR-43): additionally the Meta Pixel base code / loader
+ * (connect.facebook.net + fbevents.js, both required) and its <noscript>
+ * image - third explicitly approved exception. See classify() and
+ * remove_noscript_pixels().
+ *
  * Mailchimp Site Tracking (v1.0.8, ADR-42): the same two layers additionally
  * gate Mailchimp's connected-site loader (chimpstatic.com/mcjs-connected),
  * matched by ONE narrow needle only - a second, explicitly approved exception,
@@ -109,6 +114,27 @@ final class Macs_Cookie_Banner_Google_Tracking_Shield {
 	 * Category: marketing.
 	 */
 	const MAILCHIMP_NEEDLE = 'chimpstatic.com/mcjs-connected';
+
+	/**
+	 * Meta Pixel loader (v1.0.9, ADR-43 - third, explicitly approved exception
+	 * to architecture rule 1). The standard Meta Pixel base code (inline IIFE
+	 * that injects connect.facebook.net/<locale>/fbevents.js, then
+	 * fbq('init') / fbq('track')) is pasted by hand into header fields/WPCode
+	 * or printed raw by plugins, so no enqueue-based module can see it.
+	 *
+	 * Deliberately narrow: BOTH needles must be present (host + loader file).
+	 * The Facebook social SDK (connect.facebook.net/.../sdk.js, external_media,
+	 * meta-social-compat) never matches. A block that only calls fbq(...)
+	 * without the loader is not touched. Category: marketing.
+	 */
+	const META_PIXEL_HOST   = 'connect.facebook.net';
+	const META_PIXEL_LOADER = 'fbevents.js';
+
+	/**
+	 * Meta Pixel <noscript> image (facebook.com/tr). Without JavaScript no
+	 * consent can ever be given, so these blocks are removed (v1.0.9, ADR-43).
+	 */
+	const META_PIXEL_NOSCRIPT = 'facebook.com/tr';
 
 	/**
 	 * Script `type` values considered executable JavaScript. A <script> tag
@@ -214,6 +240,7 @@ final class Macs_Cookie_Banner_Google_Tracking_Shield {
 
 		$html = self::gate_external_scripts( $html );
 		$html = self::gate_inline_bootstraps( $html );
+		$html = self::remove_noscript_pixels( $html );
 
 		return $html;
 	}
@@ -382,6 +409,31 @@ final class Macs_Cookie_Banner_Google_Tracking_Shield {
 			return 'mailchimp';
 		}
 
+		if ( false !== stripos( (string) $text, self::META_PIXEL_HOST ) && false !== stripos( (string) $text, self::META_PIXEL_LOADER ) ) {
+			return 'meta_pixel';
+		}
+
 		return '';
+	}
+
+	/**
+	 * Layer C (v1.0.9, ADR-43): remove Meta Pixel <noscript> images. A
+	 * browser without JavaScript can never give consent, so these image
+	 * requests (facebook.com/tr?...&noscript=1) must not be delivered at all.
+	 * Tag-boundary anchored; any other <noscript> block stays untouched.
+	 *
+	 * @param string $html HTML to process.
+	 * @return string
+	 */
+	private static function remove_noscript_pixels( $html ) {
+		$result = preg_replace_callback(
+			'#<noscript\b[^>]*>(.*?)</noscript\s*>#is',
+			static function ( $m ) {
+				return false !== stripos( $m[1], self::META_PIXEL_NOSCRIPT ) ? '' : $m[0];
+			},
+			$html
+		);
+
+		return is_string( $result ) ? $result : $html;
 	}
 }
