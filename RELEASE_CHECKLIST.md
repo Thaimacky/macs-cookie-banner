@@ -1,6 +1,18 @@
 # Release Checklist
 
-## WP-Rocket-Delay-JS-Fix + PixelYourSite-Gating (ab v1.0.8, ADR-41)
+## WP-Rocket-Delay-JS-Fix + PixelYourSite-Gating (ab v1.0.8, ADR-41) + Mailchimp/Widerruf/`#cookie-settings` (ADR-42)
+
+**ADR-42 lokal verifiziert (Agent, 2026-11-09):**
+- [x] Mailchimp-Inline-Loader (Avada-Feld / MC4WC) und externes `mcjs`-Tag → marketing; 5 False-Positive-Fälle (MC4WC-Lokalisierung, MC4WC-Asset, `mcPixel`, MC4WP, eingebettetes Formular) unberührt; GA-Regression grün.
+- [x] 4-Schritte-Test inkl. Mailchimp: 1a–2b 0 Requests; 3a/3b GA, Meta Pixel, beide Mailchimp-Loader; 4a direkt nach Widerruf 0 Tracking-Cookies; 4b 0 Requests.
+- [x] Widerruf unter echtem Hostnamen: 15 Tracking-Cookies (inkl. `.domain`-Cookies `_ga`, `_fbp`, `_mcid`) vorher vorhanden, danach nur `lscc_consent`; Reload erfolgt; `ga-disable-<ID>` beim Entladen gesetzt; keine JS-Fehler.
+- [x] Teil-Widerruf (nur Marketing): Marketing-Cookies weg, `_ga`/`_gid` bleiben, GA läuft weiter, Meta Pixel nicht.
+- [x] `#cookie-settings`: URL-Hash, relativer, absoluter und Link auf andere Seite desselben Hosts öffnen die Einstellungen auf der aktuellen Seite, Hash bleibt nicht in der URL.
+
+**ADR-42 live (Marcel):**
+- [ ] Mailchimp: vor Consent kein `chimpstatic.com`; nach „Alle akzeptieren" Mailchimp-Popups/-Tracking wie bisher.
+- [ ] Widerruf über „Cookie-Einstellungen": Seite lädt neu, Tracking-Cookies im Browser weg.
+- [ ] Bestehende Links „Cookie Einstellungen" (`#cookie-settings`) öffnen den neuen Banner.
 
 **Status: Phase 1 — Produktions-ZIP bereit zum Test. Kein Tag, kein Release.** Lokal validiert (PHP-Lint, Pipeline-Harness mit echter WP-Rocket-Delay-JS-Klasse, 18 PYS-Modulprüfungen, Headless-Chrome-E2E auf Fixture). Live-Runtime-Proof gemäss `TESTPLAN_CONSENT_RUNTIME.md` steht aus.
 

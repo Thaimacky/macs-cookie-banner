@@ -55,6 +55,12 @@ Dieses Plugin folgt einer konservativen Architektur. Die folgenden „Lücken" s
    Es ist ausdrücklich **kein** Einstieg in generische Universal Tracking
    Protection: keine generische Vendor-Liste, kein Netzwerk-Guard, kein CSP.
    Diese Ausnahme nicht als Präzedenzfall für weitere Auto-Rewrites verwenden.
+
+   *Zweite, ausdrücklich von Marcel freigegebene Ausnahme (v1.0.8, ADR-42):*
+   Derselbe Shield gated zusätzlich das Mailchimp-Site-Tracking über **genau eine**
+   enge Nadel (`chimpstatic.com/mcjs-connected`, Kategorie Marketing). Auch das ist
+   kein Präzedenzfall: jede weitere quellenunabhängige Erweiterung braucht eine
+   eigene Rückfrage und eine eigene ADR.
 2. **Bestehende iframes werden NICHT automatisch erkannt oder ersetzt.**
    Service-Komponenten (`[lscc_youtube]`, `[lscc_vimeo]`, `[lscc_google_map]`) wirken
    ausschliesslich auf bewusst eingebundene Shortcodes.
@@ -69,6 +75,10 @@ Dieses Plugin folgt einer konservativen Architektur. Die folgenden „Lücken" s
    es kompiliert nichts und erzeugt keine Artefakte im Plugin-Code.)
 5. **Default = nur notwendige Cookies.** „Nur notwendige" und „Alle akzeptieren"
    müssen gleichwertig erreichbar sein.
+6. **Widerruf wirkt sofort (ab v1.0.8, ADR-42).** Entzug einer Kategorie stoppt laufende
+   Tracker, löscht die Cookies der vom Plugin selbst gegateten Dienste (feste, kleine
+   Liste in `banner.js` — kein Vendor-System) und lädt die Seite neu. Erweiterungen
+   der Liste nur zusammen mit einem neu gegateten Dienst.
 
 **Warum:** Diese Regeln sind die zentrale Differenzierung gegenüber Real Cookie Banner
 und vergleichbaren Suiten. Verstösse zerstören den Projektzweck.

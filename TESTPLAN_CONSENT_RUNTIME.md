@@ -26,10 +26,12 @@ Jeder Schritt startet mit leerem Browserprofil, sofern nicht anders angegeben.
 | 2b | Reload + Interaktion, 8 s warten | wie 1a |
 | 3a | Neues Profil: „Alle akzeptieren" klicken, 8 s warten | Skripte der zugestimmten Kategorien laden (z. B. `gtag/js` + `g/collect`, `fbevents.js` + `facebook.com/tr`), zugehörige Cookies werden gesetzt |
 | 3b | Reload + Interaktion | wie 3a (Consent bleibt erhalten) |
-| 4a | Im selben Profil: „Cookie-Einstellungen" öffnen → „Nur notwendige" | Consent gespeichert; bereits laufende Skripte laufen bis zum Seitenwechsel weiter (bekannte Grenze, siehe unten) |
-| 4b | Reload + Interaktion, 8 s warten | 0 neue Tracking-Requests der Seite, `fbq`/`gtag` undefined, gated-Scripts wieder `type="text/plain"`. Vor dem Widerruf gesetzte Cookies dürfen noch existieren (werden nicht gelöscht, aber von keinem Skript mehr gelesen). |
+| 4a | Im selben Profil: „Cookie-Einstellungen" (oder Link `#cookie-settings`) öffnen → „Nur notwendige" | Seite lädt sofort neu (ab v1.0.8); danach keine Tracking-Cookies der Liste mehr (`_ga*`, `_gid`, `_gat*`, `_gcl_*`, `_fbp`, `_fbc`, `pys*`, `pbid`, `mailchimp*`, `_mcid`), `fbq`/`gtag` undefined |
+| 4b | Reload + Interaktion, 8 s warten | 0 neue Tracking-Requests, gegatete Scripts wieder `type="text/plain"`. Drittanbieter-Cookies (z. B. `fr` auf facebook.com) sind von der Seite aus nicht löschbar und gelten nicht als Fehler. |
+| 4c | Teil-Widerruf: alles akzeptieren, dann nur „Marketing" abwählen und speichern | Reload; Marketing-Cookies weg, Statistik-Cookies bleiben, GA läuft, Meta Pixel/Mailchimp nicht |
+| 4d | Seite mit `#cookie-settings` aufrufen bzw. Link „Cookie Einstellungen" klicken | Einstellungen öffnen sich auf der aktuellen Seite, kein Tracking |
 
-**Bewertung 4b:** Ein einzelner `POST …/g/collect` direkt nach dem Reload ist der `pagehide`-Beacon der **vorherigen** Seite (GA sendet `user_engagement` beim Verlassen). Er entsteht vor dem Laden der neuen Seite; massgeblich ist, dass `gtag` auf der neuen Seite undefined bleibt und kein `gtag/js` geladen wird.
+**Bewertung 4a/4b:** Ab v1.0.8 setzt der Widerruf vor dem Reload `ga-disable-<ID>`; ein `POST …/g/collect` (GA-`pagehide`-Beacon der vorherigen Seite) nach dem Widerruf gilt daher als Fehler.
 
 ## Pro Site zusätzlich prüfen
 

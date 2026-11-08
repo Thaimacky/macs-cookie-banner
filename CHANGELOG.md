@@ -10,7 +10,7 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 
 ## 1.0.8 - 2026-11-09
 
-**Sicherheits-Bugfix + PixelYourSite-Integration (ADR-41).** Seitenoptimierer wie WP Rocket „Delay JavaScript execution" können blockierte Tracking-Skripte nicht mehr reaktivieren. PixelYourSite (Meta Pixel u. a.) läuft auf Wunsch erst nach Zustimmung zu „Marketing".
+**Sicherheits-Bugfix, PixelYourSite, Mailchimp, Widerruf (ADR-41, ADR-42).** Seitenoptimierer wie WP Rocket „Delay JavaScript execution" können blockierte Tracking-Skripte nicht mehr reaktivieren. PixelYourSite (Meta Pixel u. a.) läuft auf Wunsch erst nach Zustimmung zu „Marketing". Mailchimp Site Tracking wird quellenunabhängig blockiert. Ein Widerruf wirkt sofort.
 
 ### Fixed
 
@@ -21,17 +21,20 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 
 - **PixelYourSite-Gating** (`includes/pixelyoursite-compat.php`, Schalter „PixelYourSite erst nach Zustimmung zu Marketing ausführen", opt-in): PixelYourSite-Frontend-Skript erst nach Marketing-Consent; pbid-Vorabruf und `<noscript>`-Pixel abgeschaltet; serverseitige Conversions-API-Events aus AJAX-/REST-Anfragen nur mit Zustimmung. Kein Eingriff in cachebare Seiten-Renders.
 - Safe by Default: für Neuinstallationen empfohlen EIN und Teil von „Empfohlene Datenschutzeinstellungen wiederherstellen"; bestehende Installationen bleiben unverändert, bis der Schalter aktiviert wird.
+- **Mailchimp Site Tracking** (`chimpstatic.com/mcjs-connected`) wird vom Tracking-Schutz (bisher „Google-Tracking-Schutz") bis zur Zustimmung zu „Marketing" blockiert — unabhängig davon, ob „Mailchimp for WooCommerce" oder ein von Hand eingefügtes Theme-Snippet es ausgibt (ADR-42). Wirkt auf allen Installationen mit eingeschaltetem Tracking-Schutz.
+- **Widerruf wirkt sofort:** wird eine Kategorie entzogen, stoppt das Banner laufende Google-/Meta-Tracker, löscht deren Cookies (`_ga*`, `_gid`, `_gat*`, `_gcl_*`, `_fbp`, `_fbc`, `pys*`, `pbid`, `mailchimp*`, `_mcid`) und lädt die Seite neu (ADR-42).
+- **`#cookie-settings`:** Links auf `#cookie-settings` (auch absolut oder auf andere Seiten derselben Website) und Aufrufe mit diesem Hash öffnen die Cookie-Einstellungen — ersetzt die Hash-Logik älterer, seitenspezifischer Banner (ADR-42).
 - `TESTPLAN_CONSENT_RUNTIME.md` + Entwicklerwerkzeug `tools/consent-runtime-test.js` (Headless-Chrome-Besuchersimulation inkl. Interaktionsschritt).
 
 ### Unverändert
 
-- `banner.js`, Consent-Speicherung, `MCB_CONSENT_VERSION`, Shield-Vendor-Liste (GA4/GTM/Google Ads), alle bestehenden Compat-Module.
+- Consent-Speicherung, `MCB_CONSENT_VERSION`, Script-Aktivierung in `banner.js`, alle bestehenden Compat-Module.
 - Version 1.0.7 → **1.0.8** (Header + `MCB_VERSION`).
 
 ### Bekannte Grenzen
 
-- Mailchimp Site Tracking (`chimpstatic.com`) und andere roh ausgegebene Drittanbieter-Skripte ausserhalb von GA4/GTM/Ads werden weiterhin nicht automatisch blockiert (Consent-Code-Manager bzw. Plugin-Konfiguration).
-- Beim Widerruf laufen bereits gestartete Skripte bis zum nächsten Seitenaufruf weiter; vorher gesetzte Cookies werden nicht gelöscht.
+- Andere roh ausgegebene Drittanbieter-Skripte ausserhalb von GA4/GTM/Google Ads/Mailchimp werden weiterhin nicht automatisch blockiert (Consent-Code-Manager bzw. Plugin-Konfiguration).
+- Drittanbieter-Cookies (z. B. `fr` auf facebook.com) kann kein Banner löschen. Ein Widerruf lädt die Seite neu.
 
 ## 1.0.7 - 2026-08-06
 

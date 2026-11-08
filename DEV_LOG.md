@@ -1,5 +1,15 @@
 # DEV LOG
 
+## 1.0.8 (Fortsetzung) - 2026-11-09 (Mailchimp, Widerruf-Härtung, `#cookie-settings`, ADR-42)
+
+**Auslöser:** Prüfung des ersten 1.0.8-Stands durch Marcel/ChatGPT: v1.0.8 erst freigeben, wenn auch Mailchimp blockiert ist, der Widerruf zuverlässig wirkt und `#cookie-settings` im Plugin unterstützt wird (statt seitenspezifischer JS-Brücke). Architekturfragen gemäss CLAUDE.md zurückgefragt; Entscheidung Marcel: Mailchimp **quellenunabhängig**, Cookie-Löschung mit **fester kleiner Liste**.
+
+**Quellenanalyse Mailchimp (Live-HTML):** Footer-Loader direkt nach dem Banner im `wp_footer` = „Mailchimp for WooCommerce" `add_inline_footer_script()`; Head-Loader mit **anderer** Connected-Site-ID direkt nach Avadas Custom-CSS = von Hand eingefügtes Theme-Codefeld. Das Pixel-Skript von MC4WC trackt nur bei geladenem MC.js → kein eigenes Gating nötig.
+
+**Umgesetzt:** Shield `classify()` + `MAILCHIMP_NEEDLE`; Admin-Abschnitt „Tracking-Schutz (GA4 / GTM / Google Ads / Mailchimp)"; `banner.js`: `stopRunningTrackers()`, `cleanupCategoryCookies()`, Reload bei Widerruf, Nachbereinigung beim Init, `bindSettingsHash()`/`isSettingsHash()`/`clearSettingsHash()`. Doku: ADR-42 (+ Nachtrag ADR-41), CLAUDE.md Regel 1 (zweite Ausnahme) + neue Regel 6, CODE_MAP, CHANGELOG, RELEASE_CHECKLIST, TESTPLAN (4a–4d), MASTER_HANDBUCH (additiv).
+
+**Validierung (lokal):** PHP-Lint grün; Mailchimp-PHP-Prüfungen 8/8 (inkl. 5 False Positives); Pipeline-/PYS-Regression grün; E2E unter echtem Hostnamen `www.mcb.test` (Chrome `--host-resolver-rules`) mit `.domain`-Cookies: 21/21 (Hash beim Aufruf, drei Linkvarianten, Voll-Widerruf: 15 Tracking-Cookies → 0, Reload, `ga-disable-G-…` beim Entladen, keine Requests danach, keine JS-Fehler; Teil-Widerruf korrekt); 4-Schritte-Test mit Mailchimp: 1a–2b 0 Requests, 4a nach Widerruf 0 Cookies, 4b 0 Requests. Ein eigener Testfehler (Cookie-Muster gegen `name@domain` mit `$`-Anker → mögliche Falsch-Positive) wurde gefunden, korrigiert und der Lauf wiederholt.
+
 ## 1.0.8 - 2026-11-09 (WP-Rocket-Delay-JS-Fix + PixelYourSite-Gating, ADR-41)
 
 **Phase 1 (Produktions-ZIP zum Test). Kein Tag, kein Release.** Auslöser: Meldung „GA lädt ohne Zustimmung (WPCode-Header) / Meta Pixel über PixelYourSite ohne Zustimmung / Rocket Loader darf Blockierung nicht aushebeln".
