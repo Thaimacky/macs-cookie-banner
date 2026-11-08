@@ -1,5 +1,31 @@
 # Release Checklist
 
+## WP-Rocket-Delay-JS-Fix + PixelYourSite-Gating (ab v1.0.8, ADR-41)
+
+**Status: Phase 1 — Produktions-ZIP bereit zum Test. Kein Tag, kein Release.** Lokal validiert (PHP-Lint, Pipeline-Harness mit echter WP-Rocket-Delay-JS-Klasse, 18 PYS-Modulprüfungen, Headless-Chrome-E2E auf Fixture). Live-Runtime-Proof gemäss `TESTPLAN_CONSENT_RUNTIME.md` steht aus.
+
+**Lokal bereits verifiziert (Agent, 2026-11-09):**
+- [x] PHP-Lint aller PHP-Dateien (PHP 8.3) fehlerfrei.
+- [x] v1.0.7-Shield + echte WP-Rocket-Delay-JS-Klasse reproduziert den Live-Bypass zeichengenau (`data-cookie-data-rocket-type=…`); v1.0.8 → alle Tracking-Tags bleiben `type="text/plain"`, kein `data-rocket-src`.
+- [x] Jede der beiden Schutzmassnahmen (Attribut-Fix, `rocket_delay_js_exclusions`) schliesst die Lücke einzeln.
+- [x] JSON-LD mit `gtag(` im Inhalt bleibt unangetastet (False-Positive-Schutz).
+- [x] PYS-Modul: Handle `pys` → marketing, fremde Handles unverändert, idempotent, `-after`-Inline mitgegated, pbid-Prefetch + noscript entfernt, Serverlayer verschärft nur in AJAX/wc-ajax/REST/POST, lockert nie, Seiten-Render unverändert, Version/Ablauf/Typprüfung des Cookies.
+- [x] E2E-Fixture (echte WP-Rocket-Runtime, echtes `banner.js`, echtes PYS `public.js` 11.4.5): Schritte 1a–2b 0 Tracking-Requests/-Cookies; 3a/3b GA + Meta Pixel + `pys_*` aktiv; 4b nach Widerruf 0 Requests; keine JS-Fehler beim späten PYS-Start.
+
+**Live-Test auf Testseite (Marcel, nach Installation des Test-ZIPs):**
+- [ ] Update von 1.0.7 auf 1.0.8 läuft fehlerfrei, Plugin bleibt aktiv, Einstellungen erhalten, keine PHP-/JS-Fehler.
+- [ ] Site mit WP Rocket „Delay JS": Schritte 1a/1b/2a/2b ohne Request an `googletagmanager.com` (vorher: Request bei erster Interaktion).
+- [ ] Site mit PixelYourSite: Schalter „PixelYourSite erst nach Zustimmung zu Marketing ausführen" aktivieren; 1a–2b ohne `facebook.net`/`facebook.com`, ohne `_fbp`/`fr`/`pys_*`/`pbid`.
+- [ ] „Alle akzeptieren": GA und Meta Pixel laden, Events kommen im Meta Events Manager an.
+- [ ] Widerruf → Reload: wieder blockiert.
+- [ ] Cloudflare Rocket Loader aktiv: Verhalten unverändert (gegatete Tags bleiben `text/plain`).
+- [ ] WooCommerce: Warenkorb-Entfernen ohne Marketing-Consent erzeugt kein CAPI-Event (Meta Events Manager → Test-Events).
+- [ ] Fresh-Install: `pys_consent_gating` ist EIN; Bestand: AUS bis manuell aktiviert.
+
+**Regression:**
+- [ ] CCM-Snippets, Shield (GA4/GTM/Ads), YouTube/Maps-Platzhalter, Meta Social, Privacy Check unverändert.
+- [ ] Ohne WP Rocket / ohne PixelYourSite: keinerlei Verhaltensänderung.
+
 ## Google Tracking Shield — kritischer Hotfix (ab v1.0.7, ADR-40)
 
 **Status: Runtime-Proof durch Marcel am 2026-08-06 erfolgreich abgeschlossen; Release v1.0.7 veröffentlicht. v1.0.7 ist für den produktiven Rollout freigegeben. Auto-Updates über GitHub Release sind aktiv.**

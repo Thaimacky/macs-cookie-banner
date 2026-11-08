@@ -8,6 +8,31 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 1.0.8 - 2026-11-09
+
+**Sicherheits-Bugfix + PixelYourSite-Integration (ADR-41).** Seitenoptimierer wie WP Rocket „Delay JavaScript execution" können blockierte Tracking-Skripte nicht mehr reaktivieren. PixelYourSite (Meta Pixel u. a.) läuft auf Wunsch erst nach Zustimmung zu „Marketing".
+
+### Fixed
+
+- **Google Tracking Shield + WP Rocket Delay JS:** Auf Sites mit WP Rocket „Delay JS" wurde ein vom Shield blockiertes Google-Analytics-Tag bei der ersten Maus-/Scroll-Bewegung trotzdem geladen — ohne Zustimmung und auch nach „Nur notwendige". Ursache: WP Rocket liest das erste `type=` im Tag und hielt das Hilfsattribut `data-cookie-type="text/javascript"` für den echten Typ. Der Shield schreibt dieses Hilfsattribut jetzt nur noch bei nicht-standardmässigen Script-Typen.
+- **Neu `includes/wp-rocket-compat.php`:** alle vom Plugin blockierten Skripte (`data-cookie-category`) werden zusätzlich über WP Rockets eigenen Filter `rocket_delay_js_exclusions` von Delay JS ausgenommen — unabhängig von Modul und Attributreihenfolge. Ohne WP Rocket ohne Wirkung.
+
+### Added
+
+- **PixelYourSite-Gating** (`includes/pixelyoursite-compat.php`, Schalter „PixelYourSite erst nach Zustimmung zu Marketing ausführen", opt-in): PixelYourSite-Frontend-Skript erst nach Marketing-Consent; pbid-Vorabruf und `<noscript>`-Pixel abgeschaltet; serverseitige Conversions-API-Events aus AJAX-/REST-Anfragen nur mit Zustimmung. Kein Eingriff in cachebare Seiten-Renders.
+- Safe by Default: für Neuinstallationen empfohlen EIN und Teil von „Empfohlene Datenschutzeinstellungen wiederherstellen"; bestehende Installationen bleiben unverändert, bis der Schalter aktiviert wird.
+- `TESTPLAN_CONSENT_RUNTIME.md` + Entwicklerwerkzeug `tools/consent-runtime-test.js` (Headless-Chrome-Besuchersimulation inkl. Interaktionsschritt).
+
+### Unverändert
+
+- `banner.js`, Consent-Speicherung, `MCB_CONSENT_VERSION`, Shield-Vendor-Liste (GA4/GTM/Google Ads), alle bestehenden Compat-Module.
+- Version 1.0.7 → **1.0.8** (Header + `MCB_VERSION`).
+
+### Bekannte Grenzen
+
+- Mailchimp Site Tracking (`chimpstatic.com`) und andere roh ausgegebene Drittanbieter-Skripte ausserhalb von GA4/GTM/Ads werden weiterhin nicht automatisch blockiert (Consent-Code-Manager bzw. Plugin-Konfiguration).
+- Beim Widerruf laufen bereits gestartete Skripte bis zum nächsten Seitenaufruf weiter; vorher gesetzte Cookies werden nicht gelöscht.
+
 ## 1.0.7 - 2026-08-06
 
 **Kritischer Sicherheits-Hotfix.** Google Analytics 4 / Universal Analytics / Google Tag Manager / Google Ads werden jetzt **unabhängig von der Einbindungsquelle** vor Consent blockiert — auch wenn sie nicht als LSCC-Snippet, sondern direkt von Avada, Google Site Kit, Rank Math, einem Theme-Header-Feld oder Custom Code eingebunden werden (ADR-40).

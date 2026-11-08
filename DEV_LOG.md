@@ -1,5 +1,31 @@
 # DEV LOG
 
+## 1.0.8 - 2026-11-09 (WP-Rocket-Delay-JS-Fix + PixelYourSite-Gating, ADR-41)
+
+**Phase 1 (Produktions-ZIP zum Test). Kein Tag, kein Release.** Auslöser: Meldung „GA lädt ohne Zustimmung (WPCode-Header) / Meta Pixel über PixelYourSite ohne Zustimmung / Rocket Loader darf Blockierung nicht aushebeln".
+
+**Ist-Messung (Headless Chrome, 2026-11-08, drei Produktivsites, 4-Schritte-Plan inkl. Interaktionsschritt, Domains nur im Bericht):**
+
+| Site | Befund vor Consent / nach „Nur notwendige" | Ursache |
+|---|---|---|
+| A — Avada, WP Rocket Delay JS, **altes functions.php-Banner** (nicht dieses Plugin) | `gtag/js` + `g/collect`, Cookies `_ga`, `_ga_<ID>` ab erster Interaktion — unabhängig von jeder Wahl | WPCode-Header-Tag wird vom Alt-Banner nicht erfasst; WP Rocket verzögert ihn nur bis zur Interaktion |
+| B — WooCommerce, Cloudflare Rocket Loader, MCB 1.0.7 | GA korrekt blockiert. **Meta Pixel aktiv:** `fbevents.js`, `facebook.com/tr`, `_fbp`, `fr`, `pbid`, 8× `pys_*`, admin-ajax pbid. **Mailchimp** `chimpstatic.com` ×2 | PixelYourSite kennt MCB nicht; Mailchimp roh geechot |
+| C — Avada, WP Rocket Delay JS, MCB 1.0.7 | `googletagmanager.com/gtag/js` ab erster Interaktion (kein `collect`, da Inline-Config korrekt gegated blieb) | WP-Rocket-Typerkennung (siehe unten) |
+
+Rocket Loader (Site B): gegatete Tags bleiben `type="text/plain"`, Aktivierung nach „Alle akzeptieren" funktioniert (`gtag/js`, `g/collect`, `_ga`). **Kein Bypass.**
+
+**Root Cause Site C (bewiesen):** WP Rocket `DelayJS\HTML::replace_scripts()` liest den Typ mit `/type\s*=\s*(["'])(?<type>.*)/iU` = erstes `type=` ohne Wortgrenze. Shield Layer A erzeugte `<script data-cookie-category="statistics" data-cookie-type="text/javascript" type="text/plain" …>` (WP_HTML_Tag_Processor serialisiert neue Attribute alphabetisch — lokal mit WP 7.1.4 nachgewiesen, Reihenfolge der `set_attribute()`-Aufrufe irrelevant). WP Rocket las `text/javascript`, machte daraus `type="text/rocketlazyloadscript" … data-cookie-data-rocket-type=… data-rocket-src=…` und führte das Tag bei Interaktion aus. Offline mit der echten WP-Rocket-Klasse zeichengenau reproduziert.
+
+**Umgesetzt:** Shield Layer A ohne `data-cookie-type` bei Standardtyp; `includes/wp-rocket-compat.php` (neu, immer aktiv); `includes/pixelyoursite-compat.php` (neu, opt-in `pys_consent_gating`); Option in Defaults (AUS) / Recommended (EIN) / Bool-Keys / Restore-Set; Admin-Abschnitt „PixelYourSite (Meta Pixel u. a.)"; Version 1.0.8. Doku: ADR-41, CODE_MAP, CHANGELOG, RELEASE_CHECKLIST, MASTER_HANDBUCH (additiv), neu `TESTPLAN_CONSENT_RUNTIME.md` + `tools/consent-runtime-test.js`.
+
+**Validierung (lokal, erstmals mit echter PHP-/Browser-Ausführung — portables PHP 8.3 + WP-Core-HTML-API 7.1.4 + Chrome 156 im Scratch-Verzeichnis, nicht im Repo):**
+- PHP-Lint aller PHP-Dateien: fehlerfrei.
+- Pipeline-Harness (Plugin-Gating → echte WP-Rocket-`delay_js()`): v1.0.7 → 2 Tracking-Tags reaktiviert (= Live-Befund C); v1.0.8 nur Attribut-Fix → 0; v1.0.7 nur Exclusion → 0; v1.0.8 komplett → 0. JSON-LD mit `gtag(`-Inhalt unberührt.
+- PYS-Modul: 18/18 Prüfungen (Browser-, Raw-Output-, Server-Layer inkl. Version/Ablauf/Typ des Cookies, „lockert nie", Seiten-Render unverändert).
+- E2E-Fixture (echte WP-Rocket-Runtime 2.0.5, echtes `banner.js`, echtes Banner-Markup, echtes PYS `public.js` 11.4.5, Tracking-Requests protokolliert und abgebrochen): v1.0.7 reproduziert beide Live-Fehler; v1.0.8 → 1a/1b/2a/2b 0 Requests/0 Cookies, 3a/3b GA + Meta Pixel + `pys_*` aktiv, 4b nach Widerruf 0 Requests, keine JS-Fehler.
+
+**Offen / Entscheidung Marcel:** Mailchimp Site Tracking (Site B), Widerruf-Härtung (Reload, `ga-disable-<ID>`, Cookie-Bereinigung), Umstellung Site A auf dieses Plugin, Live-Runtime-Proof nach Installation.
+
 ## Entwicklungsinfrastruktur — Multi-PC-Faehigkeit (2026-09-16)
 
 **Kein Plugin-Release, keine Fachlogik-Aenderung, keine Versionsanhebung.** Plugin-Version
