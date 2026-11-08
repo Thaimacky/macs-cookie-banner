@@ -45,6 +45,11 @@
  * out (a page-wide, tag-unaware string replace); it is the same narrow,
  * tag-scoped transform class already used and accepted in this codebase.
  *
+ * Attribute order (v1.0.8, ADR-41): the gated external tag never carries
+ * data-cookie-type="text/javascript" ahead of type="text/plain", because
+ * page optimisers such as WP Rocket Delay JS read the first "type=" substring
+ * and would otherwise re-arm the tag. See gate_external_scripts().
+ *
  * Both layers reuse Consent_Codes::transform_snippet() / the same
  * type="text/plain" + data-cookie-category rewrite shape used everywhere
  * else in the plugin, so reactivation after consent runs entirely through
@@ -250,7 +255,24 @@ final class Macs_Cookie_Banner_Google_Tracking_Shield {
 
 			$category = Macs_Cookie_Banner_Codes::vendor_default_category( $vendor );
 
-			$processor->set_attribute( 'data-cookie-type', ( is_string( $type ) && '' !== $type ) ? $type : 'text/javascript' );
+			// v1.0.8 (ADR-41): WP_HTML_Tag_Processor serialises newly added
+			// attributes in alphabetical order, so a data-cookie-type attribute
+			// would always precede type="text/plain". Page optimisers that read
+			// the FIRST "type=" substring without a word boundary (proven: WP
+			// Rocket Delay JS, /type\s*=\s*(["'])(?<type>.*)\1/iU) then mistake
+			// data-cookie-type="text/javascript" for the real type and re-arm
+			// the gated tag as a delayed script that runs on first user
+			// interaction - without consent. banner.js already falls back to
+			// text/javascript when data-cookie-type is absent, so it is only
+			// emitted for a non-default original type (e.g. module).
+			$original_type = is_string( $type ) ? strtolower( trim( $type ) ) : '';
+
+			if ( '' !== $original_type && 'text/javascript' !== $original_type ) {
+				$processor->set_attribute( 'data-cookie-type', $original_type );
+			} else {
+				$processor->remove_attribute( 'data-cookie-type' );
+			}
+
 			$processor->set_attribute( 'data-cookie-category', $category );
 			$processor->set_attribute( 'type', 'text/plain' );
 		}

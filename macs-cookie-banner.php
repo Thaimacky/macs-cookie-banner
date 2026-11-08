@@ -3,7 +3,7 @@
  * Plugin Name: Mac's Cookie Banner
  * Plugin URI:  https://github.com/Thaimacky/macs-cookie-banner
  * Description: Lightweight cookie consent banner with script blocking for WordPress.
- * Version:     1.0.7
+ * Version:     1.0.8
  * Author:      Mac's Cookie Banner
  * Text Domain: macs-cookie-banner
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MCB_VERSION', '1.0.7' );
+define( 'MCB_VERSION', '1.0.8' );
 
 /**
  * Consent schema version. Bump this whenever the stored consent shape
@@ -98,6 +98,10 @@ final class Macs_Cookie_Banner {
 		// Requires Consent_Codes (match_vendor/transform_snippet/vendor_default_category).
 		require_once MCB_PLUGIN_DIR . 'includes/google-tracking-shield.php';
 		Macs_Cookie_Banner_Google_Tracking_Shield::init();
+
+		// v1.0.8 (ADR-41): keep WP Rocket Delay JS away from gated scripts.
+		require_once MCB_PLUGIN_DIR . 'includes/wp-rocket-compat.php';
+		Macs_Cookie_Banner_Wp_Rocket_Compat::init();
 
 		require_once MCB_PLUGIN_DIR . 'includes/updater.php';
 		Macs_Cookie_Banner_Updater::init();
