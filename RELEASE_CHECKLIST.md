@@ -2,7 +2,7 @@
 
 ## Meta Pixel, PYS-Einmalmigration, Cache-Purge (ab v1.0.9, ADR-43)
 
-**Status: Phase 1 — Produktions-ZIP bereit zum Test. Kein Tag, kein Release.**
+**Status: Release 1.0.9 veröffentlicht und API-verifiziert (2026-11-09, Asset SHA-256 `28CF0242…FAA05`, byte-identisch zum Testartefakt). Update-Test und Live-Test stehen aus — kein Vollrollout vor bestandenem Test.**
 
 **Lokal verifiziert (Agent, 2026-11-09):**
 - [x] PHP-Lint aller Dateien; PHP-Prüfungen 23/23 (Meta Pixel inkl. echtem Live-Basiscode, 6 False Positives, GA/Mailchimp-Regression, PYS-Migration, Cache-Purge zwei Fälle); Regression ADR-41/42 grün.

@@ -1,5 +1,11 @@
 # DEV LOG
 
+## 1.0.9 - Release-Status (2026-11-09)
+
+**Phase 2 auf ausdrückliche Freigabe von Marcel durchgeführt.** Tag `1.0.9` (annotiert, Objekt `8dc5668`) auf Commit `efc4bbc`, gepusht auf den Remote mit URL `macs-cookie-banner.git`. GitHub-Release `1.0.9` veröffentlicht (kein Draft, kein Pre-Release, 2026-11-08T22:12:17Z), genau ein Asset `macs-cookie-banner.zip`, 516’099 Bytes, SHA-256 `28CF0242E30B26CE2583BF2002BA47DEC6BC90CA577848119E0EC828C18FAA05` — byte-identisch zum freigegebenen Testartefakt `macs-cookie-banner-v1.0.9-test.zip` (reproduzierbares `-Kind release`-Build und öffentlich heruntergeladenes Asset geprüft). Öffentliche API: `/releases/tags/1.0.9` draft=false, `/releases/latest` = `1.0.9`. PUC: Version aus `tag_name`, Drafts/Pre-Releases übersprungen, einziges ZIP-Asset → Update 1.0.8 → 1.0.9 wird angeboten. Rückweg-Kopie 1.0.8 lokal als `_BUILD_OUTPUT\macs-cookie-banner-v1.0.8-release.zip` gesichert (bzw. Release-Asset 1.0.8 auf GitHub).
+
+**Offen (Pflicht-Gate vor Vollrollout):** Update-Test und Live-Runtime-Test zuerst auf der WooCommerce-Site (Meta Pixel, PixelYourSite, Mailchimp, GA, Cache-Bereinigung, Widerruf), Desktop + Mobil. Kein Vollrollout vor bestandenem Test.
+
 ## 1.0.9 - 2026-11-09 (Meta Pixel, PYS-Einmalmigration, Cache-Purge, ADR-43)
 
 **Auslöser:** Live-Test eines separaten Agenten nach dem Update auf 1.0.8: zwei Sites in Ordnung, die WooCommerce-Site nicht (Meta Pixel `fbevents.js`, `signals/config` für zwei Pixel-IDs, `_fbp` vor Consent). Auftrag u. a.: PYS zuverlässig blockieren, `nowprocket` + `data-cfasync="false"` auf gegateten Skripten und Banner, Cache-Leeren bei Aktivierung/Update, Desktop- + Mobil-Test.
