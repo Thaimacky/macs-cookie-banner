@@ -15,6 +15,8 @@
 //   WAIT_MS=8000         Wartezeit pro Schritt
 //   ABORT_TRACKING=1     Tracking-Requests protokollieren und dann abbrechen (fuer lokale Fixtures)
 //   CHROME_PATH=...      Pfad zu chrome.exe
+//   MOBILE=1             Mobil-Emulation (390x844, Touch, mobiler User-Agent)
+//   CHROME_ARGS=a|b      zusaetzliche Chrome-Argumente, mit | getrennt
 // Wichtig: Schritt 1b simuliert Maus/Scroll OHNE Banner-Klick. Seiten mit WP Rocket
 // "Delay JS" laden verzoegerte Skripte erst bei Interaktion - ohne 1b bleibt ein
 // Bypass unsichtbar.
@@ -63,6 +65,8 @@ async function interact(page) {
 		for (let i = 0; i < 6; i++) { await page.mouse.move(200 + i * 40, 300 + i * 15, { steps: 3 }); }
 		await page.mouse.wheel(0, 600); await page.waitForTimeout(400); await page.mouse.wheel(0, -600);
 		await page.keyboard.press('Shift');
+		// Touch-Ereignis fuer Optimierer, die auf touchstart warten (Mobil).
+		await page.evaluate(() => { window.dispatchEvent(new Event('touchstart')); });
 	} catch (e) { /* ignore */ }
 }
 
@@ -95,9 +99,13 @@ async function snapshot(page, ctx, log, from) {
 
 async function newCtx(browser) {
 	const ctx = await browser.newContext({
-		userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36',
+		userAgent: process.env.MOBILE === '1'
+			? 'Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Mobile Safari/537.36'
+			: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36',
+		isMobile: process.env.MOBILE === '1',
+		hasTouch: process.env.MOBILE === '1',
 		locale: 'de-CH',
-		viewport: { width: 1366, height: 860 },
+		viewport: process.env.MOBILE === '1' ? { width: 390, height: 844 } : { width: 1366, height: 860 },
 	});
 	if (process.env.ABORT_TRACKING === '1') {
 		// Lokale Fixtures: Tracking-Requests werden protokolliert (request-Event) und dann abgebrochen,
@@ -197,14 +205,14 @@ async function runSite(browser, site) {
 (async () => {
 	const sites = process.argv.slice(2);
 	if (!sites.length) { console.error('usage: node consent-test.js <site>...'); process.exit(2); }
-	const browser = await chromium.launch({ executablePath: CHROME, headless: true, args: ['--disable-blink-features=AutomationControlled'] });
+	const browser = await chromium.launch({ executablePath: CHROME, headless: true, args: ['--disable-blink-features=AutomationControlled'].concat(process.env.CHROME_ARGS ? process.env.CHROME_ARGS.split('|') : []) });
 	const resultsDir = process.env.RESULTS_DIR || path.join(require('os').tmpdir(), 'mcb-consent-results');
 	fs.mkdirSync(resultsDir, { recursive: true });
 	for (const s of sites) {
 		let res;
 		try { res = await runSite(browser, s); } catch (e) { res = { site: s, fatal: String(e) }; }
 		const host = (res.url || s).replace(/^https?:\/\//, '').replace(/[^a-z0-9.-]/gi, '_');
-		const file = path.join(resultsDir, host + '-' + Date.now() + '.json');
+		const file = path.join(resultsDir, host + (process.env.MOBILE === '1' ? '-mobil-' : '-desktop-') + Date.now() + '.json');
 		fs.writeFileSync(file, JSON.stringify(res, null, 2));
 		console.log('\n######## ' + s + '  (Banner: ' + res.banner + ')  -> ' + file);
 		if (res.fatal) { console.log('FATAL', res.fatal); continue; }
