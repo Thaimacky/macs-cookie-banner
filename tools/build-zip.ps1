@@ -3,9 +3,17 @@
     Baut das Plugin-ZIP fuer Mac's Cookie Banner - rechnerunabhaengig.
 
 .DESCRIPTION
-    Erzeugt ein ZIP ausschliesslich aus `git ls-files` (kein .git/, kein .claude/,
-    keine Build-Artefakte). Top-Level-Ordner im ZIP ist immer `macs-cookie-banner/`,
-    alle Pfade mit Forward-Slash (Pflicht laut RELEASE_GUIDE.md).
+    Erzeugt ein ZIP aus `git ls-files`, gefiltert durch eine POSITIVLISTE (ADR-45,
+    v1.1.1): ins ZIP kommt nur, was das Plugin zur Laufzeit braucht - Hauptdatei,
+    uninstall.php / readme.txt (falls vorhanden), includes/, assets/ und
+    languages/*.mo|*.po|*.pot. Entwickler-Dateien (*.md, Punkt-Dateien, tools/,
+    composer.json ...) kommen NIE mit, weil der Plugin-Ordner auf den Websites
+    oeffentlich per URL abrufbar ist. Nach dem Schreiben wird das fertige ZIP
+    erneut geoeffnet und hart geprueft; bei einem Verstoss wird es geloescht und
+    der Build bricht ab.
+
+    Top-Level-Ordner im ZIP ist immer `macs-cookie-banner/`, alle Pfade mit
+    Forward-Slash (Pflicht laut RELEASE_GUIDE.md).
 
     Der Ausgabeordner ist IMMER `_BUILD_OUTPUT\` relativ zum Repository-Root.
     Es werden KEINE festen Laufwerksbuchstaben (G:, D:, F:) verwendet - das Skript
@@ -96,6 +104,42 @@ if ($dirty) {
 
 if (-not $files) { throw 'git ls-files lieferte keine Dateien.' }
 
+# --- Positivliste + Sperrliste (ADR-45) ---------------------------------------
+# Positivliste: nur Laufzeit-Dateien des Plugins. Pfade relativ zum Repo, '/'.
+function Test-RuntimeFile([string]$path) {
+    $p = $path.Replace([char]92, '/')
+    if ($p -ceq 'macs-cookie-banner.php') { return $true }
+    if ($p -ceq 'uninstall.php')          { return $true }
+    if ($p -ceq 'readme.txt')             { return $true }
+    if ($p.StartsWith('includes/'))       { return $true }
+    if ($p.StartsWith('assets/'))         { return $true }
+    if ($p -match '^languages/[^/]+\.(mo|po|pot)$') { return $true }
+    return $false
+}
+
+# Sperrliste: gilt auch INNERHALB der Positivliste (z. B. README.md und
+# composer.json von plugin-update-checker unter includes/). Liefert den Grund
+# oder $null. Dieselbe Funktion prueft am Ende das fertige ZIP.
+function Get-ForbiddenReason([string]$path) {
+    $p = $path.Replace([char]92, '/')
+    $segments = @($p.Split('/') | Where-Object { $_ -ne '' })
+    $name = $segments[-1]
+    if ($name -match '(?i)\.md$') { return '.md-Datei' }
+    foreach ($s in $segments) {
+        if ($s.StartsWith('.')) { return 'Datei/Ordner beginnt mit Punkt' }
+        if ($s -match '^(?i)(tools|tests|node_modules|_BUILD_OUTPUT)$') { return "Ordner $s/" }
+    }
+    if ($name -match '^(?i)(composer\.json|composer\.lock|package\.json|package-lock\.json)$') { return $name }
+    return $null
+}
+
+$allFiles = $files
+$files = @($allFiles | Where-Object { (Test-RuntimeFile $_) -and -not (Get-ForbiddenReason $_) })
+$skipped = @($allFiles | Where-Object { $files -notcontains $_ })
+
+if (-not ($files -ccontains 'macs-cookie-banner.php')) { throw 'Positivliste: Hauptdatei macs-cookie-banner.php fehlt.' }
+if (-not $files) { throw 'Positivliste ergab keine Dateien.' }
+
 # --- ZIP schreiben (kein Compress-Archive: Forward-Slash-Pflicht) ----------
 if (Test-Path -LiteralPath $zipPath) { Remove-Item -LiteralPath $zipPath -Force }
 
@@ -137,6 +181,37 @@ try {
     $fs.Dispose()
 }
 
+# --- Harte Pruefung des FERTIGEN ZIPs (ADR-45) -------------------------------
+# Unabhaengig von der Filterung oben: das geschriebene ZIP wird neu geoeffnet.
+# Jeder Eintrag muss unter macs-cookie-banner/ liegen, auf der Positivliste
+# stehen und darf keine Sperrregel verletzen. Sonst: ZIP loeschen, Abbruch.
+$violations = @()
+$zipEntries = @()
+$check = [System.IO.Compression.ZipFile]::OpenRead($zipPath)
+try {
+    foreach ($e in $check.Entries) {
+        $full = $e.FullName
+        $zipEntries += $full
+        if (-not $full.StartsWith('macs-cookie-banner/')) { $violations += "$full (ausserhalb macs-cookie-banner/)"; continue }
+        if ($full.Contains([string][char]92)) { $violations += "$full (Backslash im Pfad)"; continue }
+        $rel = $full.Substring('macs-cookie-banner/'.Length)
+        $reason = Get-ForbiddenReason $rel
+        if ($reason) { $violations += "$full ($reason)"; continue }
+        if (-not (Test-RuntimeFile $rel)) { $violations += "$full (nicht auf der Positivliste)" }
+    }
+} finally {
+    $check.Dispose()
+}
+if (-not ($zipEntries -ccontains 'macs-cookie-banner/macs-cookie-banner.php')) {
+    $violations += 'macs-cookie-banner/macs-cookie-banner.php fehlt'
+}
+if ($zipEntries.Count -ne $added) { $violations += "Eintragszahl $($zipEntries.Count) != geschrieben $added" }
+if ($violations) {
+    Remove-Item -LiteralPath $zipPath -Force
+    $violations | ForEach-Object { Write-Warning "VERSTOSS: $_" }
+    throw "ZIP-Inhaltspruefung fehlgeschlagen ($($violations.Count) Verstoss/Verstoesse) - ZIP wurde geloescht."
+}
+
 # --- Pflichtangaben laut MASTER_HANDBUCH ausgeben --------------------------
 $item = Get-Item -LiteralPath $zipPath
 $hash = (Get-FileHash -LiteralPath $zipPath -Algorithm SHA256).Hash
@@ -161,5 +236,6 @@ Write-Output $hash
 Write-Output ''
 Write-Output '================================================================================'
 Write-Output ("Version: $version | Dateien im ZIP: $added | Typ: $Kind")
+Write-Output ("Inhaltspruefung (Positivliste + Sperrliste): BESTANDEN | nicht aufgenommen: $($skipped.Count) Entwickler-Dateien")
 Write-Output ("Reproduzierbar: alle Eintraege auf Commit-Zeit " + $entryStamp.ToString('u'))
 Write-Output '================================================================================'

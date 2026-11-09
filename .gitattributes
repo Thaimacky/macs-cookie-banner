@@ -20,3 +20,20 @@
 *.ico binary
 *.woff binary
 *.woff2 binary
+
+# Entwickler-Dateien nie in Archive (ADR-45, v1.1.1): `git archive` und die
+# GitHub-Quell-ZIP lassen diese Pfade weg. Das Release-Asset baut tools\build-zip.ps1
+# mit eigener Positivliste; diese Regeln sind die zweite Absicherung.
+*.md export-ignore
+.gitattributes export-ignore
+.gitignore export-ignore
+.* export-ignore
+tools/ export-ignore
+tests/ export-ignore
+node_modules/ export-ignore
+_BUILD_OUTPUT/ export-ignore
+.claude/ export-ignore
+composer.json export-ignore
+composer.lock export-ignore
+package.json export-ignore
+package-lock.json export-ignore
