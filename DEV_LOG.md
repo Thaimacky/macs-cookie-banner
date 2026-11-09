@@ -1,5 +1,17 @@
 # DEV LOG
 
+## 1.1.0 - 2026-11-10 (Offenlegung Infrastruktur-Dienste, ADR-44)
+
+**Auslöser:** Relaunch einer Avada-/WPML-Site (Staging): WP Rocket, Optimole (Bild-CDN, IP-Adresse an Optimole), Cloudflare beim Go-live, Avada-Fonts inzwischen lokal. Die Datenschutzerklärung nannte weder Optimole noch Cloudflare. Ziel: Dienste ohne Einwilligung erkennen, führen und offenlegen.
+
+**Rückfragen (CLAUDE.md):** Konflikt mit Regel 3 (Auto-Hinweise im Frontend), ADR-27/36 (Bestand nicht ungefragt ändern) und Zwei-Phasen-Release. Entscheidungen Marcel: Frontend erst nach Bestätigung; Bannerzeile „nicht angreifbar, nicht kaputt/langsam" → Standard AN, aber ohne Wirkung bis zur Bestätigung; Release direkt.
+
+**Recherche (offizielle Quellen, 2026-11-10):** Cloudflare-Datenschutzerklärung + Cookie-Doku; Optimole-Datenschutzerklärung + Doku (CDN = Amazon CloudFront; IP + User-Agent pro Bildabruf); AWS-DPF-Seite; WP-Rocket-Mentions-légales. Nicht verwendet: Drittverzeichnisse (WP-Media-Adresse zunächst nur über Firmenverzeichnis gefunden, dann auf wp-rocket.me bestätigt). Quellen als Kommentar im Register.
+
+**Umgesetzt:** siehe ADR-44 (`includes/infra-services.php`, Privacy-Check-Abschnitt „Offenlegung", Header aus dem bestehenden Request, Admin-Seite „Offenlegung", Shortcode, Bannerzeile + CSS `.lscc__infra`, Version 1.1.0). Doku: ADR-44, CLAUDE.md (Regel 3 präzisiert), CODE_MAP, CHANGELOG, RELEASE_CHECKLIST, TESTPLAN, README, MASTER_HANDBUCH (additiv).
+
+**Validierung:** 46 Prüfungen grün (37 Modul + 9 Save-Handler) (ein Testfehler beim Fall „Plugin deaktiviert" war ein falscher Erwartungswert — die Seite hatte den Dienst im letzten Seiten-Scan noch gesehen; Test präzisiert, Verhalten wie entworfen). Erkennung auf echten Antworten (Staging: `server: nginx`, 20× `.i.optimole.com`, keine Google Fonts → Optimole; Cloudflare-Site → Optimole + Cloudflare). Bannerzeile Desktop/Mobil sichtgeprüft (Abstand zum Button nachgebessert). Regression ADR-41/42/43 + Consent-Test grün.
+
 ## 1.0.9 - Release-Status (2026-11-09)
 
 **Phase 2 auf ausdrückliche Freigabe von Marcel durchgeführt.** Tag `1.0.9` (annotiert, Objekt `8dc5668`) auf Commit `efc4bbc`, gepusht auf den Remote mit URL `macs-cookie-banner.git`. GitHub-Release `1.0.9` veröffentlicht (kein Draft, kein Pre-Release, 2026-11-08T22:12:17Z), genau ein Asset `macs-cookie-banner.zip`, 516’099 Bytes, SHA-256 `28CF0242E30B26CE2583BF2002BA47DEC6BC90CA577848119E0EC828C18FAA05` — byte-identisch zum freigegebenen Testartefakt `macs-cookie-banner-v1.0.9-test.zip` (reproduzierbares `-Kind release`-Build und öffentlich heruntergeladenes Asset geprüft). Öffentliche API: `/releases/tags/1.0.9` draft=false, `/releases/latest` = `1.0.9`. PUC: Version aus `tag_name`, Drafts/Pre-Releases übersprungen, einziges ZIP-Asset → Update 1.0.8 → 1.0.9 wird angeboten. Rückweg-Kopie 1.0.8 lokal als `_BUILD_OUTPUT\macs-cookie-banner-v1.0.8-release.zip` gesichert (bzw. Release-Asset 1.0.8 auf GitHub).

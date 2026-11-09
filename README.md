@@ -88,6 +88,16 @@ Erkannte Dienste:
 
 Treffer werden mit Risiko, Dienst, Inhaltstyp, Titel mit Bearbeiten-Link, gefundener Domain und Empfehlung angezeigt. Das Plugin ersetzt nichts automatisch und blockiert nichts; der Hinweis weist Sie nur darauf hin, das jeweilige Embed bewusst auf den entsprechenden Shortcode oder eine andere consent-sichere Variante umzustellen.
 
+## Offenlegung: Dienste ohne Einwilligung (ab v1.1.0)
+
+Infrastruktur-Dienste wie Optimole (Bild-CDN), Cloudflare oder WP Rocket werden erkannt und unter **Mac's Cookie Banner → Offenlegung** gelistet. Sie werden nie blockiert. Nach Bestätigung („Auf der Website anzeigen") gibt der Shortcode
+
+```
+[lscc_privacy_services]
+```
+
+auf der Datenschutzseite pro Dienst Anbieter, Zweck, Daten, Rechtsgrundlage, Drittlandübermittlung und Link aus (DE/EN/FR). Die Texte sind Vorlagen und müssen rechtlich geprüft werden.
+
 ## Kontrollierte Service-Komponenten
 
 Externe Medien koennen freiwillig ueber Shortcodes eingebunden werden. Vor der Zustimmung zur Kategorie `external_media` wird nur ein Platzhalter angezeigt.

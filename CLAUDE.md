@@ -74,6 +74,10 @@ Dieses Plugin folgt einer konservativen Architektur. Die folgenden „Lücken" s
    Render-Layer-Ebene ab; sie sind per Einstellung abschaltbar (siehe `DECISIONS.md`).
 3. **Privacy Check ist passiv.** Einmalige Prüfung via `wp_remote_get` mit statischer
    Mustererkennung — kein Crawl, keine Auto-Blockierung, keine Auto-Hinweise im Frontend.
+   *Präzisiert ab v1.1.0 (ADR-44):* Erkannte Infrastruktur-Dienste (Optimole, Cloudflare,
+   WP Rocket …) werden automatisch in die Offenlegungs-Liste eingetragen, erscheinen im
+   Frontend (Shortcode `[lscc_privacy_services]`, Bannerzeile) aber **erst nach Bestätigung
+   durch den Betreiber**. Diese Dienste werden nie blockiert.
 4. **Keine externen Libraries, kein Build-System für den Plugin-Code.**
    Vanilla JS, plain PHP, plain CSS. Kein React/Vue/jQuery, kein npm/Composer, keine CDNs.
    (`tools/build-zip.ps1` ist ein reines Verpackungsskript, kein Build-System —

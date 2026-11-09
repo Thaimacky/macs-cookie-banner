@@ -1,5 +1,18 @@
 # Release Checklist
 
+## Offenlegung Infrastruktur-Dienste (ab v1.1.0, ADR-44)
+
+**Lokal verifiziert (Agent, 2026-11-10):**
+- [x] PHP-Lint; 46 Prüfungen (37 Modul + 9 Save-Handler) (Register, Erkennung, Datenmodell, Shortcode/Bannerzeile nur nach Bestätigung, Sprachen, Escaping, Offenlegungsstatus, Save-Handler).
+- [x] Erkennung auf echten Antworten (Staging: Optimole; Cloudflare-Site: Optimole + Cloudflare via HTML/Header).
+- [x] Bannerzeile Desktop + Mobil sichtgeprüft; Consent-Regression (4 Schritte) grün; Regression ADR-41/42/43 grün.
+
+**Live (Staging-Site, nach Installation):**
+- [ ] Offenlegung-Liste: Optimole + WP Rocket automatisch eingetragen, Admin-Notiz erschienen.
+- [ ] Privacy Check: Abschnitt „Offenlegung" zeigt FEHLT, solange die Datenschutzseite die Dienste nicht nennt; keine Google-Fonts-Meldung (lokal).
+- [ ] „Auf der Website anzeigen" aktivieren → Shortcode auf der Datenschutzseite (DE/EN/FR) zeigt die Abschnitte; Bannerzeile erscheint in den Einstellungen.
+- [ ] Nach Go-live hinter Cloudflare: Privacy Check ausführen → Cloudflare wird eingetragen.
+
 ## Meta Pixel, PYS-Einmalmigration, Cache-Purge (ab v1.0.9, ADR-43)
 
 **Status: Release 1.0.9 veröffentlicht und API-verifiziert (2026-11-09, Asset SHA-256 `28CF0242…FAA05`, byte-identisch zum Testartefakt). Update-Test und Live-Test stehen aus — kein Vollrollout vor bestandenem Test.**

@@ -8,6 +8,32 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 1.1.0 - 2026-11-10
+
+**Neu: Offenlegung von Diensten ohne Einwilligung (ADR-44).** Das Plugin erkennt Infrastruktur-Dienste wie Optimole (Bild-CDN), Cloudflare und WP Rocket selbst, führt sie in einer Liste und liefert fertige Abschnitte für die Datenschutzerklärung — damit nach einem Plugin-Wechsel oder -Update nichts vergessen geht. Diese Dienste werden nie blockiert.
+
+### Added
+
+- **Admin → Mac's Cookie Banner → Offenlegung:** Liste „Dienste ohne Einwilligung (offenlegungspflichtig)". Erkannte Dienste werden automatisch eingetragen (mit Kennzeichen und Datum), manuelle Einträge bleiben unangetastet, nicht mehr erkannte Dienste werden markiert statt gelöscht. Admin-Notiz bei neu erkannten Diensten.
+- **Erkennung** ohne zusätzliche Requests: aktive Plugins (Optimole, WP Rocket, Cloudflare-Plugin) sowie HTML und Server-Header der vom Privacy Check geprüften Seite (`*.i.optimole.com`, `/cdn-cgi/`, `server: cloudflare`, `cf-ray`). Erweiterbares Register (Filter `mcb_infra_service_registry`).
+- **Shortcode `[lscc_privacy_services]`** für die Datenschutzerklärung: pro Dienst Anbieter mit Firmenname und Sitz, Zweck, verarbeitete Daten, Rechtsgrundlage, Drittlandübermittlung und Link zur Datenschutzerklärung des Anbieters — Deutsch, Englisch, Französisch (folgt der WPML-Sprache), jeder Text überschreibbar. Anbieterangaben aus den offiziellen Anbieterseiten, mit Quellen im Code. **Die Texte sind Vorlagen und müssen rechtlich geprüft werden.**
+- **Bannerzeile „Technisch notwendige Dienste"** in den Banner-Einstellungen (Standard AN).
+- **Privacy Check, Abschnitt „Offenlegung":** prüft, ob die Datenschutzseite jeden Dienst nennt (OK / FEHLT); meldet extern geladene Google Fonts als PROBLEM und Avada „Google Fonts Mode: CDN" als WARNUNG.
+
+### Wichtig
+
+- Erkannte Dienste erscheinen auf der Website **erst nach Bestätigung** („Auf der Website anzeigen"). Das Banner bestehender Websites ändert sich durch das Update daher nicht.
+- Speichern der Liste leert den Seiten-Cache (wie andere Einstellungen seit 1.0.9).
+
+### Unverändert
+
+- Consent-Logik, Tracking-Schutz, WP-Rocket-Kompatibilität, `MCB_CONSENT_VERSION`.
+- Version 1.0.9 → **1.1.0** (neues Feature → MINOR).
+
+### Rückweg
+
+- Release-ZIP 1.0.9 installieren (Hochladen, „Ersetzen") und Cache leeren. Die Liste bleibt als Option gespeichert und wird von 1.0.9 ignoriert.
+
 ## 1.0.9 - 2026-11-09
 
 **Meta Pixel quellenunabhängig blockiert, PixelYourSite-Schutz automatisch aktiv, Seiten-Cache wird nach Updates geleert (ADR-43).** Behebt, dass auf einer Live-Site das Meta Pixel trotz 1.0.8 ohne Zustimmung lud und zwei Sites nach dem Update noch ein veraltetes `banner.js` aus dem WP-Rocket-Cache auslieferten.

@@ -42,6 +42,15 @@ Jeder Schritt startet mit leerem Browserprofil, sofern nicht anders angegeben.
 - **Page-Cache:** Test einmal mit warmem Cache (zweiter Aufruf) wiederholen.
 - **Quellen ausserhalb des Plugins:** WPCode/„Insert Headers and Footers", Theme-Header-Felder, Google Site Kit, PixelYourSite, Mailchimp for WooCommerce, GTM-Plugins.
 
+## Offenlegung (ab v1.1.0)
+
+| Prüfung | Erwartung |
+|---|---|
+| Privacy Check ausführen | Abschnitt „Offenlegung": jeder erkannte Dienst OK/FEHLT; extern geladene Google Fonts = PROBLEM |
+| Liste „Offenlegung" öffnen | erkannte Dienste mit „automatisch erkannt am …"; manuelle Einträge unverändert |
+| Dienst bestätigen, Shortcode `[lscc_privacy_services]` auf der Datenschutzseite | Abschnitt pro bestätigtem Dienst in der Seitensprache (DE/EN/FR); Bannerzeile in den Einstellungen |
+| Consent-Test 1–4 erneut | unverändert: Infrastruktur-Dienste werden nie blockiert, Tracking-Ergebnis identisch |
+
 ## Ausführung
 
 ```
