@@ -1,5 +1,11 @@
 # DEV LOG
 
+## 1.1.1 - Release-Status (2026-11-10)
+
+**Auf ausdrücklichen Auftrag von Marcel direkt veröffentlicht** („Release wie gewohnt als GitHub-Release“). Tag `1.1.1` (annotiert, Objekt `a782e8f`) auf Commit `3eb6b53`, Remote mit URL `macs-cookie-banner.git`, ahead/behind 0/0. GitHub-Release `1.1.1` veröffentlicht (kein Draft, kein Pre-Release, 2026-11-09T23:54:39Z), genau ein Asset `macs-cookie-banner.zip`, 315'772 Bytes, 148 Dateien, SHA-256 `0D187A59275DDB4B418D642BA723C165A5C0ECA971A060C989282DC99434F165`. Identisch mit `macs-cookie-banner-v1.1.1-test.zip` und dem öffentlich heruntergeladenen Asset. `/releases/latest` = `1.1.1`. Inhalt = Inhalt 1.1.0 ohne die 24 Entwickler-Dateien; einzige geänderte Laufzeit-Datei ist `macs-cookie-banner.php` (Versionsnummer).
+
+**Offen:** Update auf den Websites über WordPress (nicht automatisch). Danach je Site prüfen, dass z. B. `/wp-content/plugins/macs-cookie-banner/DEV_LOG.md` 404 liefert.
+
 ## 1.1.1 - 2026-11-10 (Plugin-ZIP nur mit Laufzeit-Dateien, ADR-45)
 
 **Auslöser:** Marcel fand auf einer Live-Site `DEV_LOG.md`, `CLAUDE.md` und weitere Entwickler-Dateien öffentlich abrufbar im Plugin-Ordner (24 Dateien, rund 570 KB, darunter eine Kunden-Domain und der Release-Ablauf).

@@ -10,7 +10,7 @@ Der Plugin-Ordner ist auf jeder Website öffentlich per URL abrufbar. Ins ZIP ge
 - [ ] Neue Laufzeit-Dateien ausserhalb von `includes/`/`assets/`/`languages/` sind bewusst in die Positivliste aufgenommen (sonst fehlen sie im ZIP).
 - [ ] Nach der Veröffentlichung: Dateiliste des öffentlich heruntergeladenen Assets gleich wie die des Test-ZIPs.
 
-**Status v1.1.1:** Positivliste und harte Prüfung umgesetzt; Negativtest bestanden (Filter abgeschaltet → 24 Verstösse, ZIP gelöscht). Inhalt 1.1.1 = Inhalt 1.1.0 ohne die 24 Entwickler-Dateien.
+**Status v1.1.1:** Release veröffentlicht und API-verifiziert (2026-11-10, Asset SHA-256 `0D187A59…4F165`, 148 Dateien, identisch mit dem Test-ZIP). Nach dem Update je Site prüfen: `/wp-content/plugins/macs-cookie-banner/DEV_LOG.md` liefert 404. Positivliste und harte Prüfung umgesetzt; Negativtest bestanden (Filter abgeschaltet → 24 Verstösse, ZIP gelöscht). Inhalt 1.1.1 = Inhalt 1.1.0 ohne die 24 Entwickler-Dateien.
 
 ## Offenlegung Infrastruktur-Dienste (ab v1.1.0, ADR-44)
 
