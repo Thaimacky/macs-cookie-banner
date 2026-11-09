@@ -173,6 +173,15 @@ final class Macs_Cookie_Banner_Admin {
 
 		add_submenu_page(
 			'macs-cookie-banner',
+			esc_html__( 'Offenlegung (Dienste ohne Einwilligung)', 'macs-cookie-banner' ),
+			esc_html__( 'Offenlegung', 'macs-cookie-banner' ),
+			'manage_options',
+			Macs_Cookie_Banner_Infra_Services::PAGE_SLUG,
+			array( 'Macs_Cookie_Banner_Infra_Services', 'render_page' )
+		);
+
+		add_submenu_page(
+			'macs-cookie-banner',
 			esc_html__( 'Avada Inventar-Scan', 'macs-cookie-banner' ),
 			esc_html__( 'Avada Inventar-Scan', 'macs-cookie-banner' ),
 			'manage_options',

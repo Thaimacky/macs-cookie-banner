@@ -3,7 +3,7 @@
  * Plugin Name: Mac's Cookie Banner
  * Plugin URI:  https://github.com/Thaimacky/macs-cookie-banner
  * Description: Lightweight cookie consent banner with script blocking for WordPress.
- * Version:     1.0.9
+ * Version:     1.1.0
  * Author:      Mac's Cookie Banner
  * Text Domain: macs-cookie-banner
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MCB_VERSION', '1.0.9' );
+define( 'MCB_VERSION', '1.1.0' );
 
 /**
  * Consent schema version. Bump this whenever the stored consent shape
@@ -112,6 +112,11 @@ final class Macs_Cookie_Banner {
 		// Requires Consent_Codes (transform_snippet).
 		require_once MCB_PLUGIN_DIR . 'includes/pixelyoursite-compat.php';
 		Macs_Cookie_Banner_Pixelyoursite_Compat::init();
+
+		// v1.1.0 (ADR-44): infrastructure services without consent - detect,
+		// list, disclose. Never blocks or gates anything.
+		require_once MCB_PLUGIN_DIR . 'includes/infra-services.php';
+		Macs_Cookie_Banner_Infra_Services::init();
 
 		require_once MCB_PLUGIN_DIR . 'includes/updater.php';
 		Macs_Cookie_Banner_Updater::init();
@@ -1193,6 +1198,8 @@ final class Macs_Cookie_Banner {
 								<input type="checkbox" data-lscc-category="external_media" autocomplete="off">
 							</label>
 						</div>
+
+						<?php echo Macs_Cookie_Banner_Infra_Services::banner_line_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in banner_line_html(). ?>
 
 						<div class="lscc__actions lscc__actions--settings">
 							<button type="submit" class="lscc__button lscc__button--primary">

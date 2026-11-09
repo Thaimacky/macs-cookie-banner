@@ -56,6 +56,13 @@ final class Macs_Cookie_Banner_Privacy_Check {
 			$headline_results = array_merge( $headline_results, self::detect_services( $fetch['body'] ) );
 			$surface          = self::detect_surface( $fetch['body'] );
 		}
+
+		// v1.1.0 (ADR-44): infrastructure services - plugin register + the
+		// signals of the page fetched above (HTML + headers). No extra request.
+		Macs_Cookie_Banner_Infra_Services::record_scan( 'plugin', Macs_Cookie_Banner_Infra_Services::detect_from_plugins() );
+		if ( $fetch['ok'] ) {
+			Macs_Cookie_Banner_Infra_Services::record_scan( 'page', Macs_Cookie_Banner_Infra_Services::detect_from_page( $fetch['body'], $fetch['headers'] ) );
+		}
 		?>
 		<div class="wrap">
 			<h1><?php echo esc_html__( 'Privacy Check', 'macs-cookie-banner' ); ?></h1>
@@ -101,8 +108,87 @@ final class Macs_Cookie_Banner_Privacy_Check {
 				</tbody>
 			</table>
 
+			<?php self::render_disclosure_section( $fetch ); ?>
+
 			<?php self::render_content_scan_section( $content_scan_results ); ?>
 		</div>
+		<?php
+	}
+
+	/**
+	 * Section "Offenlegung" (v1.1.0, ADR-44): infrastructure services without
+	 * consent must be named in the privacy policy. Passive: reads the privacy
+	 * page from the database, changes nothing.
+	 *
+	 * @param array $fetch Result of fetch_html().
+	 * @return void
+	 */
+	private static function render_disclosure_section( $fetch ) {
+		$status = Macs_Cookie_Banner_Infra_Services::disclosure_status();
+		$list   = admin_url( 'admin.php?page=' . Macs_Cookie_Banner_Infra_Services::PAGE_SLUG );
+		?>
+		<h2><?php echo esc_html__( 'Offenlegung', 'macs-cookie-banner' ); ?></h2>
+		<p class="description">
+			<?php echo esc_html__( 'Dienste ohne Einwilligung (z. B. Bild-CDN, Cloudflare) werden nicht blockiert, müssen aber in der Datenschutzerklärung genannt werden. Geprüft wird, ob die Datenschutzseite den Dienstnamen enthält oder den Shortcode [lscc_privacy_services] mit dem auf der Website angezeigten Dienst.', 'macs-cookie-banner' ); ?>
+			<a href="<?php echo esc_url( $list ); ?>"><?php echo esc_html__( 'Liste bearbeiten', 'macs-cookie-banner' ); ?></a>
+		</p>
+		<table class="widefat striped">
+			<thead>
+				<tr>
+					<th scope="col"><?php echo esc_html__( 'Status', 'macs-cookie-banner' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Dienst', 'macs-cookie-banner' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Befund', 'macs-cookie-banner' ); ?></th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php if ( 0 === $status['page_id'] ) : ?>
+					<tr>
+						<td><?php echo esc_html__( 'FEHLT', 'macs-cookie-banner' ); ?></td>
+						<td>&mdash;</td>
+						<td><?php echo esc_html__( 'Keine Datenschutzseite gefunden (weder „Datenschutz-URL überschreiben" noch die WordPress-Datenschutzseite). Bitte unter Einstellungen → Datenschutz festlegen.', 'macs-cookie-banner' ); ?></td>
+					</tr>
+				<?php endif; ?>
+				<?php foreach ( $status['rows'] as $row ) : ?>
+					<tr>
+						<td><strong><?php echo 'ok' === $row['status'] ? esc_html__( 'OK', 'macs-cookie-banner' ) : esc_html__( 'FEHLT', 'macs-cookie-banner' ); ?></strong></td>
+						<td><?php echo esc_html( $row['name'] ); ?></td>
+						<td>
+							<?php
+							if ( 'name' === $row['via'] ) {
+								echo esc_html( sprintf( /* translators: %s: page title. */ __( 'Wird auf der Datenschutzseite „%s" genannt.', 'macs-cookie-banner' ), $status['page_title'] ) );
+							} elseif ( 'shortcode' === $row['via'] ) {
+								echo esc_html__( 'Wird über den Shortcode [lscc_privacy_services] ausgegeben.', 'macs-cookie-banner' );
+							} elseif ( $row['sc_hidden'] ) {
+								echo esc_html__( 'Shortcode vorhanden, der Dienst ist aber noch nicht für die Website freigegeben („Auf der Website anzeigen" in der Liste aktivieren).', 'macs-cookie-banner' );
+							} elseif ( $status['page_id'] > 0 ) {
+								echo esc_html( sprintf( /* translators: %s: page title. */ __( 'Nicht auf der Datenschutzseite „%s" genannt. Shortcode [lscc_privacy_services] einfügen oder Dienst im Text nennen.', 'macs-cookie-banner' ), $status['page_title'] ) );
+							}
+							if ( false === $row['detected'] ) {
+								echo ' ' . esc_html__( '(Aktuell nicht mehr erkannt.)', 'macs-cookie-banner' );
+							}
+							?>
+						</td>
+					</tr>
+				<?php endforeach; ?>
+				<?php if ( empty( $status['rows'] ) && $status['page_id'] > 0 ) : ?>
+					<tr><td><?php echo esc_html__( 'Info', 'macs-cookie-banner' ); ?></td><td>&mdash;</td><td><?php echo esc_html__( 'Keine Dienste ohne Einwilligung erkannt oder eingetragen.', 'macs-cookie-banner' ); ?></td></tr>
+				<?php endif; ?>
+				<?php if ( ! empty( $fetch['ok'] ) && Macs_Cookie_Banner_Infra_Services::external_google_fonts( $fetch['body'] ) ) : ?>
+					<tr>
+						<td><strong><?php echo esc_html__( 'PROBLEM', 'macs-cookie-banner' ); ?></strong></td>
+						<td><?php echo esc_html__( 'Google Fonts', 'macs-cookie-banner' ); ?></td>
+						<td><?php echo esc_html__( 'Schriften werden von Google-Servern geladen (fonts.googleapis.com / fonts.gstatic.com) – ohne Einwilligung. Das ist kein Offenlegungsfall: Schriften lokal laden (z. B. Avada → Global Options → Typography → Google Fonts Mode „Local").', 'macs-cookie-banner' ); ?></td>
+					</tr>
+				<?php endif; ?>
+				<?php if ( Macs_Cookie_Banner_Infra_Services::avada_fonts_from_cdn() ) : ?>
+					<tr>
+						<td><strong><?php echo esc_html__( 'WARNUNG', 'macs-cookie-banner' ); ?></strong></td>
+						<td><?php echo esc_html__( 'Avada Google Fonts', 'macs-cookie-banner' ); ?></td>
+						<td><?php echo esc_html__( 'Avada ist auf „Google Fonts Mode: CDN" eingestellt. Empfehlung: auf „Local" umstellen, damit keine Schriften von Google-Servern geladen werden.', 'macs-cookie-banner' ); ?></td>
+					</tr>
+				<?php endif; ?>
+			</tbody>
+		</table>
 		<?php
 	}
 
@@ -170,6 +256,7 @@ final class Macs_Cookie_Banner_Privacy_Check {
 			return array(
 				'ok'            => false,
 				'body'          => '',
+				'headers'       => array(),
 				'error_problem' => __( 'Die URL konnte nicht geprüft werden.', 'macs-cookie-banner' ),
 				'error_reco'    => __( 'Bitte prüfen Sie die URL oder starten Sie den Check später erneut.', 'macs-cookie-banner' ),
 			);
@@ -178,10 +265,20 @@ final class Macs_Cookie_Banner_Privacy_Check {
 		$status_code = (int) wp_remote_retrieve_response_code( $response );
 		$body        = (string) wp_remote_retrieve_body( $response );
 
+		// v1.1.0 (ADR-44): response headers of the same request (e.g. Cloudflare).
+		$headers = array();
+		foreach ( array( 'server', 'cf-ray' ) as $header_name ) {
+			$header_value = wp_remote_retrieve_header( $response, $header_name );
+			if ( '' !== $header_value && array() !== $header_value ) {
+				$headers[ $header_name ] = $header_value;
+			}
+		}
+
 		if ( 400 <= $status_code || '' === $body ) {
 			return array(
 				'ok'            => false,
 				'body'          => '',
+				'headers'       => $headers,
 				'error_problem' => __( 'Die URL lieferte keine prüfbare Ausgabe.', 'macs-cookie-banner' ),
 				'error_reco'    => __( 'Bitte prüfen Sie die eingebundenen externen Dienste manuell.', 'macs-cookie-banner' ),
 			);
@@ -190,6 +287,7 @@ final class Macs_Cookie_Banner_Privacy_Check {
 		return array(
 			'ok'            => true,
 			'body'          => $body,
+			'headers'       => $headers,
 			'error_problem' => '',
 			'error_reco'    => '',
 		);

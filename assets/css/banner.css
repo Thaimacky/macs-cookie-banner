@@ -251,6 +251,15 @@
 	-webkit-backdrop-filter: blur(var(--lscc-blur));
 }
 
+.lscc__infra {
+	grid-column: 1 / -1;
+	margin: 12px 0 14px;
+	color: var(--lscc-text);
+	font-size: 12px;
+	line-height: 1.45;
+	opacity: 0.75;
+}
+
 .lscc__legal {
 	grid-column: 1 / -1;
 	margin-top: 12px;
