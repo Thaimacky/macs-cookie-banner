@@ -1,5 +1,11 @@
 # DEV LOG
 
+## 1.1.0 - Release-Status (2026-11-10)
+
+**Phase 1 + 2 in einem Zug auf ausdrückliche Entscheidung von Marcel ("Direkt veröffentlichen").** Tag `1.1.0` (annotiert, Objekt `49cd39b`) auf Commit `5d4e460`, Remote mit URL `macs-cookie-banner.git`. GitHub-Release `1.1.0` veröffentlicht (kein Draft, kein Pre-Release, 2026-11-09T21:50:48Z), genau ein Asset `macs-cookie-banner.zip`, 537'196 Bytes, SHA-256 `E5A5B905411767DE29F256DF50B594805572D9A51F0600372586FA6418119592` — identisch mit `macs-cookie-banner-v1.1.0-test.zip` und dem öffentlich heruntergeladenen Asset; Inhalt byte-identisch zu `git archive 5d4e460`. `/releases/latest` = `1.1.0`. Rückweg-Kopie 1.0.9 lokal als `_BUILD_OUTPUT\macs-cookie-banner-v1.0.9-release.zip` (bzw. GitHub-Release 1.0.9).
+
+**Offen (Pflicht-Gate vor Vollrollout):** Update-/Live-Test zuerst auf der Staging-Site (Installation durch Claude Code im Kundenprojekt). Kein Vollrollout vor bestandenem Test.
+
 ## 1.1.0 - 2026-11-10 (Offenlegung Infrastruktur-Dienste, ADR-44)
 
 **Auslöser:** Relaunch einer Avada-/WPML-Site (Staging): WP Rocket, Optimole (Bild-CDN, IP-Adresse an Optimole), Cloudflare beim Go-live, Avada-Fonts inzwischen lokal. Die Datenschutzerklärung nannte weder Optimole noch Cloudflare. Ziel: Dienste ohne Einwilligung erkennen, führen und offenlegen.

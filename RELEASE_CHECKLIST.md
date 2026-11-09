@@ -2,6 +2,8 @@
 
 ## Offenlegung Infrastruktur-Dienste (ab v1.1.0, ADR-44)
 
+**Status: Release 1.1.0 veröffentlicht und API-verifiziert (2026-11-10, Asset SHA-256 `E5A5B905…19592`, identisch mit dem Test-ZIP). Live-Test auf der Staging-Site steht aus — kein Vollrollout vor bestandenem Test.**
+
 **Lokal verifiziert (Agent, 2026-11-10):**
 - [x] PHP-Lint; 46 Prüfungen (37 Modul + 9 Save-Handler) (Register, Erkennung, Datenmodell, Shortcode/Bannerzeile nur nach Bestätigung, Sprachen, Escaping, Offenlegungsstatus, Save-Handler).
 - [x] Erkennung auf echten Antworten (Staging: Optimole; Cloudflare-Site: Optimole + Cloudflare via HTML/Header).
