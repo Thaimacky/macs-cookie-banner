@@ -155,6 +155,10 @@ Das Repository liegt eine Ebene tiefer im Plugin-Ordner:
 
 * ZIPs werden **ausschliesslich** mit `tools/build-zip.ps1` erzeugt — nie von Hand,
   nie mit `Compress-Archive` (verletzt die Forward-Slash-Pflicht).
+* Das Plugin-ZIP enthält **nur Laufzeit-Dateien** (Positivliste in `tools/build-zip.ps1`,
+  ADR-45). Der Plugin-Ordner ist auf den Websites öffentlich abrufbar: keine `*.md`, keine
+  Punkt-Dateien, kein `tools/`, kein `composer.json`. Positiv- oder Sperrliste nie ohne
+  Rückfrage aufweichen; schlägt die Inhaltsprüfung fehl, wird nichts veröffentlicht.
 * Ausgabeordner ist **immer** `_BUILD_OUTPUT\` **relativ zum Repository** (gitignored).
 * Test-ZIPs tragen **immer die Version im Dateinamen**:
   `macs-cookie-banner-vX.Y.Z-test.zip`. Versionslose Test-ZIPs sind unzulässig.

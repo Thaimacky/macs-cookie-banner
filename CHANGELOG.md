@@ -8,6 +8,25 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 1.1.1 - 2026-11-10
+
+**Sicherheitskorrektur: Das Plugin-ZIP enthält nur noch Dateien, die das Plugin zur Laufzeit braucht (ADR-45).** Bis einschliesslich 1.1.0 enthielt das ZIP auch die Entwickler-Dateien des Projekts (Projekt-Doku `*.md`, `.gitignore`/`.gitattributes`, `tools/`, `composer.json` von plugin-update-checker). Diese lagen auf den Websites öffentlich abrufbar im Plugin-Ordner. WordPress ersetzt beim Update den ganzen Plugin-Ordner, deshalb verschwinden die Dateien mit dem Update auf 1.1.1 von den Servern.
+
+### Fixed
+
+- **`tools/build-zip.ps1` arbeitet mit einer Positivliste.** Ins ZIP kommen nur die Hauptdatei, `uninstall.php` und `readme.txt` (falls vorhanden), `includes/`, `assets/` und `languages/*.mo|*.po|*.pot`. Die Lizenzdatei von plugin-update-checker (`license.txt`) bleibt drin.
+- **Harte Prüfung am Ende des Builds:** Das fertige ZIP wird neu geöffnet. Enthält es eine `.md`-Datei, eine Datei oder einen Ordner mit Punkt am Anfang, `tools/`, `tests/`, `node_modules/`, `_BUILD_OUTPUT/`, `.claude/`, `composer.json`/`composer.lock` oder `package.json`, wird das ZIP gelöscht und der Build bricht ab.
+- **`.gitattributes`:** `export-ignore` für dieselben Dateien, damit auch eine GitHub-Quell-ZIP (`git archive`) keine Entwickler-Dateien enthält.
+
+### Unverändert
+
+- Keine Änderung an Funktionen, Texten, Einstellungen, Consent-Logik oder `MCB_CONSENT_VERSION`. Im Plugin-Code ändert sich nur die Versionsnummer.
+- Version 1.1.0 → **1.1.1** (Sicherheitskorrektur → PATCH).
+
+### Rückweg
+
+- Nur im Notfall: Release-ZIP 1.1.0 installieren (Hochladen, „Ersetzen"). **Achtung:** 1.1.0 und alle älteren Release-ZIPs bringen die Entwickler-Dateien zurück auf den Server. Danach so bald wie möglich wieder 1.1.1 installieren.
+
 ## 1.1.0 - 2026-11-10
 
 **Neu: Offenlegung von Diensten ohne Einwilligung (ADR-44).** Das Plugin erkennt Infrastruktur-Dienste wie Optimole (Bild-CDN), Cloudflare und WP Rocket selbst, führt sie in einer Liste und liefert fertige Abschnitte für die Datenschutzerklärung — damit nach einem Plugin-Wechsel oder -Update nichts vergessen geht. Diese Dienste werden nie blockiert.

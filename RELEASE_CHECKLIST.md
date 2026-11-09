@@ -1,5 +1,17 @@
 # Release Checklist
 
+## ZIP-Inhalt gegen Positivliste prüfen (verbindlich bei JEDEM Release, ab v1.1.1, ADR-45)
+
+Der Plugin-Ordner ist auf jeder Website öffentlich per URL abrufbar. Ins ZIP gehört nur, was das Plugin zur Laufzeit braucht.
+
+- [ ] `tools/build-zip.ps1` meldet „Inhaltsprüfung (Positivliste + Sperrliste): BESTANDEN". Bricht der Build ab, wird **nichts** veröffentlicht; die Ursache wird behoben, nicht die Prüfung.
+- [ ] **ZIP-Inhalt gegen Positivliste prüfen:** Dateiliste des ZIPs ansehen. Erlaubt sind nur `macs-cookie-banner.php`, `uninstall.php` und `readme.txt` (falls vorhanden), `includes/`, `assets/`, `languages/*.mo|*.po|*.pot`.
+- [ ] Keine `.md`-Datei, keine Datei und kein Ordner mit Punkt am Anfang, kein `tools/`, `tests/`, `node_modules/`, `_BUILD_OUTPUT/`, `.claude/`, kein `composer.json`/`composer.lock`, kein `package.json`.
+- [ ] Neue Laufzeit-Dateien ausserhalb von `includes/`/`assets/`/`languages/` sind bewusst in die Positivliste aufgenommen (sonst fehlen sie im ZIP).
+- [ ] Nach der Veröffentlichung: Dateiliste des öffentlich heruntergeladenen Assets gleich wie die des Test-ZIPs.
+
+**Status v1.1.1:** Positivliste und harte Prüfung umgesetzt; Negativtest bestanden (Filter abgeschaltet → 24 Verstösse, ZIP gelöscht). Inhalt 1.1.1 = Inhalt 1.1.0 ohne die 24 Entwickler-Dateien.
+
 ## Offenlegung Infrastruktur-Dienste (ab v1.1.0, ADR-44)
 
 **Status: Release 1.1.0 veröffentlicht und API-verifiziert (2026-11-10, Asset SHA-256 `E5A5B905…19592`, identisch mit dem Test-ZIP). Live-Test auf der Staging-Site steht aus — kein Vollrollout vor bestandenem Test.**
@@ -268,6 +280,7 @@ Vor dem Livegang müssen alle Tracking-/Consent-Integrationen erkannt, klassifiz
 - [ ] Liegen ältere ZIPs bereits im Parent-Ordner, wird die neue ZIP **im selben Ordner** erstellt.
 - [ ] Dateiname-Schema: `macs-cookie-banner-v<VERSION>-test.zip`.
 - [ ] Top-Level-Ordner im ZIP: `macs-cookie-banner/` (WordPress-installierbar).
+- [ ] ZIP-Inhalt gegen Positivliste prüfen (nur Laufzeit-Dateien, siehe Sektion „ZIP-Inhalt gegen Positivliste prüfen“, ab v1.1.1).
 - [ ] Kein automatisches Ausweichen auf andere Orte; Ablageort nur per ausdrücklicher Auftraggeber-Anweisung änderbar. Details siehe `MASTER_HANDBUCH.md`, Sektion „Release-Artefakte / Ablageort für Test-ZIPs".
 
 ## Auto-Sync-Entscheidung erzwungen bei Aktivierung/Update (ab v0.5.13, ADR-33)

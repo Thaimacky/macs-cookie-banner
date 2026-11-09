@@ -45,8 +45,8 @@ Laptop) und benoetigt **keine** Pfadanpassung mehr.
 Im Repository-Ordner ausfuehren:
 
 ```
-powershell -ExecutionPolicy Bypass -File toolsuild-zip.ps1                 # Test-ZIP  (Phase 1)
-powershell -ExecutionPolicy Bypass -File toolsuild-zip.ps1 -Kind release   # Release-ZIP (Phase 2)
+powershell -ExecutionPolicy Bypass -File tools\build-zip.ps1                 # Test-ZIP  (Phase 1)
+powershell -ExecutionPolicy Bypass -File tools\build-zip.ps1 -Kind release   # Release-ZIP (Phase 2)
 ```
 
 Ausgabeordner ist **immer** `_BUILD_OUTPUT\` **relativ zum Repository** (gitignored) —
@@ -66,7 +66,12 @@ Das Skript erledigt automatisch:
 
 - Version aus `define( 'MCB_VERSION', ... )` lesen und **gegen den Plugin-Header pruefen**
   (Abbruch bei Mismatch — verhindert falsch versionierte Releases),
-- Dateiliste strikt aus `git ls-files` (kein `.git/`, kein `.claude/`, kein `_BUILD_OUTPUT/`),
+- Dateiliste aus `git ls-files`, gefiltert durch eine **Positivliste** (ab v1.1.1, ADR-45): nur
+  `macs-cookie-banner.php`, `uninstall.php`/`readme.txt` (falls vorhanden), `includes/`, `assets/`,
+  `languages/*.mo|*.po|*.pot`. Entwickler-Dateien (`*.md`, Punkt-Dateien, `tools/`, `composer.json` …)
+  kommen nie ins ZIP, weil der Plugin-Ordner auf den Websites öffentlich abrufbar ist,
+- **harte Prüfung des fertigen ZIPs** gegen Positiv- und Sperrliste: bei einem Verstoss wird das ZIP
+  gelöscht und der Build bricht ab,
 - Top-Level-Ordner `macs-cookie-banner/` und ausschliesslich Forward-Slash-Pfade
   (deshalb **kein** `Compress-Archive`),
 - Warnung, wenn der Arbeitsbaum nicht sauber ist,

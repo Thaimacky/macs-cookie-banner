@@ -1,5 +1,15 @@
 # DEV LOG
 
+## 1.1.1 - 2026-11-10 (Plugin-ZIP nur mit Laufzeit-Dateien, ADR-45)
+
+**Auslöser:** Marcel fand auf einer Live-Site `DEV_LOG.md`, `CLAUDE.md` und weitere Entwickler-Dateien öffentlich abrufbar im Plugin-Ordner (24 Dateien, rund 570 KB, darunter eine Kunden-Domain und der Release-Ablauf).
+
+**Ursache:** `tools/build-zip.ps1` packte alle Dateien aus `git ls-files`; `.gitattributes` hatte keine `export-ignore`-Regeln. Nachgeprüft an den heruntergeladenen Release-Assets: 1.0.5–1.0.7 je 16–17 Entwickler-Dateien, 1.0.8–1.1.0 je 24 (seit der Multi-PC-Umstellung vom 2026-09-16 inkl. `CLAUDE.md`, `MULTI_PC_SETUP.md`, `INVENTUR_VORLAGE.md`, `tools/`). Die Kunden-Domain stand schon ab 1.0.5 im ZIP (DECISIONS/DEV_LOG/RELEASE_CHECKLIST). Keine Prüfung verglich den ZIP-Inhalt mit dem, was ins Plugin gehört; der Vergleich mit `git archive` (1.1.0) bestätigte dieselbe zu grosse Dateiliste.
+
+**Umgesetzt:** Positivliste + Sperrliste + harte Endprüfung im Build, `export-ignore` in `.gitattributes`, Version 1.1.1 (siehe ADR-45). Doku: CHANGELOG, ADR-45, RELEASE_CHECKLIST (verbindlicher Schritt), RELEASE_GUIDE (Beschreibung korrigiert, zwei kaputte Pfade `tools\build-zip.ps1` repariert), CLAUDE.md Regel 5.
+
+**Offen, bewusst nicht in 1.1.1 (nur Build-Fix beauftragt):** Befund aus dem Staging-Test der WPML-Site (1.1.0): `disclosure_status()` prüft nur die Seite aus `privacy_page_id()`. Die EN/FR-Übersetzungen werden nie gelesen, ein OK gilt nur für die Standardsprache. Ausserdem zählt `get_post()` auch einen unveröffentlichten Entwurf als Datenschutzseite. Vorschlag: alle Sprachversionen über `wpml_element_trid`/`wpml_get_element_translations` prüfen, Status pro Sprache ausgeben, nur `publish` zählen oder einen Hinweis zeigen. Kandidat für die nächste Version, nach Entscheidung von Marcel.
+
 ## 1.1.0 - Release-Status (2026-11-10)
 
 **Phase 1 + 2 in einem Zug auf ausdrückliche Entscheidung von Marcel ("Direkt veröffentlichen").** Tag `1.1.0` (annotiert, Objekt `49cd39b`) auf Commit `5d4e460`, Remote mit URL `macs-cookie-banner.git`. GitHub-Release `1.1.0` veröffentlicht (kein Draft, kein Pre-Release, 2026-11-09T21:50:48Z), genau ein Asset `macs-cookie-banner.zip`, 537'196 Bytes, SHA-256 `E5A5B905411767DE29F256DF50B594805572D9A51F0600372586FA6418119592` — identisch mit `macs-cookie-banner-v1.1.0-test.zip` und dem öffentlich heruntergeladenen Asset; Inhalt byte-identisch zu `git archive 5d4e460`. `/releases/latest` = `1.1.0`. Rückweg-Kopie 1.0.9 lokal als `_BUILD_OUTPUT\macs-cookie-banner-v1.0.9-release.zip` (bzw. GitHub-Release 1.0.9).
