@@ -48,16 +48,51 @@ final class Macs_Cookie_Banner_Wp_Rocket_Compat {
 	const GATED_PATTERN = 'data-cookie-category';
 
 	/**
-	 * Register the exclusion filter on the frontend.
+	 * v1.2.0 (ADR-46): state classes that banner.js adds to the reopen button
+	 * at runtime. WP Rocket "Remove Unused CSS" only keeps rules whose selectors
+	 * occur in the HTML, so these must be safelisted (documented wildcard
+	 * syntax "(.*)"). Without it the button would simply stay full-size.
+	 */
+	const RUCSS_SAFELIST = array(
+		'(.*).lscc-reopen--compact(.*)',
+		'(.*).lscc-reopen--peek(.*)',
+		'(.*).lscc-reopen--morph(.*)',
+	);
+
+	/**
+	 * Register the filters. The RUCSS safelist is also needed outside the
+	 * frontend: WP Rocket sends its jobs from background requests (Action
+	 * Scheduler via admin-ajax), where is_admin() is true.
 	 *
 	 * @return void
 	 */
 	public static function init() {
+		add_filter( 'rocket_rucss_safelist', array( __CLASS__, 'safelist_runtime_classes' ) );
+
 		if ( is_admin() ) {
 			return;
 		}
 
 		add_filter( 'rocket_delay_js_exclusions', array( __CLASS__, 'exclude_gated_scripts' ) );
+	}
+
+	/**
+	 * Add the runtime state classes of the reopen button to the RUCSS safelist
+	 * (WP Rocket >= 3.11, filter `rocket_rucss_safelist`).
+	 *
+	 * @param mixed $safelist Existing safelist values.
+	 * @return array
+	 */
+	public static function safelist_runtime_classes( $safelist ) {
+		$safelist = is_array( $safelist ) ? $safelist : array();
+
+		foreach ( self::RUCSS_SAFELIST as $pattern ) {
+			if ( ! in_array( $pattern, $safelist, true ) ) {
+				$safelist[] = $pattern;
+			}
+		}
+
+		return $safelist;
 	}
 
 	/**

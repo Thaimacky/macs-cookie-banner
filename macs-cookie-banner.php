@@ -3,7 +3,7 @@
  * Plugin Name: Mac's Cookie Banner
  * Plugin URI:  https://github.com/Thaimacky/macs-cookie-banner
  * Description: Lightweight cookie consent banner with script blocking for WordPress.
- * Version:     1.1.1
+ * Version:     1.2.0
  * Author:      Mac's Cookie Banner
  * Text Domain: macs-cookie-banner
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MCB_VERSION', '1.1.1' );
+define( 'MCB_VERSION', '1.2.0' );
 
 /**
  * Consent schema version. Bump this whenever the stored consent shape
@@ -169,6 +169,16 @@ final class Macs_Cookie_Banner {
 			'reopen_position'        => 'bottom-right',
 			'reopen_offset_x'        => 24,
 			'reopen_offset_y'        => 24,
+			// v1.2.0 (ADR-46): compact reopen button on scroll. OFF as structural
+			// default, so an update never changes the look of an existing site
+			// (ADR-27); fresh installs are seeded ON via get_recommended_defaults().
+			'reopen_compact'           => false,
+			'reopen_compact_threshold' => 100,
+			'reopen_compact_selector'  => '',
+			'reopen_compact_shape'     => 'round',
+			'reopen_compact_size'      => 48,
+			'reopen_compact_expand'    => true,
+			'reopen_show_icon'         => false,
 			'show_legal_links'       => true,
 			'privacy_url_override'   => '',
 			'imprint_url_override'   => '',
@@ -209,6 +219,9 @@ final class Macs_Cookie_Banner {
 			'youtube_remote_thumbnails' => false,
 			// Consent lifetime baseline.
 			'consent_lifetime_days'     => 180,
+			// v1.2.0 (ADR-46): fresh installs only - compact reopen button on
+			// scroll. Not part of the restore keys (presentation, not privacy).
+			'reopen_compact'            => true,
 		);
 
 		// avada_maps_block / yotu_consent_gating are intentionally NOT part of the
@@ -528,6 +541,9 @@ final class Macs_Cookie_Banner {
 			'meta_social_block',
 			'google_tracking_shield',
 			'pys_consent_gating',
+			'reopen_compact',
+			'reopen_compact_expand',
+			'reopen_show_icon',
 		);
 	}
 
@@ -549,6 +565,14 @@ final class Macs_Cookie_Banner {
 			'reopen_offset_y'       => array(
 				'min' => 0,
 				'max' => 200,
+			),
+			'reopen_compact_threshold' => array(
+				'min' => 0,
+				'max' => 2000,
+			),
+			'reopen_compact_size'      => array(
+				'min' => 44,
+				'max' => 64,
 			),
 			'consent_lifetime_days' => array(
 				'min' => 1,
@@ -602,7 +626,32 @@ final class Macs_Cookie_Banner {
 				'modern',
 				'premium',
 			),
+			'reopen_compact_shape' => array(
+				'round',
+				'square',
+			),
 		);
+	}
+
+	/**
+	 * Sanitize the optional "compact only after this element" CSS selector
+	 * (v1.2.0, ADR-46). Keeps the characters of ordinary selectors only; the
+	 * value reaches the page as an escaped data attribute and is evaluated by
+	 * document.querySelector() inside try/catch.
+	 *
+	 * @param mixed $raw Raw value.
+	 * @return string
+	 */
+	public static function sanitize_css_selector( $raw ) {
+		if ( ! is_scalar( $raw ) ) {
+			return '';
+		}
+
+		$selector = sanitize_text_field( (string) $raw );
+		$selector = preg_replace( '/[^A-Za-z0-9_\-#.\s>+~\[\]=:"\'(),*^$|]/', '', $selector );
+		$selector = trim( preg_replace( '/\s+/', ' ', $selector ) );
+
+		return substr( $selector, 0, 200 );
 	}
 
 	/**
@@ -682,6 +731,10 @@ final class Macs_Cookie_Banner {
 
 			$sanitized[ $key ] = in_array( $raw, $allowed, true ) ? $raw : $defaults[ $key ];
 		}
+
+		$sanitized['reopen_compact_selector'] = self::sanitize_css_selector(
+			isset( $options['reopen_compact_selector'] ) ? $options['reopen_compact_selector'] : ''
+		);
 
 		return wp_parse_args( $sanitized, $defaults );
 	}
@@ -826,7 +879,7 @@ final class Macs_Cookie_Banner {
 		);
 
 		return sprintf(
-			'--lscc-bg:%1$s;--lscc-text:%2$s;--lscc-primary:%3$s;--lscc-primary-text:%4$s;--lscc-secondary:%5$s;--lscc-border:%6$s;--lscc-overlay-bg:%7$s;--lscc-blur:%8$dpx;--lscc-reopen-ox:%9$dpx;--lscc-reopen-oy:%10$dpx;',
+			'--lscc-bg:%1$s;--lscc-text:%2$s;--lscc-primary:%3$s;--lscc-primary-text:%4$s;--lscc-secondary:%5$s;--lscc-border:%6$s;--lscc-overlay-bg:%7$s;--lscc-blur:%8$dpx;--lscc-reopen-ox:%9$dpx;--lscc-reopen-oy:%10$dpx;--lscc-reopen-size:%11$dpx;',
 			$options['background_color'],
 			$options['text_color'],
 			$options['primary_button_color'],
@@ -836,7 +889,8 @@ final class Macs_Cookie_Banner {
 			$overlay_rgba,
 			(int) $options['blur_strength'],
 			(int) $options['reopen_offset_x'],
-			(int) $options['reopen_offset_y']
+			(int) $options['reopen_offset_y'],
+			(int) $options['reopen_compact_size']
 		);
 	}
 
@@ -1226,8 +1280,21 @@ final class Macs_Cookie_Banner {
 			</div>
 		</div>
 
-		<button type="button" class="lscc-reopen <?php echo esc_attr( $preset_class ); ?>" style="<?php echo esc_attr( $style ); ?>" data-lscc-reopen data-lscc-open-consent-settings aria-controls="lscc-root" data-position="<?php echo esc_attr( $options['reopen_position'] ); ?>" hidden>
-			<?php echo esc_html( $reopen_text ); ?>
+		<?php
+		// v1.2.0 (ADR-46): optional icon + compact-on-scroll. With the feature off
+		// (default on existing installs) the button looks exactly as before: the
+		// icon stays display:none and the label span renders like plain text.
+		$reopen_classes = array( 'lscc-reopen', $preset_class );
+		if ( $options['reopen_show_icon'] ) {
+			$reopen_classes[] = 'lscc-reopen--with-icon';
+		}
+		if ( $options['reopen_compact'] && 'square' === $options['reopen_compact_shape'] ) {
+			$reopen_classes[] = 'lscc-reopen--square';
+		}
+		?>
+		<button type="button" class="<?php echo esc_attr( implode( ' ', $reopen_classes ) ); ?>" style="<?php echo esc_attr( $style ); ?>" data-lscc-reopen data-lscc-open-consent-settings aria-controls="lscc-root" aria-label="<?php echo esc_attr( $reopen_text ); ?>" data-position="<?php echo esc_attr( $options['reopen_position'] ); ?>"<?php if ( $options['reopen_compact'] ) : ?> data-compact="1" data-compact-threshold="<?php echo esc_attr( (string) (int) $options['reopen_compact_threshold'] ); ?>" data-compact-selector="<?php echo esc_attr( $options['reopen_compact_selector'] ); ?>" data-compact-expand="<?php echo $options['reopen_compact_expand'] ? '1' : '0'; ?>"<?php endif; ?> hidden>
+			<svg class="lscc-reopen__icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5Zm-5 7.5a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0Zm5.5 5a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0Zm-5 1.5a1 1 0 1 0 2 0 1 1 0 1 0-2 0Zm4.5-6.5a1 1 0 1 0 2 0 1 1 0 1 0-2 0Z"/></svg>
+			<span class="lscc-reopen__label"><?php echo esc_html( $reopen_text ); ?></span>
 			<span class="lscc-reopen-dismiss" data-lscc-reopen-dismiss role="button" tabindex="-1" aria-label="<?php echo esc_attr__( 'Cookie-Einstellungen-Button ausblenden', 'macs-cookie-banner' ); ?>">&times;</span>
 		</button>
 		<?php

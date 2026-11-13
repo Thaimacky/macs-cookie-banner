@@ -214,24 +214,32 @@
 	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
 }
 
+/* v1.2.0 (ADR-46): public CSS variables for theme CSS (never set by the plugin,
+ * so they can be defined on :root or body): --mcb-reopen-offset-x/-y override
+ * the admin offsets, --mcb-reopen-left/-right switch the side (set the other
+ * side to auto). Without them the values are exactly those of before. */
 .lscc-reopen[data-position="bottom-right"] {
-	right: var(--lscc-reopen-ox);
-	bottom: var(--lscc-reopen-oy);
+	right: var(--mcb-reopen-right, var(--mcb-reopen-offset-x, var(--lscc-reopen-ox)));
+	bottom: var(--mcb-reopen-offset-y, var(--lscc-reopen-oy));
+	left: var(--mcb-reopen-left, auto);
 }
 
 .lscc-reopen[data-position="bottom-left"] {
-	left: var(--lscc-reopen-ox);
-	bottom: var(--lscc-reopen-oy);
+	left: var(--mcb-reopen-left, var(--mcb-reopen-offset-x, var(--lscc-reopen-ox)));
+	bottom: var(--mcb-reopen-offset-y, var(--lscc-reopen-oy));
+	right: var(--mcb-reopen-right, auto);
 }
 
 .lscc-reopen[data-position="top-right"] {
-	right: var(--lscc-reopen-ox);
-	top: var(--lscc-reopen-oy);
+	right: var(--mcb-reopen-right, var(--mcb-reopen-offset-x, var(--lscc-reopen-ox)));
+	top: var(--mcb-reopen-offset-y, var(--lscc-reopen-oy));
+	left: var(--mcb-reopen-left, auto);
 }
 
 .lscc-reopen[data-position="top-left"] {
-	left: var(--lscc-reopen-ox);
-	top: var(--lscc-reopen-oy);
+	left: var(--mcb-reopen-left, var(--mcb-reopen-offset-x, var(--lscc-reopen-ox)));
+	top: var(--mcb-reopen-offset-y, var(--lscc-reopen-oy));
+	right: var(--mcb-reopen-right, auto);
 }
 
 .lscc-overlay {
@@ -604,5 +612,88 @@
 
 	.lscc--preset-premium .lscc__panel {
 		padding: 26px;
+	}
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Reopen button: optional icon + compact on scroll (v1.2.0, ADR-46).
+ * Kept after the presets so the compact state wins over their padding/radius.
+ * Feature off = no extra class = the button renders exactly as before.
+ * ────────────────────────────────────────────────────────────────────────── */
+.lscc-reopen__icon {
+	display: none;
+	flex: 0 0 auto;
+	width: 18px;
+	height: 18px;
+}
+
+.lscc-reopen--with-icon,
+.lscc-reopen--compact {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+}
+
+.lscc-reopen--with-icon .lscc-reopen__icon {
+	display: block;
+}
+
+/* Compact state; "--peek" (hover/keyboard focus on desktop) falls back to the
+ * full preset look. Same colors and shadow as the full button. */
+.lscc-reopen.lscc-reopen--compact:not(.lscc-reopen--peek) {
+	width: var(--mcb-reopen-size, var(--lscc-reopen-size, 48px));
+	height: var(--mcb-reopen-size, var(--lscc-reopen-size, 48px));
+	min-width: 44px;
+	min-height: 44px;
+	padding: 0;
+	border-radius: 50%;
+	gap: 0;
+}
+
+.lscc-reopen--square.lscc-reopen--compact:not(.lscc-reopen--peek) {
+	border-radius: 6px;
+}
+
+/* Expanded on hover: never lower than the compact button, otherwise a pointer
+ * resting on its upper edge would leave it and make it flicker. */
+.lscc-reopen--compact.lscc-reopen--peek {
+	min-height: var(--mcb-reopen-size, var(--lscc-reopen-size, 48px));
+}
+
+.lscc-reopen--compact:not(.lscc-reopen--peek) .lscc-reopen__icon {
+	display: block;
+	width: 24px;
+	height: 24px;
+}
+
+/* Text stays in the accessibility tree (plus aria-label on the button). */
+.lscc-reopen--compact:not(.lscc-reopen--peek) .lscc-reopen__label {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+.lscc-reopen--compact:not(.lscc-reopen--peek) .lscc-reopen-dismiss {
+	display: none;
+}
+
+/* Size morph, ~200 ms. banner.js sets the start/end size inline for the
+ * duration of the class and skips it entirely under reduced motion. */
+.lscc-reopen--morph {
+	overflow: hidden;
+	white-space: nowrap;
+	transition: width 200ms ease, height 200ms ease, border-radius 200ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.lscc-reopen--morph {
+		transition: none;
 	}
 }

@@ -556,6 +556,20 @@ final class Macs_Cookie_Banner_Admin {
 				</div>
 			<?php endif; ?>
 
+			<?php
+			// v1.2.0 (ADR-46, ADR-27 point 3): post-update hint instead of a silent
+			// change. Shown until the settings were saved once with the new key.
+			$mcb_stored = get_option( Macs_Cookie_Banner::OPTION_NAME, array() );
+			?>
+			<?php if ( is_array( $mcb_stored ) && ! empty( $mcb_stored ) && ! array_key_exists( 'reopen_compact', $mcb_stored ) ) : ?>
+				<div class="notice notice-info inline" style="margin:12px 0;padding:10px 12px;">
+					<p style="margin:0;"><strong><?php echo esc_html__( 'Neue Funktion verfügbar:', 'macs-cookie-banner' ); ?></strong>
+						<?php echo esc_html__( 'Der Button «Cookie-Einstellungen» kann sich beim Scrollen zu einem kleinen Cookie-Icon verkleinern. Die bestehende Darstellung bleibt unverändert, bis Sie die Funktion einschalten und speichern.', 'macs-cookie-banner' ); ?>
+						<a href="#mcb-reopen-compact"><?php echo esc_html__( 'Zur Einstellung', 'macs-cookie-banner' ); ?></a>
+					</p>
+				</div>
+			<?php endif; ?>
+
 			<div class="notice notice-info inline" style="margin:12px 0;padding:10px 12px;">
 				<p style="margin:0 0 .5em;"><strong><?php echo esc_html__( 'Sichere Standardwerte', 'macs-cookie-banner' ); ?></strong> &mdash;
 					<?php echo esc_html__( 'Setzt die empfohlenen Datenschutz- und Blockier-Einstellungen (Avada-YouTube-/Code-Block-Maps-Blockierung EIN, Facebook-/Instagram-Social-Embeds EIN, Google-Tracking-Schutz EIN, PixelYourSite-Gating EIN, Remote-Thumbnails AUS, Rechtslinks EIN, Consent-Gültigkeit 180 Tage). Texte, Farben, Design, URLs, Tracking-Snippets, Reopen-Position und die Avada-Sync-Entscheidung bleiben unverändert.', 'macs-cookie-banner' ); ?>
@@ -780,6 +794,45 @@ final class Macs_Cookie_Banner_Admin {
 					
 					<?php self::render_number_field( 'reopen_offset_x', esc_html__( 'Offset X (px)', 'macs-cookie-banner' ), $options['reopen_offset_x'], 0, 200, 1 ); ?>
 					<?php self::render_number_field( 'reopen_offset_y', esc_html__( 'Offset Y (px)', 'macs-cookie-banner' ), $options['reopen_offset_y'], 0, 200, 1 ); ?>
+					<?php self::render_checkbox_field( 'reopen_show_icon', esc_html__( 'Cookie-Icon auch in der vollen Version zeigen', 'macs-cookie-banner' ), $options['reopen_show_icon'] ); ?>
+				</table>
+
+				<h2 id="mcb-reopen-compact"><?php echo esc_html__( 'Floating-Button — beim Scrollen verkleinern', 'macs-cookie-banner' ); ?></h2>
+				<table class="form-table" role="presentation">
+					<?php self::render_checkbox_field( 'reopen_compact', esc_html__( 'Beim Scrollen zum kleinen Cookie-Icon verkleinern', 'macs-cookie-banner' ), $options['reopen_compact'] ); ?>
+					<tr>
+						<td colspan="2">
+							<p class="description" style="margin:0;"><?php echo esc_html__( 'Oben auf der Seite zeigt der Button «Cookie-Einstellungen» die volle Beschriftung. Sobald gescrollt wird (spätestens nach dem ersten Bildschirm), wird er zu einem runden Icon-Button mit denselben Farben; ganz oben erscheint wieder die volle Version. Für Screenreader bleibt die Beschriftung erhalten.', 'macs-cookie-banner' ); ?></p>
+							<?php if ( defined( 'WP_ROCKET_VERSION' ) ) : ?>
+								<p class="description" style="margin:.5em 0 0;"><?php echo esc_html__( 'WP Rocket erkannt: Ist «Unbenutztes CSS entfernen» aktiv, nach dem Einschalten einmal «Used CSS leeren» (WP-Rocket-Menü in der Admin-Leiste). Ohne diesen Schritt bleibt der Button bis zur nächsten Neuberechnung in voller Grösse.', 'macs-cookie-banner' ); ?></p>
+							<?php endif; ?>
+						</td>
+					</tr>
+					<?php self::render_number_field( 'reopen_compact_threshold', esc_html__( 'Verkleinern ab Scrollweite (px)', 'macs-cookie-banner' ), $options['reopen_compact_threshold'], 0, 2000, 10 ); ?>
+					<?php self::render_text_field( 'reopen_compact_selector', esc_html__( 'Erst nach diesem Element verkleinern (CSS-Selektor, optional)', 'macs-cookie-banner' ), $options['reopen_compact_selector'] ); ?>
+					<tr>
+						<td colspan="2">
+							<p class="description" style="margin:0;"><?php echo esc_html__( 'Beispiel: den Hero-Container, etwa .fusion-fullwidth:first-of-type oder #hero. Der Button wird kompakt, sobald dieses Element ganz nach oben aus dem Bild gescrollt ist. Leer lassen oder Element nicht gefunden: es gilt die Scrollweite.', 'macs-cookie-banner' ); ?></p>
+						</td>
+					</tr>
+					<?php
+					self::render_select_field(
+						'reopen_compact_shape',
+						esc_html__( 'Form kompakt', 'macs-cookie-banner' ),
+						$options['reopen_compact_shape'],
+						array(
+							'round'  => esc_html__( 'Rund', 'macs-cookie-banner' ),
+							'square' => esc_html__( 'Quadratisch (Radius 6 px)', 'macs-cookie-banner' ),
+						)
+					);
+					?>
+					<?php self::render_number_field( 'reopen_compact_size', esc_html__( 'Grösse kompakt (px)', 'macs-cookie-banner' ), $options['reopen_compact_size'], 44, 64, 1 ); ?>
+					<?php self::render_checkbox_field( 'reopen_compact_expand', esc_html__( 'Bei Mauszeiger oder Tastaturfokus wieder ausklappen (Desktop)', 'macs-cookie-banner' ), $options['reopen_compact_expand'] ); ?>
+					<tr>
+						<td colspan="2">
+							<p class="description" style="margin:0;"><?php echo esc_html__( 'Konflikt mit einem «Nach oben»-Pfeil (z. B. Avada unten rechts)? Offset Y erhöhen oder Position «Unten links» wählen. Im Theme-CSS lässt sich die Lage auch per CSS-Variablen setzen: --mcb-reopen-offset-x, --mcb-reopen-offset-y, --mcb-reopen-size sowie --mcb-reopen-left / --mcb-reopen-right (Seite wechseln, die andere Seite auf auto).', 'macs-cookie-banner' ); ?></p>
+						</td>
+					</tr>
 				</table>
 
 				<h2><?php echo esc_html__( 'Rechtliche Links', 'macs-cookie-banner' ); ?></h2>

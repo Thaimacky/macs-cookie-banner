@@ -885,6 +885,183 @@
 		setBannerVisible(root, reopenButton, false, false);
 	}
 
+	// v1.2.0 (ADR-46): the reopen button shrinks to a round icon once the visitor
+	// scrolls (default 100 px, at the latest after the first screen, or after an
+	// optional anchor element) and returns to full size at the top. Presentation
+	// only - consent handling is not touched. Opt-in via data-compact="1".
+	function prefersReducedMotion() {
+		try {
+			return Boolean(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+		} catch (error) {
+			return false;
+		}
+	}
+
+	function canHover() {
+		try {
+			return Boolean(window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches);
+		} catch (error) {
+			return false;
+		}
+	}
+
+	function isFocusVisible(element) {
+		try {
+			return element.matches(':focus-visible');
+		} catch (error) {
+			return true;
+		}
+	}
+
+	function initReopenCompact(button) {
+		if (button.getAttribute('data-compact') !== '1' || button.getAttribute('data-position') === 'hidden') {
+			return;
+		}
+
+		var threshold = parseInt(button.getAttribute('data-compact-threshold'), 10);
+		if (isNaN(threshold) || threshold < 0) {
+			threshold = 100;
+		}
+
+		var anchor = null;
+		var selector = button.getAttribute('data-compact-selector') || '';
+		if (selector) {
+			try {
+				anchor = document.querySelector(selector);
+			} catch (error) {
+				anchor = null; // Invalid selector -> scroll distance applies.
+			}
+		}
+
+		var expandable = button.getAttribute('data-compact-expand') === '1';
+		var compact = null;
+		var peek = false;
+		var ticking = false;
+		var morphTimer = 0;
+
+		function shouldCompact() {
+			if (anchor && document.documentElement.contains(anchor)) {
+				return anchor.getBoundingClientRect().bottom <= 0;
+			}
+
+			var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+			var viewport = window.innerHeight || document.documentElement.clientHeight || 0;
+			var limit = viewport > 0 ? Math.min(threshold, viewport) : threshold;
+
+			return y > limit;
+		}
+
+		function clearMorph() {
+			button.classList.remove('lscc-reopen--morph');
+			button.style.width = '';
+			button.style.height = '';
+			button.style.borderRadius = '';
+		}
+
+		// Animate between the current and the new size (FLIP-like): measure,
+		// switch the classes, measure again, pin the START size without a
+		// transition, then enable the transition and set the END size.
+		function morph(change) {
+			window.clearTimeout(morphTimer);
+			clearMorph();
+
+			var from = button.getBoundingClientRect();
+			var fromRadius = window.getComputedStyle(button).borderTopLeftRadius;
+
+			change();
+
+			if (button.hidden || from.width === 0 || prefersReducedMotion()) {
+				return;
+			}
+
+			var to = button.getBoundingClientRect();
+			var toRadius = window.getComputedStyle(button).borderTopLeftRadius;
+			if (Math.round(from.width) === Math.round(to.width) && Math.round(from.height) === Math.round(to.height)) {
+				return;
+			}
+
+			button.style.width = from.width + 'px';
+			button.style.height = from.height + 'px';
+			button.style.borderRadius = fromRadius;
+			void button.offsetWidth; // Commit the start state (no transition yet).
+
+			button.classList.add('lscc-reopen--morph');
+			button.style.width = to.width + 'px';
+			button.style.height = to.height + 'px';
+			button.style.borderRadius = toRadius;
+
+			morphTimer = window.setTimeout(clearMorph, 220);
+		}
+
+		function setPeek(next, animate) {
+			if (next === peek) {
+				return;
+			}
+			peek = next;
+			var change = function () {
+				button.classList.toggle('lscc-reopen--peek', next);
+			};
+			if (animate && compact) {
+				morph(change);
+			} else {
+				change();
+			}
+		}
+
+		function update() {
+			ticking = false;
+			var next = shouldCompact();
+			if (next === compact) {
+				return;
+			}
+			var first = compact === null;
+			compact = next;
+			var change = function () {
+				button.classList.toggle('lscc-reopen--compact', next);
+			};
+			if (first) {
+				change(); // No animation on page load.
+			} else {
+				morph(change);
+			}
+		}
+
+		function requestUpdate() {
+			if (!ticking) {
+				ticking = true;
+				window.requestAnimationFrame(update);
+			}
+		}
+
+		window.addEventListener('scroll', requestUpdate, { passive: true });
+		window.addEventListener('resize', requestUpdate, { passive: true });
+		update();
+
+		if (expandable) {
+			button.addEventListener('mouseenter', function () {
+				if (canHover()) {
+					setPeek(true, true);
+				}
+			});
+			button.addEventListener('mouseleave', function () {
+				setPeek(false, true);
+			});
+			button.addEventListener('focus', function () {
+				if (isFocusVisible(button)) {
+					setPeek(true, true);
+				}
+			});
+			button.addEventListener('blur', function () {
+				setPeek(false, true);
+			});
+		}
+
+		// Opening the banner hides the button; it must come back collapsed.
+		button.addEventListener('click', function () {
+			setPeek(false, false);
+		});
+	}
+
 	function initBanner() {
 		var root = document.querySelector('[data-lscc-root]');
 		var reopenButton = document.querySelector('[data-lscc-reopen]');
@@ -895,6 +1072,10 @@
 			syncMediaComponents();
 			return;
 		}
+
+		// Before the first setBannerVisible(): the button must already have its
+		// correct state when it becomes visible (no full->compact flash).
+		initReopenCompact(reopenButton);
 
 		root.querySelector('[data-lscc-accept-all]').addEventListener('click', function () {
 			saveAndClose(root, reopenButton, createConsent(true));
