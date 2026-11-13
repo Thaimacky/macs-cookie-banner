@@ -186,6 +186,13 @@ Performance:
 
 Der kleine Widerrufsbutton („Cookie-Einstellungen") nach Consent ist über `Position`, `Offset X` und `Offset Y` konfigurierbar. Vier Positionen stehen zur Wahl: `bottom-right`, `bottom-left`, `top-right`, `top-left`. Damit kollidiert der Button nicht zwangsläufig mit Chat- oder WhatsApp-Widgets unten rechts. Die Positionierung läuft rein über CSS-Klassen und CSS-Variablen — kein JS-Reposition-Loop.
 
+**Kompakt beim Scrollen (ab v1.2.0):** Unter «Floating-Button — beim Scrollen verkleinern» lässt sich einstellen, dass der Button beim Scrollen zu einem runden Cookie-Icon (48×48 px) wird und ganz oben wieder die volle Beschriftung zeigt. Einstellbar sind Scrollweite (Standard 100 px, spätestens nach dem ersten Bildschirm), optional ein Element, nach dem verkleinert wird (CSS-Selektor), Form, Grösse und Ausklappen bei Mauszeiger/Tastaturfokus. Auf bestehenden Websites ist die Funktion nach dem Update aus, bei Neuinstallationen an. Für Theme-CSS gibt es die Variablen `--mcb-reopen-offset-x`, `--mcb-reopen-offset-y`, `--mcb-reopen-size` und `--mcb-reopen-left` / `--mcb-reopen-right`, zum Beispiel:
+
+```css
+/* Avada: Button über den «Nach oben»-Pfeil (unten rechts 12 px, 34×34 px) setzen */
+:root { --mcb-reopen-offset-y: 58px; }
+```
+
 ## Rechtliche Links im Banner
 
 Im Banner können optional Links zu Datenschutz und Impressum angezeigt werden.

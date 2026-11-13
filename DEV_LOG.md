@@ -1,5 +1,21 @@
 # DEV LOG
 
+## 1.2.0 - 2026-11-14 (Reopen-Button kompakt beim Scrollen, ADR-46)
+
+**Auslöser:** Auftrag Marcel; auf einer Avada-Site lag der «Nach oben»-Pfeil unter dem Button «Cookie-Einstellungen». Desktop-Stand vor Beginn geprüft: lokal = GitHub (`cb5d986`, 0/0), Arbeitsbaum sauber, neuestes Release 1.1.1.
+
+**Regelprüfung (CLAUDE.md):** ADR-27 verlangt für Darstellungsänderungen Bestand unverändert + Opt-in + Hinweis → `reopen_compact` im Bestand aus, bei Neuinstallation an, Hinweis auf der Einstellungsseite. Zwei-Phasen-Release: Phase 1, kein Tag/Release ohne Freigabe.
+
+**Umgesetzt:** siehe ADR-46 (`banner.js::initReopenCompact()`, CSS-Kompaktzustand + öffentliche Variablen, Icon/Label/`aria-label` im Markup, sieben Optionen, Admin-Abschnitt + Hinweis, RUCSS-Safelist in `wp-rocket-compat.php`, Version 1.2.0).
+
+**Befunde während der Tests:**
+- Erster Übergang lief nicht: Der Startwert wurde gesetzt, nachdem der Browser den Kompaktzustand schon berechnet hatte (48 → 175 → 48 in einem Frame). Korrigiert: Startgrösse ohne Transition festsetzen, dann Transition einschalten (FLIP); Radius mit animiert. Test prüft jetzt Zwischengrössen in beide Richtungen.
+- Mögliches Flackern beim Hover (voller Button 42 px, kompakter 48 px hoch): Im ausgeklappten Zustand Mindesthöhe = Kompaktgrösse.
+- WP Rocket «Unbenutztes CSS entfernen» behält nur Klassen aus dem HTML → Safelist-Filter (im Quellcode belegt). «Used CSS» wird bei Plugin-Updates nicht geleert (WP-Rocket-Doku) → Hinweis in den Einstellungen.
+- Testumgebung: Port 8765/8766 waren von fremden lokalen Python-Servern belegt (nicht angefasst); Tests auf eigenen Ports.
+
+**Validierung:** 28 + 4 PHP-Prüfungen, 43 Browserprüfungen (dreimal grün, Desktop + Mobil), Pixelvergleich Funktion aus vs. 1.1.1 = 0 abweichende Pixel, Consent-Regression 8 Schritte Desktop + Mobil, WP-Rocket-Pipeline grün.
+
 ## 1.1.1 - Release-Status (2026-11-10)
 
 **Auf ausdrücklichen Auftrag von Marcel direkt veröffentlicht** („Release wie gewohnt als GitHub-Release“). Tag `1.1.1` (annotiert, Objekt `a782e8f`) auf Commit `3eb6b53`, Remote mit URL `macs-cookie-banner.git`, ahead/behind 0/0. GitHub-Release `1.1.1` veröffentlicht (kein Draft, kein Pre-Release, 2026-11-09T23:54:39Z), genau ein Asset `macs-cookie-banner.zip`, 315'772 Bytes, 148 Dateien, SHA-256 `0D187A59275DDB4B418D642BA723C165A5C0ECA971A060C989282DC99434F165`. Identisch mit `macs-cookie-banner-v1.1.1-test.zip` und dem öffentlich heruntergeladenen Asset. `/releases/latest` = `1.1.1`. Inhalt = Inhalt 1.1.0 ohne die 24 Entwickler-Dateien; einzige geänderte Laufzeit-Datei ist `macs-cookie-banner.php` (Versionsnummer).

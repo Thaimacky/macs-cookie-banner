@@ -8,6 +8,35 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 1.2.0 - 2026-11-14
+
+**Neu: Der Button «Cookie-Einstellungen» wird beim Scrollen zum kleinen Cookie-Icon (ADR-46).** Oben auf der Seite zeigt er wie bisher die volle Beschriftung. Sobald gescrollt wird, wird er zu einem runden Icon-Button und nimmt kaum noch Platz ein; ganz oben erscheint wieder die volle Version.
+
+### Added
+
+- **Kompaktmodus:** ab 100 px Scrollweite (einstellbar, spätestens nach dem ersten Bildschirm) oder erst nachdem ein bestimmtes Element (CSS-Selektor, z. B. der Hero-Container) ganz aus dem Bild gescrollt ist. Kompakt: 48×48 px rund (wahlweise quadratisch mit Radius 6 px, Grösse 44–64 px), Cookie-Icon als Inline-SVG in der Textfarbe, gleiche Farben und gleicher Schatten wie die volle Version.
+- **Barrierefreiheit:** Die Beschriftung ist im kompakten Zustand nur visuell versteckt; der Button trägt immer das `aria-label` mit der übersetzten Beschriftung (DE «Cookie-Einstellungen», EN «Cookie settings», FR «Paramètres des cookies»). Das × ist im kompakten Zustand ausgeblendet. Klickfläche mindestens 44×44 px, Fokus sichtbar. Mit der Maus (Desktop) oder per Tastaturfokus klappt der Button wieder zur vollen Beschriftung auf (abschaltbar).
+- **Übergang** ca. 200 ms; bei «Bewegung reduzieren» im Betriebssystem ohne Animation. Passiver Scroll-Listener mit `requestAnimationFrame`, kein Framework.
+- **Option «Cookie-Icon auch in der vollen Version zeigen».**
+- **CSS-Variablen fürs Theme-CSS**, z. B. gegen Konflikte mit einem «Nach oben»-Pfeil: `--mcb-reopen-offset-x`, `--mcb-reopen-offset-y`, `--mcb-reopen-size`, `--mcb-reopen-left` / `--mcb-reopen-right` (Seite wechseln, die andere auf `auto`). Beispiel Avada (Pfeil unten rechts 12 px, 34×34 px): Offset Y 58 px.
+- **WP Rocket «Unbenutztes CSS entfernen»:** Die Zustandsklassen, die erst das JavaScript setzt, stehen in der Safelist (`rocket_rucss_safelist`).
+
+### Wichtig
+
+- **Bestehende Websites:** Die Funktion bleibt nach dem Update **aus** (ADR-27). Die Einstellungsseite zeigt «Neue Funktion verfügbar»; einschalten unter «Floating-Button — beim Scrollen verkleinern». **Neuinstallationen:** an.
+- Mit ausgeschalteter Funktion ist der Button pixelgleich zu 1.1.1. Neu ist nur das `aria-label`.
+- Auf Websites mit WP Rocket «Unbenutztes CSS entfernen» nach dem Einschalten einmal «Used CSS leeren», sonst bleibt der Button bis zur nächsten Neuberechnung in voller Grösse.
+- Update und Speichern leeren den Seiten-Cache wie bisher (ADR-43).
+
+### Unverändert
+
+- Consent-Logik, Tracking-Schutz, Widerruf, `MCB_CONSENT_VERSION`, Delay-JS-Ausschluss (ADR-41).
+- Version 1.1.1 → **1.2.0** (neues Feature → MINOR).
+
+### Rückweg
+
+- Release-ZIP 1.1.1 installieren (Hochladen, «Ersetzen») und Cache leeren. Die neuen Optionen bleiben gespeichert und werden von 1.1.1 ignoriert.
+
 ## 1.1.1 - 2026-11-10
 
 **Sicherheitskorrektur: Das Plugin-ZIP enthält nur noch Dateien, die das Plugin zur Laufzeit braucht (ADR-45).** Bis einschliesslich 1.1.0 enthielt das ZIP auch die Entwickler-Dateien des Projekts (Projekt-Doku `*.md`, `.gitignore`/`.gitattributes`, `tools/`, `composer.json` von plugin-update-checker). Diese lagen auf den Websites öffentlich abrufbar im Plugin-Ordner. WordPress ersetzt beim Update den ganzen Plugin-Ordner, deshalb verschwinden die Dateien mit dem Update auf 1.1.1 von den Servern.

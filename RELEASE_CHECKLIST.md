@@ -12,6 +12,23 @@ Der Plugin-Ordner ist auf jeder Website öffentlich per URL abrufbar. Ins ZIP ge
 
 **Status v1.1.1:** Release veröffentlicht und API-verifiziert (2026-11-10, Asset SHA-256 `0D187A59…4F165`, 148 Dateien, identisch mit dem Test-ZIP). Nach dem Update je Site prüfen: `/wp-content/plugins/macs-cookie-banner/DEV_LOG.md` liefert 404. Positivliste und harte Prüfung umgesetzt; Negativtest bestanden (Filter abgeschaltet → 24 Verstösse, ZIP gelöscht). Inhalt 1.1.1 = Inhalt 1.1.0 ohne die 24 Entwickler-Dateien.
 
+## Reopen-Button kompakt beim Scrollen (ab v1.2.0, ADR-46)
+
+**Status: Phase 1 — Produktions-ZIP bereit zum Test. Kein Tag, kein Release.**
+
+**Lokal verifiziert (Agent, 2026-11-14):**
+- [x] PHP-Lint; 28 PHP-Prüfungen + 4 RUCSS-Safelist-Prüfungen.
+- [x] 43 Browserprüfungen Desktop + Mobil (dreimal grün), u. a. Funktion aus = pixelgleich zu 1.1.1.
+- [x] Consent-Regression 8 Schritte Desktop + Mobil, WP-Rocket-Pipeline grün.
+
+**Live (Staging, nach Installation):**
+- [ ] Nach dem Update: Button unverändert (Funktion aus), Hinweis «Neue Funktion verfügbar» auf der Einstellungsseite.
+- [ ] Einschalten → oben volle Version, nach ca. 100 px rundes Cookie-Icon, ganz oben wieder voll; Desktop und Handy.
+- [ ] Desktop: Mauszeiger und Tab-Taste klappen den Button aus; Klick/Tippen öffnet die Einstellungen.
+- [ ] Avada: Kein Überlappen mit dem «Nach oben»-Pfeil (sonst Offset Y z. B. 58 px oder Position unten links).
+- [ ] WP Rocket mit «Unbenutztes CSS entfernen»: «Used CSS leeren», danach Kompaktzustand korrekt.
+- [ ] Consent-Test unverändert (vor Zustimmung kein Tracking).
+
 ## Offenlegung Infrastruktur-Dienste (ab v1.1.0, ADR-44)
 
 **Status: Release 1.1.0 veröffentlicht und API-verifiziert (2026-11-10, Asset SHA-256 `E5A5B905…19592`, identisch mit dem Test-ZIP). Live-Test auf der Staging-Site steht aus — kein Vollrollout vor bestandenem Test.**
