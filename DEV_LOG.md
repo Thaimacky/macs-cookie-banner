@@ -1,5 +1,11 @@
 # DEV LOG
 
+## 1.2.0 - Release-Status (2026-11-14)
+
+**Phase 2 auf ausdrückliche Freigabe von Marcel** («RELEASE-FREIGABE – v1.2.0», Test-ZIP-SHA `CCEE1F04…7E60`). Vorab geprüft: Arbeitsbaum sauber, `main` = Remote mit URL `macs-cookie-banner.git` = `b3763bb` (0/0), kein Tag 1.2.0 vorhanden, keine Änderung seit dem Test-Build. Produktions-ZIP (`-Kind release`) aus `b3763bb` byte-identisch mit `macs-cookie-banner-v1.2.0-test.zip` (Inhaltsprüfung bestanden, 148 Dateien, Header und `MCB_VERSION` = 1.2.0). Tag `1.2.0` (annotiert, Objekt `ac535da`) auf `b3763bb`, gepusht. GitHub-Release `1.2.0` veröffentlicht (kein Draft, kein Pre-Release, 2026-11-13T23:03:27Z), genau ein Asset `macs-cookie-banner.zip`, 320'612 Bytes, SHA-256 `CCEE1F0416A3CAE83C02DC9FC83BD41F373CF30889BC878B7EB3742A7F2C7E60` — identisch mit dem öffentlich heruntergeladenen Asset. `/releases/latest` = `1.2.0`. PUC 5.6: liest `/releases/latest`, Version aus `tag_name` (1.2.0 > 1.1.1), `enableReleaseAssets()` ohne Filter → einziges Asset per `browser_download_url` (öffentliches Repo) → Update wird angeboten.
+
+**Offen (Pflicht-Gate vor Vollrollout):** Update-Test auf einer Testseite mit der Vorversion (Update gefunden, läuft fehlerfrei, Plugin aktiv, Einstellungen erhalten, keine PHP-/JS-Fehler, Button unverändert, Hinweis «Neue Funktion verfügbar»). Die Funktion bleibt im Bestand aus (ADR-27). Keine Live-Website aktualisiert.
+
 ## 1.2.0 - 2026-11-14 (Reopen-Button kompakt beim Scrollen, ADR-46)
 
 **Auslöser:** Auftrag Marcel; auf einer Avada-Site lag der «Nach oben»-Pfeil unter dem Button «Cookie-Einstellungen». Desktop-Stand vor Beginn geprüft: lokal = GitHub (`cb5d986`, 0/0), Arbeitsbaum sauber, neuestes Release 1.1.1.

@@ -14,7 +14,7 @@ Der Plugin-Ordner ist auf jeder Website öffentlich per URL abrufbar. Ins ZIP ge
 
 ## Reopen-Button kompakt beim Scrollen (ab v1.2.0, ADR-46)
 
-**Status: Phase 1 — Produktions-ZIP bereit zum Test. Kein Tag, kein Release.**
+**Status: Release 1.2.0 veröffentlicht und API-verifiziert (2026-11-14, Asset SHA-256 `CCEE1F04…7E60`, byte-identisch zum freigegebenen Test-ZIP, `/releases/latest` = 1.2.0). Update-Test auf einer Testseite steht aus — kein Vollrollout vor bestandenem Test.**
 
 **Lokal verifiziert (Agent, 2026-11-14):**
 - [x] PHP-Lint; 28 PHP-Prüfungen + 4 RUCSS-Safelist-Prüfungen.
