@@ -12,6 +12,23 @@ Der Plugin-Ordner ist auf jeder Website öffentlich per URL abrufbar. Ins ZIP ge
 
 **Status v1.1.1:** Release veröffentlicht und API-verifiziert (2026-11-10, Asset SHA-256 `0D187A59…4F165`, 148 Dateien, identisch mit dem Test-ZIP). Nach dem Update je Site prüfen: `/wp-content/plugins/macs-cookie-banner/DEV_LOG.md` liefert 404. Positivliste und harte Prüfung umgesetzt; Negativtest bestanden (Filter abgeschaltet → 24 Verstösse, ZIP gelöscht). Inhalt 1.1.1 = Inhalt 1.1.0 ohne die 24 Entwickler-Dateien.
 
+## Floating-Button: drei Darstellungsvarianten (ab v1.2.1, ADR-47)
+
+**Status: Phase 1 — Produktions-ZIP bereit zum Test. Kein Tag, kein Release.**
+
+**Lokal verifiziert (Agent, 2026-11-14):**
+- [x] 31 + 28 + 4 PHP-Prüfungen (Migrationsmatrix, Idempotenz, Formular, Markup, `aria-label`, Safelist).
+- [x] 54 Browserprüfungen Desktop + Mobil (dreimal grün) + 43 aus 1.2.0; Bestand pixelgleich zu 1.1.1.
+- [x] Consent-Regression 8 Schritte Desktop + Mobil (altes und neues Markup), WP-Rocket-Pipeline.
+
+**Live (Staging, nach Installation):**
+- [ ] Nach dem Update: Button unverändert; Hinweis nennt die bisherige Darstellung («Immer vollständig anzeigen» bzw. bei 1.2.0 mit Verkleinerung «Beim Verlassen des Hero-Bereichs verkleinern»).
+- [ ] «Nur Cookie-Symbol»: Icon von Anfang an, Desktop + Handy, kein Aufklappen; Klick/Tippen/Tastatur öffnen die Einstellungen.
+- [ ] «Beim Verlassen des Hero-Bereichs verkleinern»: Wechsel an der Hero-Unterkante (Avada: erster Container im Inhalt), zurück im Hero wieder voll.
+- [ ] Kein Überlappen mit dem Avada-«Nach oben»-Pfeil (sonst Offset Y erhöhen, z. B. 58 px, oder Position unten links).
+- [ ] WP Rocket mit «Unbenutztes CSS entfernen»: nach Variantenwechsel «Used CSS leeren».
+- [ ] Consent-Test unverändert.
+
 ## Reopen-Button kompakt beim Scrollen (ab v1.2.0, ADR-46)
 
 **Status: Release 1.2.0 veröffentlicht und API-verifiziert (2026-11-14, Asset SHA-256 `CCEE1F04…7E60`, byte-identisch zum freigegebenen Test-ZIP, `/releases/latest` = 1.2.0). Update-Test auf einer Testseite steht aus — kein Vollrollout vor bestandenem Test.**

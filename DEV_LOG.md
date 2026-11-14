@@ -1,5 +1,17 @@
 # DEV LOG
 
+## 1.2.1 - 2026-11-14 (drei Darstellungsvarianten Floating-Button, ADR-47)
+
+**Auslöser:** Auftrag Marcel: «Nur Cookie-Symbol» (neuer Standard für Neuinstallationen), «Immer vollständig», «Beim Verlassen des Hero-Bereichs verkleinern»; bestehende Websites unverändert. Stand vor Beginn: lokal = GitHub (`0e02772`, 0/0), Release 1.2.0 aktuell.
+
+**Analyse echter Avada-Seiten (drei Kundensites, gespeicherte HTML-Proben):** `fusion-builder-row-1` steckt teils in der Header-Zeile → als Hero-Merkmal ungeeignet; Hero = erster Container in `#main .post-content` (row-1/row-2/row-4); `#sliders-container` leer; «Nach oben»-Pfeil je Site anders positioniert (`--totop_spacing_side:75px`, `--totop_spacing_bottom:30px` auf einer Site, 12 px auf der Staging-Site) → keine automatische Ausweichlogik.
+
+**Umgesetzt:** siehe ADR-47 (`reopen_style`, `reopen_hero_auto`, Ableitung in `sanitize_options()`, Icon serverseitig, `resolveHero()`/`detectHero()`, Admin-Auswahl mit `data-mcb-style`, Hinweis nach Update, Safelist-Ergänzung, Version 1.2.1).
+
+**Befunde während der Tests:** keine Fehler im Plugin. Testskript-Korrekturen: 1.1.1-Vergleichsseite hat kein Label-Element (Abfrage robust gemacht), Screenshot-Ausschnitt der Einstellungsseite ausserhalb des Viewports (ganzseitig), Safelist-Test zählte fest 4 Einträge. Info: Avada-Pfeil 12 px/34×34 überlappt das Icon bei Standardabstand 24/24; mit Offset Y 58 frei.
+
+**Validierung:** 31 + 28 + 4 PHP-Prüfungen, 54 + 43 Browserprüfungen, Consent-Regression 8 Schritte Desktop + Mobil (altes und neues Markup), WP-Rocket-Pipeline – alles grün.
+
 ## 1.2.0 - Release-Status (2026-11-14)
 
 **Phase 2 auf ausdrückliche Freigabe von Marcel** («RELEASE-FREIGABE – v1.2.0», Test-ZIP-SHA `CCEE1F04…7E60`). Vorab geprüft: Arbeitsbaum sauber, `main` = Remote mit URL `macs-cookie-banner.git` = `b3763bb` (0/0), kein Tag 1.2.0 vorhanden, keine Änderung seit dem Test-Build. Produktions-ZIP (`-Kind release`) aus `b3763bb` byte-identisch mit `macs-cookie-banner-v1.2.0-test.zip` (Inhaltsprüfung bestanden, 148 Dateien, Header und `MCB_VERSION` = 1.2.0). Tag `1.2.0` (annotiert, Objekt `ac535da`) auf `b3763bb`, gepusht. GitHub-Release `1.2.0` veröffentlicht (kein Draft, kein Pre-Release, 2026-11-13T23:03:27Z), genau ein Asset `macs-cookie-banner.zip`, 320'612 Bytes, SHA-256 `CCEE1F0416A3CAE83C02DC9FC83BD41F373CF30889BC878B7EB3742A7F2C7E60` — identisch mit dem öffentlich heruntergeladenen Asset. `/releases/latest` = `1.2.0`. PUC 5.6: liest `/releases/latest`, Version aus `tag_name` (1.2.0 > 1.1.1), `enableReleaseAssets()` ohne Filter → einziges Asset per `browser_download_url` (öffentliches Repo) → Update wird angeboten.

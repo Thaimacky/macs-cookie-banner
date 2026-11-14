@@ -8,6 +8,43 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 1.2.1 - 2026-11-14
+
+**Drei Darstellungsvarianten für den Floating-Button (ADR-47).** Statt der einzelnen Verkleinerungs-Optionen aus 1.2.0 gibt es eine Auswahl «Darstellung des Floating-Buttons»:
+
+- **Nur Cookie-Symbol (Standard für Neuinstallationen):** von Anfang an ein rundes Cookie-Icon (48×48 px) ohne Text, unabhängig von der Scrollposition. Klappt bei Mauszeiger oder Tastaturfokus nicht auf. Form, Grösse, Farben, Position und Schatten wie eingestellt.
+- **Immer vollständig anzeigen:** der bisherige Button mit Beschriftung, ohne Verkleinerung.
+- **Beim Verlassen des Hero-Bereichs verkleinern:** zu Beginn voll, nach dem Hero als Icon, beim Zurückscrollen wieder voll (Übergang wie 1.2.0, Aufklappen bei Maus/Tastatur abschaltbar). Der Hero wird so bestimmt: 1. Hero-Selektor aus den Einstellungen, 2. automatische Erkennung (`[data-mcb-hero]`, `#hero`, `.hero`, Avada-Slider, Avada-Seitentitel, erster Avada-Container im Inhalt `#main .post-content > .fusion-fullwidth`, Gutenberg-Cover), nur wenn das Element im ersten Bildschirm beginnt und 120 px bis 1,5 Bildschirme hoch ist, 3. ohne Hero: Scrollweite (Standard 100 px, spätestens nach dem ersten Bildschirm).
+
+Die Einstellungsseite zeigt unter der Auswahl nur die Zusatzoptionen der gewählten Variante. Barrierefreiheit in allen Varianten über `aria-label` (DE «Cookie-Einstellungen», EN «Cookie settings», FR «Paramètres des cookies»).
+
+### Bestehende Websites (Migration)
+
+Beim Update wird nichts in die Datenbank geschrieben; die Darstellung wird beim Lesen aus den bisherigen Einstellungen abgeleitet. Erst Speichern legt die neue Option ab.
+
+| Stand vor dem Update | Darstellung ab 1.2.1 | Verhalten |
+|---|---|---|
+| 1.1.x oder älter (Option nie gespeichert) | Immer vollständig | unverändert, pixelgleich zu 1.1.1 |
+| 1.2.0, Verkleinerung aus | Immer vollständig | unverändert |
+| 1.2.0, Verkleinerung an | Beim Verlassen des Hero-Bereichs verkleinern | wie 1.2.0: Selektor, Scrollweite, Form, Grösse, Ausklappen und Icon übernommen; automatische Hero-Erkennung **aus** (gab es in 1.2.0 nicht) |
+| Neuinstallation 1.2.0 (Verkleinerung an geseedet) | Beim Verlassen des Hero-Bereichs verkleinern | wie 1.2.0 (s. o.) |
+| Neuinstallation ab 1.2.1 | Nur Cookie-Symbol | neuer Standard |
+
+Die Einstellungsseite zeigt einen Hinweis mit der unveränderten Darstellung, bis einmal gespeichert wurde.
+
+### Weitere Änderungen
+
+- WP Rocket «Unbenutztes CSS entfernen»: zusätzlich `lscc-reopen--square` und `lscc-reopen--with-icon` in der Safelist. Nach einem Wechsel der Darstellung einmal «Used CSS leeren» (Hinweis in den Einstellungen).
+- Version 1.2.0 → **1.2.1** (wie beauftragt; nach VERSIONING.md wäre eine neue Einstellung eine MINOR-Version).
+
+### Unverändert
+
+- Consent-Logik, Tracking-Schutz, Widerruf, `MCB_CONSENT_VERSION`, Delay-JS-Ausschluss.
+
+### Rückweg
+
+- Release-ZIP 1.2.0 installieren (Hochladen, «Ersetzen»). Die Option `reopen_compact` wird mitgeführt: «Nur Cookie-Symbol» und «Hero» erscheinen in 1.2.0 als «beim Scrollen verkleinern», «Immer vollständig» als volle Version.
+
 ## 1.2.0 - 2026-11-14
 
 **Neu: Der Button «Cookie-Einstellungen» wird beim Scrollen zum kleinen Cookie-Icon (ADR-46).** Oben auf der Seite zeigt er wie bisher die volle Beschriftung. Sobald gescrollt wird, wird er zu einem runden Icon-Button und nimmt kaum noch Platz ein; ganz oben erscheint wieder die volle Version.
