@@ -557,7 +557,7 @@ final class Macs_Cookie_Banner_Admin {
 			<?php endif; ?>
 
 			<?php
-			// v1.2.0 (ADR-46) / v1.2.1 (ADR-47), ADR-27 point 3: post-update hint
+			// v1.2.0 (ADR-46) / v1.3.0 (ADR-47), ADR-27 point 3: post-update hint
 			// instead of a silent change. Shown until the settings were saved once
 			// with the new key; names the variant the site keeps showing.
 			$mcb_stored = get_option( Macs_Cookie_Banner::OPTION_NAME, array() );
@@ -816,7 +816,7 @@ final class Macs_Cookie_Banner_Admin {
 					</tr>
 				</table>
 
-				<?php // v1.2.1 (ADR-47): one choice instead of separate compact options; rows carry data-mcb-style and are shown only for the selected variant. ?>
+				<?php // v1.3.0 (ADR-47): one choice instead of separate compact options; rows carry data-mcb-style and are shown only for the selected variant. ?>
 				<h2 id="mcb-reopen-style"><?php echo esc_html__( 'Floating-Button — Darstellung', 'macs-cookie-banner' ); ?></h2>
 				<table class="form-table" role="presentation">
 					<?php
@@ -1013,7 +1013,7 @@ final class Macs_Cookie_Banner_Admin {
 	}
 
 	/**
-	 * Print the data-mcb-style attribute of a settings row (v1.2.1, ADR-47).
+	 * Print the data-mcb-style attribute of a settings row (v1.3.0, ADR-47).
 	 * Rows with a scope are shown only for the selected reopen display variant;
 	 * hidden rows are still submitted, so no value is lost.
 	 *
@@ -1032,7 +1032,7 @@ final class Macs_Cookie_Banner_Admin {
 	 * @param string $key   Option key.
 	 * @param string $label Field label.
 	 * @param string $value Field value.
-	 * @param string $scope Optional display variants the row belongs to (v1.2.1).
+	 * @param string $scope Optional display variants the row belongs to (v1.3.0).
 	 * @return void
 	 */
 	private static function render_text_field( $key, $label, $value, $scope = '' ) {
@@ -1089,7 +1089,7 @@ final class Macs_Cookie_Banner_Admin {
 	 * @param string $key   Option key.
 	 * @param string $label Field label.
 	 * @param bool   $value Field value.
-	 * @param string $scope Optional display variants the row belongs to (v1.2.1).
+	 * @param string $scope Optional display variants the row belongs to (v1.3.0).
 	 * @return void
 	 */
 	private static function render_checkbox_field( $key, $label, $value, $scope = '' ) {
@@ -1120,7 +1120,7 @@ final class Macs_Cookie_Banner_Admin {
 	 * @param int|float $min   Minimum.
 	 * @param int|float $max   Maximum.
 	 * @param int|float $step  Step.
-	 * @param string    $scope Optional display variants the row belongs to (v1.2.1).
+	 * @param string    $scope Optional display variants the row belongs to (v1.3.0).
 	 * @return void
 	 */
 	private static function render_number_field( $key, $label, $value, $min, $max, $step, $scope = '' ) {
@@ -1152,7 +1152,7 @@ final class Macs_Cookie_Banner_Admin {
 	 * @param string $label   Field label.
 	 * @param string $value   Current value.
 	 * @param array  $choices Map of value => human label.
-	 * @param string $scope   Optional display variants the row belongs to (v1.2.1).
+	 * @param string $scope   Optional display variants the row belongs to (v1.3.0).
 	 * @return void
 	 */
 	private static function render_select_field( $key, $label, $value, $choices, $scope = '' ) {

@@ -927,7 +927,7 @@
 		var autoDetect = button.getAttribute('data-compact-auto') === '1';
 		var anchor = resolveHero();
 
-		// v1.2.1 (ADR-47): hero = the configured selector; otherwise (if enabled)
+		// v1.3.0 (ADR-47): hero = the configured selector; otherwise (if enabled)
 		// the first documented candidate that looks like a hero; otherwise none,
 		// and the scroll distance applies (default 100 px, at the latest after
 		// the first screen) - the 1.2.0 behaviour.

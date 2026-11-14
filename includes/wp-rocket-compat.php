@@ -57,7 +57,7 @@ final class Macs_Cookie_Banner_Wp_Rocket_Compat {
 		'(.*).lscc-reopen--compact(.*)',
 		'(.*).lscc-reopen--peek(.*)',
 		'(.*).lscc-reopen--morph(.*)',
-		// v1.2.1 (ADR-47): variant classes rendered server-side; safelisted so a
+		// v1.3.0 (ADR-47): variant classes rendered server-side; safelisted so a
 		// Used CSS computed before switching the variant still contains them.
 		'(.*).lscc-reopen--square(.*)',
 		'(.*).lscc-reopen--with-icon(.*)',

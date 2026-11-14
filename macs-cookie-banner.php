@@ -3,7 +3,7 @@
  * Plugin Name: Mac's Cookie Banner
  * Plugin URI:  https://github.com/Thaimacky/macs-cookie-banner
  * Description: Lightweight cookie consent banner with script blocking for WordPress.
- * Version:     1.2.1
+ * Version:     1.3.0
  * Author:      Mac's Cookie Banner
  * Text Domain: macs-cookie-banner
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MCB_VERSION', '1.2.1' );
+define( 'MCB_VERSION', '1.3.0' );
 
 /**
  * Consent schema version. Bump this whenever the stored consent shape
@@ -179,8 +179,8 @@ final class Macs_Cookie_Banner {
 			'reopen_compact_size'      => 48,
 			'reopen_compact_expand'    => true,
 			'reopen_show_icon'         => false,
-			// v1.2.1 (ADR-47): display variant icon | full | hero. When the key is
-			// missing (installs before 1.2.1) sanitize_options() derives it from
+			// v1.3.0 (ADR-47): display variant icon | full | hero. When the key is
+			// missing (installs before 1.3.0) sanitize_options() derives it from
 			// the 1.2.0 setting reopen_compact, so an update never changes the look.
 			'reopen_style'             => 'full',
 			'reopen_hero_auto'         => true,
@@ -224,7 +224,7 @@ final class Macs_Cookie_Banner {
 			'youtube_remote_thumbnails' => false,
 			// Consent lifetime baseline.
 			'consent_lifetime_days'     => 180,
-			// v1.2.0 (ADR-46) / v1.2.1 (ADR-47): fresh installs only - the
+			// v1.2.0 (ADR-46) / v1.3.0 (ADR-47): fresh installs only - the
 			// reopen button is a cookie icon from the start. Not part of the
 			// restore keys (presentation, not privacy).
 			'reopen_compact'            => true,
@@ -556,7 +556,7 @@ final class Macs_Cookie_Banner {
 	}
 
 	/**
-	 * Allowed display variants of the reopen button (v1.2.1, ADR-47).
+	 * Allowed display variants of the reopen button (v1.3.0, ADR-47).
 	 *
 	 * @return array
 	 */
@@ -753,7 +753,7 @@ final class Macs_Cookie_Banner {
 			isset( $options['reopen_compact_selector'] ) ? $options['reopen_compact_selector'] : ''
 		);
 
-		// v1.2.1 (ADR-47): display variant. Installs from before 1.2.1 have no
+		// v1.3.0 (ADR-47): display variant. Installs from before 1.3.0 have no
 		// reopen_style yet; derive it from the 1.2.0 checkbox (read-time only, no
 		// database write): compact on -> "hero" with the 1.2.0 behaviour (own
 		// selector, else scroll distance - no automatic hero detection, which
@@ -1322,7 +1322,7 @@ final class Macs_Cookie_Banner {
 		// v1.2.0 (ADR-46): optional icon + compact-on-scroll. With the feature off
 		// (default on existing installs) the button looks exactly as before: the
 		// icon stays display:none and the label span renders like plain text.
-		// v1.2.1 (ADR-47): three variants. "icon" is compact server-side from the
+		// v1.3.0 (ADR-47): three variants. "icon" is compact server-side from the
 		// start (no JS, no scroll listener, no expanding); "full" is the button
 		// as before; "hero" is the 1.2.0 scroll behaviour, driven by banner.js.
 		$reopen_variant = $options['reopen_style'];
