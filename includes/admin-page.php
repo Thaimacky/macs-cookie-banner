@@ -557,15 +557,30 @@ final class Macs_Cookie_Banner_Admin {
 			<?php endif; ?>
 
 			<?php
-			// v1.2.0 (ADR-46, ADR-27 point 3): post-update hint instead of a silent
-			// change. Shown until the settings were saved once with the new key.
+			// v1.2.0 (ADR-46) / v1.2.1 (ADR-47), ADR-27 point 3: post-update hint
+			// instead of a silent change. Shown until the settings were saved once
+			// with the new key; names the variant the site keeps showing.
 			$mcb_stored = get_option( Macs_Cookie_Banner::OPTION_NAME, array() );
+			$mcb_style_names = array(
+				'icon' => __( 'Nur Cookie-Symbol', 'macs-cookie-banner' ),
+				'full' => __( 'Immer vollständig anzeigen', 'macs-cookie-banner' ),
+				'hero' => __( 'Beim Verlassen des Hero-Bereichs verkleinern', 'macs-cookie-banner' ),
+			);
 			?>
-			<?php if ( is_array( $mcb_stored ) && ! empty( $mcb_stored ) && ! array_key_exists( 'reopen_compact', $mcb_stored ) ) : ?>
+			<?php if ( is_array( $mcb_stored ) && ! empty( $mcb_stored ) && ! array_key_exists( 'reopen_style', $mcb_stored ) ) : ?>
 				<div class="notice notice-info inline" style="margin:12px 0;padding:10px 12px;">
-					<p style="margin:0;"><strong><?php echo esc_html__( 'Neue Funktion verfügbar:', 'macs-cookie-banner' ); ?></strong>
-						<?php echo esc_html__( 'Der Button «Cookie-Einstellungen» kann sich beim Scrollen zu einem kleinen Cookie-Icon verkleinern. Die bestehende Darstellung bleibt unverändert, bis Sie die Funktion einschalten und speichern.', 'macs-cookie-banner' ); ?>
-						<a href="#mcb-reopen-compact"><?php echo esc_html__( 'Zur Einstellung', 'macs-cookie-banner' ); ?></a>
+					<p style="margin:0;"><strong><?php echo esc_html__( 'Neu: Darstellung des Floating-Buttons wählbar.', 'macs-cookie-banner' ); ?></strong>
+						<?php echo esc_html__( 'Zur Wahl stehen «Nur Cookie-Symbol», «Immer vollständig anzeigen» und «Beim Verlassen des Hero-Bereichs verkleinern».', 'macs-cookie-banner' ); ?>
+						<?php
+						echo esc_html(
+							sprintf(
+								/* translators: %s: name of the current display variant. */
+								__( 'Diese Website zeigt unverändert: «%s». Etwas ändert sich erst, wenn Sie eine andere Darstellung wählen und speichern.', 'macs-cookie-banner' ),
+								$mcb_style_names[ $options['reopen_style'] ]
+							)
+						);
+						?>
+						<a href="#mcb-reopen-style"><?php echo esc_html__( 'Zur Einstellung', 'macs-cookie-banner' ); ?></a>
 					</p>
 				</div>
 			<?php endif; ?>
@@ -791,49 +806,82 @@ final class Macs_Cookie_Banner_Admin {
 
 				<h2><?php echo esc_html__( 'Floating-Button — Feinjustierung', 'macs-cookie-banner' ); ?></h2>
 				<table class="form-table" role="presentation">
-					
+
 					<?php self::render_number_field( 'reopen_offset_x', esc_html__( 'Offset X (px)', 'macs-cookie-banner' ), $options['reopen_offset_x'], 0, 200, 1 ); ?>
 					<?php self::render_number_field( 'reopen_offset_y', esc_html__( 'Offset Y (px)', 'macs-cookie-banner' ), $options['reopen_offset_y'], 0, 200, 1 ); ?>
-					<?php self::render_checkbox_field( 'reopen_show_icon', esc_html__( 'Cookie-Icon auch in der vollen Version zeigen', 'macs-cookie-banner' ), $options['reopen_show_icon'] ); ?>
-				</table>
-
-				<h2 id="mcb-reopen-compact"><?php echo esc_html__( 'Floating-Button — beim Scrollen verkleinern', 'macs-cookie-banner' ); ?></h2>
-				<table class="form-table" role="presentation">
-					<?php self::render_checkbox_field( 'reopen_compact', esc_html__( 'Beim Scrollen zum kleinen Cookie-Icon verkleinern', 'macs-cookie-banner' ), $options['reopen_compact'] ); ?>
-					<tr>
-						<td colspan="2">
-							<p class="description" style="margin:0;"><?php echo esc_html__( 'Oben auf der Seite zeigt der Button «Cookie-Einstellungen» die volle Beschriftung. Sobald gescrollt wird (spätestens nach dem ersten Bildschirm), wird er zu einem runden Icon-Button mit denselben Farben; ganz oben erscheint wieder die volle Version. Für Screenreader bleibt die Beschriftung erhalten.', 'macs-cookie-banner' ); ?></p>
-							<?php if ( defined( 'WP_ROCKET_VERSION' ) ) : ?>
-								<p class="description" style="margin:.5em 0 0;"><?php echo esc_html__( 'WP Rocket erkannt: Ist «Unbenutztes CSS entfernen» aktiv, nach dem Einschalten einmal «Used CSS leeren» (WP-Rocket-Menü in der Admin-Leiste). Ohne diesen Schritt bleibt der Button bis zur nächsten Neuberechnung in voller Grösse.', 'macs-cookie-banner' ); ?></p>
-							<?php endif; ?>
-						</td>
-					</tr>
-					<?php self::render_number_field( 'reopen_compact_threshold', esc_html__( 'Verkleinern ab Scrollweite (px)', 'macs-cookie-banner' ), $options['reopen_compact_threshold'], 0, 2000, 10 ); ?>
-					<?php self::render_text_field( 'reopen_compact_selector', esc_html__( 'Erst nach diesem Element verkleinern (CSS-Selektor, optional)', 'macs-cookie-banner' ), $options['reopen_compact_selector'] ); ?>
-					<tr>
-						<td colspan="2">
-							<p class="description" style="margin:0;"><?php echo esc_html__( 'Beispiel: den Hero-Container, etwa .fusion-fullwidth:first-of-type oder #hero. Der Button wird kompakt, sobald dieses Element ganz nach oben aus dem Bild gescrollt ist. Leer lassen oder Element nicht gefunden: es gilt die Scrollweite.', 'macs-cookie-banner' ); ?></p>
-						</td>
-					</tr>
-					<?php
-					self::render_select_field(
-						'reopen_compact_shape',
-						esc_html__( 'Form kompakt', 'macs-cookie-banner' ),
-						$options['reopen_compact_shape'],
-						array(
-							'round'  => esc_html__( 'Rund', 'macs-cookie-banner' ),
-							'square' => esc_html__( 'Quadratisch (Radius 6 px)', 'macs-cookie-banner' ),
-						)
-					);
-					?>
-					<?php self::render_number_field( 'reopen_compact_size', esc_html__( 'Grösse kompakt (px)', 'macs-cookie-banner' ), $options['reopen_compact_size'], 44, 64, 1 ); ?>
-					<?php self::render_checkbox_field( 'reopen_compact_expand', esc_html__( 'Bei Mauszeiger oder Tastaturfokus wieder ausklappen (Desktop)', 'macs-cookie-banner' ), $options['reopen_compact_expand'] ); ?>
 					<tr>
 						<td colspan="2">
 							<p class="description" style="margin:0;"><?php echo esc_html__( 'Konflikt mit einem «Nach oben»-Pfeil (z. B. Avada unten rechts)? Offset Y erhöhen oder Position «Unten links» wählen. Im Theme-CSS lässt sich die Lage auch per CSS-Variablen setzen: --mcb-reopen-offset-x, --mcb-reopen-offset-y, --mcb-reopen-size sowie --mcb-reopen-left / --mcb-reopen-right (Seite wechseln, die andere Seite auf auto).', 'macs-cookie-banner' ); ?></p>
 						</td>
 					</tr>
 				</table>
+
+				<?php // v1.2.1 (ADR-47): one choice instead of separate compact options; rows carry data-mcb-style and are shown only for the selected variant. ?>
+				<h2 id="mcb-reopen-style"><?php echo esc_html__( 'Floating-Button — Darstellung', 'macs-cookie-banner' ); ?></h2>
+				<table class="form-table" role="presentation">
+					<?php
+					self::render_select_field(
+						'reopen_style',
+						esc_html__( 'Darstellung des Floating-Buttons', 'macs-cookie-banner' ),
+						$options['reopen_style'],
+						array(
+							'icon' => esc_html__( 'Nur Cookie-Symbol (Standard)', 'macs-cookie-banner' ),
+							'full' => esc_html__( 'Immer vollständig anzeigen', 'macs-cookie-banner' ),
+							'hero' => esc_html__( 'Beim Verlassen des Hero-Bereichs verkleinern', 'macs-cookie-banner' ),
+						)
+					);
+					?>
+					<tr data-mcb-style="icon">
+						<td colspan="2"><p class="description" style="margin:0;"><?php echo esc_html__( 'Der Button ist von Anfang an ein Cookie-Symbol ohne Text, unabhängig von der Scrollposition. Er klappt nicht auf. Für Screenreader trägt er die Beschriftung «Cookie-Einstellungen» (übersetzt).', 'macs-cookie-banner' ); ?></p></td>
+					</tr>
+					<tr data-mcb-style="full">
+						<td colspan="2"><p class="description" style="margin:0;"><?php echo esc_html__( 'Der Button zeigt immer die volle Beschriftung und wird beim Scrollen nicht verkleinert.', 'macs-cookie-banner' ); ?></p></td>
+					</tr>
+					<tr data-mcb-style="hero">
+						<td colspan="2"><p class="description" style="margin:0;"><?php echo esc_html__( 'Zu Beginn volle Beschriftung. Sobald der Hero-Bereich nach oben aus dem Bild gescrollt ist, wird der Button zum Cookie-Symbol; beim Zurückscrollen in den Hero wieder voll. Übergang ca. 200 ms, ohne Animation bei «Bewegung reduzieren».', 'macs-cookie-banner' ); ?></p></td>
+					</tr>
+					<?php
+					self::render_select_field(
+						'reopen_compact_shape',
+						esc_html__( 'Form des Cookie-Symbols', 'macs-cookie-banner' ),
+						$options['reopen_compact_shape'],
+						array(
+							'round'  => esc_html__( 'Rund', 'macs-cookie-banner' ),
+							'square' => esc_html__( 'Quadratisch (Radius 6 px)', 'macs-cookie-banner' ),
+						),
+						'icon hero'
+					);
+					?>
+					<?php self::render_number_field( 'reopen_compact_size', esc_html__( 'Grösse des Cookie-Symbols (px)', 'macs-cookie-banner' ), $options['reopen_compact_size'], 44, 64, 1, 'icon hero' ); ?>
+					<?php self::render_checkbox_field( 'reopen_show_icon', esc_html__( 'Cookie-Icon auch in der vollen Version zeigen', 'macs-cookie-banner' ), $options['reopen_show_icon'], 'full hero' ); ?>
+					<?php self::render_text_field( 'reopen_compact_selector', esc_html__( 'Hero-Selektor (CSS, optional)', 'macs-cookie-banner' ), $options['reopen_compact_selector'], 'hero' ); ?>
+					<?php self::render_checkbox_field( 'reopen_hero_auto', esc_html__( 'Hero automatisch erkennen, wenn kein Selektor greift', 'macs-cookie-banner' ), $options['reopen_hero_auto'], 'hero' ); ?>
+					<?php self::render_number_field( 'reopen_compact_threshold', esc_html__( 'Ohne Hero: verkleinern ab Scrollweite (px)', 'macs-cookie-banner' ), $options['reopen_compact_threshold'], 0, 2000, 10, 'hero' ); ?>
+					<tr data-mcb-style="hero">
+						<td colspan="2"><p class="description" style="margin:0;"><?php echo esc_html__( 'Reihenfolge: 1. Hero-Selektor (z. B. #hero oder #main .post-content > .fusion-fullwidth). 2. Automatische Erkennung: [data-mcb-hero], #hero, .hero, Avada-Slider (#sliders-container), Avada-Seitentitel (.fusion-page-title-bar, .fusion-tb-page-title-bar), erster Avada-Container im Inhalt (#main .post-content > .fusion-fullwidth), Gutenberg-Cover (.wp-block-cover) – jeweils nur, wenn das Element im ersten Bildschirm beginnt, mindestens 120 px und höchstens 1,5 Bildschirme hoch ist. 3. Ersatz ohne Hero: verkleinern ab der Scrollweite oben, spätestens nach dem ersten Bildschirm.', 'macs-cookie-banner' ); ?></p></td>
+					</tr>
+					<?php self::render_checkbox_field( 'reopen_compact_expand', esc_html__( 'Bei Mauszeiger oder Tastaturfokus wieder ausklappen (Desktop)', 'macs-cookie-banner' ), $options['reopen_compact_expand'], 'hero' ); ?>
+					<?php if ( defined( 'WP_ROCKET_VERSION' ) ) : ?>
+						<tr data-mcb-style="icon hero">
+							<td colspan="2"><p class="description" style="margin:0;"><?php echo esc_html__( 'WP Rocket erkannt: Ist «Unbenutztes CSS entfernen» aktiv, nach dem Wechsel der Darstellung einmal «Used CSS leeren» (WP-Rocket-Menü in der Admin-Leiste). Ohne diesen Schritt zeigt der Button bis zur nächsten Neuberechnung die volle Version.', 'macs-cookie-banner' ); ?></p></td>
+						</tr>
+					<?php endif; ?>
+				</table>
+				<script>
+				( function () {
+					var select = document.getElementById( 'lscc-reopen_style' );
+					if ( ! select ) { return; }
+					function apply() {
+						var rows = document.querySelectorAll( '[data-mcb-style]' );
+						for ( var i = 0; i < rows.length; i++ ) {
+							var scope = ' ' + rows[ i ].getAttribute( 'data-mcb-style' ) + ' ';
+							rows[ i ].style.display = scope.indexOf( ' ' + select.value + ' ' ) === -1 ? 'none' : '';
+						}
+					}
+					select.addEventListener( 'change', apply );
+					apply();
+				} )();
+				</script>
 
 				<h2><?php echo esc_html__( 'Rechtliche Links', 'macs-cookie-banner' ); ?></h2>
 				<table class="form-table" role="presentation">
@@ -965,16 +1013,31 @@ final class Macs_Cookie_Banner_Admin {
 	}
 
 	/**
+	 * Print the data-mcb-style attribute of a settings row (v1.2.1, ADR-47).
+	 * Rows with a scope are shown only for the selected reopen display variant;
+	 * hidden rows are still submitted, so no value is lost.
+	 *
+	 * @param string $scope Space-separated variants, e.g. "icon hero". Empty = always.
+	 * @return void
+	 */
+	private static function render_scope_attr( $scope ) {
+		if ( '' !== $scope ) {
+			echo ' data-mcb-style="' . esc_attr( $scope ) . '"';
+		}
+	}
+
+	/**
 	 * Render a text input row.
 	 *
 	 * @param string $key   Option key.
 	 * @param string $label Field label.
 	 * @param string $value Field value.
+	 * @param string $scope Optional display variants the row belongs to (v1.2.1).
 	 * @return void
 	 */
-	private static function render_text_field( $key, $label, $value ) {
+	private static function render_text_field( $key, $label, $value, $scope = '' ) {
 		?>
-		<tr>
+		<tr<?php self::render_scope_attr( $scope ); ?>>
 			<th scope="row">
 				<label for="lscc-<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $label ); ?></label>
 			</th>
@@ -1026,11 +1089,12 @@ final class Macs_Cookie_Banner_Admin {
 	 * @param string $key   Option key.
 	 * @param string $label Field label.
 	 * @param bool   $value Field value.
+	 * @param string $scope Optional display variants the row belongs to (v1.2.1).
 	 * @return void
 	 */
-	private static function render_checkbox_field( $key, $label, $value ) {
+	private static function render_checkbox_field( $key, $label, $value, $scope = '' ) {
 		?>
-		<tr>
+		<tr<?php self::render_scope_attr( $scope ); ?>>
 			<th scope="row">
 				<label for="lscc-<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $label ); ?></label>
 			</th>
@@ -1056,11 +1120,12 @@ final class Macs_Cookie_Banner_Admin {
 	 * @param int|float $min   Minimum.
 	 * @param int|float $max   Maximum.
 	 * @param int|float $step  Step.
+	 * @param string    $scope Optional display variants the row belongs to (v1.2.1).
 	 * @return void
 	 */
-	private static function render_number_field( $key, $label, $value, $min, $max, $step ) {
+	private static function render_number_field( $key, $label, $value, $min, $max, $step, $scope = '' ) {
 		?>
-		<tr>
+		<tr<?php self::render_scope_attr( $scope ); ?>>
 			<th scope="row">
 				<label for="lscc-<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $label ); ?></label>
 			</th>
@@ -1087,11 +1152,12 @@ final class Macs_Cookie_Banner_Admin {
 	 * @param string $label   Field label.
 	 * @param string $value   Current value.
 	 * @param array  $choices Map of value => human label.
+	 * @param string $scope   Optional display variants the row belongs to (v1.2.1).
 	 * @return void
 	 */
-	private static function render_select_field( $key, $label, $value, $choices ) {
+	private static function render_select_field( $key, $label, $value, $choices, $scope = '' ) {
 		?>
-		<tr>
+		<tr<?php self::render_scope_attr( $scope ); ?>>
 			<th scope="row">
 				<label for="lscc-<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $label ); ?></label>
 			</th>

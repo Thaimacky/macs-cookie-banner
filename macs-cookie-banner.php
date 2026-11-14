@@ -3,7 +3,7 @@
  * Plugin Name: Mac's Cookie Banner
  * Plugin URI:  https://github.com/Thaimacky/macs-cookie-banner
  * Description: Lightweight cookie consent banner with script blocking for WordPress.
- * Version:     1.2.0
+ * Version:     1.2.1
  * Author:      Mac's Cookie Banner
  * Text Domain: macs-cookie-banner
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MCB_VERSION', '1.2.0' );
+define( 'MCB_VERSION', '1.2.1' );
 
 /**
  * Consent schema version. Bump this whenever the stored consent shape
@@ -179,6 +179,11 @@ final class Macs_Cookie_Banner {
 			'reopen_compact_size'      => 48,
 			'reopen_compact_expand'    => true,
 			'reopen_show_icon'         => false,
+			// v1.2.1 (ADR-47): display variant icon | full | hero. When the key is
+			// missing (installs before 1.2.1) sanitize_options() derives it from
+			// the 1.2.0 setting reopen_compact, so an update never changes the look.
+			'reopen_style'             => 'full',
+			'reopen_hero_auto'         => true,
 			'show_legal_links'       => true,
 			'privacy_url_override'   => '',
 			'imprint_url_override'   => '',
@@ -219,9 +224,11 @@ final class Macs_Cookie_Banner {
 			'youtube_remote_thumbnails' => false,
 			// Consent lifetime baseline.
 			'consent_lifetime_days'     => 180,
-			// v1.2.0 (ADR-46): fresh installs only - compact reopen button on
-			// scroll. Not part of the restore keys (presentation, not privacy).
+			// v1.2.0 (ADR-46) / v1.2.1 (ADR-47): fresh installs only - the
+			// reopen button is a cookie icon from the start. Not part of the
+			// restore keys (presentation, not privacy).
 			'reopen_compact'            => true,
+			'reopen_style'              => 'icon',
 		);
 
 		// avada_maps_block / yotu_consent_gating are intentionally NOT part of the
@@ -544,7 +551,17 @@ final class Macs_Cookie_Banner {
 			'reopen_compact',
 			'reopen_compact_expand',
 			'reopen_show_icon',
+			'reopen_hero_auto',
 		);
+	}
+
+	/**
+	 * Allowed display variants of the reopen button (v1.2.1, ADR-47).
+	 *
+	 * @return array
+	 */
+	public static function get_reopen_styles() {
+		return array( 'icon', 'full', 'hero' );
 	}
 
 	/**
@@ -735,6 +752,27 @@ final class Macs_Cookie_Banner {
 		$sanitized['reopen_compact_selector'] = self::sanitize_css_selector(
 			isset( $options['reopen_compact_selector'] ) ? $options['reopen_compact_selector'] : ''
 		);
+
+		// v1.2.1 (ADR-47): display variant. Installs from before 1.2.1 have no
+		// reopen_style yet; derive it from the 1.2.0 checkbox (read-time only, no
+		// database write): compact on -> "hero" with the 1.2.0 behaviour (own
+		// selector, else scroll distance - no automatic hero detection, which
+		// 1.2.0 did not have), compact off or missing -> "full" (unchanged look).
+		$raw_style = isset( $options['reopen_style'] ) && is_scalar( $options['reopen_style'] )
+			? (string) $options['reopen_style']
+			: '';
+
+		if ( in_array( $raw_style, self::get_reopen_styles(), true ) ) {
+			$sanitized['reopen_style'] = $raw_style;
+		} else {
+			$sanitized['reopen_style'] = $sanitized['reopen_compact'] ? 'hero' : 'full';
+			if ( $sanitized['reopen_compact'] ) {
+				$sanitized['reopen_hero_auto'] = false;
+			}
+		}
+
+		// Kept in sync for a rollback to 1.2.0, which only knows this checkbox.
+		$sanitized['reopen_compact'] = ( 'full' !== $sanitized['reopen_style'] );
 
 		return wp_parse_args( $sanitized, $defaults );
 	}
@@ -1284,15 +1322,22 @@ final class Macs_Cookie_Banner {
 		// v1.2.0 (ADR-46): optional icon + compact-on-scroll. With the feature off
 		// (default on existing installs) the button looks exactly as before: the
 		// icon stays display:none and the label span renders like plain text.
+		// v1.2.1 (ADR-47): three variants. "icon" is compact server-side from the
+		// start (no JS, no scroll listener, no expanding); "full" is the button
+		// as before; "hero" is the 1.2.0 scroll behaviour, driven by banner.js.
+		$reopen_variant = $options['reopen_style'];
 		$reopen_classes = array( 'lscc-reopen', $preset_class );
-		if ( $options['reopen_show_icon'] ) {
+		if ( $options['reopen_show_icon'] && 'icon' !== $reopen_variant ) {
 			$reopen_classes[] = 'lscc-reopen--with-icon';
 		}
-		if ( $options['reopen_compact'] && 'square' === $options['reopen_compact_shape'] ) {
+		if ( 'full' !== $reopen_variant && 'square' === $options['reopen_compact_shape'] ) {
 			$reopen_classes[] = 'lscc-reopen--square';
 		}
+		if ( 'icon' === $reopen_variant ) {
+			$reopen_classes[] = 'lscc-reopen--compact';
+		}
 		?>
-		<button type="button" class="<?php echo esc_attr( implode( ' ', $reopen_classes ) ); ?>" style="<?php echo esc_attr( $style ); ?>" data-lscc-reopen data-lscc-open-consent-settings aria-controls="lscc-root" aria-label="<?php echo esc_attr( $reopen_text ); ?>" data-position="<?php echo esc_attr( $options['reopen_position'] ); ?>"<?php if ( $options['reopen_compact'] ) : ?> data-compact="1" data-compact-threshold="<?php echo esc_attr( (string) (int) $options['reopen_compact_threshold'] ); ?>" data-compact-selector="<?php echo esc_attr( $options['reopen_compact_selector'] ); ?>" data-compact-expand="<?php echo $options['reopen_compact_expand'] ? '1' : '0'; ?>"<?php endif; ?> hidden>
+		<button type="button" class="<?php echo esc_attr( implode( ' ', $reopen_classes ) ); ?>" style="<?php echo esc_attr( $style ); ?>" data-lscc-reopen data-lscc-open-consent-settings aria-controls="lscc-root" aria-label="<?php echo esc_attr( $reopen_text ); ?>" data-position="<?php echo esc_attr( $options['reopen_position'] ); ?>" data-style="<?php echo esc_attr( $reopen_variant ); ?>"<?php if ( 'hero' === $reopen_variant ) : ?> data-compact="1" data-compact-threshold="<?php echo esc_attr( (string) (int) $options['reopen_compact_threshold'] ); ?>" data-compact-selector="<?php echo esc_attr( $options['reopen_compact_selector'] ); ?>" data-compact-auto="<?php echo $options['reopen_hero_auto'] ? '1' : '0'; ?>" data-compact-expand="<?php echo $options['reopen_compact_expand'] ? '1' : '0'; ?>"<?php endif; ?> hidden>
 			<svg class="lscc-reopen__icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5Zm-5 7.5a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0Zm5.5 5a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0Zm-5 1.5a1 1 0 1 0 2 0 1 1 0 1 0-2 0Zm4.5-6.5a1 1 0 1 0 2 0 1 1 0 1 0-2 0Z"/></svg>
 			<span class="lscc-reopen__label"><?php echo esc_html( $reopen_text ); ?></span>
 			<span class="lscc-reopen-dismiss" data-lscc-reopen-dismiss role="button" tabindex="-1" aria-label="<?php echo esc_attr__( 'Cookie-Einstellungen-Button ausblenden', 'macs-cookie-banner' ); ?>">&times;</span>

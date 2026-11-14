@@ -923,14 +923,58 @@
 			threshold = 100;
 		}
 
-		var anchor = null;
 		var selector = button.getAttribute('data-compact-selector') || '';
-		if (selector) {
-			try {
-				anchor = document.querySelector(selector);
-			} catch (error) {
-				anchor = null; // Invalid selector -> scroll distance applies.
+		var autoDetect = button.getAttribute('data-compact-auto') === '1';
+		var anchor = resolveHero();
+
+		// v1.2.1 (ADR-47): hero = the configured selector; otherwise (if enabled)
+		// the first documented candidate that looks like a hero; otherwise none,
+		// and the scroll distance applies (default 100 px, at the latest after
+		// the first screen) - the 1.2.0 behaviour.
+		function resolveHero() {
+			if (selector) {
+				try {
+					var own = document.querySelector(selector);
+					if (own) {
+						return own;
+					}
+				} catch (error) {
+					/* Invalid selector -> automatic detection / scroll distance. */
+				}
 			}
+
+			return autoDetect ? detectHero() : null;
+		}
+
+		function detectHero() {
+			var candidates = [
+				'[data-mcb-hero]',
+				'#hero',
+				'.hero',
+				'#sliders-container',
+				'.fusion-page-title-bar',
+				'.fusion-tb-page-title-bar',
+				'#main .post-content > .fusion-fullwidth',
+				'.wp-block-cover'
+			];
+			var viewport = window.innerHeight || document.documentElement.clientHeight || 0;
+			var scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+
+			for (var i = 0; i < candidates.length; i++) {
+				var element = document.querySelector(candidates[i]);
+				if (!element) {
+					continue;
+				}
+				var rect = element.getBoundingClientRect();
+				var top = rect.top + scrollY;
+				// A hero starts within the first screen and is neither tiny nor
+				// a whole page section (e.g. an empty slider area or a long block).
+				if (rect.height >= 120 && top < viewport * 0.75 && rect.height <= viewport * 1.5) {
+					return element;
+				}
+			}
+
+			return null;
 		}
 
 		var expandable = button.getAttribute('data-compact-expand') === '1';
@@ -1036,6 +1080,15 @@
 		window.addEventListener('scroll', requestUpdate, { passive: true });
 		window.addEventListener('resize', requestUpdate, { passive: true });
 		update();
+
+		// Heights can still change until images and fonts are loaded: detect the
+		// hero once more on "load" (only relevant for the automatic detection).
+		if (autoDetect && document.readyState !== 'complete') {
+			window.addEventListener('load', function () {
+				anchor = resolveHero();
+				requestUpdate();
+			});
+		}
 
 		if (expandable) {
 			button.addEventListener('mouseenter', function () {
