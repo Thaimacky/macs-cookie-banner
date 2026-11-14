@@ -8,7 +8,7 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
-## 1.2.1 - 2026-11-14
+## 1.3.0 - 2026-11-14
 
 **Drei Darstellungsvarianten für den Floating-Button (ADR-47).** Statt der einzelnen Verkleinerungs-Optionen aus 1.2.0 gibt es eine Auswahl «Darstellung des Floating-Buttons»:
 
@@ -22,20 +22,20 @@ Die Einstellungsseite zeigt unter der Auswahl nur die Zusatzoptionen der gewähl
 
 Beim Update wird nichts in die Datenbank geschrieben; die Darstellung wird beim Lesen aus den bisherigen Einstellungen abgeleitet. Erst Speichern legt die neue Option ab.
 
-| Stand vor dem Update | Darstellung ab 1.2.1 | Verhalten |
+| Stand vor dem Update | Darstellung ab 1.3.0 | Verhalten |
 |---|---|---|
 | 1.1.x oder älter (Option nie gespeichert) | Immer vollständig | unverändert, pixelgleich zu 1.1.1 |
 | 1.2.0, Verkleinerung aus | Immer vollständig | unverändert |
 | 1.2.0, Verkleinerung an | Beim Verlassen des Hero-Bereichs verkleinern | wie 1.2.0: Selektor, Scrollweite, Form, Grösse, Ausklappen und Icon übernommen; automatische Hero-Erkennung **aus** (gab es in 1.2.0 nicht) |
 | Neuinstallation 1.2.0 (Verkleinerung an geseedet) | Beim Verlassen des Hero-Bereichs verkleinern | wie 1.2.0 (s. o.) |
-| Neuinstallation ab 1.2.1 | Nur Cookie-Symbol | neuer Standard |
+| Neuinstallation ab 1.3.0 | Nur Cookie-Symbol | neuer Standard |
 
 Die Einstellungsseite zeigt einen Hinweis mit der unveränderten Darstellung, bis einmal gespeichert wurde.
 
 ### Weitere Änderungen
 
 - WP Rocket «Unbenutztes CSS entfernen»: zusätzlich `lscc-reopen--square` und `lscc-reopen--with-icon` in der Safelist. Nach einem Wechsel der Darstellung einmal «Used CSS leeren» (Hinweis in den Einstellungen).
-- Version 1.2.0 → **1.2.1** (wie beauftragt; nach VERSIONING.md wäre eine neue Einstellung eine MINOR-Version).
+- Version 1.2.0 → **1.3.0** (neue Einstellung → MINOR gemäss VERSIONING.md, Entscheidung Marcel). Die Arbeitsnummer 1.2.1 wurde nie veröffentlicht.
 
 ### Unverändert
 

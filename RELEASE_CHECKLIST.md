@@ -12,7 +12,7 @@ Der Plugin-Ordner ist auf jeder Website öffentlich per URL abrufbar. Ins ZIP ge
 
 **Status v1.1.1:** Release veröffentlicht und API-verifiziert (2026-11-10, Asset SHA-256 `0D187A59…4F165`, 148 Dateien, identisch mit dem Test-ZIP). Nach dem Update je Site prüfen: `/wp-content/plugins/macs-cookie-banner/DEV_LOG.md` liefert 404. Positivliste und harte Prüfung umgesetzt; Negativtest bestanden (Filter abgeschaltet → 24 Verstösse, ZIP gelöscht). Inhalt 1.1.1 = Inhalt 1.1.0 ohne die 24 Entwickler-Dateien.
 
-## Floating-Button: drei Darstellungsvarianten (ab v1.2.1, ADR-47)
+## Floating-Button: drei Darstellungsvarianten (ab v1.3.0, ADR-47)
 
 **Status: Phase 1 — Produktions-ZIP bereit zum Test. Kein Tag, kein Release.**
 
@@ -20,6 +20,7 @@ Der Plugin-Ordner ist auf jeder Website öffentlich per URL abrufbar. Ins ZIP ge
 - [x] 31 + 28 + 4 PHP-Prüfungen (Migrationsmatrix, Idempotenz, Formular, Markup, `aria-label`, Safelist).
 - [x] 54 Browserprüfungen Desktop + Mobil (dreimal grün) + 43 aus 1.2.0; Bestand pixelgleich zu 1.1.1.
 - [x] Consent-Regression 8 Schritte Desktop + Mobil (altes und neues Markup), WP-Rocket-Pipeline.
+- [x] Nach der Umbenennung 1.2.1 → 1.3.0 (nur Versionsnummer und Kommentare) alle Prüfungen erneut grün: 63 PHP, 54 + 43 Browser, Consent-Regression 4 × 8 Schritte, WP-Rocket-Pipeline.
 
 **Live (Staging, nach Installation):**
 - [ ] Nach dem Update: Button unverändert; Hinweis nennt die bisherige Darstellung («Immer vollständig anzeigen» bzw. bei 1.2.0 mit Verkleinerung «Beim Verlassen des Hero-Bereichs verkleinern»).

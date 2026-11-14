@@ -1,6 +1,10 @@
 # DEV LOG
 
-## 1.2.1 - 2026-11-14 (drei Darstellungsvarianten Floating-Button, ADR-47)
+## 1.3.0 - 2026-11-14 (Versionsnummer korrigiert)
+
+**Entscheidung Marcel nach Phase 1:** Die drei Darstellungsvarianten (ADR-47) erscheinen als **1.3.0** statt 1.2.1, weil eine neue Einstellung nach VERSIONING.md eine MINOR-Version ist. Ebenfalls entschieden: keine Automatik für den Avada-«Nach oben»-Pfeil (Abstände bleiben individuell einstellbar); der Hinweis zum Leeren des «Used CSS» genügt. Geändert wurden nur Versionsheader, `MCB_VERSION` und Code-Kommentare (17 Zeilen, automatisch geprüft: jede Zeile unterscheidet sich nur durch die Nummer). 1.2.1 wurde nie getaggt oder veröffentlicht; das alte Test-ZIP `macs-cookie-banner-v1.2.1-test.zip` ist ungültig. Danach alle Prüfungen erneut: 63 PHP, 54 + 43 Browser, Consent-Regression 4 × 8 Schritte, WP-Rocket-Pipeline – grün.
+
+## 1.3.0 (Arbeitsnummer 1.2.1) - 2026-11-14 (drei Darstellungsvarianten Floating-Button, ADR-47)
 
 **Auslöser:** Auftrag Marcel: «Nur Cookie-Symbol» (neuer Standard für Neuinstallationen), «Immer vollständig», «Beim Verlassen des Hero-Bereichs verkleinern»; bestehende Websites unverändert. Stand vor Beginn: lokal = GitHub (`0e02772`, 0/0), Release 1.2.0 aktuell.
 

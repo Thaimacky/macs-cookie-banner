@@ -767,9 +767,9 @@ Die bestehende **WPML-/Polylang-String-Translation-Registrierung bleibt als Over
 
 **Validierung:** 28 PHP-Prüfungen (Bestand AUS / Neuinstallation AN, Markup, Grenzen, Selektor-Sanitizing inkl. Attribut-Ausbruch, Formular ohne Häkchen, `aria-label` DE/EN/FR) + 4 Prüfungen RUCSS-Safelist; 43 Browserprüfungen mit Chrome (Desktop 1366×860 und Mobil 390×844 mit Touch), dreimal hintereinander grün: Funktion aus = pixelgleich zu 1.1.1, Schwelle (100 px noch voll, darüber kompakt), Übergang in beide Richtungen, 48×48/rund/gleiche Farbe und gleicher Schatten, × aus, Label versteckt, Hover und Tastatur klappen aus (kein Flackern), Enter/Klick/Tippen öffnet die Einstellungen, danach wieder kompakt, reduzierte Bewegung, Element-Modus, ungültiger/fehlender Selektor, Obergrenze erster Bildschirm, Position «Versteckt», Icon in voller Version, Ausklappen aus, CSS-Variablen, quadratisch, Presets Modern/Premium, Avada-Pfeil ohne Überlappung, keine JS-Fehler. Consent-Regression (8 Schritte, Desktop + Mobil, WP-Rocket-Fixture) und WP-Rocket-Pipeline-Prüfung grün.
 
-## ADR-47: Floating-Button mit drei Darstellungsvarianten — Icon als Standard für Neuinstallationen, Migration beim Lesen (umgesetzt in v1.2.1)
+## ADR-47: Floating-Button mit drei Darstellungsvarianten — Icon als Standard für Neuinstallationen, Migration beim Lesen (umgesetzt in v1.3.0)
 
-**Status:** Umgesetzt in v1.2.1 (2026-11-14). Auftrag Marcel: drei klar auswählbare Varianten statt getrennter Verkleinerungs-Optionen; «Nur Cookie-Symbol» als neuer Standard für Neuinstallationen; bestehende Websites dürfen sich nicht ungefragt verändern.
+**Status:** Umgesetzt in v1.3.0 (2026-11-14; Arbeitsnummer 1.2.1 vor der Veröffentlichung auf Entscheidung Marcel nach VERSIONING.md auf MINOR korrigiert). Auftrag Marcel: drei klar auswählbare Varianten statt getrennter Verkleinerungs-Optionen; «Nur Cookie-Symbol» als neuer Standard für Neuinstallationen; bestehende Websites dürfen sich nicht ungefragt verändern.
 
 **Kontext:** v1.2.0 (ADR-46) kannte nur «beim Scrollen verkleinern» mit Schwelle oder Selektor. Gewünscht sind zusätzlich ein reines Icon von Anfang an und eine Verkleinerung, die sich am Hero orientiert. Auf echten Avada-Seiten (drei Kundensites) steckt `fusion-builder-row-1` teils in der **Header**-Zeile; der Hero ist der erste Container in `#main .post-content` (Zeilennummer wechselnd: row-1, row-2, row-4). `#sliders-container` ist dort leer.
 
@@ -780,13 +780,13 @@ Die bestehende **WPML-/Polylang-String-Translation-Registrierung bleibt als Over
 4. **`hero`** = Verhalten aus ADR-46 (Übergang, reduzierte Bewegung, Aufklappen abschaltbar) mit Hero-Auflösung in `banner.js::initReopenCompact()`: (1) `reopen_compact_selector`, (2) bei `reopen_hero_auto` die dokumentierte Kandidatenliste `[data-mcb-hero]`, `#hero`, `.hero`, `#sliders-container`, `.fusion-page-title-bar`, `.fusion-tb-page-title-bar`, `#main .post-content > .fusion-fullwidth`, `.wp-block-cover` – nur gültig, wenn das Element im ersten Bildschirm beginnt (Oberkante < 75 % Viewport) und 120 px bis 1,5 Viewport-Höhen hoch ist; einmal neu bestimmt bei `load` (Bilder/Schriften), (3) Ersatz: Scrollweite (Standard 100 px, höchstens erster Bildschirm).
 5. **Migration ohne Schreibzugriff** in `sanitize_options()`: Fehlt `reopen_style`, wird es aus `reopen_compact` abgeleitet (an → `hero` mit `reopen_hero_auto = false`, aus/fehlend → `full`). Damit bleibt jede bestehende Website exakt wie vorher; erst Speichern persistiert die neue Option. Die Ableitung ist idempotent (getestet).
 
-| Stand vor dem Update | Darstellung ab 1.2.1 | Verhalten |
+| Stand vor dem Update | Darstellung ab 1.3.0 | Verhalten |
 |---|---|---|
 | 1.1.x oder älter (Option nie gespeichert) | Immer vollständig | unverändert, pixelgleich zu 1.1.1 |
 | 1.2.0, Verkleinerung aus | Immer vollständig | unverändert |
 | 1.2.0, Verkleinerung an | Beim Verlassen des Hero-Bereichs verkleinern | wie 1.2.0: Selektor, Scrollweite, Form, Grösse, Ausklappen und Icon übernommen; automatische Hero-Erkennung **aus** (gab es in 1.2.0 nicht) |
 | Neuinstallation 1.2.0 (Verkleinerung an geseedet) | Beim Verlassen des Hero-Bereichs verkleinern | wie 1.2.0 (s. o.) |
-| Neuinstallation ab 1.2.1 | Nur Cookie-Symbol | neuer Standard |
+| Neuinstallation ab 1.3.0 | Nur Cookie-Symbol | neuer Standard |
 
 6. **`reopen_compact` wird mitgeführt** (= `reopen_style` ≠ `full`), damit ein Rückweg auf 1.2.0 eine ähnliche Darstellung zeigt.
 7. **Einstellungsseite:** Auswahl «Darstellung des Floating-Buttons» mit «Nur Cookie-Symbol (Standard)», «Immer vollständig anzeigen», «Beim Verlassen des Hero-Bereichs verkleinern»; Zeilen tragen `data-mcb-style`, ein kleines Inline-Skript blendet nur die passenden ein (ausgeblendete Felder werden trotzdem gespeichert, ohne JS bleiben alle sichtbar). Hinweis nach dem Update (ADR-27 Punkt 3) nennt die unveränderte Darstellung, bis gespeichert wurde.
