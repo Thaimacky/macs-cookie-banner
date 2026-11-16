@@ -14,7 +14,7 @@ Der Plugin-Ordner ist auf jeder Website öffentlich per URL abrufbar. Ins ZIP ge
 
 ## Schwebende Bedienelemente ruhen am Seitenende (ab v1.4.0, ADR-48)
 
-**Status: Phase 1 lokal grün (2026-11-17). Phase 2 laut Auftrag ohne weitere Rückfrage.**
+**Status: Release 1.4.0 veröffentlicht und API-verifiziert (2026-11-17, Asset SHA-256 `70CA03C6…F829`, identisch mit dem Test-ZIP, `/releases/latest` = 1.4.0). Update-Test 1.2.0 → 1.4.0 auf lokaler Testseite bestanden (gefunden, «jetzt aktualisieren», aktiv, Einstellungen erhalten, keine Fehler aus dem Plugin).**
 
 **Lokal verifiziert (Agent):**
 - [x] 26 PHP-Prüfungen + Regression 31/28/4.

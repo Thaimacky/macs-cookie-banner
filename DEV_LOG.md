@@ -1,5 +1,13 @@
 # DEV LOG
 
+## 1.4.0 - Release-Status und Update-Test (2026-11-17)
+
+**Phase 2 laut Auftrag nach vollständig grüner Phase 1 ohne weitere Rückfrage.** Produktions-ZIP (`-Kind release`) aus `9189d78` byte-identisch mit `macs-cookie-banner-v1.4.0-test.zip` (Inhaltsprüfung bestanden, 148 Dateien). Tag `1.4.0` (annotiert, Objekt `73b13f8`) auf `9189d78`, gepusht auf den Remote mit URL `macs-cookie-banner.git`. GitHub-Release `1.4.0` veröffentlicht (kein Draft, kein Pre-Release), genau ein Asset `macs-cookie-banner.zip`, 325'800 Bytes, SHA-256 `70CA03C6CEC74666C4CB3C70D16D7BAC313923F067AD4A456FA73F685D56F829` — identisch mit dem öffentlich heruntergeladenen Asset. `/releases/latest` = `1.4.0`. Das Release enthält das nie separat veröffentlichte 1.3.0.
+
+**Update-Test (MASTER_HANDBUCH «Vollrollout erst nach erfolgreichem Update-Test»)** auf einer lokalen Wegwerf-Testseite (WordPress 7.1.4, PHP 8.3, SQLite-Datenbank, Oberfläche de_CH; keine Kunden- oder Staging-Website): Vorversion 1.2.0 aus dem GitHub-Release installiert, eigene Einstellungen gesetzt (Titel, Position unten links, Offset Y 40, Preset Modern, Farbe). Ergebnis: Update unter «Aktualisierungen» gefunden; auf der Plugin-Seite «jetzt aktualisieren» → «Aktualisiert!»; Plugin bleibt aktiv, Version 1.4.0; Optionszeile in der Datenbank byte-gleich wie vor dem Update (kein Schreibzugriff); Einstellungsseite zeigt den Hinweis mit unveränderter Darstellung («Beim Verlassen des Hero-Bereichs verkleinern», weil 1.2.0 die Verkleinerung bei Neuinstallation geseedet hatte) und «Am Seitenende ausblenden» an; Frontend lädt `banner.js?ver=1.4.0`, eigener Titel und Position erhalten, Button ruht am Seitenende und kommt bei Mausbewegung zurück. Keine JS-Fehler aus dem Plugin, keine PHP-Meldung aus dem Plugin. Umgebungsmeldungen ohne Plugin-Bezug: 404 der automatischen `favicon.ico`-Anfrage auf der Login-Seite (lokaler PHP-Server), drei PHP-Deprecated-Hinweise aus dem RSS-Widget des WordPress-Kerns (`wp-includes/widgets.php`).
+
+**Offen:** Installation auf Websites übernimmt das jeweilige Website-Projekt (K+O: danach Teil 2 von `ko-cookie-compact.php` löschen). WP Rocket mit «Unbenutztes CSS entfernen»: einmal «Used CSS leeren».
+
 ## 1.4.0 - 2026-11-17 (Ruhen am Seitenende, ADR-48)
 
 **Auslöser:** Auftrag Marcel (ersetzt den nie umgesetzten Prompt «Bedienelemente nicht überdecken» vom 2026-11-16). Ausgangsstand geprüft: `main` = `bf966f8` = Remote (0/0), sauber, 1.3.0 nicht getaggt, `/releases/latest` = 1.2.0. Referenz gelesen: `ko-cookie-compact.php` 1.1.0 (Teil 2) im K+O-Repository.
