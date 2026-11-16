@@ -697,3 +697,49 @@
 		transition: none;
 	}
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Rest at the page end (v1.4.0, ADR-48). banner.js sets "mcb-reopen-rest" on
+ * <html> after the waiting time at the end of the page and "mcb-reopen-back"
+ * for 0.4 s when the controls return. Further floating elements carry the
+ * attribute data-mcb-rest-with (e.g. Avada's #toTop). Fade out 0.7 s, then
+ * visibility:hidden + pointer-events:none so links underneath are clickable.
+ * !important only inside the resting state: theme rules such as
+ * "#toTop.fusion-to-top-active { opacity: .9 }" must not win. The transition
+ * applies only while resting, so the size morph (.lscc-reopen--morph) is never
+ * overridden. Without the classes nothing here applies.
+ * ────────────────────────────────────────────────────────────────────────── */
+html.mcb-reopen-rest .lscc-reopen,
+html.mcb-reopen-rest [data-mcb-rest-with] {
+	opacity: 0 !important;
+	visibility: hidden !important;
+	pointer-events: none !important;
+	transition: opacity 0.7s ease, visibility 0s linear 0.7s !important;
+}
+
+html.mcb-reopen-back .lscc-reopen,
+html.mcb-reopen-back [data-mcb-rest-with] {
+	animation: mcb-reopen-in 0.35s ease both;
+}
+
+@keyframes mcb-reopen-in {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html.mcb-reopen-rest .lscc-reopen,
+	html.mcb-reopen-rest [data-mcb-rest-with] {
+		transition: none !important;
+	}
+
+	html.mcb-reopen-back .lscc-reopen,
+	html.mcb-reopen-back [data-mcb-rest-with] {
+		animation: none;
+	}
+}

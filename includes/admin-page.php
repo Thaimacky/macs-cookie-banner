@@ -814,6 +814,21 @@ final class Macs_Cookie_Banner_Admin {
 							<p class="description" style="margin:0;"><?php echo esc_html__( 'Konflikt mit einem «Nach oben»-Pfeil (z. B. Avada unten rechts)? Offset Y erhöhen oder Position «Unten links» wählen. Im Theme-CSS lässt sich die Lage auch per CSS-Variablen setzen: --mcb-reopen-offset-x, --mcb-reopen-offset-y, --mcb-reopen-size sowie --mcb-reopen-left / --mcb-reopen-right (Seite wechseln, die andere Seite auf auto).', 'macs-cookie-banner' ); ?></p>
 						</td>
 					</tr>
+					<?php // v1.4.0 (ADR-48): rest at the page end - applies to all display variants. ?>
+					<?php self::render_checkbox_field( 'reopen_rest', esc_html__( 'Am Seitenende ausblenden (empfohlen)', 'macs-cookie-banner' ), $options['reopen_rest'] ); ?>
+					<tr>
+						<td colspan="2">
+							<p class="description" style="margin:0;"><?php echo esc_html__( 'Ganz unten auf der Seite blenden der Cookie-Button und die unten genannten Elemente nach der Wartezeit aus, damit Links wie Datenschutz und Impressum frei sind. Bei Scrollen, Tastatur oder Mausbewegung erscheinen sie sofort wieder.', 'macs-cookie-banner' ); ?></p>
+							<p class="description" style="margin:.5em 0 0;"><?php echo esc_html__( 'Empfehlung: im Footer zusätzlich einen Link «Cookie-Einstellungen» mit dem Attribut data-lscc-open-consent-settings anbieten (oder den Shortcode [simple_cookie_settings]).', 'macs-cookie-banner' ); ?></p>
+						</td>
+					</tr>
+					<?php self::render_number_field( 'reopen_rest_delay', esc_html__( 'Wartezeit am Seitenende (Sekunden)', 'macs-cookie-banner' ), $options['reopen_rest_delay'], 2, 30, 1 ); ?>
+					<?php self::render_text_field( 'reopen_rest_with', esc_html__( 'Weitere schwebende Elemente mit ausblenden (CSS-Selektoren, durch Komma getrennt)', 'macs-cookie-banner' ), $options['reopen_rest_with'] ); ?>
+					<tr>
+						<td colspan="2">
+							<p class="description" style="margin:0;"><?php echo esc_html__( 'Standard: #toTop (der «Nach oben»-Pfeil von Avada). Leer lassen: nur der Cookie-Button ruht. Ungültige Selektoren werden ignoriert.', 'macs-cookie-banner' ); ?></p>
+						</td>
+					</tr>
 				</table>
 
 				<?php // v1.3.0 (ADR-47): one choice instead of separate compact options; rows carry data-mcb-style and are shown only for the selected variant. ?>

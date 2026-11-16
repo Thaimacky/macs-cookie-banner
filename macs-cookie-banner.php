@@ -184,6 +184,14 @@ final class Macs_Cookie_Banner {
 			// the 1.2.0 setting reopen_compact, so an update never changes the look.
 			'reopen_style'             => 'full',
 			'reopen_hero_auto'         => true,
+			// v1.4.0 (ADR-48): floating controls rest at the end of the page.
+			// ON as structural default and therefore also as read-time fallback
+			// for existing installs - an explicit, one-time exception to ADR-27
+			// (decision Marcel, 2026-11-17). No database write on update; the
+			// checkbox is the off switch.
+			'reopen_rest'              => true,
+			'reopen_rest_delay'        => 5,
+			'reopen_rest_with'         => '#toTop',
 			'show_legal_links'       => true,
 			'privacy_url_override'   => '',
 			'imprint_url_override'   => '',
@@ -548,6 +556,7 @@ final class Macs_Cookie_Banner {
 			'meta_social_block',
 			'google_tracking_shield',
 			'pys_consent_gating',
+			'reopen_rest',
 			'reopen_compact',
 			'reopen_compact_expand',
 			'reopen_show_icon',
@@ -586,6 +595,10 @@ final class Macs_Cookie_Banner {
 			'reopen_compact_threshold' => array(
 				'min' => 0,
 				'max' => 2000,
+			),
+			'reopen_rest_delay'        => array(
+				'min' => 2,
+				'max' => 30,
 			),
 			'reopen_compact_size'      => array(
 				'min' => 44,
@@ -656,10 +669,14 @@ final class Macs_Cookie_Banner {
 	 * value reaches the page as an escaped data attribute and is evaluated by
 	 * document.querySelector() inside try/catch.
 	 *
+	 * Also used for the v1.4.0 list of further floating elements (ADR-48,
+	 * comma-separated, up to 300 characters).
+	 *
 	 * @param mixed $raw Raw value.
+	 * @param int   $max Maximum length.
 	 * @return string
 	 */
-	public static function sanitize_css_selector( $raw ) {
+	public static function sanitize_css_selector( $raw, $max = 200 ) {
 		if ( ! is_scalar( $raw ) ) {
 			return '';
 		}
@@ -668,7 +685,7 @@ final class Macs_Cookie_Banner {
 		$selector = preg_replace( '/[^A-Za-z0-9_\-#.\s>+~\[\]=:"\'(),*^$|]/', '', $selector );
 		$selector = trim( preg_replace( '/\s+/', ' ', $selector ) );
 
-		return substr( $selector, 0, 200 );
+		return substr( $selector, 0, (int) $max );
 	}
 
 	/**
@@ -752,6 +769,13 @@ final class Macs_Cookie_Banner {
 		$sanitized['reopen_compact_selector'] = self::sanitize_css_selector(
 			isset( $options['reopen_compact_selector'] ) ? $options['reopen_compact_selector'] : ''
 		);
+
+		// v1.4.0 (ADR-48): further floating elements resting with the button.
+		// Missing key (installs before 1.4.0) -> default "#toTop"; an emptied
+		// field stays empty (= only the button rests).
+		$sanitized['reopen_rest_with'] = array_key_exists( 'reopen_rest_with', $options )
+			? self::sanitize_css_selector( $options['reopen_rest_with'], 300 )
+			: $defaults['reopen_rest_with'];
 
 		// v1.3.0 (ADR-47): display variant. Installs from before 1.3.0 have no
 		// reopen_style yet; derive it from the 1.2.0 checkbox (read-time only, no
@@ -1325,6 +1349,9 @@ final class Macs_Cookie_Banner {
 		// v1.3.0 (ADR-47): three variants. "icon" is compact server-side from the
 		// start (no JS, no scroll listener, no expanding); "full" is the button
 		// as before; "hero" is the 1.2.0 scroll behaviour, driven by banner.js.
+		// v1.4.0 (ADR-48): data-rest* lets banner.js rest the button (and the
+		// listed further floating elements) at the page end - for all variants,
+		// never with position "hidden". Without data-rest no listener runs.
 		$reopen_variant = $options['reopen_style'];
 		$reopen_classes = array( 'lscc-reopen', $preset_class );
 		if ( $options['reopen_show_icon'] && 'icon' !== $reopen_variant ) {
@@ -1337,7 +1364,7 @@ final class Macs_Cookie_Banner {
 			$reopen_classes[] = 'lscc-reopen--compact';
 		}
 		?>
-		<button type="button" class="<?php echo esc_attr( implode( ' ', $reopen_classes ) ); ?>" style="<?php echo esc_attr( $style ); ?>" data-lscc-reopen data-lscc-open-consent-settings aria-controls="lscc-root" aria-label="<?php echo esc_attr( $reopen_text ); ?>" data-position="<?php echo esc_attr( $options['reopen_position'] ); ?>" data-style="<?php echo esc_attr( $reopen_variant ); ?>"<?php if ( 'hero' === $reopen_variant ) : ?> data-compact="1" data-compact-threshold="<?php echo esc_attr( (string) (int) $options['reopen_compact_threshold'] ); ?>" data-compact-selector="<?php echo esc_attr( $options['reopen_compact_selector'] ); ?>" data-compact-auto="<?php echo $options['reopen_hero_auto'] ? '1' : '0'; ?>" data-compact-expand="<?php echo $options['reopen_compact_expand'] ? '1' : '0'; ?>"<?php endif; ?> hidden>
+		<button type="button" class="<?php echo esc_attr( implode( ' ', $reopen_classes ) ); ?>" style="<?php echo esc_attr( $style ); ?>" data-lscc-reopen data-lscc-open-consent-settings aria-controls="lscc-root" aria-label="<?php echo esc_attr( $reopen_text ); ?>" data-position="<?php echo esc_attr( $options['reopen_position'] ); ?>" data-style="<?php echo esc_attr( $reopen_variant ); ?>"<?php if ( 'hero' === $reopen_variant ) : ?> data-compact="1" data-compact-threshold="<?php echo esc_attr( (string) (int) $options['reopen_compact_threshold'] ); ?>" data-compact-selector="<?php echo esc_attr( $options['reopen_compact_selector'] ); ?>" data-compact-auto="<?php echo $options['reopen_hero_auto'] ? '1' : '0'; ?>" data-compact-expand="<?php echo $options['reopen_compact_expand'] ? '1' : '0'; ?>"<?php endif; ?><?php if ( $options['reopen_rest'] && 'hidden' !== $options['reopen_position'] ) : ?> data-rest="1" data-rest-delay="<?php echo esc_attr( (string) (int) $options['reopen_rest_delay'] ); ?>" data-rest-with="<?php echo esc_attr( $options['reopen_rest_with'] ); ?>"<?php endif; ?> hidden>
 			<svg class="lscc-reopen__icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5Zm-5 7.5a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0Zm5.5 5a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0Zm-5 1.5a1 1 0 1 0 2 0 1 1 0 1 0-2 0Zm4.5-6.5a1 1 0 1 0 2 0 1 1 0 1 0-2 0Z"/></svg>
 			<span class="lscc-reopen__label"><?php echo esc_html( $reopen_text ); ?></span>
 			<span class="lscc-reopen-dismiss" data-lscc-reopen-dismiss role="button" tabindex="-1" aria-label="<?php echo esc_attr__( 'Cookie-Einstellungen-Button ausblenden', 'macs-cookie-banner' ); ?>">&times;</span>

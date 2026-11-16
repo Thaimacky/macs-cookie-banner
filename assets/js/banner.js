@@ -11,6 +11,8 @@
 	var localeKey = 'mcb_consent_locale';
 	var seenLocalesKey = 'mcb_consent_locales_seen';
 	var reopenDismissed = false;
+	// v1.4.0 (ADR-48): controller of the "rest at the page end" behaviour, or null.
+	var reopenRest = null;
 	var allowedCategories = ['necessary', 'statistics', 'marketing', 'external_media'];
 	var categories = Array.isArray(settings.categories) ? settings.categories.filter(isAllowedCategory) : allowedCategories.slice();
 
@@ -778,6 +780,12 @@
 		if (visible && showSettings) {
 			focusSettings(root);
 		}
+
+		// v1.4.0 (ADR-48): after the banner closes, the button must come back
+		// visible (never stay resting) and the waiting time starts again.
+		if (reopenRest) {
+			reopenRest.wake();
+		}
 	}
 
 	function syncSettingsTriggers(expanded) {
@@ -1115,6 +1123,173 @@
 		});
 	}
 
+	// v1.4.0 (ADR-48): at the end of the page the reopen button and the listed
+	// further floating elements (default: Avada's "#toTop") rest - after the
+	// waiting time without activity they fade out (class on <html>), so links
+	// such as "Datenschutz" underneath are free. Scroll, wheel, touch move, any
+	// key and a touch/mouse movement outside the edge band bring them back at
+	// once. Never while hovered, focused or expanded. Presentation only.
+	function initReopenRest(button) {
+		if (button.getAttribute('data-rest') !== '1' || button.getAttribute('data-position') === 'hidden') {
+			return null;
+		}
+
+		var html = document.documentElement;
+		var delay = parseInt(button.getAttribute('data-rest-delay'), 10);
+		delay = (isNaN(delay) ? 5 : Math.max(2, Math.min(30, delay))) * 1000;
+		var band = 140;
+		var bandAtTop = (button.getAttribute('data-position') || '').indexOf('top') === 0;
+		var withSelector = button.getAttribute('data-rest-with') || '';
+		var others = [];
+		var viewportHeight = window.innerHeight || 0;
+		var timer = null;
+		var backTimer = null;
+		var hovered = false;
+		var lastMove = 0;
+
+		// Further elements: the whole list first; if it is invalid, each part on
+		// its own - invalid parts are ignored, never a script error. Marked with
+		// an attribute (no inline style on foreign elements).
+		function collectOthers() {
+			var found = [];
+			var add = function (list) {
+				for (var i = 0; i < list.length; i++) {
+					if (found.indexOf(list[i]) === -1 && list[i] !== button) {
+						found.push(list[i]);
+					}
+				}
+			};
+
+			if (withSelector) {
+				try {
+					add(document.querySelectorAll(withSelector));
+				} catch (error) {
+					withSelector.split(',').forEach(function (part) {
+						part = part.trim();
+						if (!part) {
+							return;
+						}
+						try {
+							add(document.querySelectorAll(part));
+						} catch (ignore) {
+							/* Invalid selector part - ignored. */
+						}
+					});
+				}
+			}
+
+			found.forEach(function (element) {
+				element.setAttribute('data-mcb-rest-with', '');
+			});
+			others = found;
+		}
+
+		// Read only when the timer fires (once per waiting time), never in the
+		// scroll path. A page shorter than the window counts as "at the end".
+		function atEnd() {
+			var root = document.documentElement;
+			var height = Math.max(root.scrollHeight, document.body ? document.body.scrollHeight : 0);
+			return window.innerHeight + (window.pageYOffset || 0) >= height - 2;
+		}
+
+		function isControl(node) {
+			if (!node) {
+				return false;
+			}
+			if (button.contains(node)) {
+				return true;
+			}
+			for (var i = 0; i < others.length; i++) {
+				if (others[i].contains(node)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		function busy() {
+			return hovered || isControl(document.activeElement) || button.classList.contains('lscc-reopen--peek');
+		}
+
+		function rest() {
+			timer = null;
+			// Not while the banner is open or the button is hidden (no consent
+			// yet, dismissed with the x), never under a busy pointer/focus, and
+			// only at the end of the page.
+			if (button.hidden || busy() || !atEnd()) {
+				return;
+			}
+			html.classList.add('mcb-reopen-rest');
+		}
+
+		// Every activity restarts the one timer; whether the page is at its end
+		// is checked when it fires. The scroll path therefore reads nothing from
+		// the layout (no forced style/layout recalculation).
+		function arm() {
+			window.clearTimeout(timer);
+			timer = window.setTimeout(rest, delay);
+		}
+
+		function wake() {
+			if (html.classList.contains('mcb-reopen-rest')) {
+				html.classList.remove('mcb-reopen-rest');
+				html.classList.add('mcb-reopen-back');
+				window.clearTimeout(backTimer);
+				backTimer = window.setTimeout(function () {
+					html.classList.remove('mcb-reopen-back');
+				}, 400);
+			}
+			arm();
+		}
+
+		// Edge band on the button's side (bottom-* / top-*), cached window height.
+		function outsideBand(clientY) {
+			return bandAtTop ? clientY > band : clientY < viewportHeight - band;
+		}
+
+		collectOthers();
+
+		var passive = { passive: true };
+		window.addEventListener('scroll', wake, passive);
+		window.addEventListener('wheel', wake, passive);
+		window.addEventListener('touchmove', wake, passive);
+		window.addEventListener('keydown', wake, passive);
+		window.addEventListener('touchstart', function (event) {
+			var touch = event.touches && event.touches[0];
+			if (touch && outsideBand(touch.clientY)) {
+				wake();
+			}
+		}, passive);
+		window.addEventListener('mousemove', function (event) {
+			var now = Date.now();
+			if (now - lastMove < 150) {
+				return;
+			}
+			lastMove = now;
+			if (outsideBand(event.clientY)) {
+				wake();
+			}
+		}, passive);
+		window.addEventListener('resize', function () {
+			viewportHeight = window.innerHeight || viewportHeight;
+		}, passive);
+		window.addEventListener('load', collectOthers);
+		document.addEventListener('pointerover', function (event) {
+			var now = isControl(event.target);
+			if (hovered && !now) {
+				arm(); // Left a control: the waiting time starts again.
+			}
+			hovered = now;
+		}, passive);
+		document.addEventListener('focusout', function () {
+			window.setTimeout(arm, 0);
+		}, passive);
+
+		arm();
+
+		return { wake: wake };
+	}
+
 	function initBanner() {
 		var root = document.querySelector('[data-lscc-root]');
 		var reopenButton = document.querySelector('[data-lscc-reopen]');
@@ -1129,6 +1304,7 @@
 		// Before the first setBannerVisible(): the button must already have its
 		// correct state when it becomes visible (no full->compact flash).
 		initReopenCompact(reopenButton);
+		reopenRest = initReopenRest(reopenButton);
 
 		root.querySelector('[data-lscc-accept-all]').addEventListener('click', function () {
 			saveAndClose(root, reopenButton, createConsent(true));

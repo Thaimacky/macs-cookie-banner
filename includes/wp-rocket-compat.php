@@ -61,6 +61,11 @@ final class Macs_Cookie_Banner_Wp_Rocket_Compat {
 		// Used CSS computed before switching the variant still contains them.
 		'(.*).lscc-reopen--square(.*)',
 		'(.*).lscc-reopen--with-icon(.*)',
+		// v1.4.0 (ADR-48): resting state at the page end, set on <html> by JS,
+		// plus the attribute banner.js puts on further floating elements.
+		'(.*).mcb-reopen-rest(.*)',
+		'(.*).mcb-reopen-back(.*)',
+		'(.*)data-mcb-rest-with(.*)',
 	);
 
 	/**
