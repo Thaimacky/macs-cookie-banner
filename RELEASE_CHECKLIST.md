@@ -12,9 +12,23 @@ Der Plugin-Ordner ist auf jeder Website öffentlich per URL abrufbar. Ins ZIP ge
 
 **Status v1.1.1:** Release veröffentlicht und API-verifiziert (2026-11-10, Asset SHA-256 `0D187A59…4F165`, 148 Dateien, identisch mit dem Test-ZIP). Nach dem Update je Site prüfen: `/wp-content/plugins/macs-cookie-banner/DEV_LOG.md` liefert 404. Positivliste und harte Prüfung umgesetzt; Negativtest bestanden (Filter abgeschaltet → 24 Verstösse, ZIP gelöscht). Inhalt 1.1.1 = Inhalt 1.1.0 ohne die 24 Entwickler-Dateien.
 
+## Schwebende Bedienelemente ruhen am Seitenende (ab v1.4.0, ADR-48)
+
+**Status: Phase 1 lokal grün (2026-11-17). Phase 2 laut Auftrag ohne weitere Rückfrage.**
+
+**Lokal verifiziert (Agent):**
+- [x] 26 PHP-Prüfungen + Regression 31/28/4.
+- [x] 78 Browser-Abnahmeprüfungen, dreimal hintereinander grün (5 Viewports, Rückkehr-Ereignisse, Hover/Fokus, Varianten, Einstellungen, reduzierte Bewegung, Leistung mit CPU 4×, Option aus pixelgleich zu 1.3.0).
+- [x] Regression 54 + 43 Browserprüfungen, Consent-Regression 8 Schritte Desktop + Mobil, WP-Rocket-Pipeline.
+
+**Nach dem Update (Website-Projekt):**
+- [ ] Ganz unten: Button und «Nach oben»-Pfeil blenden nach 5 s aus, «Datenschutz»/«Impressum» klickbar; Scrollen/Taste/Mausbewegung bringt sie zurück.
+- [ ] WP Rocket mit «Unbenutztes CSS entfernen»: einmal «Used CSS leeren».
+- [ ] Übergangslösungen im Website-Projekt entfernen (K+O: Teil 2 von `ko-cookie-compact.php`).
+
 ## Floating-Button: drei Darstellungsvarianten (ab v1.3.0, ADR-47)
 
-**Status: Phase 1 — Produktions-ZIP bereit zum Test. Kein Tag, kein Release.**
+**Status: nicht separat veröffentlicht; Bestandteil von Release 1.4.0.**
 
 **Lokal verifiziert (Agent, 2026-11-14):**
 - [x] 31 + 28 + 4 PHP-Prüfungen (Migrationsmatrix, Idempotenz, Formular, Markup, `aria-label`, Safelist).

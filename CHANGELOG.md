@@ -8,6 +8,41 @@ Das Format orientiert sich an "Keep a Changelog". Die Versionierung folgt semant
 - `MINOR` fuer neue Features
 - `MAJOR` fuer Architektur- oder Kompatibilitaetsaenderungen
 
+## 1.4.0 - 2026-11-17
+
+**Neu: Schwebende Bedienelemente ruhen am Seitenende (ADR-48).** Ganz unten auf der Seite verdeckten der Cookie-Button und Avadas «Nach oben»-Pfeil auf Tablets und Laptops die Footer-Links «Datenschutz» und «Impressum». Ab 1.4.0 blenden sie dort nach einer Wartezeit ohne Aktivität aus, damit die Links frei sind, und erscheinen bei jeder Aktivität sofort wieder.
+
+**Release-Hinweis:** 1.3.0 (drei Darstellungsvarianten, ADR-47) wurde nicht separat veröffentlicht. Das Release 1.4.0 enthält 1.3.0 vollständig; der Abschnitt 1.3.0 unten gilt mit.
+
+### Verhalten
+
+- **Ruhen:** Ist die Seite bis zum Ende gescrollt (höchstens 2 px Abstand; eine Seite kürzer als das Fenster gilt als «am Ende»), blenden der Cookie-Button und die eingestellten weiteren Elemente nach der Wartezeit (Standard 5 s) ohne Aktivität aus: Deckkraft in 0,7 s auf 0, danach `visibility:hidden` und `pointer-events:none`. Links darunter sind klickbar.
+- **Nicht ruhen**, solange der Mauszeiger über dem Button oder einem weiteren Element liegt, eines davon den Tastaturfokus hat oder der Button aufgeklappt ist. Danach beginnt die Wartezeit neu.
+- **Zurück, sofort** (Einblenden 0,35 s): bei Scrollen, Mausrad, Wischen, jeder Taste sowie bei Tippen oder Mausbewegung ausserhalb des 140-px-Randbandes auf der Seite des Buttons (unten bzw. oben). Eine Bewegung im Band holt nichts zurück, damit der Weg zum Footer-Link frei bleibt. Nach dem Schliessen des Banners ist der Button wieder sichtbar.
+- **Weitere Elemente:** Einstellung mit CSS-Selektoren, Standard `#toTop` (Avadas «Nach oben»-Pfeil). Ohne passendes Element keine Wirkung; ungültige Selektoren werden ignoriert.
+- **Bewegung reduzieren:** ohne Übergang, die Elemente verschwinden und erscheinen direkt.
+- Gilt für alle drei Darstellungsvarianten; bei Position «Versteckt» läuft nichts.
+
+### Einstellungen (Abschnitt «Floating-Button — Feinjustierung»)
+
+- «Am Seitenende ausblenden (empfohlen)» (Standard an), «Wartezeit am Seitenende» (2–30 s, Standard 5), «Weitere schwebende Elemente mit ausblenden» (Standard `#toTop`).
+- Empfehlung: im Footer zusätzlich einen Link «Cookie-Einstellungen» mit `data-lscc-open-consent-settings` (oder `[simple_cookie_settings]`).
+
+### Bestehende Websites
+
+- Die Funktion ist **auch auf bestehenden Websites nach dem Update aktiv** (Standard an, auch ohne gespeicherte Option). Das ist eine ausdrückliche, einmalige Ausnahme von ADR-27 (Entscheid Marcel vom 2026-11-17). Beim Update wird nichts in die Datenbank geschrieben; die Checkbox ist der Not-Aus.
+- Mit ausgeschalteter Option: keine Listener, Darstellung pixelgleich zu 1.3.0.
+- WP Rocket «Unbenutztes CSS entfernen»: neue Klassen stehen in der Safelist; nach dem Update einmal «Used CSS leeren».
+
+### Unverändert
+
+- Consent-Logik, Widerruf, Tracking-Schutz, Delay-JS-Ausschluss, `MCB_CONSENT_VERSION`. Kein Ausweichen oder Verschieben des Buttons, kein `padding-bottom` auf `body`.
+- Version 1.3.0 → **1.4.0** (neue Einstellung → MINOR).
+
+### Rückweg
+
+- Release-ZIP 1.2.0 installieren (Hochladen, «Ersetzen») und Cache leeren. 1.3.0 wurde nicht veröffentlicht.
+
 ## 1.3.0 - 2026-11-14
 
 **Drei Darstellungsvarianten für den Floating-Button (ADR-47).** Statt der einzelnen Verkleinerungs-Optionen aus 1.2.0 gibt es eine Auswahl «Darstellung des Floating-Buttons»:

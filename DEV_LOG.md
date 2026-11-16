@@ -1,5 +1,21 @@
 # DEV LOG
 
+## 1.4.0 - 2026-11-17 (Ruhen am Seitenende, ADR-48)
+
+**Auslöser:** Auftrag Marcel (ersetzt den nie umgesetzten Prompt «Bedienelemente nicht überdecken» vom 2026-11-16). Ausgangsstand geprüft: `main` = `bf966f8` = Remote (0/0), sauber, 1.3.0 nicht getaggt, `/releases/latest` = 1.2.0. Referenz gelesen: `ko-cookie-compact.php` 1.1.0 (Teil 2) im K+O-Repository.
+
+**Umgesetzt:** siehe ADR-48 (`initReopenRest()`, CSS-Ruhezustand, drei Optionen, Admin-Felder, Safelist, Version 1.4.0 als eigener Commit).
+
+**Befunde während der Tests:**
+- Erste Fassung (zwischengespeicherte Dokumenthöhe, `scrollY` im Scroll-Pfad) erzeugte im Performance-Trace 2–4 erzwungene Stil-Neuberechnungen aus `atEnd()` (0,2–0,4 ms), ausgelöst im `scroll`-Ereignis, wenn zuvor Hover oder der eigene Klassenwechsel den Stil verändert hatten. Lesen-vor-Schreiben allein reichte nicht. Lösung: Timer-Modell (jede Aktivität startet den Timer neu, die Endprüfung erfolgt erst beim Ablauf) → 0 erzwungene Layouts, kein ResizeObserver nötig.
+- Testskript-Korrekturen: Chrome unterdrückt sehr kleine Wischbewegungen (Test wischt jetzt 80 px); auf dem Fenster hängen auch ohne Plugin-Funktion `mousemove`/`touchstart`-Listener aus der Testumgebung (Vergleich jetzt gegen dieselbe Seite mit 1.3.0); Erwartungswert beim Sanitizing eines Tag-Versuchs korrigiert.
+- Hero-Variante: erzwungene Layouts aus `morph`/`shouldCompact` stammen aus ADR-46 und treten in 1.3.0 gleich auf (gemessen), nicht aus dem Ruhen.
+- Ports 8765/8766 weiterhin von fremden lokalen Python-Servern belegt (nicht angefasst); Tests auf eigenen Ports.
+
+**Nebenbefund (nur gemeldet):** Die 10-px-Mobilregel für den Button-Abstand in `banner.css` greift nie, weil die Variablen inline gesetzt sind (24/24 px auf 360–412 px).
+
+**Validierung:** siehe ADR-48 (26 PHP + Regression, 78 Abnahmeprüfungen dreimal grün, Leistung CPU 4×, Regression 54 + 43, Consent-Regression, WP-Rocket-Pipeline).
+
 ## 1.3.0 - 2026-11-14 (Versionsnummer korrigiert)
 
 **Entscheidung Marcel nach Phase 1:** Die drei Darstellungsvarianten (ADR-47) erscheinen als **1.3.0** statt 1.2.1, weil eine neue Einstellung nach VERSIONING.md eine MINOR-Version ist. Ebenfalls entschieden: keine Automatik für den Avada-«Nach oben»-Pfeil (Abstände bleiben individuell einstellbar); der Hinweis zum Leeren des «Used CSS» genügt. Geändert wurden nur Versionsheader, `MCB_VERSION` und Code-Kommentare (17 Zeilen, automatisch geprüft: jede Zeile unterscheidet sich nur durch die Nummer). 1.2.1 wurde nie getaggt oder veröffentlicht; das alte Test-ZIP `macs-cookie-banner-v1.2.1-test.zip` ist ungültig. Danach alle Prüfungen erneut: 63 PHP, 54 + 43 Browser, Consent-Regression 4 × 8 Schritte, WP-Rocket-Pipeline – grün.

@@ -193,6 +193,14 @@ Der kleine Widerrufsbutton („Cookie-Einstellungen") nach Consent ist über `Po
 :root { --mcb-reopen-offset-y: 58px; }
 ```
 
+**Am Seitenende ausblenden (ab v1.4.0):** Ganz unten auf der Seite blenden der Cookie-Button und weitere schwebende Elemente (Standard: Avadas «Nach oben»-Pfeil `#toTop`) nach einer Wartezeit ohne Aktivität aus (Standard 5 s), damit Footer-Links wie «Datenschutz» und «Impressum» frei sind. Bei Scrollen, Mausrad, Wischen, einer Taste oder einer Mausbewegung bzw. Berührung ausserhalb des untersten Bereichs (140 px) erscheinen sie sofort wieder; über dem Button, mit Tastaturfokus oder aufgeklappt ruht nichts. Einstellungen unter «Floating-Button — Feinjustierung»: «Am Seitenende ausblenden (empfohlen)» (Standard an, auch auf bestehenden Websites), «Wartezeit am Seitenende» (2–30 s), «Weitere schwebende Elemente mit ausblenden» (CSS-Selektoren, durch Komma getrennt). Die Positionierung bleibt reines CSS; das Ruhen ist eine Klasse auf `<html>`, keine Positionsänderung.
+
+Empfehlung: Damit der Widerruf jederzeit ohne den schwebenden Button erreichbar ist, im Footer zusätzlich einen Link «Cookie-Einstellungen» anbieten:
+
+```html
+<a href="#cookie-settings" data-lscc-open-consent-settings>Cookie-Einstellungen</a>
+```
+
 ## Rechtliche Links im Banner
 
 Im Banner können optional Links zu Datenschutz und Impressum angezeigt werden.
